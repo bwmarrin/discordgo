@@ -6,7 +6,7 @@ Everything here so far is likely to change as I learn Golang better and refine t
 
 Initially my goal was to write a chatbot and I started working with https://github.com/Xackery/discord as my API.  But that code doesn't work 100% and so I started slowly making changes to it.  Anyhow, credit goes to https://github.com/Xackery/discord for getting me started.
 
-If you're looking for a functional Discord API for Goland check out https://github.com/gdraynz/go-discord which I recently found.  It's much more complete and will likely help me learn how to improve what I have here.
+If you're looking for a functional Discord API for Golang check out https://github.com/gdraynz/go-discord which I recently found.  It's much more complete and will likely help me learn how to improve what I have here.
 
 
 
