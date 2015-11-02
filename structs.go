@@ -1,36 +1,48 @@
 package discordgo
 
+type User struct {
+	Id            int    `json:"id,string"`
+	Email         string `json:"email"`
+	Username      string `json:"username"`
+	Avatar        string `json:"Avatar"`
+	Verified      bool   `json:"verified"`
+	Discriminator string `json:"discriminator"`
+}
+
 type Server struct {
-	Afk_timeout int
-	Joined_at   string
-	// Afk_channel_id int `json:",string"`
-	Id   int `json:",string"`
-	Icon string
-	Name string
-	//	Roles          []Role
-	Region string
-	//Embed_channel_id int `json:",string"`
-	//	Embed_channel_id string
-	//	Embed_enabled    bool
-	Owner_id int `json:",string"`
+	Id               int    `json:"id,string"`
+	Name             string `json:"name"`
+	Icon             string `json:"icon"`
+	Region           string `json:"region"`
+	Joined_at        string `json:"joined_at"`
+	Afk_timeout      int    `json:"afk_timeout"`
+	Afk_channel_id   int    `json:"afk_channel_id"`
+	Embed_channel_id int    `json:"embed_channel_id"`
+	Embed_enabled    bool   `json:"embed_enabled"`
+	Owner_id         int    `json:"owner_id,string"`
+	Roles            []Role `json:"roles"`
 }
 
 type Role struct {
-	Permissions int
-	Id          int `json:",string"`
-	Name        string
+	Id          int    `json:"id,string"`
+	Name        string `json:"name"`
+	Managed     bool   `json:"managed"`
+	Color       int    `json:"color"`
+	Hoist       bool   `json:"hoist"`
+	Position    int    `json:"position"`
+	Permissions int    `json:"permissions"`
 }
 
 type Channel struct {
-	Guild_id        int `json:",string"`
-	Id              int `json:",string"`
-	Name            string
-	Last_message_id string
-	Is_private      string
-
-	//	Permission_overwrites string
-	//	Position              int `json:",string"`
-	//	Type                  string
+	Server_id             int    `json:"guild_id,string,omitempty"`
+	Id                    int    `json:"id,string"`
+	Name                  string `json:"name"`
+	Topic                 string `json:"topic"`
+	Position              int    `json:"position"`
+	Last_message_id       int    `json:"last_message_id,string"`
+	Type                  string `json:"type"`
+	Is_private            bool   `json:"is_private"`
+	Permission_overwrites string `json:"-"` // ignored for now
 }
 
 type Message struct {
@@ -61,7 +73,4 @@ type Author struct {
 	Discriminator int `json:",string"`
 	Id            int `json:",string"`
 	Avatar        string
-}
-
-type User struct {
 }
