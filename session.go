@@ -139,3 +139,30 @@ func (session *Session) Channels(serverId int) (channels []Channel, err error) {
 
 	return
 }
+
+// Close ends a session and logs out from the Discord REST API.
+func (session *Session) Close() (err error) {
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("auth/logout")), bytes.NewBuffer([]byte(fmt.Sprintf(``))))
+	if err != nil {
+		return
+	}
+	req.Header.Set("authorization", session.Token)
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{Timeout: (20 * time.Second)}
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	resp.Body.Close()
+
+	if resp.StatusCode != 204 && resp.StatusCode != 200 {
+		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
+		return
+	}
+	return
+}
