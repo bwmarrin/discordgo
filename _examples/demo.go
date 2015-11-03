@@ -41,6 +41,11 @@ func main() {
 	user, err := discord.Users(&session, "@me")
 	fmt.Println(user)
 
+	// Use the PrivateChannels function to get a list of PrivateChannels
+	// for a given user.
+	private, err := discord.PrivateChannels(&session, "@me")
+	fmt.Println(private)
+
 	// Use the Servers function to pull all available servers for a given user
 	// This returns a Server structure
 	servers, err := discord.Servers(&session, "@me")
