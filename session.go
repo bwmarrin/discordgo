@@ -17,8 +17,8 @@ type Session struct {
  * The below functions are "shortcut" methods for functions in client.go
  * Reference the client.go file for more documentation.
  */
-func (session *Session) RequestToken(email string, password string) (token string, err error) {
-	token, err = RequestToken(session, email, password)
+func (session *Session) Login(email string, password string) (token string, err error) {
+	token, err = Login(session, email, password)
 	return
 }
 

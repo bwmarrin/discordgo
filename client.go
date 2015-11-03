@@ -20,7 +20,7 @@ import (
 )
 
 // RequestToken asks the Discord server for an authentication token
-func RequestToken(session *Session, email string, password string) (token string, err error) {
+func Login(session *Session, email string, password string) (token string, err error) {
 
 	var urlStr string = fmt.Sprintf("%s/%s", discordApi, "auth/login")
 	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))))

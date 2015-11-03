@@ -34,7 +34,7 @@ func New(email string, password string) (d *Discord, err error) {
 
 	session := Session{}
 
-	session.Token, err = session.RequestToken(email, password)
+	session.Token, err = session.Login(email, password)
 	if err != nil {
 		return
 	}
