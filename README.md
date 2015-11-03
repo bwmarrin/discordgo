@@ -1,5 +1,5 @@
 # Discordgo
-Golang DiscordApp API.
+Golang Discord API.
 
 This is my first Golang project and it is <del>probably</del> not even suitable for use :)
 Everything here so far is likely to change as I learn Golang better and refine the API names and such.
@@ -12,7 +12,7 @@ If you're looking for a functional Discord API for Golang check out https://gith
 
 
 
-# Other DiscordApp APIs
+# Other Discord APIs
 - [go-discord](https://github.com/gdraynz/go-discord)
 - [discord-go](https://github.com/Xackery/discord)
 - [discord.py](https://github.com/Rapptz/discord.py)

@@ -1,6 +1,6 @@
 /******************************************************************************
  * Discordgo v0 by Bruce Marriner <bruce@sqls.net>
- * A DiscordApp API for Golang.
+ * A Discord API for Golang.
  *
  * Currently only the REST API is functional.  I will add on the websocket
  * layer once I get the API section where I want it.
@@ -9,7 +9,8 @@
 
 package discordgo
 
-// Define known API URL paths as global constants
+// These will absolutely change.  I already don't like them.
+// Constants that define the different Discord API URLs.
 const (
 	discordUrl = "http://discordapp.com"
 	discordApi = discordUrl + "/api/"
@@ -18,18 +19,17 @@ const (
 	users      = discordApi + "users"
 )
 
-// possible all-inclusive strut..
+// A Discord structure represents a all-inclusive (hopefully) structure to
+// access the Discord REST API for a given authenticated user.
 type Discord struct {
-	Session
+	Session Session
 	User    User
 	Servers []Server
 }
 
-// Create a new connection to Discord API.  Returns a client session handle.
-// this is a all inclusive type of easy setup command that will return
-// a connection, user information, and available channels.
-// This is probably the most common way to use the library but you
-// can use the "manual" functions below instead.
+// New creates a new connection to Discord and returns a Discord structure.
+// This provides an easy entry where most commonly needed information is
+// automatically fetched.
 func New(email string, password string) (discord *Discord, err error) {
 
 	session := Session{}
@@ -47,6 +47,18 @@ func New(email string, password string) (discord *Discord, err error) {
 	servers, err := session.Servers()
 
 	discord = &Discord{session, user, servers}
+
+	return
+}
+
+// Renew essentially reruns the New command without creating a new session.
+// This will update all the user, server, and channel information that was
+// fetched with the New command.  This is not an efficient way of doing this
+// but if used infrequently it does provide convenience.
+func (discord Discord) Renew() (err error) {
+
+	discord.User, err = discord.Session.Self()
+	discord.Servers, err = discord.Session.Servers()
 
 	return
 }

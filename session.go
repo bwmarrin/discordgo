@@ -1,10 +1,6 @@
 /******************************************************************************
- * Discordgo v0 by Bruce Marriner <bruce@sqls.net>
- * A DiscordApp API for Golang.
- *
- * Currently only the REST API is functional.  I will add on the websocket
- * layer once I get the API section where I want it.
- *
+ * Discordgo by Bruce Marriner <bruce@sqls.net>
+ * A Discord API for Golang.
  */
 
 package discordgo
@@ -19,14 +15,15 @@ import (
 	"time"
 )
 
-// Represents a session connection to the Discord REST API.
-// I suspect I'll be adding more to this later :)
+// A Session represents a connection to the Discord REST API.
+// Token : The authentication token returned from Discord
+// Debug : If set to ture debug logging will be displayed.
 type Session struct {
 	Token string
 	Debug bool
 }
 
-// RequestToken asks the Rest server for a token by provided email/password
+// RequestToken asks the Discord server for an authentication token
 func (session *Session) RequestToken(email string, password string) (token string, err error) {
 
 	var urlStr string = fmt.Sprintf("%s/%s", discordApi, "auth/login")
@@ -65,7 +62,7 @@ func (session *Session) RequestToken(email string, password string) (token strin
 	return
 }
 
-// Identify session user
+// Self returns a User structure of the session authenticated user.
 func (session *Session) Self() (user User, err error) {
 
 	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, "users/@me"))
@@ -74,9 +71,7 @@ func (session *Session) Self() (user User, err error) {
 	return
 }
 
-// Request makes a API GET Request.  This is a general purpose function
-// and is used by all API functions.  It is exposed currently so it can
-// also be used outside of this library.
+// Request makes a REST API GET Request with Discord.
 func Request(session *Session, urlStr string) (body []byte, err error) {
 
 	req, err := http.NewRequest("GET", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(``))))
@@ -115,7 +110,8 @@ func Request(session *Session, urlStr string) (body []byte, err error) {
 	return
 }
 
-// Get all of the session user's private channels.
+// PrivateChannels returns an array of Channel structures for all private
+// channels of the session authenticated user.
 func (session *Session) PrivateChannels() (channels []Channel, err error) {
 
 	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/@me/channels")))
@@ -124,7 +120,8 @@ func (session *Session) PrivateChannels() (channels []Channel, err error) {
 	return
 }
 
-// Get all of the session user's servers
+// Servers returns an array of Server structures for all servers for the
+// session authenticated user.
 func (session *Session) Servers() (servers []Server, err error) {
 
 	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/@me/guilds")))
@@ -133,7 +130,8 @@ func (session *Session) Servers() (servers []Server, err error) {
 	return
 }
 
-// Get all channels for the given server
+// Channels returns an array of Channel structures for all channels of a given
+// server.
 func (session *Session) Channels(serverId int) (channels []Channel, err error) {
 
 	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("guilds/%d/channels", serverId)))
