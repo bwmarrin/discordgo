@@ -185,6 +185,50 @@ func Messages(session *Session, channelId int, limit int, afterId int, beforeId 
 	return
 }
 
+// SendMessage sends a message to the given channel.
+func SendMessage(session *Session, channelId int, message string) (response Message, err error) {
+
+	var urlStr string = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
+
+	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(`{"content":"%s"}`, message))))
+	if err != nil {
+		return
+	}
+
+	req.Header.Set("authorization", session.Token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: (20 * time.Second)}
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
+		return
+	}
+
+	if session.Debug {
+		var prettyJSON bytes.Buffer
+		error := json.Indent(&prettyJSON, body, "", "\t")
+		if error != nil {
+			fmt.Print("JSON parse error: ", error)
+			return
+		}
+		fmt.Println(urlStr+" Response:\n", string(prettyJSON.Bytes()))
+	}
+
+	err = json.Unmarshal(body, &response)
+	return
+}
+
 // Close ends a session and logs out from the Discord REST API.
 func Logout(session *Session) (err error) {
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("auth/logout")), bytes.NewBuffer([]byte(fmt.Sprintf(``))))

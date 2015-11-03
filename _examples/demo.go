@@ -65,6 +65,10 @@ func main() {
 	messages, err := discord.Messages(&session, channels[0].Id, 2, 0, 0)
 	fmt.Println(messages)
 
+	// Use SendMessage to send a message to the given channel.
+	responce, err := discord.SendMessage(&session, channels[0].Id, "Testing Discordgo")
+	fmt.Println(responce)
+
 	// Use the Logout function to Logout from the Discord server.
 	discord.Logout(&session)
 	return
