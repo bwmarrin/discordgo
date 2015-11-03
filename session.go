@@ -115,26 +115,28 @@ func Request(session *Session, urlStr string) (body []byte, err error) {
 	return
 }
 
-func (session *Session) Servers() (servers []Server, err error) {
+// Get all of the session user's private channels.
+func (session *Session) PrivateChannels() (channels []Channel, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/@me/guilds")))
-	//body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/%s/guilds", session.Id)))
-	err = json.Unmarshal(body, &servers)
-
-	return
-}
-
-func (session *Session) Channels(serverId int) (channels []Channel, err error) {
-
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("guilds/%d/channels", serverId)))
+	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/@me/channels")))
 	err = json.Unmarshal(body, &channels)
 
 	return
 }
 
-func (session *Session) PrivateChannels() (channels []Channel, err error) {
+// Get all of the session user's servers
+func (session *Session) Servers() (servers []Server, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/@me/channels")))
+	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/@me/guilds")))
+	err = json.Unmarshal(body, &servers)
+
+	return
+}
+
+// Get all channels for the given server
+func (session *Session) Channels(serverId int) (channels []Channel, err error) {
+
+	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("guilds/%d/channels", serverId)))
 	err = json.Unmarshal(body, &channels)
 
 	return
