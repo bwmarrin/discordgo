@@ -55,7 +55,7 @@ func New(email string, password string) (discord *Discord, err error) {
 // This will update all the user, server, and channel information that was
 // fetched with the New command.  This is not an efficient way of doing this
 // but if used infrequently it does provide convenience.
-func (discord Discord) Renew() (err error) {
+func (discord *Discord) Renew() (err error) {
 
 	discord.User, err = discord.Session.Self()
 	discord.Servers, err = discord.Session.Servers()
