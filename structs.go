@@ -9,20 +9,6 @@ type User struct {
 	Discriminator string `json:"discriminator"`
 }
 
-type Server struct {
-	Id               int    `json:"id,string"`
-	Name             string `json:"name"`
-	Icon             string `json:"icon"`
-	Region           string `json:"region"`
-	Joined_at        string `json:"joined_at"`
-	Afk_timeout      int    `json:"afk_timeout"`
-	Afk_channel_id   int    `json:"afk_channel_id"`
-	Embed_channel_id int    `json:"embed_channel_id"`
-	Embed_enabled    bool   `json:"embed_enabled"`
-	Owner_id         int    `json:"owner_id,string"`
-	Roles            []Role `json:"roles"`
-}
-
 type Role struct {
 	Id          int    `json:"id,string"`
 	Name        string `json:"name"`
@@ -31,18 +17,6 @@ type Role struct {
 	Hoist       bool   `json:"hoist"`
 	Position    int    `json:"position"`
 	Permissions int    `json:"permissions"`
-}
-
-type Channel struct {
-	Server_id             int    `json:"guild_id,string,omitempty"`
-	Id                    int    `json:"id,string"`
-	Name                  string `json:"name"`
-	Topic                 string `json:"topic"`
-	Position              int    `json:"position"`
-	Last_message_id       int    `json:"last_message_id,string"`
-	Type                  string `json:"type"`
-	Is_private            bool   `json:"is_private"`
-	Permission_overwrites string `json:"-"` // ignored for now
 }
 
 type Message struct {

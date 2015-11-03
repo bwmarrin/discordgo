@@ -30,7 +30,7 @@ type Discord struct {
 // New creates a new connection to Discord and returns a Discord structure.
 // This provides an easy entry where most commonly needed information is
 // automatically fetched.
-func New(email string, password string) (discord *Discord, err error) {
+func New(email string, password string) (d *Discord, err error) {
 
 	session := Session{}
 
@@ -46,7 +46,7 @@ func New(email string, password string) (discord *Discord, err error) {
 
 	servers, err := session.Servers()
 
-	discord = &Discord{session, user, servers}
+	d = &Discord{session, user, servers}
 
 	return
 }
@@ -55,10 +55,10 @@ func New(email string, password string) (discord *Discord, err error) {
 // This will update all the user, server, and channel information that was
 // fetched with the New command.  This is not an efficient way of doing this
 // but if used infrequently it does provide convenience.
-func (discord *Discord) Renew() (err error) {
+func (d *Discord) Renew() (err error) {
 
-	discord.User, err = discord.Session.Self()
-	discord.Servers, err = discord.Session.Servers()
+	d.User, err = Users(&d.Session, "@me")
+	d.Servers, err = Servers(&d.Session, "@me")
 
 	return
 }
