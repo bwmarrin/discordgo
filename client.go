@@ -102,9 +102,8 @@ func Request(session *Session, urlStr string) (body []byte, err error) {
 // user    : A user Id or name
 func Users(session *Session, userId string) (user User, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, "users/%s", userId))
+	body, err := Request(session, fmt.Sprintf("%s/users/%s", discordApi, userId))
 	err = json.Unmarshal(body, &user)
-
 	return
 }
 
@@ -121,7 +120,7 @@ func PrivateChannels(session *Session, userId string) (channels []Channel, err e
 // Servers returns an array of Server structures for all servers for a user
 func Servers(session *Session, userId string) (servers []Server, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/%s/guilds", userId)))
+	body, err := Request(session, fmt.Sprintf("%s/users/%s/guilds", discordApi, userId))
 	err = json.Unmarshal(body, &servers)
 
 	return
@@ -131,14 +130,14 @@ func Servers(session *Session, userId string) (servers []Server, err error) {
 // server.
 func Channels(session *Session, serverId int) (channels []Channel, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("guilds/%d/channels", serverId)))
+	body, err := Request(session, fmt.Sprintf("%s/guilds/%d/channels", discordApi, serverId))
 	err = json.Unmarshal(body, &channels)
 
 	return
 }
 
 // Close ends a session and logs out from the Discord REST API.
-func Close(session *Session) (err error) {
+func Logout(session *Session) (err error) {
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("auth/logout")), bytes.NewBuffer([]byte(fmt.Sprintf(``))))
 	if err != nil {
 		return

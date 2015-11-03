@@ -37,8 +37,8 @@ func (session *Session) Servers() (servers []Server, err error) {
 	return
 }
 
-// Close ends a session and logs out from the Discord REST API.
-func (session *Session) Close() (err error) {
-	err = Close(session)
+// Logout ends a session and logs out from the Discord REST API.
+func (session *Session) Logout() (err error) {
+	err = Logout(session)
 	return
 }
