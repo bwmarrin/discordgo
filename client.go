@@ -19,46 +19,8 @@ import (
 	"time"
 )
 
-// RequestToken asks the Discord server for an authentication token
-func Login(session *Session, email string, password string) (token string, err error) {
-
-	var urlStr string = fmt.Sprintf("%s/%s", discordApi, "auth/login")
-	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))))
-	if err != nil {
-		return
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{Timeout: (20 * time.Second)}
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode != 200 {
-		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
-		return
-	}
-
-	if session.Debug {
-		var prettyJSON bytes.Buffer
-		error := json.Indent(&prettyJSON, body, "", "\t")
-		if error != nil {
-			fmt.Print("JSON parse error: ", error)
-			return
-		}
-		fmt.Println("requestToken Response:\n", string(prettyJSON.Bytes()))
-	}
-
-	temp := &Session{} // TODO Must be a better way
-	err = json.Unmarshal(body, &temp)
-	token = temp.Token
-	return
-}
-
 // Request makes a REST API GET Request with Discord.
+// TODO make this handle GET, POST, DELETE, etc
 func Request(session *Session, urlStr string) (body []byte, err error) {
 
 	req, err := http.NewRequest("GET", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(``))))
@@ -97,6 +59,45 @@ func Request(session *Session, urlStr string) (body []byte, err error) {
 	return
 }
 
+// Login asks the Discord server for an authentication token
+func Login(session *Session, email string, password string) (token string, err error) {
+
+	var urlStr string = fmt.Sprintf("%s/%s", discordApi, "auth/login")
+	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: (20 * time.Second)}
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
+		return
+	}
+
+	if session.Debug {
+		var prettyJSON bytes.Buffer
+		error := json.Indent(&prettyJSON, body, "", "\t")
+		if error != nil {
+			fmt.Print("JSON parse error: ", error)
+			return
+		}
+		fmt.Println("requestToken Response:\n", string(prettyJSON.Bytes()))
+	}
+
+	temp := &Session{} // TODO Must be a better way
+	err = json.Unmarshal(body, &temp)
+	token = temp.Token
+	return
+}
+
 // Returns the user details of the given userId
 // session : An active session connection to Discord
 // user    : A user Id or name
@@ -126,12 +127,60 @@ func Servers(session *Session, userId string) (servers []Server, err error) {
 	return
 }
 
+// Members returns an array of Member structures for all members of a given
+// server.
+func Members(session *Session, serverId int) (members []Member, err error) {
+
+	body, err := Request(session, fmt.Sprintf("%s/guilds/%d/members", discordApi, serverId))
+	err = json.Unmarshal(body, &members)
+
+	return
+}
+
 // Channels returns an array of Channel structures for all channels of a given
 // server.
 func Channels(session *Session, serverId int) (channels []Channel, err error) {
 
 	body, err := Request(session, fmt.Sprintf("%s/guilds/%d/channels", discordApi, serverId))
 	err = json.Unmarshal(body, &channels)
+
+	return
+}
+
+// Messages returns an array of Message structures for messaages within a given
+// channel.  limit, beforeId, and afterId can be used to control what messages
+// are returned.
+func Messages(session *Session, channelId int, limit int, afterId int, beforeId int) (messages []Message, err error) {
+
+	var urlStr string
+
+	if limit > 0 {
+		urlStr = fmt.Sprintf("%s/channels/%d/messages?limit=%d", discordApi, channelId, limit)
+	}
+
+	if afterId > 0 {
+		if urlStr != "" {
+			urlStr = urlStr + fmt.Sprintf("&after=%d", afterId)
+		} else {
+			urlStr = fmt.Sprintf("%s/channels/%d/messages?after=%d", discordApi, channelId, afterId)
+		}
+	}
+
+	if beforeId > 0 {
+		if urlStr != "" {
+			urlStr = urlStr + fmt.Sprintf("&before=%d", beforeId)
+		} else {
+			urlStr = fmt.Sprintf("%s/channels/%d/messages?after=%d", discordApi, channelId, beforeId)
+		}
+	}
+
+	if urlStr == "" {
+		urlStr = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
+	}
+
+	fmt.Println(urlStr)
+	body, err := Request(session, urlStr)
+	err = json.Unmarshal(body, &messages)
 
 	return
 }

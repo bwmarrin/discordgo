@@ -9,6 +9,14 @@ type User struct {
 	Discriminator string `json:"discriminator"`
 }
 
+type Member struct {
+	JoinedAt string `json:"joined_at"`
+	Deaf     bool   `json:"deaf"`
+	mute     bool   `json:"mute"`
+	User     User   `json:"user"`
+	Roles    []Role `json:"roles"`
+}
+
 type Role struct {
 	Id          int    `json:"id,string"`
 	Name        string `json:"name"`
@@ -20,17 +28,17 @@ type Role struct {
 }
 
 type Message struct {
-	Attachments      []Attachment
-	Tts              bool
-	Embeds           []Embed
-	Timestamp        string
-	Mention_everyone bool
-	Id               int `json:",string"`
-	Edited_timestamp string
-	Author           *Author
-	Content          string
-	Channel_id       int `json:",string"`
-	Mentions         []Mention
+	Id              int          `json:"id,string"`
+	Author          User         `json:"author"`
+	Content         string       `json:"content"`
+	Attachments     []Attachment `json:"attachments"`
+	Tts             bool         `json:"tts"`
+	Embeds          []Embed      `json:"embeds"`
+	Timestamp       string       `json:"timestamp"`
+	MentionEveryone bool         `json:"mention_everyone"`
+	EditedTimestamp string       `json:"edited_timestamp"`
+	Mentions        []Mention    `json:"mentions"`
+	ChannelId       int          `json:"channel_id,string"`
 }
 
 type Mention struct {
@@ -40,11 +48,4 @@ type Attachment struct {
 }
 
 type Embed struct {
-}
-
-type Author struct {
-	Username      string
-	Discriminator int `json:",string"`
-	Id            int `json:",string"`
-	Avatar        string
 }

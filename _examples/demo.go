@@ -46,10 +46,19 @@ func main() {
 	servers, err := discord.Servers(&session, "@me")
 	fmt.Println(servers)
 
+	// Use the Members function to pull all members of a given server.
+	members, err := discord.Members(&session, servers[0].Id)
+	fmt.Println(members)
+
 	// Use the Channels function to pull all available channels for a given
 	// server.  This returns a Channel structure.
 	channels, err := discord.Channels(&session, servers[0].Id)
 	fmt.Println(channels)
+
+	// Use the Messages function to pull messages from the given channel
+	// limit the result to 2 messages and don't provide beforeId or afterId
+	messages, err := discord.Messages(&session, channels[0].Id, 2, 0, 0)
+	fmt.Println(messages)
 
 	// Use the Logout function to Logout from the Discord server.
 	discord.Logout(&session)
