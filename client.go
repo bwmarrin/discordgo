@@ -21,6 +21,9 @@ import (
 
 // Request makes a REST API GET Request with Discord.
 // TODO make this handle GET, POST, DELETE, etc
+// TODO also since everything comes back as JSON let this
+//      func unmarshal into a referenced object here
+//      then it can reduce code more and handle errors better
 func Request(session *Session, urlStr string) (body []byte, err error) {
 
 	req, err := http.NewRequest("GET", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(``))))
@@ -92,9 +95,10 @@ func Login(session *Session, email string, password string) (token string, err e
 		fmt.Println("requestToken Response:\n", string(prettyJSON.Bytes()))
 	}
 
-	temp := &Session{} // TODO Must be a better way
+	var temp map[string]interface{}
 	err = json.Unmarshal(body, &temp)
-	token = temp.Token
+	token = temp["token"].(string)
+
 	return
 }
 
@@ -150,7 +154,7 @@ func Channels(session *Session, serverId int) (channels []Channel, err error) {
 // Messages returns an array of Message structures for messaages within a given
 // channel.  limit, beforeId, and afterId can be used to control what messages
 // are returned.
-func Messages(session *Session, channelId int, limit int, afterId int, beforeId int) (messages []Message, err error) {
+func Messages(session *Session, channelId int, limit int, beforeId int, afterId int) (messages []Message, err error) {
 
 	var urlStr string
 
@@ -178,7 +182,6 @@ func Messages(session *Session, channelId int, limit int, afterId int, beforeId 
 		urlStr = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
 	}
 
-	fmt.Println(urlStr)
 	body, err := Request(session, urlStr)
 	err = json.Unmarshal(body, &messages)
 
