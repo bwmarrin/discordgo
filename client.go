@@ -3,8 +3,8 @@
  * A Discord API for Golang.
  * See discord.go for more information.
  *
- * This file contains functions for interacting with the Discord API
- * at the lowest level.  See other files for easier methods of access.
+ * This file contains functions for interacting with the Discord HTTPHTTP  REST API
+ * at the lowest level.
  */
 
 package discordgo
@@ -19,45 +19,52 @@ import (
 	"time"
 )
 
-// Request makes a REST API GET Request with Discord.
-// TODO make this handle GET, POST, DELETE, etc
-// TODO also since everything comes back as JSON let this
-//      func unmarshal into a referenced object here
-//      then it can reduce code more and handle errors better
-func Request(session *Session, urlStr string) (body []byte, err error) {
+// Request makes a (GET/POST/?) Requests to Discord REST API.
+// All the other functions in this file use this function.
+func Request(session *Session, method, urlStr, body string) (response []byte, err error) {
 
-	req, err := http.NewRequest("GET", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(``))))
+	if session.Debug {
+		fmt.Println("REQUEST  :: " + method + " " + urlStr + "\n" + body)
+	}
+
+	// TODO: not sure if the NewBuffer is really needed always?
+	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer([]byte(body)))
 	if err != nil {
 		return
 	}
 
-	req.Header.Set("authorization", session.Token)
+	// Not used on initial login..
+	if session.Token != "" {
+		req.Header.Set("authorization", session.Token)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{Timeout: (20 * time.Second)}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return
 	}
 
-	body, err = ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
+	response, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
 	}
+	resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
+	if resp.StatusCode != 204 && resp.StatusCode != 200 {
+		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(response)))
 		return
 	}
 
 	if session.Debug {
 		var prettyJSON bytes.Buffer
-		error := json.Indent(&prettyJSON, body, "", "\t")
+		error := json.Indent(&prettyJSON, response, "", "\t")
 		if error != nil {
 			fmt.Print("JSON parse error: ", error)
 			return
 		}
-		fmt.Println(urlStr+" Response:\n", string(prettyJSON.Bytes()))
+		fmt.Println("RESPONSE ::\n" + string(prettyJSON.Bytes()))
 	}
 	return
 }
@@ -66,37 +73,11 @@ func Request(session *Session, urlStr string) (body []byte, err error) {
 func Login(session *Session, email string, password string) (token string, err error) {
 
 	var urlStr string = fmt.Sprintf("%s/%s", discordApi, "auth/login")
-	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))))
-	if err != nil {
-		return
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{Timeout: (20 * time.Second)}
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode != 200 {
-		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
-		return
-	}
-
-	if session.Debug {
-		var prettyJSON bytes.Buffer
-		error := json.Indent(&prettyJSON, body, "", "\t")
-		if error != nil {
-			fmt.Print("JSON parse error: ", error)
-			return
-		}
-		fmt.Println("requestToken Response:\n", string(prettyJSON.Bytes()))
-	}
+	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))
 
 	var temp map[string]interface{}
-	err = json.Unmarshal(body, &temp)
+	err = json.Unmarshal(response, &temp)
 	token = temp["token"].(string)
 
 	return
@@ -107,7 +88,7 @@ func Login(session *Session, email string, password string) (token string, err e
 // user    : A user Id or name
 func Users(session *Session, userId string) (user User, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/users/%s", discordApi, userId))
+	body, err := Request(session, "GET", fmt.Sprintf("%s/users/%s", discordApi, userId), ``)
 	err = json.Unmarshal(body, &user)
 	return
 }
@@ -116,7 +97,7 @@ func Users(session *Session, userId string) (user User, err error) {
 // channels for a user
 func PrivateChannels(session *Session, userId string) (channels []Channel, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("users/%s/channels", userId)))
+	body, err := Request(session, "GET", fmt.Sprintf("%s/users/%s/channels", discordApi, userId), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
@@ -125,7 +106,7 @@ func PrivateChannels(session *Session, userId string) (channels []Channel, err e
 // Servers returns an array of Server structures for all servers for a user
 func Servers(session *Session, userId string) (servers []Server, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/users/%s/guilds", discordApi, userId))
+	body, err := Request(session, "GET", fmt.Sprintf("%s/users/%s/guilds", discordApi, userId), ``)
 	err = json.Unmarshal(body, &servers)
 
 	return
@@ -135,7 +116,7 @@ func Servers(session *Session, userId string) (servers []Server, err error) {
 // server.
 func Members(session *Session, serverId int) (members []Member, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/guilds/%d/members", discordApi, serverId))
+	body, err := Request(session, "GET", fmt.Sprintf("%s/guilds/%d/members", discordApi, serverId), ``)
 	err = json.Unmarshal(body, &members)
 
 	return
@@ -145,7 +126,7 @@ func Members(session *Session, serverId int) (members []Member, err error) {
 // server.
 func Channels(session *Session, serverId int) (channels []Channel, err error) {
 
-	body, err := Request(session, fmt.Sprintf("%s/guilds/%d/channels", discordApi, serverId))
+	body, err := Request(session, "GET", fmt.Sprintf("%s/guilds/%d/channels", discordApi, serverId), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
@@ -182,79 +163,30 @@ func Messages(session *Session, channelId int, limit int, beforeId int, afterId 
 		urlStr = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
 	}
 
-	body, err := Request(session, urlStr)
+	body, err := Request(session, "GET", urlStr, ``)
 	err = json.Unmarshal(body, &messages)
 
 	return
 }
 
 // SendMessage sends a message to the given channel.
-func SendMessage(session *Session, channelId int, message string) (response Message, err error) {
+func SendMessage(session *Session, channelId int, content string) (message Message, err error) {
 
 	var urlStr string = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
+	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"content":"%s"}`, content))
+	err = json.Unmarshal(response, &message)
 
-	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer([]byte(fmt.Sprintf(`{"content":"%s"}`, message))))
-	if err != nil {
-		return
-	}
-
-	req.Header.Set("authorization", session.Token)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{Timeout: (20 * time.Second)}
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
-		return
-	}
-
-	if session.Debug {
-		var prettyJSON bytes.Buffer
-		error := json.Indent(&prettyJSON, body, "", "\t")
-		if error != nil {
-			fmt.Print("JSON parse error: ", error)
-			return
-		}
-		fmt.Println(urlStr+" Response:\n", string(prettyJSON.Bytes()))
-	}
-
-	err = json.Unmarshal(body, &response)
 	return
 }
 
 // Close ends a session and logs out from the Discord REST API.
+// This does not seem to actually invalidate the token.  So you can still
+// make API calls even after a Logout.  So, it seems almost pointless to
+// even use.
 func Logout(session *Session) (err error) {
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", discordApi, fmt.Sprintf("auth/logout")), bytes.NewBuffer([]byte(fmt.Sprintf(``))))
-	if err != nil {
-		return
-	}
-	req.Header.Set("authorization", session.Token)
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: (20 * time.Second)}
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	resp.Body.Close()
+	urlStr := fmt.Sprintf("%s/auth/logout", discordApi)
+	_, err = Request(session, "POST", urlStr, fmt.Sprintf(`{"token": "%s"}`, session.Token))
 
-	if resp.StatusCode != 204 && resp.StatusCode != 200 {
-		err = errors.New(fmt.Sprintf("StatusCode: %d, %s", resp.StatusCode, string(body)))
-		return
-	}
 	return
 }
