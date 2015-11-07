@@ -1,7 +1,7 @@
 # Discordgo
 Golang Discord API.
 
-This is my first Golang project and it is <del>probably</del> </del>not</del> maybe even suitable for use :)
+This is my first Golang project and it is ~~probably~~ ~~not~~ maybe even suitable for use :)
 
 Everything here so far is likely to change as I learn Golang better and refine the API names and such.
 
