@@ -37,11 +37,8 @@ type Message struct {
 	Timestamp       string       `json:"timestamp"`
 	MentionEveryone bool         `json:"mention_everyone"`
 	EditedTimestamp string       `json:"edited_timestamp"`
-	Mentions        []Mention    `json:"mentions"`
+	Mentions        []User       `json:"mentions"`
 	ChannelId       int          `json:"channel_id,string"`
-}
-
-type Mention struct {
 }
 
 type Attachment struct {
