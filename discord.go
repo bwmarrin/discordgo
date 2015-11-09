@@ -10,16 +10,6 @@
 
 package discordgo
 
-// These will absolutely change.  I already don't like them.
-// Constants that define the different Discord API URLs.
-const (
-	discordUrl = "http://discordapp.com"
-	discordApi = discordUrl + "/api/"
-	servers    = discordApi + "guilds"
-	channels   = discordApi + "channels"
-	users      = discordApi + "users"
-) // TODO: make this do something, better names, move to restapi.go
-
 // A Discord structure represents a all-inclusive (hopefully) structure to
 // access the Discord REST API for a given authenticated user.
 type Discord struct {
