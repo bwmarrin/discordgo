@@ -3,7 +3,7 @@
  * A Discord API for Golang.
  * See discord.go for more information.
  *
- * This file contains functions for interacting with the Discord HTTPHTTP  REST API
+ * This file contains functions for interacting with the Discord HTTP REST API
  * at the lowest level.
  */
 
@@ -27,7 +27,6 @@ func Request(session *Session, method, urlStr, body string) (response []byte, er
 		fmt.Println("REQUEST  :: " + method + " " + urlStr + "\n" + body)
 	}
 
-	// TODO: not sure if the NewBuffer is really needed always?
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer([]byte(body)))
 	if err != nil {
 		return
@@ -93,6 +92,10 @@ func Users(session *Session, userId string) (user User, err error) {
 	return
 }
 
+// USERS could pull users channels, servers, settings and so forth too?
+// you know, pull all the data for the user.  update the user strut
+// to house that data.  Seems reasonable.
+
 // PrivateChannels returns an array of Channel structures for all private
 // channels for a user
 func PrivateChannels(session *Session, userId string) (channels []Channel, err error) {
@@ -111,6 +114,9 @@ func Servers(session *Session, userId string) (servers []Server, err error) {
 
 	return
 }
+
+// add one to get specific server by ID, or enhance the above with an ID field.
+// GET http://discordapp.com/api/guilds/ID#
 
 // Members returns an array of Member structures for all members of a given
 // server.
@@ -131,6 +137,10 @@ func Channels(session *Session, serverId int) (channels []Channel, err error) {
 
 	return
 }
+
+// update above or add a way to get channel by ID.  ChannelByName could be handy
+// too you know.
+// http://discordapp.com/api/channels/ID#
 
 // Messages returns an array of Message structures for messaages within a given
 // channel.  limit, beforeId, and afterId can be used to control what messages
@@ -176,6 +186,18 @@ func SendMessage(session *Session, channelId int, content string) (message Messa
 	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"content":"%s"}`, content))
 	err = json.Unmarshal(response, &message)
 
+	return
+}
+
+// Returns the a websocket Gateway address
+// session : An active session connection to Discord
+func Gateway(session *Session) (gateway string, err error) {
+
+	response, err := Request(session, "GET", fmt.Sprintf("%s/gateway", discordApi), ``)
+
+	var temp map[string]interface{}
+	err = json.Unmarshal(response, &temp)
+	gateway = temp["url"].(string)
 	return
 }
 

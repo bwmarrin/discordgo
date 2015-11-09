@@ -16,4 +16,7 @@ type Channel struct {
 /*
 func (c *Channel) Messages() (messages []Message) {
 }
+
+func (c *Channel) SendMessage() (content string) {
+}
 */

@@ -47,21 +47,6 @@ type ReadState struct {
 	ID            int `json:"id,string"`
 }
 
-// Returns the a websocket Gateway address
-// session : An active session connection to Discord
-// put this here instead of restapi because it is used soley
-// for the websocket stuff - but maybe I should move it back
-// because it's part of the restapi...
-func Gateway(session *Session) (gateway string, err error) {
-
-	response, err := Request(session, "GET", fmt.Sprintf("%s/gateway", discordApi), ``)
-
-	var temp map[string]interface{}
-	err = json.Unmarshal(response, &temp)
-	gateway = temp["url"].(string)
-	return
-}
-
 // Open a websocket connection to Discord
 func Open(session *Session) (conn *websocket.Conn, err error) {
 

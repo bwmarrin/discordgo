@@ -5,6 +5,8 @@
  * Currently only the REST API is functional.  I will add on the websocket
  * layer once I get the API section where I want it.
  *
+ * The idea is that this file is where we pull together the wsapi, and
+ * restapi to create a single do-it-all struct
  */
 
 package discordgo

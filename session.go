@@ -5,12 +5,16 @@
 
 package discordgo
 
+import "github.com/gorilla/websocket"
+
 // A Session represents a connection to the Discord REST API.
 // Token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
-	Token string
-	Debug bool
+	Token     string
+	Gateway   string
+	Debug     bool
+	Websocket *websocket.Conn
 }
 
 /******************************************************************************
