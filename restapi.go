@@ -22,13 +22,16 @@ import (
 // Please let me know if you know of any others.
 const (
 	// Base URLS
-	DISCORD         = "http://discordapp.com"
-	API             = DISCORD + "/api"
-	SERVERS         = API + "/guilds"
-	CHANNELS        = API + "/channels"
-	USERS           = API + "/users"
-	LOGIN           = API + "/auth/login"
-	LOGOUT          = API + "/auth/logout"
+	DISCORD  = "http://discordapp.com"
+	API      = DISCORD + "/api"
+	SERVERS  = API + "/guilds"
+	CHANNELS = API + "/channels"
+	USERS    = API + "/users"
+	LOGIN    = API + "/auth/login"
+	LOGOUT   = API + "/auth/logout"
+	GATEWAY  = API + "/gateway"
+
+	// Constants not implemented below yet. TODO tracker :)
 	REGISTER        = API + "/auth/register"
 	INVITE          = API + "/invite"
 	TRACK           = API + "/track"
@@ -41,8 +44,6 @@ const (
 	ICE             = API + "/voice/ice"
 	REPORT          = API + "/report"
 	INTEGRATIONS    = API + "/integrations"
-	GATEWAY         = API + "/gateway"
-
 	// Authenticated User Info
 	AU             = USERS + "/@me"
 	AU_DEVICES     = ME + "/devices"
