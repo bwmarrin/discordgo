@@ -1,5 +1,4 @@
 /******************************************************************************
- * Discordgo v0 by Bruce Marriner <bruce@sqls.net>
  * A Discord API for Golang.
  *
  * Currently only the REST API is functional.  I will add on the websocket

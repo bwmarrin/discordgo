@@ -1,5 +1,4 @@
 /******************************************************************************
- * Discordgo by Bruce Marriner <bruce@sqls.net>
  * A Discord API for Golang.
  * See discord.go for more information.
  *
