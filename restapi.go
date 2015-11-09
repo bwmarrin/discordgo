@@ -129,9 +129,7 @@ func Request(session *Session, method, urlStr, body string) (response []byte, er
 // Login asks the Discord server for an authentication token
 func Login(session *Session, email string, password string) (token string, err error) {
 
-	var urlStr string = fmt.Sprintf("%s/%s", LOGIN)
-
-	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))
+	response, err := Request(session, "POST", LOGIN, fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))
 
 	var temp map[string]interface{}
 	err = json.Unmarshal(response, &temp)
