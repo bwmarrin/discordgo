@@ -18,6 +18,64 @@ import (
 	"time"
 )
 
+// Constants of known Discord API Endpoints
+// Please let me know if you know of any others.
+const (
+	// Base URLS
+	DISCORD         = "http://discordapp.com"
+	API             = DISCORD + "/api"
+	SERVERS         = API + "/guilds"
+	CHANNELS        = API + "/channels"
+	USERS           = API + "/users"
+	LOGIN           = API + "/auth/login"
+	LOGOUT          = API + "/auth/logout"
+	REGISTER        = API + "/auth/register"
+	INVITE          = API + "/invite"
+	TRACK           = API + "/track"
+	SSO             = API + "/sso"
+	VERIFY          = API + "/auth/verify"
+	VERIFY_RESEND   = API + "/auth/verify/resend"
+	FORGOT_PASSWORD = API + "/auth/forgot"
+	RESET_PASSWORD  = API + "/auth/reset"
+	REGIONS         = API + "/voice/regions"
+	ICE             = API + "/voice/ice"
+	REPORT          = API + "/report"
+	INTEGRATIONS    = API + "/integrations"
+	GATEWAY         = API + "/gateway"
+
+	// Authenticated User Info
+	AU             = USERS + "/@me"
+	AU_DEVICES     = ME + "/devices"
+	AU_SETTINGS    = ME + "/settings"
+	AU_CONNECTIONS = ME + "/connections"
+	AU_CHANNELS    = ME + "/channels"
+	AU_SERVERS     = ME + "/guilds"
+
+	// Need a way to handle these here so the variables can be inserted.
+	// Maybe defined as functions?
+	/*
+		INTEGRATIONS_JOIN: integrationId => `/integrations/${integrationId}/join`,
+		AVATAR: (userId, hash) => `/users/${userId}/avatars/${hash}.jpg`,
+		MESSAGES: channelId => `/channels/${channelId}/messages`,
+		INSTANT_INVITES: channelId => `/channels/${channelId}/invites`,
+		TYPING: channelId => `/channels/${channelId}/typing`,
+		CHANNEL_PERMISSIONS: channelId => `/channels/${channelId}/permissions`,
+		TUTORIAL: `/tutorial`,
+		TUTORIAL_INDICATORS: `/tutorial/indicators`,
+		USER_CHANNELS: userId => `/users/${userId}/channels`,
+		GUILD_CHANNELS: guildId => `/guilds/${guildId}/channels`,
+		GUILD_MEMBERS: guildId => `/guilds/${guildId}/members`,
+		GUILD_INTEGRATIONS: guildId => `/guilds/${guildId}/integrations`,
+		GUILD_BANS: guildId => `/guilds/${guildId}/bans`,
+		GUILD_ROLES: guildId => `/guilds/${guildId}/roles`,
+		GUILD_INSTANT_INVITES: guildId => `/guilds/${guildId}/invites`,
+		GUILD_EMBED: guildId => `/guilds/${guildId}/embed`,
+		GUILD_PRUNE: guildId => `/guilds/${guildId}/prune`,
+		GUILD_ICON: (guildId, hash) => `/guilds/${guildId}/icons/${hash}.jpg`,
+	*/
+
+)
+
 // Request makes a (GET/POST/?) Requests to Discord REST API.
 // All the other functions in this file use this function.
 func Request(session *Session, method, urlStr, body string) (response []byte, err error) {
@@ -70,7 +128,7 @@ func Request(session *Session, method, urlStr, body string) (response []byte, er
 // Login asks the Discord server for an authentication token
 func Login(session *Session, email string, password string) (token string, err error) {
 
-	var urlStr string = fmt.Sprintf("%s/%s", discordApi, "auth/login")
+	var urlStr string = fmt.Sprintf("%s/%s", LOGIN)
 
 	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))
 
@@ -86,7 +144,7 @@ func Login(session *Session, email string, password string) (token string, err e
 // user    : A user Id or name
 func Users(session *Session, userId string) (user User, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/users/%s", discordApi, userId), ``)
+	body, err := Request(session, "GET", fmt.Sprintf("%s/%s", USERS, userId), ``)
 	err = json.Unmarshal(body, &user)
 	return
 }
@@ -99,7 +157,7 @@ func Users(session *Session, userId string) (user User, err error) {
 // channels for a user
 func PrivateChannels(session *Session, userId string) (channels []Channel, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/users/%s/channels", discordApi, userId), ``)
+	body, err := Request(session, "GET", fmt.Sprintf("%s/%s/channels", USERS, userId), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
@@ -108,7 +166,7 @@ func PrivateChannels(session *Session, userId string) (channels []Channel, err e
 // Servers returns an array of Server structures for all servers for a user
 func Servers(session *Session, userId string) (servers []Server, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/users/%s/guilds", discordApi, userId), ``)
+	body, err := Request(session, "GET", fmt.Sprintf("%s/%s/guilds", USERS, userId), ``)
 	err = json.Unmarshal(body, &servers)
 
 	return
@@ -121,7 +179,7 @@ func Servers(session *Session, userId string) (servers []Server, err error) {
 // server.
 func Members(session *Session, serverId int) (members []Member, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/guilds/%d/members", discordApi, serverId), ``)
+	body, err := Request(session, "GET", fmt.Sprintf("%s/%d/members", SERVERS, serverId), ``)
 	err = json.Unmarshal(body, &members)
 
 	return
@@ -131,7 +189,7 @@ func Members(session *Session, serverId int) (members []Member, err error) {
 // server.
 func Channels(session *Session, serverId int) (channels []Channel, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/guilds/%d/channels", discordApi, serverId), ``)
+	body, err := Request(session, "GET", fmt.Sprintf("%s/%d/channels", SERVERS, serverId), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
@@ -149,14 +207,14 @@ func Messages(session *Session, channelId int, limit int, beforeId int, afterId 
 	var urlStr string
 
 	if limit > 0 {
-		urlStr = fmt.Sprintf("%s/channels/%d/messages?limit=%d", discordApi, channelId, limit)
+		urlStr = fmt.Sprintf("%s/%d/messages?limit=%d", CHANNELS, channelId, limit)
 	}
 
 	if afterId > 0 {
 		if urlStr != "" {
 			urlStr = urlStr + fmt.Sprintf("&after=%d", afterId)
 		} else {
-			urlStr = fmt.Sprintf("%s/channels/%d/messages?after=%d", discordApi, channelId, afterId)
+			urlStr = fmt.Sprintf("%s/%d/messages?after=%d", CHANNELS, channelId, afterId)
 		}
 	}
 
@@ -164,12 +222,12 @@ func Messages(session *Session, channelId int, limit int, beforeId int, afterId 
 		if urlStr != "" {
 			urlStr = urlStr + fmt.Sprintf("&before=%d", beforeId)
 		} else {
-			urlStr = fmt.Sprintf("%s/channels/%d/messages?after=%d", discordApi, channelId, beforeId)
+			urlStr = fmt.Sprintf("%s/%d/messages?after=%d", CHANNELS, channelId, beforeId)
 		}
 	}
 
 	if urlStr == "" {
-		urlStr = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
+		urlStr = fmt.Sprintf("%s/%d/messages", CHANNELS, channelId)
 	}
 
 	body, err := Request(session, "GET", urlStr, ``)
@@ -181,7 +239,7 @@ func Messages(session *Session, channelId int, limit int, beforeId int, afterId 
 // SendMessage sends a message to the given channel.
 func SendMessage(session *Session, channelId int, content string) (message Message, err error) {
 
-	var urlStr string = fmt.Sprintf("%s/channels/%d/messages", discordApi, channelId)
+	var urlStr string = fmt.Sprintf("%s/%d/messages", CHANNELS, channelId)
 	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"content":"%s"}`, content))
 	err = json.Unmarshal(response, &message)
 
@@ -192,7 +250,7 @@ func SendMessage(session *Session, channelId int, content string) (message Messa
 // session : An active session connection to Discord
 func Gateway(session *Session) (gateway string, err error) {
 
-	response, err := Request(session, "GET", fmt.Sprintf("%s/gateway", discordApi), ``)
+	response, err := Request(session, "GET", GATEWAY, ``)
 
 	var temp map[string]interface{}
 	err = json.Unmarshal(response, &temp)
@@ -206,8 +264,7 @@ func Gateway(session *Session) (gateway string, err error) {
 // even use.
 func Logout(session *Session) (err error) {
 
-	urlStr := fmt.Sprintf("%s/auth/logout", discordApi)
-	_, err = Request(session, "POST", urlStr, fmt.Sprintf(`{"token": "%s"}`, session.Token))
+	_, err = Request(session, "POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, session.Token))
 
 	return
 }
