@@ -46,11 +46,11 @@ const (
 	INTEGRATIONS    = API + "/integrations"
 	// Authenticated User Info
 	AU             = USERS + "/@me"
-	AU_DEVICES     = ME + "/devices"
-	AU_SETTINGS    = ME + "/settings"
-	AU_CONNECTIONS = ME + "/connections"
-	AU_CHANNELS    = ME + "/channels"
-	AU_SERVERS     = ME + "/guilds"
+	AU_DEVICES     = AU + "/devices"
+	AU_SETTINGS    = AU + "/settings"
+	AU_CONNECTIONS = AU + "/connections"
+	AU_CHANNELS    = AU + "/channels"
+	AU_SERVERS     = AU + "/guilds"
 
 	// Need a way to handle these here so the variables can be inserted.
 	// Maybe defined as functions?
