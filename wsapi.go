@@ -2,7 +2,7 @@
  * A Discord API for Golang.
  * See discord.go for more information.
  *
- * This file contains functions low level functions for interacting
+ * This file contains low level functions for interacting
  * with the Discord Websocket interface.
  */
 

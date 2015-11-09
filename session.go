@@ -10,14 +10,20 @@ import "github.com/gorilla/websocket"
 // Token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
-	Token     string
-	Gateway   string
-	Debug     bool
-	Websocket *websocket.Conn
+	Token     string          // Authentication token for this session
+	Gateway   string          // Websocket Gateway for this session
+	Debug     bool            // Debug for printing JSON request/responses
+	Cache     int             // number in X to cache some responses
+	Websocket *websocket.Conn // TODO: use this
+	//TODO, add bools for like.
+	// are we connnected to websocket?
+	// have we authenticated to login?
+	// lets put all the general session
+	// tracking and infos here.. clearly
 }
 
 /******************************************************************************
- * The below functions are "shortcut" methods for functions in client.go
+ * The below functions are "shortcut" methods for functions in restapi.go
  * Reference the client.go file for more documentation.
  */
 func (session *Session) Login(email string, password string) (token string, err error) {

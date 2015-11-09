@@ -15,3 +15,5 @@ type PrivateChannel struct {
 	LastMessageId int  `json:"last_message_id,string"`
 	Recipient     User `json:"recipient"`
 }
+
+// PM function to PM a user.

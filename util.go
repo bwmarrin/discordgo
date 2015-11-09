@@ -1,3 +1,6 @@
+// this file has small funcs used without the pacakge
+// or, one.. util, maybe I'll have more later :)
+
 package discordgo
 
 import (
@@ -6,6 +9,7 @@ import (
 	"fmt"
 )
 
+// convert to return as string
 func printJSON(body []byte) {
 	var prettyJSON bytes.Buffer
 	error := json.Indent(&prettyJSON, body, "", "\t")

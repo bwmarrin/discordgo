@@ -18,7 +18,7 @@ const (
 	servers    = discordApi + "guilds"
 	channels   = discordApi + "channels"
 	users      = discordApi + "users"
-)
+) // TODO: make this do something, better names, move to restapi.go
 
 // A Discord structure represents a all-inclusive (hopefully) structure to
 // access the Discord REST API for a given authenticated user.
@@ -31,6 +31,7 @@ type Discord struct {
 // New creates a new connection to Discord and returns a Discord structure.
 // This provides an easy entry where most commonly needed information is
 // automatically fetched.
+// TODO add websocket code in here too
 func New(email string, password string) (d *Discord, err error) {
 
 	session := Session{}

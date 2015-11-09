@@ -1,5 +1,7 @@
 package discordgo
 
+// TODO: Eventually everything here gets moved to a better place.
+
 type Message struct {
 	Id              int          `json:"id,string"`
 	Author          User         `json:"author"`
