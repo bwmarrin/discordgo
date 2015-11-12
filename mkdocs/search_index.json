@@ -1,0 +1,14 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Discordgo Documentation\n\n\nPlaceholder", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#discordgo-documentation", 
+            "text": "Placeholder", 
+            "title": "Discordgo Documentation"
+        }
+    ]
+}
