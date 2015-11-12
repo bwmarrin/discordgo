@@ -11,6 +11,7 @@ package discordgo
 import (
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -25,6 +26,7 @@ type Event struct {
 	//Direction of command, 0-received, 1-sent -- thanks Xackery/discord
 
 	RawData json.RawMessage `json:"d"`
+	Session Session
 }
 
 // The Ready Event given after initial connection
@@ -47,30 +49,26 @@ type ReadState struct {
 }
 
 // Open a websocket connection to Discord
-func Open(session *Session) (conn *websocket.Conn, err error) {
+func Open(s *Session) (err error) {
 
 	// TODO: See if there's a use for the http response.
-	//conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
-	conn, _, err = websocket.DefaultDialer.Dial(session.Gateway, nil)
-	if err != nil {
-		return
-	}
-
+	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
+	s.wsConn, _, err = websocket.DefaultDialer.Dial(s.Gateway, nil)
 	return
 }
 
 // maybe this is SendOrigin? not sure the right name here
 // also bson.M vs string interface map?  Read about
 // how to send JSON the right way.
-func Handshake(conn *websocket.Conn, token string) (err error) {
+func Handshake(s *Session) (err error) {
 
-	err = conn.WriteJSON(map[string]interface{}{
+	err = s.wsConn.WriteJSON(map[string]interface{}{
 		"op": 2,
 		"d": map[string]interface{}{
 			"v":     3,
-			"token": token,
+			"token": s.Token,
 			"properties": map[string]string{
-				"$os":               "linux", // get from os package
+				"$os":               runtime.GOOS,
 				"$browser":          "Discordgo",
 				"$device":           "Discordgo",
 				"$referer":          "",
@@ -82,9 +80,9 @@ func Handshake(conn *websocket.Conn, token string) (err error) {
 	return
 }
 
-func UpdateStatus(conn *websocket.Conn, idleSince, gameId string) (err error) {
+func UpdateStatus(s *Session, idleSince, gameId string) (err error) {
 
-	err = conn.WriteJSON(map[string]interface{}{
+	err = s.wsConn.WriteJSON(map[string]interface{}{
 		"op": 2,
 		"d": map[string]interface{}{
 			"idle_since": idleSince,
@@ -97,14 +95,20 @@ func UpdateStatus(conn *websocket.Conn, idleSince, gameId string) (err error) {
 
 // TODO: need a channel or something to communicate
 // to this so I can tell it to stop listening
-func Listen(conn *websocket.Conn) (err error) {
-	for {
-		messageType, message, err := conn.ReadMessage()
+func Listen(s *Session) (err error) {
+
+	if s.wsConn == nil {
+		fmt.Println("No websocket connection exists.")
+		return // need to return an error.
+	}
+
+	for { // s.wsConn != nil { // need a cleaner way to exit?  this doesn't acheive anything.
+		messageType, message, err := s.wsConn.ReadMessage()
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
-		go event(conn, messageType, message)
+		go event(s, messageType, message)
 	}
 
 	return
@@ -112,103 +116,127 @@ func Listen(conn *websocket.Conn) (err error) {
 
 // Not sure how needed this is and where it would be best to call it.
 // somewhere.
-func Close(conn *websocket.Conn) {
-	conn.Close()
+func Close(s *Session) {
+	s.wsConn.Close()
 }
 
 // Front line handler for all Websocket Events.  Determines the
 // event type and passes the message along to the next handler.
-func event(conn *websocket.Conn, messageType int, message []byte) {
+func event(s *Session, messageType int, message []byte) (err error) {
 
-	//printJSON(message) // TODO: wrap in debug if statement
-
-	var event Event
-	err := json.Unmarshal(message, &event)
-	if err != nil {
-		fmt.Println(err)
-		return
+	if s.Debug {
+		printJSON(message)
 	}
 
-	switch event.Type {
+	var e Event
+	if err := json.Unmarshal(message, &e); err != nil {
+		return err
+	}
+
+	switch e.Type {
 
 	case "READY":
-		ready(conn, &event)
+		if s.OnReady != nil {
+			var st Ready
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				return err
+			}
+			s.OnReady(s, st)
+			return
+		}
 	case "TYPING_START":
-		// do stuff
+		if s.OnTypingStart != nil {
+		}
 	case "MESSAGE_CREATE":
-		// do stuff
+		if s.OnMessageCreate != nil {
+			var st Message
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				return err
+			}
+			s.OnMessageCreate(s, st)
+			return
+		}
 	case "MESSAGE_ACK":
-		// do stuff
+		if s.OnMessageAck != nil {
+		}
 	case "MESSAGE_UPDATE":
-		// do stuff
+		if s.OnMessageUpdate != nil {
+		}
 	case "MESSAGE_DELETE":
-		// do stuff
+		if s.OnMessageDelete != nil {
+		}
 	case "PRESENCE_UPDATE":
-		// do stuff
+		if s.OnPresenceUpdate != nil {
+		}
 	case "CHANNEL_CREATE":
-		// do stuff
+		if s.OnChannelCreate != nil {
+		}
 	case "CHANNEL_UPDATE":
-		// do stuff
+		if s.OnChannelUpdate != nil {
+		}
 	case "CHANNEL_DELETE":
-		// do stuff
+		if s.OnChannelDelete != nil {
+		}
 	case "GUILD_CREATE":
-		// do stuff
+		if s.OnGuildCreate != nil {
+		}
 	case "GUILD_DELETE":
-		// do stuff
+		if s.OnGuildDelete != nil {
+		}
 	case "GUILD_MEMBER_ADD":
-		// do stuff
+		if s.OnGuildMemberAdd != nil {
+		}
 	case "GUILD_MEMBER_REMOVE": // which is it.
-		// do stuff
+		if s.OnGuildMemberRemove != nil {
+		}
 	case "GUILD_MEMBER_DELETE":
-		// do stuff
+		if s.OnGuildMemberDelete != nil {
+		}
 	case "GUILD_MEMBER_UPDATE":
-		// do stuff
+		if s.OnGuildMemberUpdate != nil {
+		}
 	case "GUILD_ROLE_CREATE":
-		// do stuff
+		if s.OnGuildRoleCreate != nil {
+		}
 	case "GUILD_ROLE_DELETE":
-		// do stuff
+		if s.OnGuildRoleDelete != nil {
+		}
 	case "GUILD_INTEGRATIONS_UPDATE":
-		// do stuff
-
+		if s.OnGuildIntegrationsUpdate != nil {
+		}
 	default:
-		fmt.Println("UNKNOWN EVENT: ", event.Type)
+		fmt.Println("UNKNOWN EVENT: ", e.Type)
 		// learn the log package
 		// log.print type and JSON data
 	}
 
-}
-
-// handles the READY Websocket Event from Discord
-// this is the motherload of detail provided at
-// initial connection to the Websocket.
-func ready(conn *websocket.Conn, event *Event) {
-
-	var ready Ready
-	err := json.Unmarshal(event.RawData, &ready)
-	if err != nil {
-		fmt.Println(err)
-		return
+	// if still here, send to generic OnEvent
+	if s.OnEvent != nil {
+		s.OnEvent(s, e)
 	}
 
-	fmt.Println(ready)
-
-	go heartbeat(conn, ready.HeartbeatInterval)
-
-	// Start KeepAlive based on .
-
+	return
 }
 
 // This heartbeat is sent to keep the Websocket conenction
 // to Discord alive. If not sent, Discord will close the
 // connection.
-func heartbeat(conn *websocket.Conn, interval time.Duration) {
+func Heartbeat(s *Session, i time.Duration) {
 
-	ticker := time.NewTicker(interval * time.Millisecond)
+	if s.wsConn == nil {
+		fmt.Println("No websocket connection exists.")
+		return // need to return an error.
+	}
+
+	ticker := time.NewTicker(i * time.Millisecond)
 	for range ticker.C {
 		timestamp := int(time.Now().Unix())
-		conn.WriteJSON(map[string]int{
+		err := s.wsConn.WriteJSON(map[string]int{
 			"op": 1,
 			"d":  timestamp,
 		})
+		if err != nil {
+			return // log error?
+		}
 	}
 }
