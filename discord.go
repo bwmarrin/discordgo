@@ -16,16 +16,18 @@ package discordgo
 
 // A Discord structure represents a all-inclusive (hopefully) structure to
 // access the Discord REST API for a given authenticated user.
+/*
 type Discord struct {
 	Session *Session
 	User    User
 	Servers []Server
 }
-
+*/
 // New creates a new connection to Discord and returns a Discord structure.
 // This provides an easy entry where most commonly needed information is
 // automatically fetched.
 // TODO add websocket code in here too
+/*
 func New(email string, password string) (d *Discord, err error) {
 
 	session := Session{}
@@ -46,11 +48,12 @@ func New(email string, password string) (d *Discord, err error) {
 
 	return
 }
-
+*/
 // Renew essentially reruns the New command without creating a new session.
 // This will update all the user, server, and channel information that was
 // fetched with the New command.  This is not an efficient way of doing this
 // but if used infrequently it does provide convenience.
+/*
 func (d *Discord) Renew() (err error) {
 
 	d.User, err = Users(&d.Session, "@me")
@@ -58,3 +61,4 @@ func (d *Discord) Renew() (err error) {
 
 	return
 }
+*/
