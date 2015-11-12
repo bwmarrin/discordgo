@@ -6,6 +6,10 @@
  *
  * The idea is that this file is where we pull together the wsapi, and
  * restapi to create a single do-it-all struct
+ *
+ * NOTE!!! Currently this file has no purpose, it is here for future
+ * access methods. EVERYTHING HERE will just go away or be changed
+ * substantially in the future.
  */
 
 package discordgo
@@ -13,7 +17,7 @@ package discordgo
 // A Discord structure represents a all-inclusive (hopefully) structure to
 // access the Discord REST API for a given authenticated user.
 type Discord struct {
-	Session Session
+	Session *Session
 	User    User
 	Servers []Server
 }
