@@ -179,9 +179,9 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnReady != nil {
 			var st Ready
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
-				fmt.Println(err)
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
-				return
+				return err
 			}
 			s.OnReady(s, st)
 			return
@@ -190,9 +190,9 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnVoiceStateUpdate != nil {
 			var st VoiceState
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
-				fmt.Println(err)
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
-				return
+				return err
 			}
 			s.OnVoiceStateUpdate(s, st)
 			return
@@ -201,7 +201,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnPresenceUpdate != nil {
 			var st PresenceUpdate
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
-				fmt.Println(err)
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -212,6 +212,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnTypingStart != nil {
 			var st TypingStart
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -222,6 +223,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnMessageCreate != nil {
 			var st Message
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -232,6 +234,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnMessageUpdate != nil {
 			var st Message
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -242,6 +245,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnMessageDelete != nil {
 			var st MessageDelete
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -252,6 +256,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnMessageAck != nil {
 			var st MessageAck
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -262,6 +267,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnChannelCreate != nil {
 			var st Channel
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -272,6 +278,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnChannelUpdate != nil {
 			var st Channel
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -282,6 +289,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnChannelDelete != nil {
 			var st Channel
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -292,16 +300,29 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnGuildCreate != nil {
 			var st Guild
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
 			s.OnGuildCreate(s, st)
 			return
 		}
+	case "GUILD_UPDATE":
+		if s.OnGuildCreate != nil {
+			var st Guild
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildUpdate(s, st)
+			return
+		}
 	case "GUILD_DELETE":
 		if s.OnGuildDelete != nil {
 			var st Guild
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -312,6 +333,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnGuildMemberAdd != nil {
 			var st Member
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -322,6 +344,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnGuildMemberRemove != nil {
 			var st Member
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -332,6 +355,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnGuildMemberUpdate != nil {
 			var st Member
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}
@@ -350,6 +374,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnGuildIntegrationsUpdate != nil {
 			var st GuildIntegrationsUpdate
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
 				return err
 			}

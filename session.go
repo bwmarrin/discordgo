@@ -29,6 +29,7 @@ type Session struct {
 	OnChannelUpdate           func(*Session, Channel)
 	OnChannelDelete           func(*Session, Channel)
 	OnGuildCreate             func(*Session, Guild)
+	OnGuildUpdate             func(*Session, Guild)
 	OnGuildDelete             func(*Session, Guild)
 	OnGuildMemberAdd          func(*Session, Member)
 	OnGuildMemberRemove       func(*Session, Member)
