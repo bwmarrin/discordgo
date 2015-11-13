@@ -7,7 +7,7 @@ type Guild struct {
 	Region           string       `json:"region"`
 	Joined_at        string       `json:"joined_at"` // make time stamp
 	Afk_timeout      int          `json:"afk_timeout"`
-	Afk_channel_id   int          `json:"afk_channel_id"`
+	Afk_channel_id   int          `json:"afk_channel_id,string"`
 	Embed_channel_id int          `json:"embed_channel_id"`
 	Embed_enabled    bool         `json:"embed_enabled"`
 	Owner_id         int          `json:"owner_id,string"`
@@ -18,7 +18,16 @@ type Guild struct {
 	Presences        []Presence   `json:"presences"`
 	Channels         []Channel    `json:"channels"`
 	VoiceStates      []VoiceState `json:"voice_states"`
-	Session          *Session     // I got to be doing it wrong here.
+}
+
+type Role struct {
+	Id          int    `json:"id,string"`
+	Name        string `json:"name"`
+	Managed     bool   `json:"managed"`
+	Color       int    `json:"color"`
+	Hoist       bool   `json:"hoist"`
+	Position    int    `json:"position"`
+	Permissions int    `json:"permissions"`
 }
 
 type VoiceState struct {
@@ -40,23 +49,25 @@ type Presence struct {
 
 // TODO: Member vs User?
 type Member struct {
-	GuildId  int    `json:"guild_id"`
-	JoinedAt string `json:"joined_at"`
-	Deaf     bool   `json:"deaf"`
-	mute     bool   `json:"mute"`
-	User     User   `json:"user"`
-	Roles    []Role `json:"roles"`
+	GuildId  int      `json:"guild_id"`
+	JoinedAt string   `json:"joined_at"`
+	Deaf     bool     `json:"deaf"`
+	mute     bool     `json:"mute"`
+	User     User     `json:"user"`
+	Roles    []string `json:"roles"` // TODO: See below
 }
 
-type Role struct {
-	Id          int    `json:"id,string"`
-	Name        string `json:"name"`
-	Managed     bool   `json:"managed"`
-	Color       int    `json:"color"`
-	Hoist       bool   `json:"hoist"`
-	Position    int    `json:"position"`
-	Permissions int    `json:"permissions"`
-}
+//Roles   []string `json:"roles"` // TODO: Should be ints, see below
+// Above "Roles" should be an array of ints
+// TODO: Figure out how to make it be one.
+/*
+	{
+		"roles": [
+			"89544728336416768",
+			"110429733396676608"
+		],
+	}
+*/
 
 // Channels returns an array of Channel structures for channels within
 // this Server

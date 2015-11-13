@@ -55,12 +55,24 @@ type TypingStart struct {
 }
 
 type PresenceUpdate struct {
-	User    User   `json:"user"`
-	Status  string `json:"status"`
-	Roles   []Role `json:"roles"`
-	GuildId int    `json:"guild_id,string"`
-	GameId  int    `json:"game_id"`
+	User    User     `json:"user"`
+	Status  string   `json:"status"`
+	Roles   []string `json:"roles"` // TODO: Should be ints, see below
+	GuildId int      `json:"guild_id,string"`
+	GameId  int      `json:"game_id"`
 }
+
+//Roles   []string `json:"roles"` // TODO: Should be ints, see below
+// Above "Roles" should be an array of ints
+// TODO: Figure out how to make it be one.
+/*
+	{
+		"roles": [
+			"89544728336416768",
+			"110429733396676608"
+		],
+	}
+*/
 
 type MessageAck struct {
 	MessageId int `json:"message_id,string"`
@@ -167,8 +179,9 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnReady != nil {
 			var st Ready
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(err)
 				printJSON(e.RawData) // TODO: Better error logging
-				return err
+				return
 			}
 			s.OnReady(s, st)
 			return
@@ -177,8 +190,9 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnVoiceStateUpdate != nil {
 			var st VoiceState
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(err)
 				printJSON(e.RawData) // TODO: Better error logging
-				return err
+				return
 			}
 			s.OnVoiceStateUpdate(s, st)
 			return
@@ -187,6 +201,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnPresenceUpdate != nil {
 			var st PresenceUpdate
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(err)
 				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
@@ -231,6 +246,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 				return err
 			}
 			s.OnMessageDelete(s, st)
+			return
 		}
 	case "MESSAGE_ACK":
 		if s.OnMessageAck != nil {
