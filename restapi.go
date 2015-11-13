@@ -162,8 +162,8 @@ func PrivateChannels(session *Session, userId string) (channels []Channel, err e
 	return
 }
 
-// Servers returns an array of Server structures for all servers for a user
-func Servers(session *Session, userId string) (servers []Server, err error) {
+// Guilds returns an array of Guild structures for all servers for a user
+func Guilds(session *Session, userId string) (servers []Guild, err error) {
 
 	body, err := Request(session, "GET", fmt.Sprintf("%s/%s/guilds", USERS, userId), ``)
 	err = json.Unmarshal(body, &servers)

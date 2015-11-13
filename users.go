@@ -14,6 +14,6 @@ type PrivateChannel struct {
 	IsPrivate     bool `json:"is_private"`
 	LastMessageId int  `json:"last_message_id,string"`
 	Recipient     User `json:"recipient"`
-}
+} // merge with channel?
 
 // PM function to PM a user.

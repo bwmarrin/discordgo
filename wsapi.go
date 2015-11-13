@@ -37,7 +37,7 @@ type Ready struct {
 	User              User          `json:"user"`
 	ReadState         []ReadState
 	PrivateChannels   []PrivateChannel
-	Servers           []Server
+	Guilds            []Guild
 }
 
 // ReadState might need to move? Gives me the read status
@@ -46,6 +46,34 @@ type ReadState struct {
 	MentionCount  int
 	LastMessageID int `json:"last_message_id,string"`
 	ID            int `json:"id,string"`
+}
+
+type TypingStart struct {
+	UserId    int `json:"user_id,string"`
+	ChannelId int `json:"channel_id,string"`
+	Timestamp int `json:"timestamp"`
+}
+
+type PresenceUpdate struct {
+	User    User   `json:"user"`
+	Status  string `json:"status"`
+	Roles   []Role `json:"roles"`
+	GuildId int    `json:"guild_id,string"`
+	GameId  int    `json:"game_id"`
+}
+
+type MessageAck struct {
+	MessageId int `json:"message_id,string"`
+	ChannelId int `json:"channel_id,string"`
+}
+
+type MessageDelete struct {
+	Id        int `json:"id,string"`
+	ChannelId int `json:"channel_id,string"`
+} // so much like MessageAck..
+
+type GuildIntegrationsUpdate struct {
+	GuildId int `json:"guild_id,string"`
 }
 
 // Open a websocket connection to Discord
@@ -139,70 +167,178 @@ func event(s *Session, messageType int, message []byte) (err error) {
 		if s.OnReady != nil {
 			var st Ready
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
 			s.OnReady(s, st)
 			return
 		}
+	case "VOICE_STATE_UPDATE":
+		if s.OnVoiceStateUpdate != nil {
+			var st VoiceState
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnVoiceStateUpdate(s, st)
+			return
+		}
+	case "PRESENCE_UPDATE":
+		if s.OnPresenceUpdate != nil {
+			var st PresenceUpdate
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnPresenceUpdate(s, st)
+			return
+		}
 	case "TYPING_START":
 		if s.OnTypingStart != nil {
+			var st TypingStart
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnTypingStart(s, st)
+			return
 		}
 	case "MESSAGE_CREATE":
 		if s.OnMessageCreate != nil {
 			var st Message
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
 				return err
 			}
 			s.OnMessageCreate(s, st)
 			return
 		}
-	case "MESSAGE_ACK":
-		if s.OnMessageAck != nil {
-		}
 	case "MESSAGE_UPDATE":
 		if s.OnMessageUpdate != nil {
+			var st Message
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnMessageUpdate(s, st)
+			return
 		}
 	case "MESSAGE_DELETE":
 		if s.OnMessageDelete != nil {
+			var st MessageDelete
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnMessageDelete(s, st)
 		}
-	case "PRESENCE_UPDATE":
-		if s.OnPresenceUpdate != nil {
+	case "MESSAGE_ACK":
+		if s.OnMessageAck != nil {
+			var st MessageAck
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnMessageAck(s, st)
+			return
 		}
 	case "CHANNEL_CREATE":
 		if s.OnChannelCreate != nil {
+			var st Channel
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnChannelCreate(s, st)
+			return
 		}
 	case "CHANNEL_UPDATE":
 		if s.OnChannelUpdate != nil {
+			var st Channel
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnChannelUpdate(s, st)
+			return
 		}
 	case "CHANNEL_DELETE":
 		if s.OnChannelDelete != nil {
+			var st Channel
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnChannelDelete(s, st)
+			return
 		}
 	case "GUILD_CREATE":
 		if s.OnGuildCreate != nil {
+			var st Guild
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildCreate(s, st)
+			return
 		}
 	case "GUILD_DELETE":
 		if s.OnGuildDelete != nil {
+			var st Guild
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildDelete(s, st)
+			return
 		}
 	case "GUILD_MEMBER_ADD":
 		if s.OnGuildMemberAdd != nil {
+			var st Member
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildMemberAdd(s, st)
+			return
 		}
-	case "GUILD_MEMBER_REMOVE": // which is it.
+	case "GUILD_MEMBER_REMOVE":
 		if s.OnGuildMemberRemove != nil {
-		}
-	case "GUILD_MEMBER_DELETE":
-		if s.OnGuildMemberDelete != nil {
+			var st Member
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildMemberRemove(s, st)
+			return
 		}
 	case "GUILD_MEMBER_UPDATE":
 		if s.OnGuildMemberUpdate != nil {
+			var st Member
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildMemberUpdate(s, st)
+			return
 		}
-	case "GUILD_ROLE_CREATE":
-		if s.OnGuildRoleCreate != nil {
-		}
-	case "GUILD_ROLE_DELETE":
-		if s.OnGuildRoleDelete != nil {
-		}
+		/*
+			case "GUILD_ROLE_CREATE":
+				if s.OnGuildRoleCreate != nil {
+				}
+			case "GUILD_ROLE_DELETE":
+				if s.OnGuildRoleDelete != nil {
+				}
+		*/
 	case "GUILD_INTEGRATIONS_UPDATE":
 		if s.OnGuildIntegrationsUpdate != nil {
+			var st GuildIntegrationsUpdate
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildIntegrationsUpdate(s, st)
+			return
 		}
 	default:
 		fmt.Println("UNKNOWN EVENT: ", e.Type)

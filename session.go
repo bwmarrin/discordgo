@@ -18,24 +18,25 @@ type Session struct {
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, Event) // should Event be *Event?
 	OnReady                   func(*Session, Ready)
+	OnTypingStart             func(*Session, TypingStart)
 	OnMessageCreate           func(*Session, Message)
-	OnTypingStart             func(*Session, Event)
-	OnMessageAck              func(*Session, Event)
-	OnMessageUpdate           func(*Session, Event)
-	OnMessageDelete           func(*Session, Event)
-	OnPresenceUpdate          func(*Session, Event)
-	OnChannelCreate           func(*Session, Event)
-	OnChannelUpdate           func(*Session, Event)
-	OnChannelDelete           func(*Session, Event)
-	OnGuildCreate             func(*Session, Event)
-	OnGuildDelete             func(*Session, Event)
-	OnGuildMemberAdd          func(*Session, Event)
-	OnGuildMemberRemove       func(*Session, Event)
-	OnGuildMemberDelete       func(*Session, Event) // which is it?
-	OnGuildMemberUpdate       func(*Session, Event)
-	OnGuildRoleCreate         func(*Session, Event)
-	OnGuildRoleDelete         func(*Session, Event)
-	OnGuildIntegrationsUpdate func(*Session, Event)
+	OnMessageUpdate           func(*Session, Message)
+	OnMessageDelete           func(*Session, MessageDelete)
+	OnMessageAck              func(*Session, MessageAck)
+	OnPresenceUpdate          func(*Session, PresenceUpdate)
+	OnVoiceStateUpdate        func(*Session, VoiceState)
+	OnChannelCreate           func(*Session, Channel)
+	OnChannelUpdate           func(*Session, Channel)
+	OnChannelDelete           func(*Session, Channel)
+	OnGuildCreate             func(*Session, Guild)
+	OnGuildDelete             func(*Session, Guild)
+	OnGuildMemberAdd          func(*Session, Member)
+	OnGuildMemberRemove       func(*Session, Member)
+	OnGuildMemberDelete       func(*Session, Member) // which is it?
+	OnGuildMemberUpdate       func(*Session, Member)
+	OnGuildRoleCreate         func(*Session, Role)
+	OnGuildRoleDelete         func(*Session, Role)
+	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
 
 	// OnMessageCreate func(Session, Event, Message)
 	// ^^ Any value to passing session, event, message?
@@ -69,8 +70,8 @@ func (session *Session) PrivateChannels() (channels []Channel, err error) {
 	return
 }
 
-func (session *Session) Servers() (servers []Server, err error) {
-	servers, err = Servers(session, "@me")
+func (session *Session) Guilds() (servers []Guild, err error) {
+	servers, err = Guilds(session, "@me")
 	return
 }
 
