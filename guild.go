@@ -49,7 +49,7 @@ type Presence struct {
 
 // TODO: Member vs User?
 type Member struct {
-	GuildId  int      `json:"guild_id"`
+	GuildId  int      `json:"guild_id,string"`
 	JoinedAt string   `json:"joined_at"`
 	Deaf     bool     `json:"deaf"`
 	mute     bool     `json:"mute"`
