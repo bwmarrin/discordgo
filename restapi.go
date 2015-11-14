@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -24,57 +25,70 @@ const (
 	// Base URLS
 	DISCORD  = "http://discordapp.com"
 	API      = DISCORD + "/api"
-	SERVERS  = API + "/guilds"
-	CHANNELS = API + "/channels"
-	USERS    = API + "/users"
-	LOGIN    = API + "/auth/login"
-	LOGOUT   = API + "/auth/logout"
-	GATEWAY  = API + "/gateway"
+	GUILDS   = API + "/guilds"      // Guilds()
+	CHANNELS = API + "/channels"    // Channels()
+	USERS    = API + "/users"       // Users()
+	LOGIN    = API + "/auth/login"  // Login()
+	LOGOUT   = API + "/auth/logout" // Logout()
+	GATEWAY  = API + "/gateway"     // Gateway()
 
-	// Constants not implemented below yet. TODO tracker :)
-	REGISTER        = API + "/auth/register"
-	INVITE          = API + "/invite"
-	TRACK           = API + "/track"
-	SSO             = API + "/sso"
-	VERIFY          = API + "/auth/verify"
-	VERIFY_RESEND   = API + "/auth/verify/resend"
-	FORGOT_PASSWORD = API + "/auth/forgot"
-	RESET_PASSWORD  = API + "/auth/reset"
-	REGIONS         = API + "/voice/regions"
-	ICE             = API + "/voice/ice"
-	REPORT          = API + "/report"
-	INTEGRATIONS    = API + "/integrations"
 	// Authenticated User Info
-	AU             = USERS + "/@me"
-	AU_DEVICES     = AU + "/devices"
-	AU_SETTINGS    = AU + "/settings"
-	AU_CONNECTIONS = AU + "/connections"
-	AU_CHANNELS    = AU + "/channels"
-	AU_SERVERS     = AU + "/guilds"
+	AU          = USERS + "/@me"
+	AU_SETTINGS = AU + "/settings" // Call Settings with @me
+	AU_CHANNELS = AU + "/channels" // Call Channel with @me
+	AU_GUILDS   = AU + "/guilds"   // Call Guilds with @me
 
-	// Need a way to handle these here so the variables can be inserted.
-	// Maybe defined as functions?
-	/*
-		INTEGRATIONS_JOIN: integrationId => `/integrations/${integrationId}/join`,
-		AVATAR: (userId, hash) => `/users/${userId}/avatars/${hash}.jpg`,
-		MESSAGES: channelId => `/channels/${channelId}/messages`,
-		INSTANT_INVITES: channelId => `/channels/${channelId}/invites`,
-		TYPING: channelId => `/channels/${channelId}/typing`,
-		CHANNEL_PERMISSIONS: channelId => `/channels/${channelId}/permissions`,
-		TUTORIAL: `/tutorial`,
-		TUTORIAL_INDICATORS: `/tutorial/indicators`,
-		USER_CHANNELS: userId => `/users/${userId}/channels`,
-		GUILD_CHANNELS: guildId => `/guilds/${guildId}/channels`,
-		GUILD_MEMBERS: guildId => `/guilds/${guildId}/members`,
-		GUILD_INTEGRATIONS: guildId => `/guilds/${guildId}/integrations`,
-		GUILD_BANS: guildId => `/guilds/${guildId}/bans`,
-		GUILD_ROLES: guildId => `/guilds/${guildId}/roles`,
-		GUILD_INSTANT_INVITES: guildId => `/guilds/${guildId}/invites`,
-		GUILD_EMBED: guildId => `/guilds/${guildId}/embed`,
-		GUILD_PRUNE: guildId => `/guilds/${guildId}/prune`,
-		GUILD_ICON: (guildId, hash) => `/guilds/${guildId}/icons/${hash}.jpg`,
-	*/
+	REGIONS = API + "/voice/regions" // VoiceRegions()
+	ICE     = API + "/voice/ice"     // VoiceIce()
 
+//		: guildId => `/guilds/${guildId}/channels`,
+// GUILD_CHANNELS: guildId => `/guilds/${guildId}/channels`,
+
+// TODO: Test below
+// AU_DEVICES     = AU + "/devices"
+// AU_CONNECTIONS = AU + "/connections"
+// REGISTER        = API + "/auth/register"
+// INVITE          = API + "/invite"
+// TRACK           = API + "/track"
+// SSO             = API + "/sso"
+// VERIFY          = API + "/auth/verify"
+// VERIFY_RESEND   = API + "/auth/verify/resend"
+// FORGOT_PASSWORD = API + "/auth/forgot"
+// RESET_PASSWORD  = API + "/auth/reset"
+// REPORT       = API + "/report"
+// INTEGRATIONS = API + "/integrations"
+
+// Need a way to handle these here so the variables can be inserted.
+// Maybe defined as functions?
+/*
+	INTEGRATIONS_JOIN: integrationId => `/integrations/${integrationId}/join`,
+	AVATAR: (userId, hash) => `/users/${userId}/avatars/${hash}.jpg`,
+	MESSAGES: channelId => `/channels/${channelId}/messages`,
+	INSTANT_INVITES: channelId => `/channels/${channelId}/invites`,
+	TYPING: channelId => `/channels/${channelId}/typing`,
+	CHANNEL_PERMISSIONS: channelId => `/channels/${channelId}/permissions`,
+	TUTORIAL: `/tutorial`,
+	TUTORIAL_INDICATORS: `/tutorial/indicators`,
+	USER_CHANNELS: userId => `/users/${userId}/channels`,
+	GUILD_CHANNELS: guildId => `/guilds/${guildId}/channels`,
+	GUILD_MEMBERS: guildId => `/guilds/${guildId}/members`,
+	GUILD_INTEGRATIONS: guildId => `/guilds/${guildId}/integrations`,
+	GUILD_BANS: guildId => `/guilds/${guildId}/bans`,
+	GUILD_ROLES: guildId => `/guilds/${guildId}/roles`,
+	GUILD_INSTANT_INVITES: guildId => `/guilds/${guildId}/invites`,
+	GUILD_EMBED: guildId => `/guilds/${guildId}/embed`,
+	GUILD_PRUNE: guildId => `/guilds/${guildId}/prune`,
+	GUILD_ICON: (guildId, hash) => `/guilds/${guildId}/icons/${hash}.jpg`,
+*/
+
+)
+
+// Almost like the constants above :) Dynamic Variables?
+var (
+	GUILD_CHANNELS = func(i int) (s string) {
+		s = GUILDS + "/" + strconv.Itoa(i) + "/channels"
+		return
+	}
 )
 
 // Request makes a (GET/POST/?) Requests to Discord REST API.
@@ -148,9 +162,28 @@ func (s *Session) Users(userId string) (user User, err error) {
 	return
 }
 
-// USERS could pull users channels, servers, settings and so forth too?
-// you know, pull all the data for the user.  update the user strut
-// to house that data.  Seems reasonable.
+func (s *Session) VoiceRegions() (vr []VoiceRegion, err error) {
+
+	body, err := s.Request("GET", REGIONS, ``)
+	err = json.Unmarshal(body, &vr)
+	return
+}
+
+func (s *Session) VoiceIce() (ice VoiceIce, err error) {
+
+	body, err := s.Request("GET", ICE, ``)
+	err = json.Unmarshal(body, &ice)
+	return
+}
+
+// Settings returns the settings for a given user
+// This seems to only return a result for "@me"
+func (s *Session) Settings(userId string) (settings Settings, err error) {
+
+	body, err := s.Request("GET", fmt.Sprintf("%s/%s/settings", USERS, userId), ``)
+	err = json.Unmarshal(body, &settings)
+	return
+}
 
 // PrivateChannels returns an array of Channel structures for all private
 // channels for a user
@@ -178,7 +211,7 @@ func (s *Session) Guilds(userId string) (servers []Guild, err error) {
 // server.
 func (s *Session) Members(serverId int) (members []Member, err error) {
 
-	body, err := s.Request("GET", fmt.Sprintf("%s/%d/members", SERVERS, serverId), ``)
+	body, err := s.Request("GET", fmt.Sprintf("%s/%d/members", GUILDS, serverId), ``)
 	err = json.Unmarshal(body, &members)
 
 	return
@@ -186,9 +219,10 @@ func (s *Session) Members(serverId int) (members []Member, err error) {
 
 // Channels returns an array of Channel structures for all channels of a given
 // server.
-func (s *Session) Channels(serverId int) (channels []Channel, err error) {
+func (s *Session) Channels(Id int) (channels []Channel, err error) {
 
-	body, err := s.Request("GET", fmt.Sprintf("%s/%d/channels", SERVERS, serverId), ``)
+	// body, err := s.Request("GET", fmt.Sprintf("%s/%d/channels", GUILDS, serverId), ``)
+	body, err := s.Request("GET", GUILD_CHANNELS(Id), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
