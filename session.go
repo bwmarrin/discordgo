@@ -65,16 +65,16 @@ type Session struct {
  * Reference the client.go file for more documentation.
  */
 func (s *Session) Self() (user User, err error) {
-	user, err = s.Users("@me")
+	user, err = s.User("@me")
 	return
 }
 
 func (s *Session) MyPrivateChannels() (channels []Channel, err error) {
-	channels, err = s.PrivateChannels("@me")
+	channels, err = s.UserChannels("@me")
 	return
 }
 
 func (s *Session) MyGuilds() (servers []Guild, err error) {
-	servers, err = s.Guilds("@me")
+	servers, err = s.UserGuilds("@me")
 	return
 }

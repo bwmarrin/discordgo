@@ -16,5 +16,5 @@ func printJSON(body []byte) {
 	if error != nil {
 		fmt.Print("JSON parse error: ", error)
 	}
-	fmt.Println("RESPONSE ::\n" + string(prettyJSON.Bytes()))
+	fmt.Println(string(prettyJSON.Bytes()))
 }
