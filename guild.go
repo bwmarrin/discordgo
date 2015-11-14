@@ -1,23 +1,23 @@
 package discordgo
 
 type Guild struct {
-	Id               int          `json:"id,string"`
-	Name             string       `json:"name"`
-	Icon             string       `json:"icon"`
-	Region           string       `json:"region"`
-	Joined_at        string       `json:"joined_at"` // make time stamp
-	Afk_timeout      int          `json:"afk_timeout"`
-	Afk_channel_id   int          `json:"afk_channel_id,string"`
-	Embed_channel_id int          `json:"embed_channel_id"`
-	Embed_enabled    bool         `json:"embed_enabled"`
-	Owner_id         int          `json:"owner_id,string"`
-	Large            bool         `json:"large"`     // ??
-	JoinedAt         string       `json:"joined_at"` // make this a timestamp
-	Roles            []Role       `json:"roles"`
-	Members          []Member     `json:"members"`
-	Presences        []Presence   `json:"presences"`
-	Channels         []Channel    `json:"channels"`
-	VoiceStates      []VoiceState `json:"voice_states"`
+	Id             int          `json:"id,string"`
+	Name           string       `json:"name"`
+	Icon           string       `json:"icon"`
+	Region         string       `json:"region"`
+	JoinedAt       string       `json:"joined_at"` // make time stamp
+	AfkTimeout     int          `json:"afk_timeout"`
+	AfkChannelId   int          `json:"afk_channel_id,string"`
+	EmbedChannelId int          `json:"embed_channel_id,string"`
+	EmbedEnabled   bool         `json:"embed_enabled"`
+	OwnerId        int          `json:"owner_id,string"`
+	Large          bool         `json:"large"`     // ??
+	JoinedAt       string       `json:"joined_at"` // make this a timestamp
+	Roles          []Role       `json:"roles"`
+	Members        []Member     `json:"members"`
+	Presences      []Presence   `json:"presences"`
+	Channels       []Channel    `json:"channels"`
+	VoiceStates    []VoiceState `json:"voice_states"`
 }
 
 type Role struct {
