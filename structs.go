@@ -16,8 +16,26 @@ type Message struct {
 	ChannelId       int          `json:"channel_id,string"`
 }
 
-type Attachment struct {
+type Attachment struct { //TODO figure this out
 }
 
-type Embed struct {
+type Embed struct { // TODO figure this out
+}
+
+type VoiceRegion struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	SampleHostname string `json:"sample_hostname"`
+	SamplePort     int    `json:"sample_port"`
+}
+
+type VoiceIce struct {
+	Ttl     int         `json:"ttl,string"`
+	Servers []IceServer `json:"servers"`
+}
+
+type IceServer struct {
+	Url        string `json:"url"`
+	Username   string `json:"username"`
+	Credential string `json:"credential"`
 }
