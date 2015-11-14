@@ -5,7 +5,6 @@ type Guild struct {
 	Name           string       `json:"name"`
 	Icon           string       `json:"icon"`
 	Region         string       `json:"region"`
-	JoinedAt       string       `json:"joined_at"` // make time stamp
 	AfkTimeout     int          `json:"afk_timeout"`
 	AfkChannelId   int          `json:"afk_channel_id,string"`
 	EmbedChannelId int          `json:"embed_channel_id,string"`
