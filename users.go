@@ -25,4 +25,24 @@ type PrivateChannel struct {
 	Recipient     User `json:"recipient"`
 } // merge with channel?
 
+type Settings struct {
+	RenderEmbeds          bool   `json:"render_embeds"`
+	InlineEmbedMedia      bool   `json:"inline_embed_media"`
+	EnableTtsCommand      bool   `json:"enable_tts_command"`
+	MessageDisplayCompact bool   `json:"message_display_compact"`
+	Locale                string `json:"locale"`
+	ShowCurrentGame       bool   `json:"show_current_game"`
+	Theme                 string `json:"theme"`
+	//MutedChannels         []string `json:"muted_channels"` // TODO, see below
+	MutedChannels []int `json:"muted_channels,string"` // TODO, see below
+	//  MutedChannels []MutedChannel `json:"muted_channels"`
+}
+
+type MutedChannel struct {
+	mc int `json:",string"`
+}
+
+// MutedChannels should be an array of ints...
+// need to find a way to make that happen
+
 // PM function to PM a user.
