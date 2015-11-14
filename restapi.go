@@ -79,9 +79,9 @@ const (
 
 // Request makes a (GET/POST/?) Requests to Discord REST API.
 // All the other functions in this file use this function.
-func Request(session *Session, method, urlStr, body string) (response []byte, err error) {
+func (s *Session) Request(method, urlStr, body string) (response []byte, err error) {
 
-	if session.Debug {
+	if s.Debug {
 		fmt.Println("REQUEST  :: " + method + " " + urlStr + "\n" + body)
 	}
 
@@ -91,8 +91,8 @@ func Request(session *Session, method, urlStr, body string) (response []byte, er
 	}
 
 	// Not used on initial login..
-	if session.Token != "" {
-		req.Header.Set("authorization", session.Token)
+	if s.Token != "" {
+		req.Header.Set("authorization", s.Token)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -114,7 +114,7 @@ func Request(session *Session, method, urlStr, body string) (response []byte, er
 		return
 	}
 
-	if session.Debug {
+	if s.Debug {
 		var prettyJSON bytes.Buffer
 		error := json.Indent(&prettyJSON, response, "", "\t")
 		if error != nil {
@@ -127,9 +127,9 @@ func Request(session *Session, method, urlStr, body string) (response []byte, er
 }
 
 // Login asks the Discord server for an authentication token
-func Login(session *Session, email string, password string) (token string, err error) {
+func (s *Session) Login(email string, password string) (token string, err error) {
 
-	response, err := Request(session, "POST", LOGIN, fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))
+	response, err := s.Request("POST", LOGIN, fmt.Sprintf(`{"email":"%s", "password":"%s"}`, email, password))
 
 	var temp map[string]interface{}
 	err = json.Unmarshal(response, &temp)
@@ -141,9 +141,9 @@ func Login(session *Session, email string, password string) (token string, err e
 // Returns the user details of the given userId
 // session : An active session connection to Discord
 // user    : A user Id or name
-func Users(session *Session, userId string) (user User, err error) {
+func (s *Session) Users(userId string) (user User, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/%s", USERS, userId), ``)
+	body, err := s.Request("GET", fmt.Sprintf("%s/%s", USERS, userId), ``)
 	err = json.Unmarshal(body, &user)
 	return
 }
@@ -154,18 +154,18 @@ func Users(session *Session, userId string) (user User, err error) {
 
 // PrivateChannels returns an array of Channel structures for all private
 // channels for a user
-func PrivateChannels(session *Session, userId string) (channels []Channel, err error) {
+func (s *Session) PrivateChannels(userId string) (channels []Channel, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/%s/channels", USERS, userId), ``)
+	body, err := s.Request("GET", fmt.Sprintf("%s/%s/channels", USERS, userId), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
 }
 
 // Guilds returns an array of Guild structures for all servers for a user
-func Guilds(session *Session, userId string) (servers []Guild, err error) {
+func (s *Session) Guilds(userId string) (servers []Guild, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/%s/guilds", USERS, userId), ``)
+	body, err := s.Request("GET", fmt.Sprintf("%s/%s/guilds", USERS, userId), ``)
 	err = json.Unmarshal(body, &servers)
 
 	return
@@ -176,9 +176,9 @@ func Guilds(session *Session, userId string) (servers []Guild, err error) {
 
 // Members returns an array of Member structures for all members of a given
 // server.
-func Members(session *Session, serverId int) (members []Member, err error) {
+func (s *Session) Members(serverId int) (members []Member, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/%d/members", SERVERS, serverId), ``)
+	body, err := s.Request("GET", fmt.Sprintf("%s/%d/members", SERVERS, serverId), ``)
 	err = json.Unmarshal(body, &members)
 
 	return
@@ -186,9 +186,9 @@ func Members(session *Session, serverId int) (members []Member, err error) {
 
 // Channels returns an array of Channel structures for all channels of a given
 // server.
-func Channels(session *Session, serverId int) (channels []Channel, err error) {
+func (s *Session) Channels(serverId int) (channels []Channel, err error) {
 
-	body, err := Request(session, "GET", fmt.Sprintf("%s/%d/channels", SERVERS, serverId), ``)
+	body, err := s.Request("GET", fmt.Sprintf("%s/%d/channels", SERVERS, serverId), ``)
 	err = json.Unmarshal(body, &channels)
 
 	return
@@ -201,7 +201,7 @@ func Channels(session *Session, serverId int) (channels []Channel, err error) {
 // Messages returns an array of Message structures for messaages within a given
 // channel.  limit, beforeId, and afterId can be used to control what messages
 // are returned.
-func Messages(session *Session, channelId int, limit int, beforeId int, afterId int) (messages []Message, err error) {
+func (s *Session) Messages(channelId int, limit int, beforeId int, afterId int) (messages []Message, err error) {
 
 	var urlStr string
 
@@ -229,17 +229,17 @@ func Messages(session *Session, channelId int, limit int, beforeId int, afterId 
 		urlStr = fmt.Sprintf("%s/%d/messages", CHANNELS, channelId)
 	}
 
-	body, err := Request(session, "GET", urlStr, ``)
+	body, err := s.Request("GET", urlStr, ``)
 	err = json.Unmarshal(body, &messages)
 
 	return
 }
 
 // SendMessage sends a message to the given channel.
-func SendMessage(session *Session, channelId int, content string) (message Message, err error) {
+func (s *Session) SendMessage(channelId int, content string) (message Message, err error) {
 
 	var urlStr string = fmt.Sprintf("%s/%d/messages", CHANNELS, channelId)
-	response, err := Request(session, "POST", urlStr, fmt.Sprintf(`{"content":"%s"}`, content))
+	response, err := s.Request("POST", urlStr, fmt.Sprintf(`{"content":"%s"}`, content))
 	err = json.Unmarshal(response, &message)
 
 	return
@@ -247,9 +247,9 @@ func SendMessage(session *Session, channelId int, content string) (message Messa
 
 // Returns the a websocket Gateway address
 // session : An active session connection to Discord
-func Gateway(session *Session) (gateway string, err error) {
+func (s *Session) Gateway() (gateway string, err error) {
 
-	response, err := Request(session, "GET", GATEWAY, ``)
+	response, err := s.Request("GET", GATEWAY, ``)
 
 	var temp map[string]interface{}
 	err = json.Unmarshal(response, &temp)
@@ -261,9 +261,9 @@ func Gateway(session *Session) (gateway string, err error) {
 // This does not seem to actually invalidate the token.  So you can still
 // make API calls even after a Logout.  So, it seems almost pointless to
 // even use.
-func Logout(session *Session) (err error) {
+func (s *Session) Logout() (err error) {
 
-	_, err = Request(session, "POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, session.Token))
+	_, err = s.Request("POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, s.Token))
 
 	return
 }

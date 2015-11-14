@@ -26,7 +26,7 @@ type Event struct {
 	//Direction of command, 0-received, 1-sent -- thanks Xackery/discord
 
 	RawData json.RawMessage `json:"d"`
-	Session Session
+	Session *Session
 }
 
 // The Ready Event given after initial connection
@@ -88,19 +88,27 @@ type GuildIntegrationsUpdate struct {
 	GuildId int `json:"guild_id,string"`
 }
 
+type GuildRoleUpdate struct {
+	Role    Role `json:"role"`
+	GuildId int  `json:"guild_id,int"`
+}
+
 // Open a websocket connection to Discord
-func Open(s *Session) (err error) {
+func (s *Session) Open() (err error) {
+
+	// Get the gateway to use for the Websocket connection
+	g, err := s.Gateway()
 
 	// TODO: See if there's a use for the http response.
 	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
-	s.wsConn, _, err = websocket.DefaultDialer.Dial(s.Gateway, nil)
+	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, nil)
 	return
 }
 
 // maybe this is SendOrigin? not sure the right name here
 // also bson.M vs string interface map?  Read about
 // how to send JSON the right way.
-func Handshake(s *Session) (err error) {
+func (s *Session) Handshake() (err error) {
 
 	err = s.wsConn.WriteJSON(map[string]interface{}{
 		"op": 2,
@@ -120,7 +128,7 @@ func Handshake(s *Session) (err error) {
 	return
 }
 
-func UpdateStatus(s *Session, idleSince, gameId string) (err error) {
+func (s *Session) UpdateStatus(idleSince, gameId string) (err error) {
 
 	err = s.wsConn.WriteJSON(map[string]interface{}{
 		"op": 2,
@@ -135,7 +143,7 @@ func UpdateStatus(s *Session, idleSince, gameId string) (err error) {
 
 // TODO: need a channel or something to communicate
 // to this so I can tell it to stop listening
-func Listen(s *Session) (err error) {
+func (s *Session) Listen() (err error) {
 
 	if s.wsConn == nil {
 		fmt.Println("No websocket connection exists.")
@@ -148,7 +156,7 @@ func Listen(s *Session) (err error) {
 			fmt.Println(err)
 			break
 		}
-		go event(s, messageType, message)
+		go s.event(messageType, message)
 	}
 
 	return
@@ -156,13 +164,13 @@ func Listen(s *Session) (err error) {
 
 // Not sure how needed this is and where it would be best to call it.
 // somewhere.
-func Close(s *Session) {
+func (s *Session) Close() {
 	s.wsConn.Close()
 }
 
 // Front line handler for all Websocket Events.  Determines the
 // event type and passes the message along to the next handler.
-func event(s *Session, messageType int, message []byte) (err error) {
+func (s *Session) event(messageType int, message []byte) (err error) {
 
 	if s.Debug {
 		printJSON(message)
@@ -362,10 +370,18 @@ func event(s *Session, messageType int, message []byte) (err error) {
 			s.OnGuildMemberUpdate(s, st)
 			return
 		}
+	case "GUILD_ROLE_CREATE":
+		if s.OnGuildRoleUpdate != nil {
+			var st GuildRoleUpdate
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildRoleUpdate(s, st)
+			return
+		}
 		/*
-			case "GUILD_ROLE_CREATE":
-				if s.OnGuildRoleCreate != nil {
-				}
 			case "GUILD_ROLE_DELETE":
 				if s.OnGuildRoleDelete != nil {
 				}
@@ -398,7 +414,7 @@ func event(s *Session, messageType int, message []byte) (err error) {
 // This heartbeat is sent to keep the Websocket conenction
 // to Discord alive. If not sent, Discord will close the
 // connection.
-func Heartbeat(s *Session, i time.Duration) {
+func (s *Session) Heartbeat(i time.Duration) {
 
 	if s.wsConn == nil {
 		fmt.Println("No websocket connection exists.")
