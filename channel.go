@@ -1,22 +1,22 @@
 package discordgo
 
 type Channel struct {
-	GuildId              int                   `json:"guild_id,string,omitempty"`
-	Id                   int                   `json:"id,string"`
+	Id                   string                `json:"id"`
+	GuildId              string                `json:"guild_idomitempty"`
 	Name                 string                `json:"name"`
 	Topic                string                `json:"topic"`
 	Position             int                   `json:"position"`
 	Type                 string                `json:"type"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	IsPrivate            bool                  `json:"is_private"`
-	LastMessageId        int                   `json:"last_message_id,string"`
+	LastMessageId        string                `json:"last_message_id"`
 	Recipient            User                  `json:"recipient"`
 	Session              *Session
 }
 
 type PermissionOverwrite struct {
+	Id    string `json:"id"`
 	Type  string `json:"type"`
-	Id    int    `json:"id,string"`
 	Deny  int    `json:"deny"`
 	Allow int    `json:"allow"`
 }

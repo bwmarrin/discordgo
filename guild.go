@@ -1,15 +1,15 @@
 package discordgo
 
 type Guild struct {
-	Id             int          `json:"id,string"`
+	Id             string       `json:"id"`
 	Name           string       `json:"name"`
 	Icon           string       `json:"icon"`
 	Region         string       `json:"region"`
 	AfkTimeout     int          `json:"afk_timeout"`
-	AfkChannelId   int          `json:"afk_channel_id,string"`
-	EmbedChannelId int          `json:"embed_channel_id,string"`
+	AfkChannelId   string       `json:"afk_channel_id"`
+	EmbedChannelId string       `json:"embed_channel_id"`
 	EmbedEnabled   bool         `json:"embed_enabled"`
-	OwnerId        int          `json:"owner_id,string"`
+	OwnerId        string       `json:"owner_id"`
 	Large          bool         `json:"large"`     // ??
 	JoinedAt       string       `json:"joined_at"` // make this a timestamp
 	Roles          []Role       `json:"roles"`
@@ -20,7 +20,7 @@ type Guild struct {
 }
 
 type Role struct {
-	Id          int    `json:"id,string"`
+	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Managed     bool   `json:"managed"`
 	Color       int    `json:"color"`
@@ -30,14 +30,14 @@ type Role struct {
 }
 
 type VoiceState struct {
-	UserId    int    `json:"user_id,string"`
+	UserId    string `json:"user_id"`
 	Suppress  bool   `json:"suppress"`
 	SessionId string `json:"session_id"`
 	SelfMute  bool   `json:"self_mute"`
 	SelfDeaf  bool   `json:"self_deaf"`
 	Mute      bool   `json:"mute"`
 	Deaf      bool   `json:"deaf"`
-	ChannelId int    `json:"channel_id,string"`
+	ChannelId string `json:"channel_id"`
 }
 
 type Presence struct {
@@ -48,7 +48,7 @@ type Presence struct {
 
 // TODO: Member vs User?
 type Member struct {
-	GuildId  int      `json:"guild_id,string"`
+	GuildId  string   `json:"guild_id"`
 	JoinedAt string   `json:"joined_at"`
 	Deaf     bool     `json:"deaf"`
 	mute     bool     `json:"mute"`

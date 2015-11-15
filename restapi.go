@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	sv "strconv"
 	"time"
 )
 
@@ -39,8 +38,8 @@ const (
 	REGISTER        = AUTH + "register"
 
 	VOICE   = API + "/voice/"
-	REGIONS = API + VOICE + "regions"
-	ICE     = API + VOICE + "ice"
+	REGIONS = VOICE + "regions"
+	ICE     = VOICE + "ice"
 
 	TUTORIAL            = API + "tutorial/"
 	TUTORIAL_INDICATORS = TUTORIAL + "indicators"
@@ -62,24 +61,24 @@ var (
 	USER_DEVICES     = func(userId string) string { return USERS + userId + "/devices" }
 	USER_CONNECTIONS = func(userId string) string { return USERS + userId + "/connections" }
 
-	GUILD              = func(guildId int) string { return GUILDS + sv.Itoa(guildId) }
-	GUILD_CHANNELS     = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/channels" }
-	GUILD_MEMBERS      = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/members" }
-	GUILD_INTEGRATIONS = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/integrations" }
-	GUILD_BANS         = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/bans" }
-	GUILD_ROLES        = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/roles" }
-	GUILD_INVITES      = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/invites" }
-	GUILD_EMBED        = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/embed" }
-	GUILD_PRUNE        = func(guildId int) string { return GUILDS + sv.Itoa(guildId) + "/prune" }
-	GUILD_ICON         = func(guildId int, hash string) string { return GUILDS + sv.Itoa(guildId) + "/icons/" + hash + ".jpg" }
+	GUILD              = func(guildId string) string { return GUILDS + guildId }
+	GUILD_CHANNELS     = func(guildId string) string { return GUILDS + guildId + "/channels" }
+	GUILD_MEMBERS      = func(guildId string) string { return GUILDS + guildId + "/members" }
+	GUILD_INTEGRATIONS = func(guildId string) string { return GUILDS + guildId + "/integrations" }
+	GUILD_BANS         = func(guildId string) string { return GUILDS + guildId + "/bans" }
+	GUILD_ROLES        = func(guildId string) string { return GUILDS + guildId + "/roles" }
+	GUILD_INVITES      = func(guildId string) string { return GUILDS + guildId + "/invites" }
+	GUILD_EMBED        = func(guildId string) string { return GUILDS + guildId + "/embed" }
+	GUILD_PRUNE        = func(guildId string) string { return GUILDS + guildId + "/prune" }
+	GUILD_ICON         = func(guildId, hash string) string { return GUILDS + guildId + "/icons/" + hash + ".jpg" }
 
-	CHANNEL             = func(channelId int) string { return CHANNELS + sv.Itoa(channelId) }
-	CHANNEL_MESSAGES    = func(channelId int) string { return CHANNELS + sv.Itoa(channelId) + "/messages" }
-	CHANNEL_PERMISSIONS = func(channelId int) string { return CHANNELS + sv.Itoa(channelId) + "/permissions" }
-	CHANNEL_INVITES     = func(channelId int) string { return CHANNELS + sv.Itoa(channelId) + "/invites" }
-	CHANNEL_TYPING      = func(channelId int) string { return CHANNELS + sv.Itoa(channelId) + "/typing" }
+	CHANNEL             = func(channelId string) string { return CHANNELS + channelId }
+	CHANNEL_MESSAGES    = func(channelId string) string { return CHANNELS + channelId + "/messages" }
+	CHANNEL_PERMISSIONS = func(channelId string) string { return CHANNELS + channelId + "/permissions" }
+	CHANNEL_INVITES     = func(channelId string) string { return CHANNELS + channelId + "/invites" }
+	CHANNEL_TYPING      = func(channelId string) string { return CHANNELS + channelId + "/typing" }
 
-	INTEGRATIONS_JOIN = func(intId int) string { return API + "integrations/" + sv.Itoa(intId) + "/join" }
+	INTEGRATIONS_JOIN = func(intId string) string { return API + "integrations/" + intId + "/join" }
 )
 
 // Request makes a (GET/POST/?) Requests to Discord REST API.
@@ -225,7 +224,7 @@ func (s *Session) UserGuilds(userId string) (st []Guild, err error) {
 
 // Guild returns a Guild structure of a specific Guild.
 // guildId   : The ID of the Guild you want returend.
-func (s *Session) Guild(guildId int) (st []Guild, err error) {
+func (s *Session) Guild(guildId string) (st []Guild, err error) {
 
 	body, err := s.Request("GET", GUILD(guildId), ``)
 	err = json.Unmarshal(body, &st)
@@ -235,7 +234,7 @@ func (s *Session) Guild(guildId int) (st []Guild, err error) {
 // GuildMembers returns an array of Member structures for all members of a
 // given guild.
 // guildId   : The ID of a Guild.
-func (s *Session) GuildMembers(guildId int) (st []Member, err error) {
+func (s *Session) GuildMembers(guildId string) (st []Member, err error) {
 
 	body, err := s.Request("GET", GUILD_MEMBERS(guildId), ``)
 	err = json.Unmarshal(body, &st)
@@ -245,7 +244,7 @@ func (s *Session) GuildMembers(guildId int) (st []Member, err error) {
 // GuildChannels returns an array of Channel structures for all channels of a
 // given guild.
 // guildId   : The ID of a Guild.
-func (s *Session) GuildChannels(guildId int) (st []Channel, err error) {
+func (s *Session) GuildChannels(guildId string) (st []Channel, err error) {
 
 	body, err := s.Request("GET", GUILD_CHANNELS(guildId), ``)
 	err = json.Unmarshal(body, &st)
@@ -259,7 +258,7 @@ func (s *Session) GuildChannels(guildId int) (st []Channel, err error) {
 
 // Channel returns a Channel strucutre of a specific Channel.
 // channelId  : The ID of the Channel you want returend.
-func (s *Session) Channel(channelId int) (st Channel, err error) {
+func (s *Session) Channel(channelId string) (st Channel, err error) {
 	body, err := s.Request("GET", CHANNEL(channelId), ``)
 	err = json.Unmarshal(body, &st)
 	return
@@ -271,7 +270,7 @@ func (s *Session) Channel(channelId int) (st Channel, err error) {
 // limit     : The number messages that can be returned.
 // beforeId  : If provided all messages returned will be before given ID.
 // afterId   : If provided all messages returned will be after given ID.
-func (s *Session) ChannelMessages(channelId int, limit int, beforeId int, afterId int) (st []Message, err error) {
+func (s *Session) ChannelMessages(channelId string, limit int, beforeId int, afterId int) (st []Message, err error) {
 
 	var urlStr string = ""
 
@@ -303,7 +302,7 @@ func (s *Session) ChannelMessages(channelId int, limit int, beforeId int, afterI
 // ChannelMessageSend sends a message to the given channel.
 // channelId : The ID of a Channel.
 // content   : The message to send.
-func (s *Session) ChannelMessageSend(channelId int, content string) (st Message, err error) {
+func (s *Session) ChannelMessageSend(channelId string, content string) (st Message, err error) {
 
 	response, err := s.Request("POST", CHANNEL_MESSAGES(channelId), fmt.Sprintf(`{"content":"%s"}`, content))
 	err = json.Unmarshal(response, &st)

@@ -44,48 +44,36 @@ type Ready struct {
 // of all my channels when first connecting. I think :)
 type ReadState struct {
 	MentionCount  int
-	LastMessageID int `json:"last_message_id,string"`
-	ID            int `json:"id,string"`
+	LastMessageId string `json:"last_message_id"`
+	Id            string `json:"id"`
 }
 
 type TypingStart struct {
-	UserId    int `json:"user_id,string"`
-	ChannelId int `json:"channel_id,string"`
-	Timestamp int `json:"timestamp"`
+	UserId    string `json:"user_id"`
+	ChannelId string `json:"channel_id"`
+	Timestamp int    `json:"timestamp"`
 }
 
 type PresenceUpdate struct {
 	User    User     `json:"user"`
 	Status  string   `json:"status"`
-	Roles   []string `json:"roles"` // TODO: Should be ints, see below
-	GuildId int      `json:"guild_id,string"`
+	Roles   []string `json:"roles"`
+	GuildId string   `json:"guild_id"`
 	GameId  int      `json:"game_id"`
 }
 
-//Roles   []string `json:"roles"` // TODO: Should be ints, see below
-// Above "Roles" should be an array of ints
-// TODO: Figure out how to make it be one.
-/*
-	{
-		"roles": [
-			"89544728336416768",
-			"110429733396676608"
-		],
-	}
-*/
-
 type MessageAck struct {
-	MessageId int `json:"message_id,string"`
-	ChannelId int `json:"channel_id,string"`
+	MessageId string `json:"message_id"`
+	ChannelId string `json:"channel_id"`
 }
 
 type MessageDelete struct {
-	Id        int `json:"id,string"`
-	ChannelId int `json:"channel_id,string"`
+	Id        string `json:"id"`
+	ChannelId string `json:"channel_id"`
 } // so much like MessageAck..
 
 type GuildIntegrationsUpdate struct {
-	GuildId int `json:"guild_id,string"`
+	GuildId string `json:"guild_id"`
 }
 
 type GuildRoleUpdate struct {
