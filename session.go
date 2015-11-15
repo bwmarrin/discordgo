@@ -42,9 +42,9 @@ type Session struct {
 	OnGuildMemberRemove       func(*Session, Member)
 	OnGuildMemberDelete       func(*Session, Member) // which is it?
 	OnGuildMemberUpdate       func(*Session, Member)
-	OnGuildRoleCreate         func(*Session, Role)
-	OnGuildRoleUpdate         func(*Session, GuildRoleUpdate)
-	OnGuildRoleDelete         func(*Session, Role)
+	OnGuildRoleCreate         func(*Session, GuildRole)
+	OnGuildRoleUpdate         func(*Session, GuildRole)
+	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
 
 	// OnMessageCreate func(Session, Event, Message)

@@ -76,9 +76,14 @@ type GuildIntegrationsUpdate struct {
 	GuildId string `json:"guild_id"`
 }
 
-type GuildRoleUpdate struct {
-	Role    Role `json:"role"`
-	GuildId int  `json:"guild_id,int"`
+type GuildRole struct {
+	Role    Role   `json:"role"`
+	GuildId string `json:"guild_id"`
+}
+
+type GuildRoleDelete struct {
+	RoleId  string `json:"role_id"`
+	GuildId string `json:"guild_id"`
 }
 
 // Open a websocket connection to Discord
@@ -359,8 +364,19 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			return
 		}
 	case "GUILD_ROLE_CREATE":
+		if s.OnGuildRoleCreate != nil {
+			var st GuildRole
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildRoleCreate(s, st)
+			return
+		}
+	case "GUILD_ROLE_UPDATE":
 		if s.OnGuildRoleUpdate != nil {
-			var st GuildRoleUpdate
+			var st GuildRole
 			if err := json.Unmarshal(e.RawData, &st); err != nil {
 				fmt.Println(e.Type, err)
 				printJSON(e.RawData) // TODO: Better error logginEventg
@@ -369,11 +385,17 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			s.OnGuildRoleUpdate(s, st)
 			return
 		}
-		/*
-			case "GUILD_ROLE_DELETE":
-				if s.OnGuildRoleDelete != nil {
-				}
-		*/
+	case "GUILD_ROLE_DELETE":
+		if s.OnGuildRoleDelete != nil {
+			var st GuildRoleDelete
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnGuildRoleDelete(s, st)
+			return
+		}
 	case "GUILD_INTEGRATIONS_UPDATE":
 		if s.OnGuildIntegrationsUpdate != nil {
 			var st GuildIntegrationsUpdate
