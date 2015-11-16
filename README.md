@@ -55,6 +55,10 @@ func messageCreate(s *discordgo.Session, m discordgo.Message) {
 }
 ```
 
+# Documentation
+- [GoDoc](https://godoc.org/github.com/bwmarrin/Discordgo)
+- Hand crafted documentation coming soon.
+
 # What Works
 
 Low level functions exist for the majority of the REST and Websocket API.
