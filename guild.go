@@ -51,7 +51,7 @@ type Member struct {
 	GuildId  string   `json:"guild_id"`
 	JoinedAt string   `json:"joined_at"`
 	Deaf     bool     `json:"deaf"`
-	mute     bool     `json:"mute"`
+	Mute     bool     `json:"mute"`
 	User     User     `json:"user"`
 	Roles    []string `json:"roles"`
 }
