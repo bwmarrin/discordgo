@@ -6,18 +6,56 @@ Discordgo provides an almost complete low-level Golang interface to the Discord
 REST and Websocket API layers.  The majority of both of these interfaces are
 complete and I should have the remaining functions finished soon.
 
-At this point Discordgo is suitable for use with most projects including bots 
-or clients.  The function naming conventions and usage style should not change 
-in the future.  Function names are based primarily on the naming used by Discord 
-within their API calls.  Should Discord change their naming then Discordgo will 
-be updated to match it.
+# Example
+```go
+package main
 
-Special thanks goes to both the below projects who helped me get started with
-this project.  If you're looking for alternative Golang interfaces to Discord
-please check both of these out.
+import (
+	"fmt"
+	"time"
 
-* https://github.com/gdraynz/go-discord
-* https://github.com/Xackery/discord
+	"github.com/bwmarrin/discordgo"
+)
+
+func main() {
+
+	var err error
+
+	// Create a new Discord Session and set a handler for the OnMessageCreate
+    // event that happens for every new message on any channel
+	Session := discordgo.Session{
+		OnMessageCreate: messageCreate,
+	}
+
+	// Login to the Discord server and store the authentication token
+	// inside the Session
+	Session.Token, err = Session.Login("coolusername", "cleverpassword")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Open websocket connection
+	err = Session.Open()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Do websocket handshake.
+	err = Session.Handshake()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Listen for events.
+	Session.Listen()
+	return
+}
+
+func messageCreate(s *discordgo.Session, m discordgo.Message) {
+	fmt.Printf("%25d %s %20s > %s\n", m.ChannelId, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
+}
+```
 
 # What Works
 
@@ -40,8 +78,20 @@ Low level functions exist for the majority of the REST and Websocket API.
 * Voice Channel support.
 * Functions for Maintenance Status
 
+# Credits
+
+Special thanks goes to both the below projects who helped me get started with
+this project.  If you're looking for alternative Golang interfaces to Discord
+please check both of these out.
+
+* https://github.com/gdraynz/go-discord
+* https://github.com/Xackery/discord
+
+
 # Other Discord APIs
 
+- [go-discord](https://github.com/gdraynz/go-discord)
+- [discord](https://github.com/Xackery/discord)
 - [discord.py](https://github.com/Rapptz/discord.py)
 - [discord.js](https://github.com/discord-js/discord.js)
 - [discord.io](https://github.com/izy521/discord.io)
