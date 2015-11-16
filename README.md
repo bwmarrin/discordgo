@@ -3,6 +3,8 @@
 Discordgo provides a mostly complete low-level Golang interface to the Discord
 REST and Websocket API.
 
+[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo)
+
 
 # Usage Example
 ```go
