@@ -2,11 +2,11 @@
 
 A Discord API for Golang
 
-Discordgo provides an almost complete low-level Golang interface to the Discord
-REST and Websocket API layers.  The majority of both of these interfaces are
-complete and I should have the remaining functions finished soon.
+Discordgo provides a mostly complete low-level Golang interface to the Discord
+REST and Websocket API.
 
-# Example
+
+# Usage Example
 ```go
 package main
 
@@ -71,12 +71,12 @@ Low level functions exist for the majority of the REST and Websocket API.
 * List Guild Members
 * Receive/Send Messages to Channels
 
-# What's Left
+# What's Unfinished
 
-* Permissions related functions.
 * Editing User Profile settings
-* Voice Channel support.
+* Permissions related functions.
 * Functions for Maintenance Status
+* Voice Channel support.
 
 # Credits
 
