@@ -57,6 +57,11 @@ func messageCreate(s *discordgo.Session, m discordgo.Message) {
 ```
 
 # Documentation
+
+**NOTICE** : This library and the Discord API are unfinished.
+Because of that there may be major changes to library functions, constants,
+and structures.
+
 - [GoDoc](https://godoc.org/github.com/bwmarrin/discordgo)
 - Hand crafted documentation coming soon.
 
@@ -76,6 +81,7 @@ Low level functions exist for the majority of the REST and Websocket API.
 
 # What's Unfinished
 
+* Make changes as needed to pass GoLint, GoVet, GoCyclo, etc. (goreportcard.com)
 * Editing User Profile settings
 * Permissions related functions.
 * Functions for Maintenance Status
