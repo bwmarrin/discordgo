@@ -220,6 +220,11 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			s.OnTypingStart(s, st)
 			return
 		}
+		/* // Never seen this come in but saw it in another Library.
+		case "MESSAGE_ACK":
+			if s.OnMessageAck != nil {
+			}
+		*/
 	case "MESSAGE_CREATE":
 		if s.OnMessageCreate != nil {
 			var st Message

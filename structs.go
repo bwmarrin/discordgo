@@ -39,3 +39,17 @@ type IceServer struct {
 	Username   string `json:"username"`
 	Credential string `json:"credential"`
 }
+
+type Invite struct {
+	MaxAge    int     `json:"max_age"`
+	Code      string  `json:"code"`
+	Guild     Guild   `json:"guild"`
+	Revoked   bool    `json:"revoked"`
+	CreatedAt string  `json:"created_at"` // TODO make timestamp
+	Temporary bool    `json:"temporary"`
+	Uses      int     `json:"uses"`
+	MaxUses   int     `json:"max_uses"`
+	Inviter   User    `json:"inviter"`
+	XkcdPass  bool    `json:"xkcdpass"`
+	Channel   Channel `json:"channel"`
+}

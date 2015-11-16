@@ -21,7 +21,12 @@ import (
 // Constants of all known Discord API Endpoints
 // Please let me know if you know of any others.
 const (
-	DISCORD  = "http://discordapp.com"
+	STATUS      = "https://status.discordapp.com/api/v2/"
+	SM          = STATUS + "scheduled-maintenances/"
+	SM_ACTIVE   = SM + "active.json"
+	SM_UPCOMING = SM + "upcoming.json"
+
+	DISCORD  = "http://discordapp.com" // TODO consider removing
 	API      = DISCORD + "/api/"
 	GUILDS   = API + "guilds/"
 	CHANNELS = API + "channels/"
@@ -37,14 +42,13 @@ const (
 	RESET_PASSWORD  = AUTH + "reset"
 	REGISTER        = AUTH + "register"
 
-	VOICE   = API + "/voice/"
-	REGIONS = VOICE + "regions"
-	ICE     = VOICE + "ice"
+	VOICE         = API + "/voice/"
+	VOICE_REGIONS = VOICE + "regions"
+	VOICE_ICE     = VOICE + "ice"
 
 	TUTORIAL            = API + "tutorial/"
 	TUTORIAL_INDICATORS = TUTORIAL + "indicators"
 
-	INVITE       = API + "invite"
 	TRACK        = API + "track"
 	SSO          = API + "sso"
 	REPORT       = API + "report"
@@ -53,32 +57,39 @@ const (
 
 // Almost like the constants above :) Except can't be constants
 var (
-	USER             = func(userId string) string { return USERS + userId }
-	USER_AVATAR      = func(userId, hash string) string { return USERS + userId + "/avatars/" + hash + ".jpg" }
-	USER_SETTINGS    = func(userId string) string { return USERS + userId + "/settings" }
-	USER_GUILDS      = func(userId string) string { return USERS + userId + "/guilds" }
-	USER_CHANNELS    = func(userId string) string { return USERS + userId + "/channels" }
-	USER_DEVICES     = func(userId string) string { return USERS + userId + "/devices" }
-	USER_CONNECTIONS = func(userId string) string { return USERS + userId + "/connections" }
+	USER             = func(uId string) string { return USERS + uId }
+	USER_AVATAR      = func(uId, aId string) string { return USERS + uId + "/avatars/" + aId + ".jpg" }
+	USER_SETTINGS    = func(uId string) string { return USERS + uId + "/settings" }
+	USER_GUILDS      = func(uId string) string { return USERS + uId + "/guilds" }
+	USER_CHANNELS    = func(uId string) string { return USERS + uId + "/channels" }
+	USER_DEVICES     = func(uId string) string { return USERS + uId + "/devices" }
+	USER_CONNECTIONS = func(uId string) string { return USERS + uId + "/connections" }
 
-	GUILD              = func(guildId string) string { return GUILDS + guildId }
-	GUILD_CHANNELS     = func(guildId string) string { return GUILDS + guildId + "/channels" }
-	GUILD_MEMBERS      = func(guildId string) string { return GUILDS + guildId + "/members" }
-	GUILD_INTEGRATIONS = func(guildId string) string { return GUILDS + guildId + "/integrations" }
-	GUILD_BANS         = func(guildId string) string { return GUILDS + guildId + "/bans" }
-	GUILD_ROLES        = func(guildId string) string { return GUILDS + guildId + "/roles" }
-	GUILD_INVITES      = func(guildId string) string { return GUILDS + guildId + "/invites" }
-	GUILD_EMBED        = func(guildId string) string { return GUILDS + guildId + "/embed" }
-	GUILD_PRUNE        = func(guildId string) string { return GUILDS + guildId + "/prune" }
-	GUILD_ICON         = func(guildId, hash string) string { return GUILDS + guildId + "/icons/" + hash + ".jpg" }
+	GUILD              = func(gId string) string { return GUILDS + gId }
+	GUILD_INIVTES      = func(gId string) string { return GUILDS + gId + "/invites" }
+	GUILD_CHANNELS     = func(gId string) string { return GUILDS + gId + "/channels" }
+	GUILD_MEMBERS      = func(gId string) string { return GUILDS + gId + "/members" }
+	GUILD_MEMBER_DEL   = func(gId, uId string) string { return GUILDS + gId + "/members/" + uId }
+	GUILD_BANS         = func(gId string) string { return GUILDS + gId + "/bans" }
+	GUILD_BAN          = func(gId, uId string) string { return GUILDS + gId + "/bans/" + uId }
+	GUILD_INTEGRATIONS = func(gId string) string { return GUILDS + gId + "/integrations" }
+	GUILD_ROLES        = func(gId string) string { return GUILDS + gId + "/roles" }
+	GUILD_INVITES      = func(gId string) string { return GUILDS + gId + "/invites" }
+	GUILD_EMBED        = func(gId string) string { return GUILDS + gId + "/embed" }
+	GUILD_PRUNE        = func(gId string) string { return GUILDS + gId + "/prune" }
+	GUILD_ICON         = func(gId, hash string) string { return GUILDS + gId + "/icons/" + hash + ".jpg" }
 
-	CHANNEL             = func(channelId string) string { return CHANNELS + channelId }
-	CHANNEL_MESSAGES    = func(channelId string) string { return CHANNELS + channelId + "/messages" }
-	CHANNEL_PERMISSIONS = func(channelId string) string { return CHANNELS + channelId + "/permissions" }
-	CHANNEL_INVITES     = func(channelId string) string { return CHANNELS + channelId + "/invites" }
-	CHANNEL_TYPING      = func(channelId string) string { return CHANNELS + channelId + "/typing" }
+	CHANNEL             = func(cId string) string { return CHANNELS + cId }
+	CHANNEL_PERMISSIONS = func(cId string) string { return CHANNELS + cId + "/permissions" }
+	CHANNEL_INVITES     = func(cId string) string { return CHANNELS + cId + "/invites" }
+	CHANNEL_TYPING      = func(cId string) string { return CHANNELS + cId + "/typing" }
+	CHANNEL_MESSAGES    = func(cId string) string { return CHANNELS + cId + "/messages" }
+	CHANNEL_MESSAGE     = func(cId, mId string) string { return CHANNELS + cId + "/messages/" + mId }
+	CHANNEL_MESSAGE_ACK = func(cId, mId string) string { return CHANNELS + cId + "/messages/" + mId + "/ack" }
 
-	INTEGRATIONS_JOIN = func(intId string) string { return API + "integrations/" + intId + "/join" }
+	INVITE = func(iId string) string { return API + "invite/" + iId }
+
+	INTEGRATIONS_JOIN = func(iId string) string { return API + "integrations/" + iId + "/join" }
 )
 
 // Request makes a (GET/POST/?) Requests to Discord REST API.
@@ -149,33 +160,6 @@ func (s *Session) Logout() (err error) {
 	return
 }
 
-// Gateway returns the a websocket Gateway address
-func (s *Session) Gateway() (gateway string, err error) {
-
-	response, err := s.Request("GET", GATEWAY, ``)
-
-	var temp map[string]interface{}
-	err = json.Unmarshal(response, &temp)
-	gateway = temp["url"].(string)
-	return
-}
-
-// VoiceRegions returns the voice server regions
-func (s *Session) VoiceRegions() (st []VoiceRegion, err error) {
-
-	body, err := s.Request("GET", REGIONS, ``)
-	err = json.Unmarshal(body, &st)
-	return
-}
-
-// VoiceIce returns the voice server ICE information
-func (s *Session) VoiceIce() (st VoiceIce, err error) {
-
-	body, err := s.Request("GET", ICE, ``)
-	err = json.Unmarshal(body, &st)
-	return
-}
-
 /***************************************************************************************************
  * Functions related to a specific user
  */
@@ -186,6 +170,16 @@ func (s *Session) User(userId string) (st User, err error) {
 
 	body, err := s.Request("GET", USER(userId), ``)
 	err = json.Unmarshal(body, &st)
+	return
+}
+
+// UserAvatar returns a ?? of a users Avatar
+// userId    : A user Id or "@me" which is a shortcut of current user ID
+func (s *Session) UserAvatar(userId string) (st User, err error) {
+
+	u, err := s.User(userId)
+	_, err = s.Request("GET", USER_AVATAR(userId, u.Avatar), ``)
+	// TODO need to figure out how to handle returning a file
 	return
 }
 
@@ -209,6 +203,20 @@ func (s *Session) UserChannels(userId string) (st []Channel, err error) {
 	return
 }
 
+// UserChannelCreate creates a new User (Private) Channel with another User
+// userId      : A user Id or "@me" which is a shortcut of current user ID
+// recipientId : A user Id for the user to which this channel is opened with.
+func (s *Session) UserChannelCreate(userId, recipientId string) (st []Channel, err error) {
+
+	body, err := s.Request(
+		"POST",
+		USER_CHANNELS(userId),
+		fmt.Sprintf(`{"recipient_id": "%s"}`, recipientId))
+
+	err = json.Unmarshal(body, &st)
+	return
+}
+
 // UserGuilds returns an array of Guild structures for all guilds for a given user
 // userId    : A user Id or "@me" which is a shortcut of current user ID
 func (s *Session) UserGuilds(userId string) (st []Guild, err error) {
@@ -223,11 +231,68 @@ func (s *Session) UserGuilds(userId string) (st []Guild, err error) {
  */
 
 // Guild returns a Guild structure of a specific Guild.
-// guildId   : The ID of the Guild you want returend.
+// guildId   : The ID of a Guild
 func (s *Session) Guild(guildId string) (st []Guild, err error) {
 
 	body, err := s.Request("GET", GUILD(guildId), ``)
 	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildCreate creates a new Guild
+// name      : A name for the Guild (2-100 characters)
+func (s *Session) GuildCreate(name string) (st []Guild, err error) {
+
+	body, err := s.Request("POST", GUILDS, fmt.Sprintf(`{"name":"%s"}`, name))
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildEdit edits a new Guild
+// guildId   : The ID of a Guild
+// name      : A name for the Guild (2-100 characters)
+func (s *Session) GuildEdit(guildId, name string) (st []Guild, err error) {
+
+	body, err := s.Request("POST", GUILD(guildId), fmt.Sprintf(`{"name":"%s"}`, name))
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildDelete deletes or leaves a Guild.
+// guildId   : The ID of a Guild
+func (s *Session) GuildDelete(guildId string) (st []Guild, err error) {
+
+	body, err := s.Request("DELETE", GUILD(guildId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildBans returns an array of User structures for all bans of a
+// given guild.
+// guildId   : The ID of a Guild.
+func (s *Session) GuildBans(guildId string) (st []User, err error) {
+
+	body, err := s.Request("GET", GUILD_BANS(guildId), ``)
+	err = json.Unmarshal(body, &st)
+
+	return
+}
+
+// GuildBanAdd bans the given user from the given guild.
+// guildId   : The ID of a Guild.
+// userId    : The ID of a User
+func (s *Session) GuildBanAdd(guildId, userId string) (err error) {
+
+	_, err = s.Request("PUT", GUILD_BAN(guildId, userId), ``)
+	return
+}
+
+// GuildBanDelete removes the given user from the guild bans
+// guildId   : The ID of a Guild.
+// userId    : The ID of a User
+func (s *Session) GuildBanDelete(guildId, userId string) (err error) {
+
+	_, err = s.Request("DELETE", GUILD_BAN(guildId, userId), ``)
 	return
 }
 
@@ -238,6 +303,15 @@ func (s *Session) GuildMembers(guildId string) (st []Member, err error) {
 
 	body, err := s.Request("GET", GUILD_MEMBERS(guildId), ``)
 	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildMemberDelete removes the given user from the given guild.
+// guildId   : The ID of a Guild.
+// userId    : The ID of a User
+func (s *Session) GuildMemberDelete(guildId, userId string) (err error) {
+
+	_, err = s.Request("DELETE", GUILD_MEMBER_DEL(guildId, userId), ``)
 	return
 }
 
@@ -252,6 +326,40 @@ func (s *Session) GuildChannels(guildId string) (st []Channel, err error) {
 	return
 }
 
+// GuildChannelCreate creates a new channel in the given guild
+// guildId   : The ID of a Guild.
+// name      : Name of the channel (2-100 chars length)
+// ctype     : Tpye of the channel (voice or text)
+func (s *Session) GuildChannelCreate(guildId, name, ctype string) (st []Channel, err error) {
+
+	body, err := s.Request("POST", GUILD_CHANNELS(guildId), fmt.Sprintf(`{"name":"%s", "type":"%s"}`, name, ctype))
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildInvites returns an array of Invite structures for the given guild
+// guildId   : The ID of a Guild.
+func (s *Session) GuildInvites(guildId string) (st []Invite, err error) {
+	body, err := s.Request("GET", GUILD_INVITES(guildId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// GuildInviteCreate creates a new invite for the given guild.
+// guildId   : The ID of a Guild.
+// i         : An Invite struct with the values MaxAge, MaxUses, Temporary,
+//             and XkcdPass defined.
+func (s *Session) GuildInviteCreate(guildId string, i Invite) (st Invite, err error) {
+
+	payload := fmt.Sprintf(
+		`{"max_age":%d, "max_uses":%d, "temporary":%t, "xkcdpass":%t}`,
+		i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass)
+
+	body, err := s.Request("POST", GUILD_INVITES(guildId), payload)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
 /***************************************************************************************************
  * Functions related to a specific channel
  */
@@ -261,6 +369,34 @@ func (s *Session) GuildChannels(guildId string) (st []Channel, err error) {
 func (s *Session) Channel(channelId string) (st Channel, err error) {
 	body, err := s.Request("GET", CHANNEL(channelId), ``)
 	err = json.Unmarshal(body, &st)
+	return
+}
+
+// ChannelEdit edits the given channel
+// channelId  : The ID of a Channel
+// name       : The new name to assign the channel.
+func (s *Session) ChannelEdit(channelId, name string) (st []Channel, err error) {
+
+	body, err := s.Request("PATCH", CHANNEL(channelId), fmt.Sprintf(`{"name":"%s"}`, name))
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// ChannelDelete deletes the given channel
+// channelId  : The ID of a Channel
+func (s *Session) ChannelDelete(channelId string) (st []Channel, err error) {
+
+	body, err := s.Request("DELETE", CHANNEL(channelId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// ChannelTyping broadcasts to all members that authenticated user is typing in
+// the given channel.
+// channelId  : The ID of a Channel
+func (s *Session) ChannelTyping(channelId string) (err error) {
+
+	_, err = s.Request("POST", CHANNEL_TYPING(channelId), ``)
 	return
 }
 
@@ -299,6 +435,15 @@ func (s *Session) ChannelMessages(channelId string, limit int, beforeId int, aft
 	return
 }
 
+// ChannelMessageAck acknowledges and marks the given message as read
+// channeld  : The ID of a Channel
+// messageId : the ID of a Message
+func (s *Session) ChannelMessageAck(channelId, messageId string) (err error) {
+
+	_, err = s.Request("POST", CHANNEL_MESSAGE_ACK(channelId, messageId), ``)
+	return
+}
+
 // ChannelMessageSend sends a message to the given channel.
 // channelId : The ID of a Channel.
 // content   : The message to send.
@@ -306,5 +451,115 @@ func (s *Session) ChannelMessageSend(channelId string, content string) (st Messa
 
 	response, err := s.Request("POST", CHANNEL_MESSAGES(channelId), fmt.Sprintf(`{"content":"%s"}`, content))
 	err = json.Unmarshal(response, &st)
+	return
+}
+
+// ChannelMessageEdit edits an existing message, replacing it entirely with
+// the given content.
+// channeld  : The ID of a Channel
+// messageId : the ID of a Message
+func (s *Session) ChannelMessageEdit(channelId, messageId, content string) (st Message, err error) {
+
+	response, err := s.Request("PATCH", CHANNEL_MESSAGE(channelId, messageId), fmt.Sprintf(`{"content":"%s"}`, content))
+	err = json.Unmarshal(response, &st)
+	return
+}
+
+// ChannelMessageDelete deletes a message from the Channel.
+func (s *Session) ChannelMessageDelete(channelId, messageId string) (err error) {
+
+	_, err = s.Request("DELETE", CHANNEL_MESSAGE(channelId, messageId), ``)
+	return
+}
+
+// ChannelInvites returns an array of Invite structures for the given channel
+// channelId   : The ID of a Channel
+func (s *Session) ChannelInvites(channelId string) (st []Invite, err error) {
+	body, err := s.Request("GET", CHANNEL_INVITES(channelId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// ChannelInviteCreate creates a new invite for the given channel.
+// channelId   : The ID of a Channel
+// i           : An Invite struct with the values MaxAge, MaxUses, Temporary,
+//               and XkcdPass defined.
+func (s *Session) ChannelInviteCreate(channelId string, i Invite) (st Invite, err error) {
+
+	payload := fmt.Sprintf(
+		`{"max_age":%d, "max_uses":%d, "temporary":%t, "xkcdpass":%t}`,
+		i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass)
+
+	body, err := s.Request("POST", CHANNEL_INVITES(channelId), payload)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+/***************************************************************************************************
+ * Functions related to an invite
+ */
+
+// Inivte returns an Invite structure of the given invite
+// inviteId : The invite code (or maybe xkcdpass?)
+func (s *Session) Invite(inviteId string) (st Invite, err error) {
+	body, err := s.Request("GET", INVITE(inviteId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// InviteDelete deletes an existing invite
+// inviteId   : the code (or maybe xkcdpass?) of an invite
+func (s *Session) InviteDelete(inviteId string) (st Invite, err error) {
+
+	body, err := s.Request("DELETE", INVITE(inviteId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// InivteAccept accepts an Invite to a Guild or Channel
+// inviteId : The invite code (or maybe xkcdpass?)
+func (s *Session) InviteAccept(inviteId string) (st Invite, err error) {
+	body, err := s.Request("POST", INVITE(inviteId), ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// https://discordapi.readthedocs.org/en/latest/reference/guilds/invites.html#get-and-accept-invite
+func (s *Session) InviteValidate(validateId string) (i Invite, err error) {
+	return
+}
+
+/***************************************************************************************************
+ * Functions related to Voice/Audio
+ */
+
+// VoiceRegions returns the voice server regions
+func (s *Session) VoiceRegions() (st []VoiceRegion, err error) {
+
+	body, err := s.Request("GET", VOICE_REGIONS, ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// VoiceIce returns the voice server ICE information
+func (s *Session) VoiceIce() (st VoiceIce, err error) {
+
+	body, err := s.Request("GET", VOICE_ICE, ``)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+/***************************************************************************************************
+ * Functions related to Websockets
+ */
+
+// Gateway returns the a websocket Gateway address
+func (s *Session) Gateway() (gateway string, err error) {
+
+	response, err := s.Request("GET", GATEWAY, ``)
+
+	var temp map[string]interface{}
+	err = json.Unmarshal(response, &temp)
+	gateway = temp["url"].(string)
 	return
 }

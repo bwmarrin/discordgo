@@ -53,23 +53,9 @@ type Member struct {
 	Deaf     bool     `json:"deaf"`
 	mute     bool     `json:"mute"`
 	User     User     `json:"user"`
-	Roles    []string `json:"roles"` // TODO: See below
+	Roles    []string `json:"roles"`
 }
 
-//Roles   []string `json:"roles"` // TODO: Should be ints, see below
-// Above "Roles" should be an array of ints
-// TODO: Figure out how to make it be one.
-/*
-	{
-		"roles": [
-			"89544728336416768",
-			"110429733396676608"
-		],
-	}
-*/
-
-// Channels returns an array of Channel structures for channels within
-// this Server
 /*
 TODO: How to name these? If we make a variable to store
 channels from READY packet, etc.  We can't have a Channel
