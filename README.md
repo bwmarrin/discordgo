@@ -56,7 +56,7 @@ func messageCreate(s *discordgo.Session, m discordgo.Message) {
 ```
 
 # Documentation
-- [GoDoc](https://godoc.org/github.com/bwmarrin/Discordgo)
+- [GoDoc](https://godoc.org/github.com/bwmarrin/discordgo)
 - Hand crafted documentation coming soon.
 
 # What Works
