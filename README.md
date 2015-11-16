@@ -1,7 +1,5 @@
 # Discordgo
 
-A Discord API for Golang
-
 Discordgo provides a mostly complete low-level Golang interface to the Discord
 REST and Websocket API.
 
