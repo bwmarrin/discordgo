@@ -1,0 +1,5 @@
+language: go
+go: 1.5
+install:
+      - go get github.com/bwmarrin/discordgo
+      - go get -v .
