@@ -1,7 +1,8 @@
 package discordgo
 
+// A User stores all data for an individual Discord user.
 type User struct {
-	Id       string `json:"id"`
+	ID       string `json:"id"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Avatar   string `json:"Avatar"`
@@ -18,13 +19,15 @@ type User struct {
 // it just doesn't seem able to handle this one
 // field correctly.  Need to research this more.
 
+// A PrivateChannel stores all data for a specific user private channel.
 type PrivateChannel struct {
-	Id            string `json:"id"`
+	ID            string `json:"id"`
 	IsPrivate     bool   `json:"is_private"`
-	LastMessageId string `json:"last_message_id"`
+	LastMessageID string `json:"last_message_id"`
 	Recipient     User   `json:"recipient"`
 } // merge with channel?
 
+// A Settings stores data for a specific users Discord client settings.
 type Settings struct {
 	RenderEmbeds          bool     `json:"render_embeds"`
 	InlineEmbedMedia      bool     `json:"inline_embed_media"`
@@ -35,5 +38,3 @@ type Settings struct {
 	Theme                 string   `json:"theme"`
 	MutedChannels         []string `json:"muted_channels"`
 }
-
-// PM function to PM a user.

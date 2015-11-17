@@ -541,8 +541,8 @@ func (s *Session) VoiceRegions() (st []VoiceRegion, err error) {
 	return
 }
 
-// VoiceIce returns the voice server ICE information
-func (s *Session) VoiceIce() (st VoiceIce, err error) {
+// VoiceICE returns the voice server ICE information
+func (s *Session) VoiceICE() (st VoiceICE, err error) {
 
 	body, err := s.Request("GET", VOICE_ICE, ``)
 	err = json.Unmarshal(body, &st)

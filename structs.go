@@ -2,8 +2,9 @@ package discordgo
 
 // TODO: Eventually everything here gets moved to a better place.
 
+// A Message stores all data related to a specific Discord message.
 type Message struct {
-	Id              int          `json:"id,string"`
+	ID              int          `json:"id,string"`
 	Author          User         `json:"author"`
 	Content         string       `json:"content"`
 	Attachments     []Attachment `json:"attachments"`
@@ -13,33 +14,39 @@ type Message struct {
 	MentionEveryone bool         `json:"mention_everyone"`
 	EditedTimestamp string       `json:"edited_timestamp"`
 	Mentions        []User       `json:"mentions"`
-	ChannelId       int          `json:"channel_id,string"`
+	ChannelID       int          `json:"channel_id,string"`
 }
 
+// An Attachment stores data for message attachments.
 type Attachment struct { //TODO figure this out
 }
 
+// An Embed stores data for message embeds.
 type Embed struct { // TODO figure this out
 }
 
+// A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
-	Id             string `json:"id"`
+	ID             string `json:"id"`
 	Name           string `json:"name"`
 	SampleHostname string `json:"sample_hostname"`
 	SamplePort     int    `json:"sample_port"`
 }
 
-type VoiceIce struct {
-	Ttl     int         `json:"ttl,string"`
-	Servers []IceServer `json:"servers"`
+// A VoiceICE stores data for voice ICE servers.
+type VoiceICE struct {
+	TTL     int         `json:"ttl,string"`
+	Servers []ICEServer `json:"servers"`
 }
 
-type IceServer struct {
-	Url        string `json:"url"`
+// A ICEServer stores data for a specific voice ICE server.
+type ICEServer struct {
+	URL        string `json:"url"`
 	Username   string `json:"username"`
 	Credential string `json:"credential"`
 }
 
+// A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
 	MaxAge    int     `json:"max_age"`
 	Code      string  `json:"code"`

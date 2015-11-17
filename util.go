@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-// convert to return as string
+// printJSON is a helper function to display JSON data in a easy to read format.
 func printJSON(body []byte) {
 	var prettyJSON bytes.Buffer
 	error := json.Indent(&prettyJSON, body, "", "\t")

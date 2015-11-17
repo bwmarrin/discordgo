@@ -1,21 +1,23 @@
 package discordgo
 
+// A Channel holds all data related to an individual Discord channel.
 type Channel struct {
-	Id                   string                `json:"id"`
-	GuildId              string                `json:"guild_idomitempty"`
+	ID                   string                `json:"id"`
+	GuildID              string                `json:"guild_idomitempty"`
 	Name                 string                `json:"name"`
 	Topic                string                `json:"topic"`
 	Position             int                   `json:"position"`
 	Type                 string                `json:"type"`
 	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	IsPrivate            bool                  `json:"is_private"`
-	LastMessageId        string                `json:"last_message_id"`
+	LastMessageID        string                `json:"last_message_id"`
 	Recipient            User                  `json:"recipient"`
 	Session              *Session
 }
 
+// A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Type  string `json:"type"`
 	Deny  int    `json:"deny"`
 	Allow int    `json:"allow"`

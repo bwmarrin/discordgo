@@ -1,15 +1,17 @@
 package discordgo
 
+// A Guild holds all data related to a specific Discord Guild.  Guilds are also
+// sometimes referred to as Servers in the Discord client.
 type Guild struct {
-	Id             string       `json:"id"`
+	ID             string       `json:"id"`
 	Name           string       `json:"name"`
 	Icon           string       `json:"icon"`
 	Region         string       `json:"region"`
 	AfkTimeout     int          `json:"afk_timeout"`
-	AfkChannelId   string       `json:"afk_channel_id"`
-	EmbedChannelId string       `json:"embed_channel_id"`
+	AfkChannelID   string       `json:"afk_channel_id"`
+	EmbedChannelID string       `json:"embed_channel_id"`
 	EmbedEnabled   bool         `json:"embed_enabled"`
-	OwnerId        string       `json:"owner_id"`
+	OwnerID        string       `json:"owner_id"`
 	Large          bool         `json:"large"`     // ??
 	JoinedAt       string       `json:"joined_at"` // make this a timestamp
 	Roles          []Role       `json:"roles"`
@@ -19,8 +21,9 @@ type Guild struct {
 	VoiceStates    []VoiceState `json:"voice_states"`
 }
 
+// A Role stores information about Discord guild member roles.
 type Role struct {
-	Id          string `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Managed     bool   `json:"managed"`
 	Color       int    `json:"color"`
@@ -29,26 +32,28 @@ type Role struct {
 	Permissions int    `json:"permissions"`
 }
 
+// A VoiceState stores the voice states of Guilds
 type VoiceState struct {
-	UserId    string `json:"user_id"`
+	UserID    string `json:"user_id"`
 	Suppress  bool   `json:"suppress"`
-	SessionId string `json:"session_id"`
+	SessionID string `json:"session_id"`
 	SelfMute  bool   `json:"self_mute"`
 	SelfDeaf  bool   `json:"self_deaf"`
 	Mute      bool   `json:"mute"`
 	Deaf      bool   `json:"deaf"`
-	ChannelId string `json:"channel_id"`
+	ChannelID string `json:"channel_id"`
 }
 
+// A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
 	User   User   `json:"user"`
 	Status string `json:"status"`
-	GameId int    `json:"game_id"`
+	GameID int    `json:"game_id"`
 }
 
-// TODO: Member vs User?
+// A Member stores user information for Guild members.
 type Member struct {
-	GuildId  string   `json:"guild_id"`
+	GuildID  string   `json:"guild_id"`
 	JoinedAt string   `json:"joined_at"`
 	Deaf     bool     `json:"deaf"`
 	Mute     bool     `json:"mute"`

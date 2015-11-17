@@ -17,19 +17,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Basic struct for all Websocket Event messages
+// An Event provides a basic initial struct for all websocket event.
 type Event struct {
-	Type      string `json:"t"`
-	State     int    `json:"s"`
-	Operation int    `json:"o"`
-	Direction int    `json:"dir"`
-	//Direction of command, 0-received, 1-sent -- thanks Xackery/discord
-
-	RawData json.RawMessage `json:"d"`
-	Session *Session
+	Type      string          `json:"t"`
+	State     int             `json:"s"`
+	Operation int             `json:"o"`
+	Direction int             `json:"dir"`
+	RawData   json.RawMessage `json:"d"`
 }
 
-// The Ready Event given after initial connection
+// A Ready stores all data for the websocket READY event.
 type Ready struct {
 	Version           int           `json:"v"`
 	SessionID         string        `json:"session_id"`
@@ -42,51 +39,61 @@ type Ready struct {
 
 // ReadState might need to move? Gives me the read status
 // of all my channels when first connecting. I think :)
+
+// A ReadState stores data on the read state of channels.
 type ReadState struct {
 	MentionCount  int
-	LastMessageId string `json:"last_message_id"`
-	Id            string `json:"id"`
+	LastMessageID string `json:"last_message_id"`
+	ID            string `json:"id"`
 }
 
+// A TypingStart stores data for the typing start websocket event.
 type TypingStart struct {
-	UserId    string `json:"user_id"`
-	ChannelId string `json:"channel_id"`
+	UserID    string `json:"user_id"`
+	ChannelID string `json:"channel_id"`
 	Timestamp int    `json:"timestamp"`
 }
 
+// A PresenceUpdate stores data for the pressence update websocket event.
 type PresenceUpdate struct {
 	User    User     `json:"user"`
 	Status  string   `json:"status"`
 	Roles   []string `json:"roles"`
-	GuildId string   `json:"guild_id"`
-	GameId  int      `json:"game_id"`
+	GuildID string   `json:"guild_id"`
+	GameID  int      `json:"game_id"`
 }
 
+// A MessageAck stores data for the message ack websocket event.
 type MessageAck struct {
-	MessageId string `json:"message_id"`
-	ChannelId string `json:"channel_id"`
+	MessageID string `json:"message_id"`
+	ChannelID string `json:"channel_id"`
 }
 
+// A MessageDelete stores data for the message delete websocket event.
 type MessageDelete struct {
-	Id        string `json:"id"`
-	ChannelId string `json:"channel_id"`
+	ID        string `json:"id"`
+	ChannelID string `json:"channel_id"`
 } // so much like MessageAck..
 
+// A GuildIntegrationsUpdate stores data for the guild integrations update
+// websocket event.
 type GuildIntegrationsUpdate struct {
-	GuildId string `json:"guild_id"`
+	GuildID string `json:"guild_id"`
 }
 
+// A GuildRole stores data for guild role websocket events.
 type GuildRole struct {
 	Role    Role   `json:"role"`
-	GuildId string `json:"guild_id"`
+	GuildID string `json:"guild_id"`
 }
 
+// A GuildRoleDelete stores data for the guild role delete websocket event.
 type GuildRoleDelete struct {
-	RoleId  string `json:"role_id"`
-	GuildId string `json:"guild_id"`
+	RoleID  string `json:"role_id"`
+	GuildID string `json:"guild_id"`
 }
 
-// Open a websocket connection to Discord
+// Open opens a websocket connection to Discord.
 func (s *Session) Open() (err error) {
 
 	// Get the gateway to use for the Websocket connection
@@ -101,6 +108,8 @@ func (s *Session) Open() (err error) {
 // maybe this is SendOrigin? not sure the right name here
 // also bson.M vs string interface map?  Read about
 // how to send JSON the right way.
+
+// Handshake sends the client data to Discord during websocket initial connection.
 func (s *Session) Handshake() (err error) {
 
 	err = s.wsConn.WriteJSON(map[string]interface{}{
@@ -121,21 +130,23 @@ func (s *Session) Handshake() (err error) {
 	return
 }
 
-func (s *Session) UpdateStatus(idleSince, gameId string) (err error) {
+// UpdateStatus is used to update the authenticated user's status.
+func (s *Session) UpdateStatus(idleSince, gameID string) (err error) {
 
 	err = s.wsConn.WriteJSON(map[string]interface{}{
 		"op": 2,
 		"d": map[string]interface{}{
 			"idle_since": idleSince,
-			"game_id":    gameId,
+			"game_id":    gameID,
 		},
 	})
-
 	return
 }
 
 // TODO: need a channel or something to communicate
 // to this so I can tell it to stop listening
+
+// Listen starts listening to the websocket connection for events.
 func (s *Session) Listen() (err error) {
 
 	if s.wsConn == nil {
@@ -157,12 +168,17 @@ func (s *Session) Listen() (err error) {
 
 // Not sure how needed this is and where it would be best to call it.
 // somewhere.
+
+// Close closes the connection to the websocket.
 func (s *Session) Close() {
 	s.wsConn.Close()
 }
 
 // Front line handler for all Websocket Events.  Determines the
 // event type and passes the message along to the next handler.
+
+// event is the front line handler for all events.  This needs to be
+// broken up into smaller functions to be more idiomatic Go.
 func (s *Session) event(messageType int, message []byte) (err error) {
 
 	if s.Debug {
@@ -429,6 +445,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 // This heartbeat is sent to keep the Websocket conenction
 // to Discord alive. If not sent, Discord will close the
 // connection.
+
+// Heartbeat sends regular heartbeats to Discord so it knows the client
+// is still connected.  If you do not send these heartbeats Discord will
+// disconnect the websocket connection after a few seconds.
 func (s *Session) Heartbeat(i time.Duration) {
 
 	if s.wsConn == nil {

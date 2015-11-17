@@ -59,22 +59,3 @@ type Session struct {
 	// lets put all the general session
 	// tracking and infos here.. clearly
 }
-
-/******************************************************************************
- * The below functions are "shortcut" methods for functions in restapi.go
- * Reference the client.go file for more documentation.
- */
-func (s *Session) Self() (user User, err error) {
-	user, err = s.User("@me")
-	return
-}
-
-func (s *Session) MyPrivateChannels() (channels []Channel, err error) {
-	channels, err = s.UserChannels("@me")
-	return
-}
-
-func (s *Session) MyGuilds() (servers []Guild, err error) {
-	servers, err = s.UserGuilds("@me")
-	return
-}
