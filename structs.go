@@ -27,10 +27,10 @@ type Embed struct { // TODO figure this out
 
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	SampleHostname string `json:"sample_hostname"`
-	SamplePort     int    `json:"sample_port"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Hostname string `json:"sample_hostname"`
+	Port     int    `json:"sample_port"`
 }
 
 // A VoiceICE stores data for voice ICE servers.
