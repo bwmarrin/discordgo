@@ -52,7 +52,7 @@ func main() {
 }
 
 func messageCreate(s *discordgo.Session, m discordgo.Message) {
-	fmt.Printf("%25d %s %20s > %s\n", m.ChannelId, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
+	fmt.Printf("%25d %s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
 }
 ```
 
