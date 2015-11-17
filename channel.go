@@ -3,7 +3,7 @@ package discordgo
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
 	ID                   string                `json:"id"`
-	GuildID              string                `json:"guild_idomitempty"`
+	GuildID              string                `json:"guild_id"`
 	Name                 string                `json:"name"`
 	Topic                string                `json:"topic"`
 	Position             int                   `json:"position"`
