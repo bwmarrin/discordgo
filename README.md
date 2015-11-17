@@ -1,7 +1,8 @@
 # Discordgo
 
-Discordgo provides a mostly complete low-level Golang interface to the Discord
-REST and Websocket API.
+This package provides low level bindings for the [Discord](https://discordapp.com/) 
+REST & Websocket API in the [Go](https://golang.org/)  Programming Language (Golang).
+
 
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
@@ -67,7 +68,8 @@ and structures.
 
 # What Works
 
-Low level functions exist for the majority of the REST and Websocket API.
+Current package provides a **low level direct mapping** to the majority of Discord 
+REST and Websock API.
 
 * Login/Logout
 * Open/Close Websocket and listen for events.
@@ -86,6 +88,7 @@ Low level functions exist for the majority of the REST and Websocket API.
 * Permissions related functions.
 * Functions for Maintenance Status
 * Voice Channel support.
+* Add a higher level interface with user friendly helper functions.
 
 # Credits
 
