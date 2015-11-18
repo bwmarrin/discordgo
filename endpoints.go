@@ -8,7 +8,7 @@ const (
 	SM_ACTIVE   = SM + "active.json"
 	SM_UPCOMING = SM + "upcoming.json"
 
-	DISCORD  = "http://discordapp.com" // TODO consider removing
+	DISCORD  = "https://discordapp.com" // TODO consider removing
 	API      = DISCORD + "/api/"
 	GUILDS   = API + "guilds/"
 	CHANNELS = API + "channels/"
