@@ -154,10 +154,10 @@ func (s *Session) Listen() (err error) {
 		return // need to return an error.
 	}
 
-	for { // s.wsConn != nil { // need a cleaner way to exit?  this doesn't acheive anything.
+	for {
 		messageType, message, err := s.wsConn.ReadMessage()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Websocket Listen Error", err)
 			break
 		}
 		go s.event(messageType, message)
@@ -203,17 +203,25 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			s.OnReady(s, st)
 			return
 		}
-	case "VOICE_STATE_UPDATE":
-		if s.OnVoiceStateUpdate != nil {
-			var st VoiceState
-			if err := json.Unmarshal(e.RawData, &st); err != nil {
-				fmt.Println(e.Type, err)
-				printJSON(e.RawData) // TODO: Better error logging
-				return err
-			}
-			s.OnVoiceStateUpdate(s, st)
-			return
+	case "VOICE_SERVER_UPDATE":
+		// TEMP CODE FOR TESTING VOICE
+		var st VoiceServerUpdate
+		if err := json.Unmarshal(e.RawData, &st); err != nil {
+			fmt.Println(e.Type, err)
+			printJSON(e.RawData) // TODO: Better error logging
+			return err
 		}
+		s.onVoiceServerUpdate(st)
+		return
+	case "VOICE_STATE_UPDATE":
+		// TEMP CODE FOR TESTING VOICE
+		var st VoiceState
+		if err := json.Unmarshal(e.RawData, &st); err != nil {
+			fmt.Println(e.Type, err)
+			printJSON(e.RawData) // TODO: Better error logging
+			return err
+		}
+		s.onVoiceStateUpdate(st)
 	case "PRESENCE_UPDATE":
 		if s.OnPresenceUpdate != nil {
 			var st PresenceUpdate
@@ -467,4 +475,79 @@ func (s *Session) Heartbeat(i time.Duration) {
 			return // log error?
 		}
 	}
+}
+
+// Everything below is experimental Voice support code
+// all of it will get changed and moved around.
+
+// A VoiceServerUpdate stores the data received during the Voice Server Update
+// data websocket event. This data is used during the initial Voice Channel
+// join handshaking.
+type VoiceServerUpdate struct {
+	Token    string `json:"token"`
+	GuildID  string `json:"guild_id"`
+	Endpoint string `json:"endpoint"`
+}
+
+// VoiceChannelJoin joins the authenticated session user to
+// a voice channel.  All the voice magic starts with this.
+func (s *Session) VoiceChannelJoin(guildID, channelID string) {
+
+	if s.wsConn == nil {
+		fmt.Println("error: no websocket connection exists.")
+		return
+	}
+
+	// Odd, but.. it works.  map interface caused odd unknown opcode error
+	// Later I'll test with a struct
+	json := []byte(fmt.Sprintf(`{"op":4,"d":{"guild_id":"%s","channel_id":"%s","self_mute":false,"self_deaf":false}}`,
+		guildID, channelID))
+
+	err := s.wsConn.WriteMessage(websocket.TextMessage, json)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+
+	// Probably will be removed later.
+	s.VGuildID = guildID
+	s.VChannelID = channelID
+}
+
+// onVoiceStateUpdate handles Voice State Update events on the data
+// websocket.  This comes immediately after the call to VoiceChannelJoin
+// for the authenticated session user.  This block is experimental
+// code and will be chaned in the future.
+func (s *Session) onVoiceStateUpdate(st VoiceState) {
+
+	// Need to have this happen at login and store it in the Session
+	self, err := s.User("@me")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// This event comes for all users, if it's not for the session
+	// user just ignore it.
+	if st.UserID != self.ID {
+		return
+	}
+
+	// Store the SessionID. Used later.
+	s.VSessionID = st.SessionID
+}
+
+// onVoiceServerUpdate handles the Voice Server Update data websocket event.
+// This will later be exposed but is only for experimental use now.
+func (s *Session) onVoiceServerUpdate(st VoiceServerUpdate) {
+
+	// Store all the values.  They are used later.
+	// GuildID is probably not needed and may be dropped.
+	s.VToken = st.Token
+	s.VEndpoint = st.Endpoint
+	s.VGuildID = st.GuildID
+
+	// We now have enough information to open a voice websocket conenction
+	// so, that's what the next call does.
+	s.VoiceOpenWS()
 }

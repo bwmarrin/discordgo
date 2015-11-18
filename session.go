@@ -12,15 +12,20 @@
 
 package discordgo
 
-import "github.com/gorilla/websocket"
+import (
+	"net"
+
+	"github.com/gorilla/websocket"
+)
 
 // A Session represents a connection to the Discord REST API.
 // token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
-	Token string // Authentication token for this session
-	Debug bool   // Debug for printing JSON request/responses
-	Cache int    // number in X to cache some responses
+	Token     string // Authentication token for this session
+	Debug     bool   // Debug for printing JSON request/responses
+	Cache     int    // number in X to cache some responses
+	SessionID string // from websocket READY packet
 
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, Event) // should Event be *Event?
@@ -47,15 +52,22 @@ type Session struct {
 	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
 
-	// OnMessageCreate func(Session, Event, Message)
-	// ^^ Any value to passing session, event, message?
-	// probably just the Message is all one would need.
-	// but having the sessin could be handy?
-
 	wsConn *websocket.Conn
 	//TODO, add bools for like.
 	// are we connnected to websocket?
 	// have we authenticated to login?
 	// lets put all the general session
 	// tracking and infos here.. clearly
+
+	// Everything below here is used for Voice testing.
+	// This stuff is almost guarenteed to change a lot
+	// and is even a bit hackish right now.
+	VwsConn    *websocket.Conn // new for voice
+	VSessionID string
+	VToken     string
+	VEndpoint  string
+	VGuildID   string
+	VChannelID string
+	Vop2       VoiceOP2
+	UDPConn    *net.UDPConn
 }
