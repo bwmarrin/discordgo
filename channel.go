@@ -12,7 +12,6 @@ type Channel struct {
 	IsPrivate            bool                  `json:"is_private"`
 	LastMessageID        string                `json:"last_message_id"`
 	Recipient            User                  `json:"recipient"`
-	Session              *Session
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
