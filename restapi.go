@@ -131,7 +131,7 @@ func (s *Session) UserChannels(userID string) (st []Channel, err error) {
 // UserChannelCreate creates a new User (Private) Channel with another User
 // userID      : A user ID or "@me" which is a shortcut of current user ID
 // recipientID : A user ID for the user to which this channel is opened with.
-func (s *Session) UserChannelCreate(userID, recipientID string) (st []Channel, err error) {
+func (s *Session) UserChannelCreate(userID, recipientID string) (st Channel, err error) {
 
 	body, err := s.Request(
 		"POST",
@@ -157,7 +157,7 @@ func (s *Session) UserGuilds(userID string) (st []Guild, err error) {
 
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
-func (s *Session) Guild(guildID string) (st []Guild, err error) {
+func (s *Session) Guild(guildID string) (st Guild, err error) {
 
 	body, err := s.Request("GET", GUILD(guildID), ``)
 	err = json.Unmarshal(body, &st)
@@ -166,7 +166,7 @@ func (s *Session) Guild(guildID string) (st []Guild, err error) {
 
 // GuildCreate creates a new Guild
 // name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildCreate(name string) (st []Guild, err error) {
+func (s *Session) GuildCreate(name string) (st Guild, err error) {
 
 	body, err := s.Request("POST", GUILDS, fmt.Sprintf(`{"name":"%s"}`, name))
 	err = json.Unmarshal(body, &st)
@@ -176,7 +176,7 @@ func (s *Session) GuildCreate(name string) (st []Guild, err error) {
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
 // name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildEdit(guildID, name string) (st []Guild, err error) {
+func (s *Session) GuildEdit(guildID, name string) (st Guild, err error) {
 
 	body, err := s.Request("POST", GUILD(guildID), fmt.Sprintf(`{"name":"%s"}`, name))
 	err = json.Unmarshal(body, &st)
@@ -185,7 +185,7 @@ func (s *Session) GuildEdit(guildID, name string) (st []Guild, err error) {
 
 // GuildDelete deletes or leaves a Guild.
 // guildID   : The ID of a Guild
-func (s *Session) GuildDelete(guildID string) (st []Guild, err error) {
+func (s *Session) GuildDelete(guildID string) (st Guild, err error) {
 
 	body, err := s.Request("DELETE", GUILD(guildID), ``)
 	err = json.Unmarshal(body, &st)
@@ -255,7 +255,7 @@ func (s *Session) GuildChannels(guildID string) (st []Channel, err error) {
 // guildID   : The ID of a Guild.
 // name      : Name of the channel (2-100 chars length)
 // ctype     : Tpye of the channel (voice or text)
-func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st []Channel, err error) {
+func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st Channel, err error) {
 
 	body, err := s.Request("POST", GUILD_CHANNELS(guildID), fmt.Sprintf(`{"name":"%s", "type":"%s"}`, name, ctype))
 	err = json.Unmarshal(body, &st)
@@ -300,7 +300,7 @@ func (s *Session) Channel(channelID string) (st Channel, err error) {
 // ChannelEdit edits the given channel
 // channelID  : The ID of a Channel
 // name       : The new name to assign the channel.
-func (s *Session) ChannelEdit(channelID, name string) (st []Channel, err error) {
+func (s *Session) ChannelEdit(channelID, name string) (st Channel, err error) {
 
 	body, err := s.Request("PATCH", CHANNEL(channelID), fmt.Sprintf(`{"name":"%s"}`, name))
 	err = json.Unmarshal(body, &st)
@@ -309,7 +309,7 @@ func (s *Session) ChannelEdit(channelID, name string) (st []Channel, err error) 
 
 // ChannelDelete deletes the given channel
 // channelID  : The ID of a Channel
-func (s *Session) ChannelDelete(channelID string) (st []Channel, err error) {
+func (s *Session) ChannelDelete(channelID string) (st Channel, err error) {
 
 	body, err := s.Request("DELETE", CHANNEL(channelID), ``)
 	err = json.Unmarshal(body, &st)
