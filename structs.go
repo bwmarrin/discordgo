@@ -4,7 +4,7 @@ package discordgo
 
 // A Message stores all data related to a specific Discord message.
 type Message struct {
-	ID              int          `json:"id,string"`
+	ID              string       `json:"id"`
 	Author          User         `json:"author"`
 	Content         string       `json:"content"`
 	Attachments     []Attachment `json:"attachments"`
@@ -14,7 +14,7 @@ type Message struct {
 	MentionEveryone bool         `json:"mention_everyone"`
 	EditedTimestamp string       `json:"edited_timestamp"`
 	Mentions        []User       `json:"mentions"`
-	ChannelID       int          `json:"channel_id,string"`
+	ChannelID       string       `json:"channel_id"`
 }
 
 // An Attachment stores data for message attachments.
@@ -35,7 +35,7 @@ type VoiceRegion struct {
 
 // A VoiceICE stores data for voice ICE servers.
 type VoiceICE struct {
-	TTL     int         `json:"ttl,string"`
+	TTL     string      `json:"ttl"`
 	Servers []ICEServer `json:"servers"`
 }
 
