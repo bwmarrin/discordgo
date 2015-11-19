@@ -67,7 +67,7 @@ func (s *Session) VoiceOpenWS() {
 	}
 
 	// Start a listening for voice websocket events
-	go s.VListen()
+	go s.VoiceListen()
 }
 
 // Close closes the connection to the voice websocket.
@@ -75,9 +75,9 @@ func (s *Session) VoiceCloseWS() {
 	s.VwsConn.Close()
 }
 
-// VListen listens on the voice websocket for messages and passes them
+// VoiceListen listens on the voice websocket for messages and passes them
 // to the voice event handler.
-func (s *Session) VListen() (err error) {
+func (s *Session) VoiceListen() (err error) {
 
 	for {
 		messageType, message, err := s.VwsConn.ReadMessage()
@@ -129,6 +129,8 @@ func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
 	case 3: // HEARTBEAT response
 		// add code to use this to track latency?
 		return
+	case 4:
+		s.VoiceSpeaking()
 	default:
 		fmt.Println("UNKNOWN VOICE OP: ", e.Operation)
 		printJSON(e.RawData)
@@ -180,7 +182,7 @@ func (s *Session) VoiceOpenUDP() {
 
 	// Take the parsed data from above and send it back to Discord
 	// to finalize the UDP handshake.
-	json := fmt.Sprintf(`{"op":1,"d":{"protocol":"udp","data":{"address":"%s","port":"%d","mode":"plain"}}}`, ip, p)
+	json := fmt.Sprintf(`{"op":1,"d":{"protocol":"udp","data":{"address":"%s","port":%d,"mode":"plain"}}}`, ip, p)
 	jsonb := []byte(json)
 
 	err = s.VwsConn.WriteMessage(websocket.TextMessage, jsonb)
@@ -190,7 +192,7 @@ func (s *Session) VoiceOpenUDP() {
 	}
 
 	// continue to listen for future packets
-	go s.VoiceListenUDP()
+	// go s.VoiceListenUDP()
 }
 
 // VoiceCloseUDP closes the voice UDP connection.
@@ -198,16 +200,73 @@ func (s *Session) VoiceCloseUDP() {
 	s.UDPConn.Close()
 }
 
+func (s *Session) VoiceSpeaking() {
+
+	jsonb := []byte(`{"op":5,"d":{"speaking":true,"delay":0}}`)
+	err := s.VwsConn.WriteMessage(websocket.TextMessage, jsonb)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+}
+
 // VoiceListenUDP is test code to listen for UDP packets
 func (s *Session) VoiceListenUDP() {
 
+	// start the udp keep alive too.  Otherwise listening doesn't get much.
+	// THIS DOES NOT WORK YET
+	// go s.VoiceUDPKeepalive(s.Vop2.HeartbeatInterval) // lets try the ws timer
+
 	for {
-		fmt.Println("READ FROM UDP LOOP:")
 		b := make([]byte, 1024)
-		s.UDPConn.ReadFromUDP(b)
+		rlen, _, err := s.UDPConn.ReadFromUDP(b)
+		if err != nil {
+			fmt.Println("Error reading from UDP:", err)
+			//			return
+		}
+
+		if rlen < 1 {
+			fmt.Println("Empty UDP packet received")
+			continue
+			// empty packet?
+		}
 		fmt.Println("READ FROM UDP: ", b)
 	}
 
+}
+
+// VoiceUDPKeepalive sends a packet to keep the UDP connection forwarding
+// alive for NATed clients.  Without this no audio can be received
+// after short periods of silence.
+// Not sure how often this is supposed to be sent or even what payload
+// I am suppose to be sending.  So this is very.. unfinished :)
+func (s *Session) VoiceUDPKeepalive(i time.Duration) {
+
+	// NONE OF THIS WORKS. SO DON'T USE IT.
+	//
+	// testing with the above 70 byte SSRC packet.
+	//
+	// Create a 70 byte array and put the SSRC code from the Op 2 Voice event
+	// into it.  Then send that over the UDP connection to Discord
+
+	ticker := time.NewTicker(i * time.Millisecond)
+	for range ticker.C {
+		sb := make([]byte, 8)
+		sb[0] = 0x80
+		sb[1] = 0xc9
+		sb[2] = 0x00
+		sb[3] = 0x01
+
+		ssrcBE := make([]byte, 4)
+		binary.BigEndian.PutUint32(ssrcBE, s.Vop2.SSRC)
+
+		sb[4] = ssrcBE[0]
+		sb[5] = ssrcBE[1]
+		sb[6] = ssrcBE[2]
+		sb[7] = ssrcBE[3]
+
+		s.UDPConn.Write(ssrcBE)
+	}
 }
 
 // VoiceHeartbeat sends regular heartbeats to voice Discord so it knows the client
