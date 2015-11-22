@@ -130,7 +130,7 @@ func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
 		// add code to use this to track latency?
 		return
 	case 4:
-		s.VoiceSpeaking()
+		// TODO
 	default:
 		fmt.Println("UNKNOWN VOICE OP: ", e.Operation)
 		printJSON(e.RawData)
