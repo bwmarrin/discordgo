@@ -1,9 +1,11 @@
 package discordgo
 
 import (
+	"encoding/json"
 	"net"
+	"time"
 
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 // TODO: Eventually everything here gets moved to a better place.
