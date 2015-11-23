@@ -1,8 +1,8 @@
 package discordgo
 
-// Constants of all known Discord API Endpoints
+// All known Discord endpoints.
 // Please let me know if you know of any others.
-const (
+var (
 	STATUS      = "https://status.discordapp.com/api/v2/"
 	SM          = STATUS + "scheduled-maintenances/"
 	SM_ACTIVE   = SM + "active.json"
@@ -35,10 +35,7 @@ const (
 	SSO          = API + "sso"
 	REPORT       = API + "report"
 	INTEGRATIONS = API + "integrations"
-)
 
-// Almost like the constants above :) Except can't be constants
-var (
 	USER             = func(uID string) string { return USERS + uID }
 	USER_AVATAR      = func(uID, aID string) string { return USERS + uID + "/avatars/" + aID + ".jpg" }
 	USER_SETTINGS    = func(uID string) string { return USERS + uID + "/settings" }
