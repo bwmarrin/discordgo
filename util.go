@@ -1,4 +1,4 @@
-// Discordgo - Go bindings for Discord
+// Discordgo - Discord bindings for Go
 // Available at https://github.com/bwmarrin/discordgo
 
 // Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
