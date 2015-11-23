@@ -1,3 +1,14 @@
+// Discordgo - Go bindings for Discord
+// Available at https://github.com/bwmarrin/discordgo
+
+// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file contains all structures for the discordgo package.  These
+// may be moved about later into seperate files but I find it easier to have
+// them all located together.
+
 package discordgo
 
 import (
@@ -8,7 +19,59 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// TODO: Eventually everything here gets moved to a better place.
+// A Session represents a connection to the Discord REST API.
+// token : The authentication token returned from Discord
+// Debug : If set to ture debug logging will be displayed.
+type Session struct {
+	Token     string // Authentication token for this session
+	Debug     bool   // Debug for printing JSON request/responses
+	Cache     int    // number in X to cache some responses
+	SessionID string // from websocket READY packet
+
+	// Settable Callback functions for Websocket Events
+	OnEvent                   func(*Session, Event) // should Event be *Event?
+	OnReady                   func(*Session, Ready)
+	OnTypingStart             func(*Session, TypingStart)
+	OnMessageCreate           func(*Session, Message)
+	OnMessageUpdate           func(*Session, Message)
+	OnMessageDelete           func(*Session, MessageDelete)
+	OnMessageAck              func(*Session, MessageAck)
+	OnPresenceUpdate          func(*Session, PresenceUpdate)
+	OnVoiceStateUpdate        func(*Session, VoiceState)
+	OnChannelCreate           func(*Session, Channel)
+	OnChannelUpdate           func(*Session, Channel)
+	OnChannelDelete           func(*Session, Channel)
+	OnGuildCreate             func(*Session, Guild)
+	OnGuildUpdate             func(*Session, Guild)
+	OnGuildDelete             func(*Session, Guild)
+	OnGuildMemberAdd          func(*Session, Member)
+	OnGuildMemberRemove       func(*Session, Member)
+	OnGuildMemberDelete       func(*Session, Member) // which is it?
+	OnGuildMemberUpdate       func(*Session, Member)
+	OnGuildRoleCreate         func(*Session, GuildRole)
+	OnGuildRoleUpdate         func(*Session, GuildRole)
+	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
+	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
+
+	wsConn *websocket.Conn
+	//TODO, add bools for like.
+	// are we connnected to websocket?
+	// have we authenticated to login?
+	// lets put all the general session
+	// tracking and infos here.. clearly
+
+	// Everything below here is used for Voice testing.
+	// This stuff is almost guarenteed to change a lot
+	// and is even a bit hackish right now.
+	VwsConn    *websocket.Conn // new for voice
+	VSessionID string
+	VToken     string
+	VEndpoint  string
+	VGuildID   string
+	VChannelID string
+	Vop2       VoiceOP2
+	UDPConn    *net.UDPConn
+}
 
 // A Message stores all data related to a specific Discord message.
 type Message struct {
@@ -152,60 +215,6 @@ type Member struct {
 	Roles    []string `json:"roles"`
 }
 
-// A Session represents a connection to the Discord REST API.
-// token : The authentication token returned from Discord
-// Debug : If set to ture debug logging will be displayed.
-type Session struct {
-	Token     string // Authentication token for this session
-	Debug     bool   // Debug for printing JSON request/responses
-	Cache     int    // number in X to cache some responses
-	SessionID string // from websocket READY packet
-
-	// Settable Callback functions for Websocket Events
-	OnEvent                   func(*Session, Event) // should Event be *Event?
-	OnReady                   func(*Session, Ready)
-	OnTypingStart             func(*Session, TypingStart)
-	OnMessageCreate           func(*Session, Message)
-	OnMessageUpdate           func(*Session, Message)
-	OnMessageDelete           func(*Session, MessageDelete)
-	OnMessageAck              func(*Session, MessageAck)
-	OnPresenceUpdate          func(*Session, PresenceUpdate)
-	OnVoiceStateUpdate        func(*Session, VoiceState)
-	OnChannelCreate           func(*Session, Channel)
-	OnChannelUpdate           func(*Session, Channel)
-	OnChannelDelete           func(*Session, Channel)
-	OnGuildCreate             func(*Session, Guild)
-	OnGuildUpdate             func(*Session, Guild)
-	OnGuildDelete             func(*Session, Guild)
-	OnGuildMemberAdd          func(*Session, Member)
-	OnGuildMemberRemove       func(*Session, Member)
-	OnGuildMemberDelete       func(*Session, Member) // which is it?
-	OnGuildMemberUpdate       func(*Session, Member)
-	OnGuildRoleCreate         func(*Session, GuildRole)
-	OnGuildRoleUpdate         func(*Session, GuildRole)
-	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
-	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
-
-	wsConn *websocket.Conn
-	//TODO, add bools for like.
-	// are we connnected to websocket?
-	// have we authenticated to login?
-	// lets put all the general session
-	// tracking and infos here.. clearly
-
-	// Everything below here is used for Voice testing.
-	// This stuff is almost guarenteed to change a lot
-	// and is even a bit hackish right now.
-	VwsConn    *websocket.Conn // new for voice
-	VSessionID string
-	VToken     string
-	VEndpoint  string
-	VGuildID   string
-	VChannelID string
-	Vop2       VoiceOP2
-	UDPConn    *net.UDPConn
-}
-
 // A User stores all data for an individual Discord user.
 type User struct {
 	ID       string `json:"id"`
@@ -216,6 +225,7 @@ type User struct {
 	//Discriminator int    `json:"discriminator,string"` // TODO: See below
 }
 
+// TODO: Research issue.
 // Discriminator sometimes comes as a string
 // and sometimes it comes as a int.  Weird.
 // to avoid errors I've just commented it out
@@ -264,9 +274,6 @@ type Ready struct {
 	PrivateChannels   []PrivateChannel
 	Guilds            []Guild
 }
-
-// ReadState might need to move? Gives me the read status
-// of all my channels when first connecting. I think :)
 
 // A ReadState stores data on the read state of channels.
 type ReadState struct {

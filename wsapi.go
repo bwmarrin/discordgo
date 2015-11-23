@@ -1,10 +1,12 @@
-/******************************************************************************
- * A Discord API for Golang.
- * See discord.go for more information.
- *
- * This file contains low level functions for interacting
- * with the Discord Websocket interface.
- */
+// Discordgo - Go bindings for Discord
+// Available at https://github.com/bwmarrin/discordgo
+
+// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file contains low level functions for interacting with the Discord
+// data websocket interface.
 
 package discordgo
 

@@ -1,7 +1,16 @@
+// Discordgo - Go bindings for Discord
+// Available at https://github.com/bwmarrin/discordgo
+
+// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file contains variables for all known Discord end points.  All functions
+// throughout the discordgo package use these variables for all connections
+// to Discord.  These are all exported and you may modify them if needed.
+
 package discordgo
 
-// All known Discord endpoints.
-// Please let me know if you know of any others.
 var (
 	STATUS      = "https://status.discordapp.com/api/v2/"
 	SM          = STATUS + "scheduled-maintenances/"

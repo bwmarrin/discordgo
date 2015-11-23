@@ -1,6 +1,14 @@
+// Discordgo - Go bindings for Discord
+// Available at https://github.com/bwmarrin/discordgo
+
+// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file contains experimental functions for interacting with the Discord
+// Voice websocket and UDP connections.
+//
 // EVERYTHING in this file is very experimental and will change.
-// these structs and functions setup a voice websocket and
-// create the voice UDP connection.
 
 package discordgo
 

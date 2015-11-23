@@ -1,10 +1,12 @@
-/******************************************************************************
- * A Discord API for Golang.
- * See discord.go for more information.
- *
- * This file contains functions for interacting with the Discord HTTP REST API
- * at the lowest level.
- */
+// Discordgo - Go bindings for Discord
+// Available at https://github.com/bwmarrin/discordgo
+
+// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file contains functions for interacting with the Discord REST/JSON API
+// at the lowest level.
 
 package discordgo
 
@@ -60,9 +62,9 @@ func (s *Session) Request(method, urlStr, body string) (response []byte, err err
 	return
 }
 
-/***************************************************************************************************
- * Functions specific to this session.
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Sessions
+// ------------------------------------------------------------------------------------------------
 
 // Login asks the Discord server for an authentication token
 func (s *Session) Login(email string, password string) (token string, err error) {
@@ -85,9 +87,9 @@ func (s *Session) Logout() (err error) {
 	return
 }
 
-/***************************************************************************************************
- * Functions related to a specific user
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Users
+// ------------------------------------------------------------------------------------------------
 
 // User returns the user details of the given userID
 // userID    : A user ID or "@me" which is a shortcut of current user ID
@@ -151,9 +153,9 @@ func (s *Session) UserGuilds(userID string) (st []Guild, err error) {
 	return
 }
 
-/***************************************************************************************************
- * Functions related to a specific guild
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Guilds
+// ------------------------------------------------------------------------------------------------
 
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
@@ -285,9 +287,9 @@ func (s *Session) GuildInviteCreate(guildID string, i Invite) (st Invite, err er
 	return
 }
 
-/***************************************************************************************************
- * Functions related to a specific channel
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Channels
+// ------------------------------------------------------------------------------------------------
 
 // Channel returns a Channel strucutre of a specific Channel.
 // channelID  : The ID of the Channel you want returend.
@@ -420,9 +422,9 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st Invite, er
 	return
 }
 
-/***************************************************************************************************
- * Functions related to an invite
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Invites
+// ------------------------------------------------------------------------------------------------
 
 // Invite returns an Invite structure of the given invite
 // inviteID : The invite code (or maybe xkcdpass?)
@@ -449,9 +451,9 @@ func (s *Session) InviteAccept(inviteID string) (st Invite, err error) {
 	return
 }
 
-/***************************************************************************************************
- * Functions related to Voice/Audio
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Voice
+// ------------------------------------------------------------------------------------------------
 
 // VoiceRegions returns the voice server regions
 func (s *Session) VoiceRegions() (st []VoiceRegion, err error) {
@@ -469,9 +471,9 @@ func (s *Session) VoiceICE() (st VoiceICE, err error) {
 	return
 }
 
-/***************************************************************************************************
- * Functions related to Websockets
- */
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Websockets
+// ------------------------------------------------------------------------------------------------
 
 // Gateway returns the a websocket Gateway address
 func (s *Session) Gateway() (gateway string, err error) {
