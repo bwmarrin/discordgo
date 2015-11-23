@@ -3,6 +3,9 @@
 This package provides low level bindings for the [Discord](https://discordapp.com/) 
 REST & Websocket API in the [Go](https://golang.org/)  Programming Language (Golang).
 
+Check out [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** 
+Discord voice support.
+
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) 
 [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
 [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) 
