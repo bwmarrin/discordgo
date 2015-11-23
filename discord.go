@@ -10,7 +10,7 @@
 // experimental at this point.  They will most likley change so please use the
 // low level functions if that's a problem.
 
-// package discordgo provides Go bindings for Discord
+// package discordgo provides Discord binding for Go
 package discordgo
 
 // TODO add easy to use high level helper functions
