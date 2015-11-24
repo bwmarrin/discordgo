@@ -148,6 +148,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			return err
 		}
 		s.onVoiceStateUpdate(st)
+		return
 	case "PRESENCE_UPDATE":
 		if s.OnPresenceUpdate != nil {
 			var st PresenceUpdate
