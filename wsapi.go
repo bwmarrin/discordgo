@@ -77,13 +77,14 @@ func (s *Session) Listen() (err error) {
 
 	if s.wsConn == nil {
 		fmt.Println("No websocket connection exists.")
-		return // need to return an error.
+		return // TODO need to return an error.
 	}
 
 	for {
 		messageType, message, err := s.wsConn.ReadMessage()
 		if err != nil {
 			fmt.Println("Websocket Listen Error", err)
+			// TODO Log error
 			break
 		}
 		go s.event(messageType, message)
@@ -372,6 +373,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	// if still here, send to generic OnEvent
 	if s.OnEvent != nil {
 		s.OnEvent(s, e)
+		return
 	}
 
 	return
@@ -388,19 +390,23 @@ func (s *Session) Heartbeat(i time.Duration) {
 
 	if s.wsConn == nil {
 		fmt.Println("No websocket connection exists.")
-		return // need to return an error.
+		return // TODO need to return an error.
 	}
 
+	// send first heartbeat immediately because lag could put the
+	// first heartbeat outside the required heartbeat interval window
 	ticker := time.NewTicker(i * time.Millisecond)
-	for range ticker.C {
+	for {
 		timestamp := int(time.Now().Unix())
 		err := s.wsConn.WriteJSON(map[string]int{
 			"op": 1,
 			"d":  timestamp,
 		})
 		if err != nil {
-			return // log error?
+			fmt.Println("error sending data heartbeat:", err)
+			return // TODO log error?
 		}
+		<-ticker.C
 	}
 }
 
@@ -422,7 +428,7 @@ func (s *Session) VoiceChannelJoin(guildID, channelID string) {
 
 	if s.wsConn == nil {
 		fmt.Println("error: no websocket connection exists.")
-		return
+		return // TODO return error
 	}
 
 	// Odd, but.. it works.  map interface caused odd unknown opcode error
