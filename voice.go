@@ -210,6 +210,12 @@ func (s *Session) VoiceCloseUDP() {
 
 func (s *Session) VoiceSpeaking() {
 
+	if s.VwsConn == nil {
+		// TODO return an error
+		fmt.Println("No Voice websocket.")
+		return
+	}
+
 	jsonb := []byte(`{"op":5,"d":{"speaking":true,"delay":0}}`)
 	err := s.VwsConn.WriteMessage(websocket.TextMessage, jsonb)
 	if err != nil {
