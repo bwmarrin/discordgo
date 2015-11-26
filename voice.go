@@ -198,6 +198,7 @@ func (s *Session) VoiceOpenUDP() {
 		fmt.Println("error:", err)
 		return
 	}
+	s.UDPReady = true
 
 	// continue to listen for future packets
 	// go s.VoiceListenUDP()
@@ -289,15 +290,18 @@ func (s *Session) VoiceUDPKeepalive(i time.Duration) {
 func (s *Session) VoiceHeartbeat(i time.Duration) {
 
 	ticker := time.NewTicker(i * time.Millisecond)
-	for range ticker.C {
+	for {
 		timestamp := int(time.Now().Unix())
 		err := s.VwsConn.WriteJSON(map[string]int{
 			"op": 3,
 			"d":  timestamp,
 		})
 		if err != nil {
+			s.VoiceReady = false
 			fmt.Println(err)
 			return // log error?
 		}
+		s.VoiceReady = true
+		<-ticker.C
 	}
 }
