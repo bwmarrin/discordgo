@@ -23,10 +23,13 @@ import (
 // token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
-	Token     string // Authentication token for this session
-	Debug     bool   // Debug for printing JSON request/responses
-	Cache     int    // number in X to cache some responses
-	SessionID string // from websocket READY packet
+	Token      string // Authentication token for this session
+	Debug      bool   // Debug for printing JSON request/responses
+	Cache      int    // number in X to cache some responses
+	SessionID  string // from websocket READY packet
+	DataReady  bool   // Set to true when Data Websocket is ready
+	VoiceReady bool   // Set to true when Voice Websocket is ready
+	UDPReady   bool   // Set to true when UDP Connection is ready
 
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, Event) // should Event be *Event?
