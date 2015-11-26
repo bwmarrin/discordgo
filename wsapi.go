@@ -114,6 +114,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 
 	var e Event
 	if err := json.Unmarshal(message, &e); err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -404,8 +405,10 @@ func (s *Session) Heartbeat(i time.Duration) {
 		})
 		if err != nil {
 			fmt.Println("error sending data heartbeat:", err)
+			s.DataReady = false
 			return // TODO log error?
 		}
+		s.DataReady = true
 		<-ticker.C
 	}
 }
