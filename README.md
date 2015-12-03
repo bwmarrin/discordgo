@@ -27,9 +27,10 @@ func main() {
 	var err error
 
 	// Create a new Discord Session and set a handler for the OnMessageCreate
-    // event that happens for every new message on any channel
+	// event that happens for every new message on any channel
 	Session := discordgo.Session{
 		OnMessageCreate: messageCreate,
+		OnReady:         ready,
 	}
 
 	// Login to the Discord server and store the authentication token
@@ -55,6 +56,12 @@ func main() {
 	// Listen for events.
 	Session.Listen()
 	return
+}
+
+func ready(s *discordgo.Session, r discordgo.Ready) {
+	// start the Heartbeat.  This is required
+	// to keep the websocket connection open
+	go s.Heartbeat(r.HeartbeatInterval)
 }
 
 func messageCreate(s *discordgo.Session, m discordgo.Message) {
