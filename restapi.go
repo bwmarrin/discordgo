@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"time"
 )
 
@@ -408,12 +409,29 @@ func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
 // ChannelMessageSend sends a message to the given channel.
 // channelID : The ID of a Channel.
 // content   : The message to send.
+// NOTE, mention and tts parameters may be added in 2.x branch.
 func (s *Session) ChannelMessageSend(channelID string, content string) (st Message, err error) {
 
+	// TOD: nonce string ?
 	data := struct {
-		Content string `json:"content"`
-	}{content}
+		Content  string   `json:"content"`
+		Mentions []string `json:"mentions"`
+		TTS      bool     `json:"tts"`
+	}{content, nil, false}
 
+	// If true, search for <@ID> tags and add those IDs to mention list.
+	if s.AutoMention {
+		re := regexp.MustCompile(`<@(\d+)>`)
+		match := re.FindAllStringSubmatch(content, -1)
+
+		mentions := make([]string, len(match))
+		for i, m := range match {
+			mentions[i] = m[1]
+		}
+		data.Mentions = mentions
+	}
+
+	// Send the message to the given channel
 	response, err := s.Request("POST", CHANNEL_MESSAGES(channelID), data)
 	err = json.Unmarshal(response, &st)
 	return

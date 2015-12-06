@@ -23,13 +23,11 @@ import (
 // token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
-	Token      string // Authentication token for this session
-	Debug      bool   // Debug for printing JSON request/responses
-	Cache      int    // number in X to cache some responses
-	SessionID  string // from websocket READY packet
-	DataReady  bool   // Set to true when Data Websocket is ready
-	VoiceReady bool   // Set to true when Voice Websocket is ready
-	UDPReady   bool   // Set to true when UDP Connection is ready
+	// General configurable settings.
+	Token       string // Authentication token for this session
+	Debug       bool   // Debug for printing JSON request/responses
+	Cache       int    // number in X to cache some responses
+	AutoMention bool   // if set to True, ChannelSendMessage will auto mention <@ID>
 
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, Event) // should Event be *Event?
@@ -56,6 +54,13 @@ type Session struct {
 	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
 
+	// Exposed but should not be modified by User.
+	SessionID  string // from websocket READY packet
+	DataReady  bool   // Set to true when Data Websocket is ready
+	VoiceReady bool   // Set to true when Voice Websocket is ready
+	UDPReady   bool   // Set to true when UDP Connection is ready
+
+	// Other..
 	wsConn *websocket.Conn
 	//TODO, add bools for like.
 	// are we connnected to websocket?
