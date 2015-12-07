@@ -13,4 +13,110 @@
 // package discordgo provides Discord binding for Go
 package discordgo
 
-// TODO add easy to use high level helper functions
+import "fmt"
+
+/*
+type Config struct {
+	Debug bool
+}
+*/
+
+// NOTICE: This function should be considered unstable because I am still
+// exploring the best way to implement my goals here.  So, it is more likely
+// to change than than the low level API functions.
+//
+// New creates a new Discord session interface and will automate some startup
+// tasks if given enough information to do so.  Currently you can pass zero
+// arguments and it will return an empty Discord session. If you pass a token
+// or username and password (in that order), then it will attempt to login to
+// Discord and open a websocket connection.
+func New(args ...interface{}) (s *Session, err error) {
+
+	// Create an empty Session interface.
+	s = &Session{}
+
+	// If no arguments are passed return the empty Session interface.
+	// Later I will add default values, if appropriate.
+	if args == nil {
+		return
+	}
+
+	// Varibles used below when parsing func arguments
+	var auth, pass string
+
+	// Parse passed arguments
+	for _, arg := range args {
+
+		switch v := arg.(type) {
+
+		case []string:
+			if len(v) > 2 {
+				err = fmt.Errorf("Too many string parameters provided.")
+				return
+			}
+
+			// First string is either token or username
+			if len(v) > 0 {
+				auth = v[0]
+			}
+
+			// If second string exists, it must be a password.
+			if len(v) > 1 {
+				pass = v[1]
+			}
+
+		case string:
+			// First string must be either auth token or username.
+			// Second string must be a password.
+			// Only 2 input strings are supported.
+
+			if auth == "" {
+				auth = v
+			} else if pass == "" {
+				pass = v
+			} else {
+				err = fmt.Errorf("Too many string parameters provided.")
+				return
+			}
+
+			//		case Config:
+			// TODO: Parse configuration
+
+		default:
+			err = fmt.Errorf("Unsupported parameter type provided.")
+			return
+		}
+	}
+
+	// If only one string was provided, assume it is an auth token.
+	// Otherwise get auth token from Discord
+	if pass == "" {
+		s.Token = auth
+	} else {
+		s.Token, err = s.Login(auth, pass)
+		if err != nil || s.Token == "" {
+			err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
+			return
+		}
+	}
+
+	// TODO: Add code here to fetch authenticated user info like settings,
+	// avatar, User ID, etc.  If fails, return error.
+
+	// Open websocket connection
+	err = s.Open()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Do websocket handshake.
+	err = s.Handshake()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Listen for events.
+	go s.Listen()
+
+	return
+}
