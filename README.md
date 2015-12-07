@@ -16,7 +16,7 @@ Discord voice support.
 [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
 # Usage Examples
-See the examples sub-folder for examples.  Each example accepts a username and 
+See the example sub-folder for examples.  Each example accepts a username and 
 password as a CLI argument when run.
 
 # Documentation
