@@ -119,7 +119,8 @@ REST and Websock API.
 
 **Go**:
 [gdraynz/**go-discord**](https://github.com/gdraynz/go-discord),
-[Xackery/**discord**](https://github.com/Xackery/discord)
+[Xackery/**discord**](https://github.com/Xackery/discord),
+[Nerketur/**discordapi**](https://github.com/Nerketur/discordapi)
 
 **.NET**:
 [RogueException/**Discord.Net**](https://github.com/RogueException/Discord.Net),
