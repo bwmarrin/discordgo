@@ -26,7 +26,6 @@ type Session struct {
 	// General configurable settings.
 	Token       string // Authentication token for this session
 	Debug       bool   // Debug for printing JSON request/responses
-	Cache       int    // number in X to cache some responses
 	AutoMention bool   // if set to True, ChannelSendMessage will auto mention <@ID>
 
 	// Settable Callback functions for Websocket Events
