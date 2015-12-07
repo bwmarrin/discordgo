@@ -121,16 +121,17 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	switch e.Type {
 
 	case "READY":
+		var st Ready
+		if err := json.Unmarshal(e.RawData, &st); err != nil {
+			fmt.Println(e.Type, err)
+			printJSON(e.RawData) // TODO: Better error logging
+			return err
+		}
 		if s.OnReady != nil {
-			var st Ready
-			if err := json.Unmarshal(e.RawData, &st); err != nil {
-				fmt.Println(e.Type, err)
-				printJSON(e.RawData) // TODO: Better error logging
-				return err
-			}
 			s.OnReady(s, st)
 			return
 		}
+		go s.Heartbeat(st.HeartbeatInterval)
 	case "VOICE_SERVER_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
 		var st VoiceServerUpdate
