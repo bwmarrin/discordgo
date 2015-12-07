@@ -15,71 +15,9 @@ Discord voice support.
 [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) 
 [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
-# Usage Example
-```go
-package main
-
-import (
-	"fmt"
-	"os"
-	"time"
-
-	"github.com/bwmarrin/discordgo"
-)
-
-func main() {
-
-	var err error
-	var username, password, token string
-
-	// Check for Username and Password arguments
-	if len(os.Args) < 2 || len(os.Args) > 3 {
-		fmt.Println("You must provide a username and password as arguments. See below example.")
-		fmt.Println(os.Args[0], " [username] [password]")
-		return
-	}
-
-	// Set username and password from command line arguments.
-	username = os.Args[1]
-	password = os.Args[2]
-
-	// Create a new Discord Session and set a handler for the OnMessageCreate
-	// event that happens for every new message on any channel
-	Session := discordgo.Session{
-		OnMessageCreate: messageCreate,
-	}
-
-	// Login to the Discord server and store the authentication token
-	// inside the Session, unless the token was already provided.
-	if token == "" {
-		Session.Token, err = Session.Login(username, password)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-
-	// Open websocket connection
-	err = Session.Open()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Do websocket handshake.
-	err = Session.Handshake()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Listen for events.
-	Session.Listen()
-	return
-}
-
-func messageCreate(s *discordgo.Session, m discordgo.Message) {
-	fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
-}
-```
+# Usage Examples
+See the examples sub-folder for examples.  Each example accepts a username and 
+password as a CLI argument when run.
 
 # Documentation
 
