@@ -1,25 +1,22 @@
-# Discordgo
+DiscordGo provides low level bindings for [Discord](https://discordapp.com/) 
+in the [Go](https://golang.org/)  Programming Language (Golang).
 
-This package provides low level bindings for the [Discord](https://discordapp.com/) 
-REST & Websocket API in the [Go](https://golang.org/)  Programming Language (Golang).
+* See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice support.
 
-* See out [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** 
-Discord voice support.
-
-* See out [dgTest](https://github.com/bwmarrin/dgTest) for more examples and test code.
-
-----
+Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWvLIfZ) Discord API channel on Discord for support.
 
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) 
 [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
 [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) 
 [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
-# Usage Examples
+----
+
+## Usage Examples
 See the example sub-folder for examples.  Each example accepts a username and 
 password as a CLI argument when run.
 
-# Documentation
+## Documentation
 
 **NOTICE** : This library and the Discord API are unfinished.
 Because of that there may be major changes to library functions, constants,
@@ -29,7 +26,7 @@ and structures.
 - [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
 - Hand crafted documentation coming eventually.
 
-# What Works
+## What Works
 
 Current package provides a **low level direct mapping** to the majority of Discord 
 REST and Websock API.
@@ -44,7 +41,7 @@ REST and Websock API.
 * List Guild Members
 * Receive/Send Messages to Channels
 
-# What's Unfinished
+## What's Unfinished
 
 * Make changes as needed to pass GoLint, GoVet, GoCyclo, etc. (goreportcard.com)
 * Editing User Profile settings
@@ -53,7 +50,7 @@ REST and Websock API.
 * Finish Voice support.
 * Add a higher level interface with user friendly helper functions.
 
-# Other Discord APIs
+## Other Discord APIs
 
 **Go**:
 [gdraynz/**go-discord**](https://github.com/gdraynz/go-discord),
