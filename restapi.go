@@ -44,6 +44,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "DiscordBot (https://github.com/bwmarrin/discordgo, v0.0.0)")
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
