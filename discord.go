@@ -15,6 +15,9 @@ package discordgo
 
 import "fmt"
 
+// DiscordGo Version, follows Symantic Versioning. (http://semver.org/)
+const VERSION = "0.5.0"
+
 /*
 type Config struct {
 	Debug bool
