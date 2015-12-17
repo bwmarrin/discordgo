@@ -39,12 +39,14 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	}
 
 	// Not used on initial login..
+	// TODO: Verify if a login, otherwise complain about no-token
 	if s.Token != "" {
 		req.Header.Set("authorization", s.Token)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "DiscordBot (https://github.com/bwmarrin/discordgo, v0.0.0)")
+	// TODO: Make a configurable static variable.
+	req.Header.Set("User-Agent", fmt.Sprintf("DiscordBot (https://github.com/bwmarrin/discordgo, v%s", VERSION))
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
@@ -58,6 +60,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	}
 	resp.Body.Close()
 
+	// TODO check for 401 response, invalidate token if we get one.
 	if resp.StatusCode != 204 && resp.StatusCode != 200 {
 		err = fmt.Errorf("StatusCode: %d, %s", resp.StatusCode, string(response))
 		return
