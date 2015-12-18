@@ -56,24 +56,43 @@ func (s *Session) Handshake() (err error) {
 	return
 }
 
-// UpdateStatus is used to update the authenticated user's status.
-func (s *Session) UpdateStatus(idleSince, gameID string) (err error) {
+type updateStatusData struct {
+	IdleSince json.Token `json:"idle_since"`
+	GameID    json.Token `json:"game_id"`
+}
 
-	err = s.wsConn.WriteJSON(map[string]interface{}{
-		"op": 2,
-		"d": map[string]interface{}{
-			"idle_since": idleSince,
-			"game_id":    gameID,
-		},
-	})
+type updateStatusOp struct {
+	Op   int              `json:"op"`
+	Data updateStatusData `json:"d"`
+}
+
+// UpdateStatus is used to update the authenticated user's status.
+// If idle>0 then set status to idle.  If game>0 then set game.
+// if otherwise, set status to active, and no game.
+func (s *Session) UpdateStatus(idle int, gameID int) (err error) {
+
+	var usd updateStatusData
+	if idle > 0 {
+		usd.IdleSince = idle
+	} else {
+		usd.IdleSince = nil
+	}
+
+	if gameID >= 0 {
+		usd.GameID = gameID
+	} else {
+		usd.GameID = nil
+	}
+
+	data := updateStatusOp{3, usd}
+	err = s.wsConn.WriteJSON(data)
 	return
 }
 
-// TODO: need a channel or something to communicate
-// to this so I can tell it to stop listening
-
 // Listen starts listening to the websocket connection for events.
 func (s *Session) Listen() (err error) {
+	// TODO: need a channel or something to communicate
+	// to this so I can tell it to stop listening
 
 	if s.wsConn == nil {
 		fmt.Println("No websocket connection exists.")
