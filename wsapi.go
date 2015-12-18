@@ -31,28 +31,31 @@ func (s *Session) Open() (err error) {
 	return
 }
 
-// maybe this is SendOrigin? not sure the right name here
-// also bson.M vs string interface map?  Read about
-// how to send JSON the right way.
+type handshakeProperties struct {
+	OS              string `json:"$os"`
+	Browser         string `json:"$browser"`
+	Device          string `json:"$device"`
+	Referer         string `json:"$referer"`
+	ReferringDomain string `json:"$referring_domain"`
+}
+
+type handshakeData struct {
+	Version    int                 `json:"v"`
+	Token      string              `json:"token"`
+	Properties handshakeProperties `json:"properties"`
+}
+
+type handshakeOp struct {
+	Op   int           `json:"op"`
+	Data handshakeData `json:"d"`
+}
 
 // Handshake sends the client data to Discord during websocket initial connection.
 func (s *Session) Handshake() (err error) {
+	// maybe this is SendOrigin? not sure the right name here
 
-	err = s.wsConn.WriteJSON(map[string]interface{}{
-		"op": 2,
-		"d": map[string]interface{}{
-			"v":     3,
-			"token": s.Token,
-			"properties": map[string]string{
-				"$os":               runtime.GOOS,
-				"$browser":          "Discordgo",
-				"$device":           "Discordgo",
-				"$referer":          "",
-				"$referring_domain": "",
-			},
-		},
-	})
-
+	data := handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "DiscordGo v" + VERSION, "", "", ""}}}
+	err = s.wsConn.WriteJSON(data)
 	return
 }
 
