@@ -448,29 +448,38 @@ type VoiceServerUpdate struct {
 	Endpoint string `json:"endpoint"`
 }
 
+type voiceChannelJoinData struct {
+	GuildID   string `json:"guild_id"`
+	ChannelID string `json:"channel_id"`
+	SelfMute  bool   `json:"self_mute"`
+	SelfDeaf  bool   `json:"self_deaf"`
+}
+
+type voiceChannelJoinOp struct {
+	Op   int                  `json:"op"`
+	Data voiceChannelJoinData `json:"d"`
+}
+
 // VoiceChannelJoin joins the authenticated session user to
 // a voice channel.  All the voice magic starts with this.
-func (s *Session) VoiceChannelJoin(guildID, channelID string) {
+func (s *Session) VoiceChannelJoin(guildID, channelID string) (err error) {
 
 	if s.wsConn == nil {
 		fmt.Println("error: no websocket connection exists.")
 		return // TODO return error
 	}
 
-	// Odd, but.. it works.  map interface caused odd unknown opcode error
-	// Later I'll test with a struct
-	json := []byte(fmt.Sprintf(`{"op":4,"d":{"guild_id":"%s","channel_id":"%s","self_mute":false,"self_deaf":false}}`,
-		guildID, channelID))
-
-	err := s.wsConn.WriteMessage(websocket.TextMessage, json)
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{guildID, channelID, false, false}}
+	err = s.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("error:", err)
 		return
 	}
 
 	// Probably will be removed later.
 	s.VGuildID = guildID
 	s.VChannelID = channelID
+
+	return
 }
 
 // onVoiceStateUpdate handles Voice State Update events on the data
