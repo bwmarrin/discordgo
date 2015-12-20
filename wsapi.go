@@ -489,7 +489,7 @@ func (s *Session) VoiceChannelJoin(guildID, channelID string) (err error) {
 func (s *Session) onVoiceStateUpdate(st VoiceState) {
 
 	// Need to have this happen at login and store it in the Session
-	self, err := s.User("@me")
+	self, err := s.User("@me") // TODO: move to Login/New
 	if err != nil {
 		fmt.Println(err)
 		return
