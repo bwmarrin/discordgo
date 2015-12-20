@@ -23,7 +23,32 @@ type Config struct {
 	Debug bool
 }
 */
+/*
+// possible future main struct for discord connection
+type Discord struct {
+	Debug    bool      // Set to true to enable debug logging
+	Token    string    // authentication token
+	User     User      // authenticated user info
+	Guilds   []Guild   // Cached Guild info
+	Channels []Channel // Cached Channel info
+	API      api       // all api endpoint functions
+	DataWS   dataWS    // data websocket connection
+	VoiceWS  voiceWS   // voice websocket/udp connections
+	VoiceUDP voiceUDP
+}
 
+type api struct {
+	Session
+}
+type dataWS struct {
+}
+
+type voiceWS struct {
+}
+
+type voiceUDP struct {
+}
+*/
 // NOTICE: This function should be considered unstable because I am still
 // exploring the best way to implement my goals here.  So, it is more likely
 // to change than than the low level API functions.
