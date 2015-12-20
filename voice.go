@@ -23,7 +23,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// A VEvent is the inital structure for voice websocket events.  I think
+// A VEvent is the initial structure for voice websocket events.  I think
 // I can reuse the data websocket structure here.
 type VEvent struct {
 	Type      string          `json:"t"`
@@ -41,15 +41,32 @@ type VoiceOP2 struct {
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 }
 
+type voiceHandshakeData struct {
+	ServerID  string `json:"server_id"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
+	Token     string `json:"token"`
+}
+
+type voiceHandshakeOp struct {
+	Op   int                `json:"op"` // Always 0
+	Data voiceHandshakeData `json:"d"`
+}
+
 // VoiceOpenWS opens a voice websocket connection.  This should be called
 // after VoiceChannelJoin is used and the data VOICE websocket events
 // are captured.
 func (s *Session) VoiceOpenWS() {
 
+	// Don't open a socket if one is already open
+	if s.VwsConn != nil {
+		return
+	}
+
 	var self User
 	var err error
 
-	self, err = s.User("@me") // AGAIN, Move to @ login and store in session
+	self, err = s.User("@me") // TODO: Move to @ login and store in session
 
 	// Connect to Voice Websocket
 	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(s.VEndpoint, ":80"))
@@ -58,16 +75,7 @@ func (s *Session) VoiceOpenWS() {
 		fmt.Println("VOICE cannot open websocket:", err)
 	}
 
-	// Send initial handshake data to voice websocket.  This is required.
-	json := map[string]interface{}{
-		"op": 0,
-		"d": map[string]interface{}{
-			"server_id":  s.VGuildID,
-			"user_id":    self.ID,
-			"session_id": s.VSessionID,
-			"token":      s.VToken,
-		},
-	}
+	json := voiceHandshakeOp{0, voiceHandshakeData{s.VGuildID, self.ID, s.VSessionID, s.VToken}}
 
 	err = s.VwsConn.WriteJSON(json)
 	if err != nil {
@@ -147,13 +155,29 @@ func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
 	return
 }
 
+type voiceUDPData struct {
+	Address string `json:"address"` // Public IP of machine running this code
+	Port    uint16 `json:"port"`    // UDP Port of machine running this code
+	Mode    string `json:"mode"`    // plain or ?  (plain or encrypted)
+}
+
+type voiceUDPD struct {
+	Protocol string       `json:"protocol"` // Always "udp" ?
+	Data     voiceUDPData `json:"data"`
+}
+
+type voiceUDPOp struct {
+	Op   int       `json:"op"` // Always 1
+	Data voiceUDPD `json:"d"`
+}
+
 // VoiceOpenUDP opens a UDP connect to the voice server and completes the
 // initial required handshake.  This connect is left open in the session
 // and can be used to send or receive audio.
 func (s *Session) VoiceOpenUDP() {
 
 	// TODO: add code to convert hostname into an IP address to avoid problems
-	// with frequent DNS lookups.
+	// with frequent DNS lookups. ??
 
 	udpHost := fmt.Sprintf("%s:%d", strings.TrimSuffix(s.VEndpoint, ":80"), s.Vop2.Port)
 	serverAddr, err := net.ResolveUDPAddr("udp", udpHost)
@@ -182,6 +206,7 @@ func (s *Session) VoiceOpenUDP() {
 		fmt.Println("Voice RLEN should be 70 but isn't")
 	}
 
+	// TODO need serious changes, this will likely not work on all IPs!
 	ip := string(rb[4:16]) // must be a better way.  TODO: NEEDS TESTING
 	port := make([]byte, 2)
 	port[0] = rb[68]
@@ -190,10 +215,9 @@ func (s *Session) VoiceOpenUDP() {
 
 	// Take the parsed data from above and send it back to Discord
 	// to finalize the UDP handshake.
-	json := fmt.Sprintf(`{"op":1,"d":{"protocol":"udp","data":{"address":"%s","port":%d,"mode":"plain"}}}`, ip, p)
-	jsonb := []byte(json)
+	jsondata := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, p, "plain"}}}
 
-	err = s.VwsConn.WriteMessage(websocket.TextMessage, jsonb)
+	err = s.VwsConn.WriteJSON(jsondata)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -209,6 +233,16 @@ func (s *Session) VoiceCloseUDP() {
 	s.UDPConn.Close()
 }
 
+type voiceSpeakingData struct {
+	Speaking bool `json:"speaking"`
+	Delay    int  `json:"delay"`
+}
+
+type voiceSpeakingOp struct {
+	Op   int               `json:"op"` // Always 5
+	Data voiceSpeakingData `json:"d"`
+}
+
 func (s *Session) VoiceSpeaking() {
 
 	if s.VwsConn == nil {
@@ -217,8 +251,8 @@ func (s *Session) VoiceSpeaking() {
 		return
 	}
 
-	jsonb := []byte(`{"op":5,"d":{"speaking":true,"delay":0}}`)
-	err := s.VwsConn.WriteMessage(websocket.TextMessage, jsonb)
+	json := voiceSpeakingOp{5, voiceSpeakingData{true, 0}}
+	err := s.VwsConn.WriteJSON(json)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -284,6 +318,11 @@ func (s *Session) VoiceUDPKeepalive(i time.Duration) {
 	}
 }
 
+type voiceHeartbeatOp struct {
+	Op   int `json:"op"` // Always 3
+	Data int `json:"d"`
+}
+
 // VoiceHeartbeat sends regular heartbeats to voice Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
@@ -292,15 +331,15 @@ func (s *Session) VoiceHeartbeat(i time.Duration) {
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
 		timestamp := int(time.Now().Unix())
-		err := s.VwsConn.WriteJSON(map[string]int{
-			"op": 3,
-			"d":  timestamp,
-		})
+		json := voiceHeartbeatOp{3, timestamp}
+
+		err := s.VwsConn.WriteJSON(json)
 		if err != nil {
 			s.VoiceReady = false
 			fmt.Println(err)
 			return // log error?
 		}
+
 		s.VoiceReady = true
 		<-ticker.C
 	}
