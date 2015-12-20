@@ -176,9 +176,6 @@ type voiceUDPOp struct {
 // and can be used to send or receive audio.
 func (s *Session) VoiceOpenUDP() {
 
-	// TODO: add code to convert hostname into an IP address to avoid problems
-	// with frequent DNS lookups. ??
-
 	udpHost := fmt.Sprintf("%s:%d", strings.TrimSuffix(s.VEndpoint, ":80"), s.Vop2.Port)
 	serverAddr, err := net.ResolveUDPAddr("udp", udpHost)
 	if err != nil {
@@ -206,16 +203,22 @@ func (s *Session) VoiceOpenUDP() {
 		fmt.Println("Voice RLEN should be 70 but isn't")
 	}
 
-	// TODO need serious changes, this will likely not work on all IPs!
-	ip := string(rb[4:16]) // must be a better way.  TODO: NEEDS TESTING
-	port := make([]byte, 2)
-	port[0] = rb[68]
-	port[1] = rb[69]
-	p := binary.LittleEndian.Uint16(port)
+	// Loop over position 4 though 20 to grab the IP address
+	// Should never be beyond position 20.
+	var ip string
+	for i := 4; i < 20; i++ {
+		if rb[i] == 0 {
+			break
+		}
+		ip += string(rb[i])
+	}
+
+	// Grab port from postion 68 and 69
+	port := binary.LittleEndian.Uint16(rb[68:70])
 
 	// Take the parsed data from above and send it back to Discord
 	// to finalize the UDP handshake.
-	jsondata := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, p, "plain"}}}
+	jsondata := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "plain"}}}
 
 	err = s.VwsConn.WriteJSON(jsondata)
 	if err != nil {
@@ -223,9 +226,6 @@ func (s *Session) VoiceOpenUDP() {
 		return
 	}
 	s.UDPReady = true
-
-	// continue to listen for future packets
-	// go s.VoiceListenUDP()
 }
 
 // VoiceCloseUDP closes the voice UDP connection.
@@ -267,7 +267,7 @@ func (s *Session) VoiceListenUDP() {
 	// go s.VoiceUDPKeepalive(s.Vop2.HeartbeatInterval) // lets try the ws timer
 
 	for {
-		b := make([]byte, 1024)
+		b := make([]byte, 1024) //TODO DO NOT PUT MAKE INSIDE LOOP
 		rlen, _, err := s.UDPConn.ReadFromUDP(b)
 		if err != nil {
 			fmt.Println("Error reading from UDP:", err)
@@ -330,14 +330,11 @@ func (s *Session) VoiceHeartbeat(i time.Duration) {
 
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
-		timestamp := int(time.Now().Unix())
-		json := voiceHeartbeatOp{3, timestamp}
-
-		err := s.VwsConn.WriteJSON(json)
+		err := s.VwsConn.WriteJSON(voiceHeartbeatOp{3, int(time.Now().Unix())})
 		if err != nil {
 			s.VoiceReady = false
 			fmt.Println(err)
-			return // log error?
+			return // TODO LOG ERROR
 		}
 
 		s.VoiceReady = true
