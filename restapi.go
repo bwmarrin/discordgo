@@ -146,7 +146,7 @@ func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassw
 	// to set a new avatar.
 	// If left blank, avatar will be set to null/blank
 
-	data = struct {
+	data := struct {
 		Email       string     `json:"email"`
 		Password    string     `json:"password"`
 		Username    string     `json:"username"`
