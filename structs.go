@@ -36,6 +36,7 @@ type Session struct {
 	OnMessageUpdate           func(*Session, Message)
 	OnMessageDelete           func(*Session, MessageDelete)
 	OnMessageAck              func(*Session, MessageAck)
+	OnUserUpdate              func(*Session, User)
 	OnPresenceUpdate          func(*Session, PresenceUpdate)
 	OnVoiceStateUpdate        func(*Session, VoiceState)
 	OnChannelCreate           func(*Session, Channel)

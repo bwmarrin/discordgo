@@ -174,6 +174,17 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 		s.onVoiceStateUpdate(st)
 		return
+	case "USER_UPDATE":
+		if s.OnUserUpdate != nil {
+			var st User
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
+				printJSON(e.RawData) // TODO: Better error logging
+				return err
+			}
+			s.OnUserUpdate(s, st)
+			return
+		}
 	case "PRESENCE_UPDATE":
 		if s.OnPresenceUpdate != nil {
 			var st PresenceUpdate
@@ -390,7 +401,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	default:
 		fmt.Println("UNKNOWN EVENT: ", e.Type)
-		// learn the log package
+		// TODO learn the log package
 		// log.print type and JSON data
 	}
 
