@@ -25,7 +25,8 @@ import (
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 
 	if s.Debug {
-		// fmt.Println("REQUEST  :: " + method + " " + urlStr + "\n" + string(body))
+		fmt.Printf("API REQUEST %8s :: %s\n", method, urlStr)
+		fmt.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
 	}
 
 	body, err := json.Marshal(data)
@@ -46,7 +47,14 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 
 	req.Header.Set("Content-Type", "application/json")
 	// TODO: Make a configurable static variable.
-	req.Header.Set("User-Agent", fmt.Sprintf("DiscordBot (https://github.com/bwmarrin/discordgo, v%s", VERSION))
+	req.Header.Set("User-Agent", fmt.Sprintf("DiscordBot (https://github.com/bwmarrin/discordgo, v%s)", VERSION))
+
+	if s.Debug {
+		for k, v := range req.Header {
+			fmt.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
+		}
+	}
+
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
@@ -60,15 +68,29 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	}
 	resp.Body.Close()
 
+	if s.Debug {
+
+		fmt.Printf("API RESPONSE  STATUS :: %s\n", resp.Status)
+		for k, v := range resp.Header {
+			fmt.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
+		}
+		fmt.Printf("API RESPONSE    BODY :: [%s]\n", response)
+	}
+
+	// See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+	switch resp.StatusCode {
+
+	case 200: // OK
+	case 204: // No Content
+
 	// TODO check for 401 response, invalidate token if we get one.
-	if resp.StatusCode != 204 && resp.StatusCode != 200 {
-		err = fmt.Errorf("StatusCode: %d, %s", resp.StatusCode, string(response))
+	// TODO check for 429 response, rate-limit when we get one.
+
+	default: // Error condition
+		err = fmt.Errorf("HTTP %d", resp.StatusCode)
 		return
 	}
 
-	if s.Debug {
-		printJSON(response)
-	}
 	return
 }
 
@@ -111,6 +133,28 @@ func (s *Session) Logout() (err error) {
 func (s *Session) User(userID string) (st User, err error) {
 
 	body, err := s.Request("GET", USER(userID), nil)
+	err = json.Unmarshal(body, &st)
+	return
+}
+
+// UserUpdate updates a users settings.
+// userID    : A user ID or "@me" which is a shortcut of current user ID
+func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassword string) (st User, err error) {
+
+	// NOTE: Avatar must be either the hash/id of existing Avatar or
+	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
+	// to set a new avatar.
+	// If left blank, avatar will be set to null/blank
+
+	data = struct {
+		Email       string     `json:"email"`
+		Password    string     `json:"password"`
+		Username    string     `json:"username"`
+		Avatar      string     `json:"avatar,omitempty"`
+		NewPassword json.Token `json:"new_password,omitempty"`
+	}{email, password, username, avatar, newPassword}
+
+	body, err := s.Request("PATCH", USER(userID), data)
 	err = json.Unmarshal(body, &st)
 	return
 }
