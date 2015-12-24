@@ -59,9 +59,13 @@ func (s *Session) Handshake() (err error) {
 	return
 }
 
+type updateStatusGame struct {
+	Name string `json:"name"`
+}
+
 type updateStatusData struct {
-	IdleSince json.Token `json:"idle_since"`
-	GameID    json.Token `json:"game_id"`
+	IdleSince json.Token  `json:"idle_since"`
+	Game      interface{} `json:"game"`
 }
 
 type updateStatusOp struct {
@@ -72,7 +76,7 @@ type updateStatusOp struct {
 // UpdateStatus is used to update the authenticated user's status.
 // If idle>0 then set status to idle.  If game>0 then set game.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStatus(idle int, gameID int) (err error) {
+func (s *Session) UpdateStatus(idle int, game string) (err error) {
 
 	var usd updateStatusData
 	if idle > 0 {
@@ -81,14 +85,17 @@ func (s *Session) UpdateStatus(idle int, gameID int) (err error) {
 		usd.IdleSince = nil
 	}
 
-	if gameID >= 0 {
-		usd.GameID = gameID
+	var usg updateStatusGame
+	if game == "" {
+		usd.Game = nil
 	} else {
-		usd.GameID = nil
+		usg.Name = game
+		usd.Game = usg
 	}
 
 	data := updateStatusOp{3, usd}
 	err = s.wsConn.WriteJSON(data)
+
 	return
 }
 

@@ -210,7 +210,11 @@ type VoiceState struct {
 type Presence struct {
 	User   User   `json:"user"`
 	Status string `json:"status"`
-	GameID int    `json:"game_id"`
+	Game   Game   `json:"game"`
+}
+
+type Game struct {
+	Name string `json:"name"`
 }
 
 // A Member stores user information for Guild members.
@@ -303,7 +307,7 @@ type PresenceUpdate struct {
 	Status  string   `json:"status"`
 	Roles   []string `json:"roles"`
 	GuildID string   `json:"guild_id"`
-	GameID  int      `json:"game_id"`
+	Game    Game     `json:"game"`
 }
 
 // A MessageAck stores data for the message ack websocket event.
