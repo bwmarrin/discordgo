@@ -61,6 +61,7 @@ var (
 	GUILD_BAN          = func(gID, uID string) string { return GUILDS + gID + "/bans/" + uID }
 	GUILD_INTEGRATIONS = func(gID string) string { return GUILDS + gID + "/integrations" }
 	GUILD_ROLES        = func(gID string) string { return GUILDS + gID + "/roles" }
+	GUILD_ROLE         = func(gID, rID string) string { return GUILDS + gID + "/roles/" + rID }
 	GUILD_INVITES      = func(gID string) string { return GUILDS + gID + "/invites" }
 	GUILD_EMBED        = func(gID string) string { return GUILDS + gID + "/embed" }
 	GUILD_PRUNE        = func(gID string) string { return GUILDS + gID + "/prune" }

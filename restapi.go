@@ -356,6 +356,57 @@ func (s *Session) GuildInviteCreate(guildID string, i Invite) (st Invite, err er
 	return
 }
 
+// GuildRoles returns all roles for a given guild.
+func (s *Session) GuildRoles(guildID string) (st []Role, err error) {
+
+	body, err := s.Request("GET", GUILD_ROLES(guildID), nil)
+	err = json.Unmarshal(body, &st)
+
+	return // TODO return pointer
+}
+
+// GuildRoleCreate returns a new Guild Role
+func (s *Session) GuildRoleCreate(guildID string) (st Role, err error) {
+
+	body, err := s.Request("POST", GUILD_ROLES(guildID), nil)
+	err = json.Unmarshal(body, &st)
+
+	return
+}
+
+// GuildRoleEdit updates an existing Guild Role with new values
+func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st Role, err error) {
+
+	data := struct {
+		Name        string `json:"name"`        // The color the role should have (as a decimal, not hex)
+		Color       int    `json:"color"`       // Whether to display the role's users separately
+		Hoist       bool   `json:"hoist"`       // The role's name (overwrites existing)
+		Permissions int    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
+	}{name, color, hoist, perm}
+
+	body, err := s.Request("PATCH", GUILD_ROLE(guildID, roleID), data)
+	err = json.Unmarshal(body, &st)
+
+	return
+}
+
+// GuildRoleReorder reoders guild roles
+func (s *Session) GuildRoleReorder(guildID string, roles []Role) (st []Role, err error) {
+
+	body, err := s.Request("PATCH", GUILD_ROLES(guildID), roles)
+	err = json.Unmarshal(body, &st)
+
+	return
+}
+
+// GuildRoleDelete deletes an existing role.
+func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
+
+	_, err = s.Request("DELETE", GUILD_ROLE(guildID, roleID), nil)
+
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------
