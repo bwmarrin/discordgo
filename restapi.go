@@ -16,6 +16,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -119,7 +121,7 @@ func (s *Session) Login(email string, password string) (token string, err error)
 // even use.
 func (s *Session) Logout() (err error) {
 
-	//	_, err = s.Request("POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, s.Token))
+	//  _, err = s.Request("POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, s.Token))
 	return
 }
 
@@ -275,12 +277,19 @@ func (s *Session) GuildBans(guildID string) (st []User, err error) {
 	return
 }
 
-// GuildBanAdd bans the given user from the given guild.
+// GuildBanCreate bans the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
-func (s *Session) GuildBanAdd(guildID, userID string) (err error) {
+// days      : The number of days of previous comments to delete.
+func (s *Session) GuildBanCreate(guildID, userID string, days int) (err error) {
 
-	_, err = s.Request("PUT", GUILD_BAN(guildID, userID), nil)
+	uri := GUILD_BAN(guildID, userID)
+
+	if days > 0 {
+		uri = fmt.Sprintf("%s?delete-message-days=%d", uri, days)
+	}
+
+	_, err = s.Request("PUT", uri, nil)
 	return
 }
 
@@ -458,29 +467,27 @@ func (s *Session) ChannelTyping(channelID string) (err error) {
 // afterID   : If provided all messages returned will be after given ID.
 func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, afterID int) (st []Message, err error) {
 
-	var urlStr string
+	uri := CHANNEL_MESSAGES(channelID)
 
+	v := url.Values{}
 	if limit > 0 {
-		urlStr = fmt.Sprintf("?limit=%d", limit)
+		v.Set("limit", strconv.Itoa(limit))
 	}
-
 	if afterID > 0 {
-		if urlStr != "" {
-			urlStr = urlStr + fmt.Sprintf("&after=%d", afterID)
-		} else {
-			urlStr = fmt.Sprintf("?after=%d", afterID)
-		}
+		v.Set("after", strconv.Itoa(afterID))
 	}
-
 	if beforeID > 0 {
-		if urlStr != "" {
-			urlStr = urlStr + fmt.Sprintf("&before=%d", beforeID)
-		} else {
-			urlStr = fmt.Sprintf("?before=%d", beforeID)
-		}
+		v.Set("before", strconv.Itoa(beforeID))
+	}
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
 	}
 
-	body, err := s.Request("GET", CHANNEL_MESSAGES(channelID)+urlStr, nil)
+	body, err := s.Request("GET", uri, nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
