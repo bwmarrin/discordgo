@@ -284,6 +284,17 @@ func (s *Session) GuildBanCreate(guildID, userID string) (err error) {
 	return
 }
 
+// GuildBanCreateAndDeleteComments bans the given user from the given guild
+// and deletes all of their comments younger than a number of days.
+// guildID   : The ID of a Guild.
+// userID    : The ID of a User
+// days      : The number of days of comments to delete
+func (s *Session) GuildBanCreateAndDeleteComments(guildID, userID string, days int) (err error) {
+
+	_, err = s.Request("PUT", fmt.Sprintf("%v?delete-message-days=%v", GUILD_BAN(guildID, userID), days), nil)
+	return
+}
+
 // GuildBanDelete removes the given user from the guild bans
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
