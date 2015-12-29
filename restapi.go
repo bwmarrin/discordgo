@@ -275,10 +275,10 @@ func (s *Session) GuildBans(guildID string) (st []User, err error) {
 	return
 }
 
-// GuildBanAdd bans the given user from the given guild.
+// GuildBanCreate bans the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
-func (s *Session) GuildBanAdd(guildID, userID string) (err error) {
+func (s *Session) GuildBanCreate(guildID, userID string) (err error) {
 
 	_, err = s.Request("PUT", GUILD_BAN(guildID, userID), nil)
 	return
