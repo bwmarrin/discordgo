@@ -560,6 +560,30 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st Invite, er
 	return
 }
 
+// ChannelPermissionSet creates a Permission Override for the given channel.
+// NOTE: This func name may changed.  Using Set instead of Create because
+// you can both create a new override or update an override with this function.
+func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, allow, deny int) (err error) {
+
+	data := struct {
+		ID    string `json:"id"`
+		Type  string `json:"type"`
+		Allow int    `json:"allow"`
+		Deny  int    `json:"deny"`
+	}{targetID, targetType, allow, deny}
+
+	_, err = s.Request("PUT", CHANNEL_PERMISSION(channelID, targetID), data)
+	return
+}
+
+// ChannelPermissionDelete deletes a specific permission override for the given channel.
+// NOTE: Name of this func may change.
+func (s *Session) ChannelPermissionDelete(channelID, targetID string) (err error) {
+
+	_, err = s.Request("DELETE", CHANNEL_PERMISSION(channelID, targetID), nil)
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Invites
 // ------------------------------------------------------------------------------------------------
