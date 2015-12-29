@@ -60,12 +60,12 @@ func (s *Session) Handshake() (err error) {
 }
 
 type updateStatusGame struct {
-	Name *string `json:"name"`
+	Name string `json:"name"`
 }
 
 type updateStatusData struct {
-	IdleSince *int             `json:"idle_since"`
-	Game      updateStatusGame `json:"game"`
+	IdleSince *int              `json:"idle_since"`
+	Game      *updateStatusGame `json:"game"`
 }
 
 type updateStatusOp struct {
@@ -83,7 +83,7 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 		usd.IdleSince = &idle
 	}
 	if game != "" {
-		usd.Game.Name = &game
+		usd.Game = &updateStatusGame{game}
 	}
 
 	data := updateStatusOp{3, usd}
