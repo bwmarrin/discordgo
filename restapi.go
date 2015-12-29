@@ -291,7 +291,7 @@ func (s *Session) GuildBanCreate(guildID, userID string) (err error) {
 // days      : The number of days of comments to delete
 func (s *Session) GuildBanCreateAndDeleteComments(guildID, userID string, days int) (err error) {
 
-	_, err = s.Request("PUT", fmt.Sprintf("%v?delete-message-days=%v", GUILD_BAN(guildID, userID), days), nil)
+	_, err = s.Request("PUT", fmt.Sprintf("%s?delete-message-days=%d", GUILD_BAN(guildID, userID), days), nil)
 	return
 }
 
