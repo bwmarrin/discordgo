@@ -64,8 +64,8 @@ type updateStatusGame struct {
 }
 
 type updateStatusData struct {
-	IdleSince json.Token  `json:"idle_since"`
-	Game      interface{} `json:"game"`
+	IdleSince *int              `json:"idle_since"`
+	Game      *updateStatusGame `json:"game"`
 }
 
 type updateStatusOp struct {
@@ -80,17 +80,10 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 
 	var usd updateStatusData
 	if idle > 0 {
-		usd.IdleSince = idle
-	} else {
-		usd.IdleSince = nil
+		usd.IdleSince = &idle
 	}
-
-	var usg updateStatusGame
-	if game == "" {
-		usd.Game = nil
-	} else {
-		usg.Name = game
-		usd.Game = usg
+	if game != "" {
+		usd.Game = &updateStatusGame{game}
 	}
 
 	data := updateStatusOp{3, usd}
