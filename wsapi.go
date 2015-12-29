@@ -406,6 +406,18 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			s.OnGuildIntegrationsUpdate(s, st)
 			return
 		}
+
+	case "USER_SETTINGS_UPDATE":
+		if s.OnUserSettingsUpdate != nil {
+			var st map[string]interface{}
+			if err := json.Unmarshal(e.RawData, &st); err != nil {
+				fmt.Println(e.Type, err)
+				printJSON(e.RawData) // TODO: Better error logginEventg
+				return err
+			}
+			s.OnUserSettingsUpdate(s, st)
+			return
+		}
 	default:
 		fmt.Println("UNKNOWN EVENT: ", e.Type)
 		// TODO learn the log package

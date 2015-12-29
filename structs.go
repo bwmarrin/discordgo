@@ -53,6 +53,7 @@ type Session struct {
 	OnGuildRoleUpdate         func(*Session, GuildRole)
 	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
+	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
 
 	// Exposed but should not be modified by User.
 	SessionID  string // from websocket READY packet
