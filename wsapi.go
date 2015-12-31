@@ -151,14 +151,14 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	switch e.Type {
 
 	case "READY":
-		if s.OnReady != nil {
-			var st Ready
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Ready
+		if err = unmarshalEvent(e, &st); err == nil {
+			if s.OnReady != nil {
 				s.OnReady(s, st)
-				go s.Heartbeat(st.HeartbeatInterval)
 			}
-			return
+			go s.Heartbeat(st.HeartbeatInterval)
 		}
+		return
 	case "VOICE_SERVER_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
 		var st VoiceServerUpdate
@@ -197,7 +197,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			}
 			return
 		}
-		/* // Never seen this come in but saw it in another Library.
+		/* Never seen this come in but saw it in another Library.
 		case "MESSAGE_ACK":
 			if s.OnMessageAck != nil {
 			}
