@@ -53,6 +53,8 @@ type Session struct {
 	OnGuildRoleUpdate         func(*Session, GuildRole)
 	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
+	OnGuildBanAdd             func(*Session, GuildBan)
+	OnGuildBanRemove          func(*Session, GuildBan)
 	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
 
 	// Exposed but should not be modified by User.
@@ -338,5 +340,11 @@ type GuildRole struct {
 // A GuildRoleDelete stores data for the guild role delete websocket event.
 type GuildRoleDelete struct {
 	RoleID  string `json:"role_id"`
+	GuildID string `json:"guild_id"`
+}
+
+// A GuildBan stores data for a guild ban.
+type GuildBan struct {
+	User    User   `json:"user"`
 	GuildID string `json:"guild_id"`
 }
