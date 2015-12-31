@@ -2,6 +2,7 @@ DiscordGo provides direct low level bindings for [Discord](https://discordapp.co
 in the [Go](https://golang.org/)  Programming Language (Golang).
 
 * See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice support.
+* See [Disgord](https://github.com/bwmarrin/Disgord) for an **experimental** scriptable (RC, Lua, JS) Discord client.
 
 Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord API channel on Discord for support.
 
