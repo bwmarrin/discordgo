@@ -143,9 +143,9 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	}
 
 	var e Event
-	if err := json.Unmarshal(message, &e); err != nil {
+	if err = json.Unmarshal(message, &e); err != nil {
 		fmt.Println(err)
-		return err
+		return
 	}
 
 	switch e.Type {
