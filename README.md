@@ -1,9 +1,9 @@
-DiscordGo provides low level bindings for [Discord](https://discordapp.com/) 
+DiscordGo provides direct low level bindings for [Discord](https://discordapp.com/) 
 in the [Go](https://golang.org/)  Programming Language (Golang).
 
 * See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice support.
 
-Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWvLIfZ) Discord API channel on Discord for support.
+Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord API channel on Discord for support.
 
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) 
 [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
@@ -40,12 +40,11 @@ REST and Websock API.
 * List/Create Guild Channels
 * List Guild Members
 * Receive/Send Messages to Channels
+* Permissions related functions.
+* Editing User Profile settings
 
 ## What's Unfinished
 
-* Make changes as needed to pass GoLint, GoVet, GoCyclo, etc. (goreportcard.com)
-* Editing User Profile settings
-* Permissions related functions.
 * Functions for Maintenance Status
 * Finish Voice support.
 * Add a higher level interface with user friendly helper functions.
