@@ -128,7 +128,7 @@ func unmarshalEvent(event Event, i interface{}) (err error) {
 		fmt.Println(event.Type, err)
 		printJSON(event.RawData) // TODO: Better error loggingEvent.
 	}
-	return err
+	return
 }
 
 // Front line handler for all Websocket Events.  Determines the
