@@ -13,7 +13,9 @@ package discordgo
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -95,6 +97,16 @@ type Message struct {
 	EditedTimestamp string       `json:"edited_timestamp"`
 	Mentions        []User       `json:"mentions"`
 	ChannelID       string       `json:"channel_id"`
+}
+
+// ContentWithMentionsReplaced will replace all @<id> mentions with the
+// username of the mention.
+func (m *Message) ContentWithMentionsReplaced() string {
+	content := m.Content
+	for _, user := range m.Mentions {
+		content = strings.Replace(content, fmt.Sprintf("<@%s>", user.ID), fmt.Sprintf("@%s", user.Username), -1)
+	}
+	return content
 }
 
 // An Attachment stores data for message attachments.
