@@ -61,7 +61,9 @@ type voiceUDP struct {
 func New(args ...interface{}) (s *Session, err error) {
 
 	// Create an empty Session interface.
-	s = &Session{}
+	s = &Session{
+		State: NewState(),
+	}
 
 	// If no arguments are passed return the empty Session interface.
 	// Later I will add default values, if appropriate.

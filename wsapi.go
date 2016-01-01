@@ -153,6 +153,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "READY":
 		var st Ready
 		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.OnReady(&st)
 			if s.OnReady != nil {
 				s.OnReady(s, st)
 			}
@@ -235,77 +236,87 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			return
 		}
 	case "CHANNEL_CREATE":
-		if s.OnChannelCreate != nil {
-			var st Channel
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Channel
+		if err = unmarshalEvent(e, &st); err == nil {
+			fmt.Println("channel create", st)
+			s.State.AddChannel(&st)
+			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)
 			}
-			return
 		}
+		return
 	case "CHANNEL_UPDATE":
-		if s.OnChannelUpdate != nil {
-			var st Channel
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Channel
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.AddChannel(&st)
+			if s.OnChannelUpdate != nil {
 				s.OnChannelUpdate(s, st)
 			}
-			return
 		}
+		return
 	case "CHANNEL_DELETE":
-		if s.OnChannelDelete != nil {
-			var st Channel
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Channel
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.RemoveChannel(&st)
+			if s.OnChannelDelete != nil {
 				s.OnChannelDelete(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_CREATE":
-		if s.OnGuildCreate != nil {
-			var st Guild
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Guild
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.AddGuild(&st)
+			if s.OnGuildCreate != nil {
 				s.OnGuildCreate(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_UPDATE":
-		if s.OnGuildCreate != nil {
-			var st Guild
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Guild
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.AddGuild(&st)
+			if s.OnGuildCreate != nil {
 				s.OnGuildUpdate(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_DELETE":
-		if s.OnGuildDelete != nil {
-			var st Guild
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Guild
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.RemoveGuild(&st)
+			if s.OnGuildDelete != nil {
 				s.OnGuildDelete(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_MEMBER_ADD":
-		if s.OnGuildMemberAdd != nil {
-			var st Member
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Member
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.AddMember(&st)
+			if s.OnGuildMemberAdd != nil {
 				s.OnGuildMemberAdd(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_MEMBER_REMOVE":
-		if s.OnGuildMemberRemove != nil {
-			var st Member
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Member
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.RemoveMember(&st)
+			if s.OnGuildMemberRemove != nil {
 				s.OnGuildMemberRemove(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_MEMBER_UPDATE":
-		if s.OnGuildMemberUpdate != nil {
-			var st Member
-			if err = unmarshalEvent(e, &st); err == nil {
+		var st Member
+		if err = unmarshalEvent(e, &st); err == nil {
+			s.State.AddMember(&st)
+			if s.OnGuildMemberUpdate != nil {
 				s.OnGuildMemberUpdate(s, st)
 			}
-			return
 		}
+		return
 	case "GUILD_ROLE_CREATE":
 		if s.OnGuildRoleCreate != nil {
 			var st GuildRole

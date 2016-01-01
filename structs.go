@@ -84,6 +84,9 @@ type Session struct {
 	VChannelID string
 	Vop2       VoiceOP2
 	UDPConn    *net.UDPConn
+
+	// Managed state object, updated with events.
+	State *State
 }
 
 // A Message stores all data related to a specific Discord message.
@@ -262,14 +265,6 @@ type User struct {
 // it just doesn't seem able to handle this one
 // field correctly.  Need to research this more.
 
-// A PrivateChannel stores all data for a specific user private channel.
-type PrivateChannel struct {
-	ID            string `json:"id"`
-	IsPrivate     bool   `json:"is_private"`
-	LastMessageID string `json:"last_message_id"`
-	Recipient     User   `json:"recipient"`
-} // merge with channel?
-
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
 	RenderEmbeds          bool     `json:"render_embeds"`
@@ -298,8 +293,8 @@ type Ready struct {
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 	User              User          `json:"user"`
 	ReadState         []ReadState
-	PrivateChannels   []PrivateChannel
-	Guilds            []Guild
+	PrivateChannels   []Channel `json:"private_channels"`
+	Guilds            []Guild   `json:"guilds"`
 }
 
 // A ReadState stores data on the read state of channels.
@@ -359,4 +354,11 @@ type GuildRoleDelete struct {
 type GuildBan struct {
 	User    User   `json:"user"`
 	GuildID string `json:"guild_id"`
+}
+
+// A State contains the current known state, as discord sends this in a
+// READY blob, it seems reasonable to simply use that message type as the
+// data store.
+type State struct {
+	Ready
 }
