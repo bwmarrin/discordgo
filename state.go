@@ -245,3 +245,24 @@ func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 
 	return nil, errors.New("Channel not found.")
 }
+
+// Channel gets a channel by ID, it will look in all guilds an private channels.
+func (s *State) Channel(channelID string) (*Channel, error) {
+	if s == nil {
+		return nil, nilError
+	}
+
+	c, err := s.PrivateChannel(channelID)
+	if err == nil {
+		return c, nil
+	}
+
+	for _, g := range s.Guilds {
+		c, err := s.GuildChannel(g.ID, channelID)
+		if err == nil {
+			return c, nil
+		}
+	}
+
+	return nil, errors.New("Channel not found.")
+}
