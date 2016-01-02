@@ -86,7 +86,8 @@ type Session struct {
 	UDPConn    *net.UDPConn
 
 	// Managed state object, updated with events.
-	State *State
+	State        *State
+	StateEnabled bool
 }
 
 // A Message stores all data related to a specific Discord message.
