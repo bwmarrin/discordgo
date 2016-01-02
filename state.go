@@ -24,9 +24,9 @@ func (s *State) OnReady(r *Ready) error {
 	return nil
 }
 
-// AddGuild adds a guild to the current world state, or
+// GuildAdd adds a guild to the current world state, or
 // updates it if it already exists.
-func (s *State) AddGuild(guild *Guild) error {
+func (s *State) GuildAdd(guild *Guild) error {
 	if s == nil {
 		return nilError
 	}
@@ -35,10 +35,10 @@ func (s *State) AddGuild(guild *Guild) error {
 		if g.ID == guild.ID {
 			// This could be a little faster ;)
 			for _, m := range guild.Members {
-				s.AddMember(&m)
+				s.MemberAdd(&m)
 			}
 			for _, c := range guild.Channels {
-				s.AddChannel(&c)
+				s.ChannelAdd(&c)
 			}
 			return nil
 		}
@@ -47,8 +47,8 @@ func (s *State) AddGuild(guild *Guild) error {
 	return nil
 }
 
-// RemoveGuild removes a guild from current world state.
-func (s *State) RemoveGuild(guild *Guild) error {
+// GuildRemove removes a guild from current world state.
+func (s *State) GuildRemove(guild *Guild) error {
 	if s == nil {
 		return nilError
 	}
@@ -81,9 +81,9 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 
 // TODO: Consider moving Guild state update methods onto *Guild.
 
-// AddMember adds a member to the current world state, or
+// MemberAdd adds a member to the current world state, or
 // updates it if it already exists.
-func (s *State) AddMember(member *Member) error {
+func (s *State) MemberAdd(member *Member) error {
 	if s == nil {
 		return nilError
 	}
@@ -104,8 +104,8 @@ func (s *State) AddMember(member *Member) error {
 	return nil
 }
 
-// RemoveMember removes a member from current world state.
-func (s *State) RemoveMember(member *Member) error {
+// MemberRemove removes a member from current world state.
+func (s *State) MemberRemove(member *Member) error {
 	if s == nil {
 		return nilError
 	}
@@ -145,11 +145,11 @@ func (s *State) Member(guildID string, userID string) (*Member, error) {
 	return nil, errors.New("Member not found.")
 }
 
-// AddChannel adds a guild to the current world state, or
+// ChannelAdd adds a guild to the current world state, or
 // updates it if it already exists.
 // Channels may exist either as PrivateChannels or inside
 // a guild.
-func (s *State) AddChannel(channel *Channel) error {
+func (s *State) ChannelAdd(channel *Channel) error {
 	if s == nil {
 		return nilError
 	}
@@ -181,8 +181,8 @@ func (s *State) AddChannel(channel *Channel) error {
 	return nil
 }
 
-// RemoveChannel removes a channel from current world state.
-func (s *State) RemoveChannel(channel *Channel) error {
+// ChannelRemove removes a channel from current world state.
+func (s *State) ChannelRemove(channel *Channel) error {
 	if s == nil {
 		return nilError
 	}

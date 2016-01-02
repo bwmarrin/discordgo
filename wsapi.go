@@ -241,7 +241,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.AddChannel(&st)
+				s.State.ChannelAdd(&st)
 			}
 			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)
@@ -252,7 +252,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.AddChannel(&st)
+				s.State.ChannelAdd(&st)
 			}
 			if s.OnChannelUpdate != nil {
 				s.OnChannelUpdate(s, st)
@@ -263,7 +263,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.RemoveChannel(&st)
+				s.State.ChannelRemove(&st)
 			}
 			if s.OnChannelDelete != nil {
 				s.OnChannelDelete(s, st)
@@ -274,7 +274,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.AddGuild(&st)
+				s.State.GuildAdd(&st)
 			}
 			if s.OnGuildCreate != nil {
 				s.OnGuildCreate(s, st)
@@ -285,7 +285,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.AddGuild(&st)
+				s.State.GuildAdd(&st)
 			}
 			if s.OnGuildCreate != nil {
 				s.OnGuildUpdate(s, st)
@@ -296,7 +296,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.RemoveGuild(&st)
+				s.State.GuildRemove(&st)
 			}
 			if s.OnGuildDelete != nil {
 				s.OnGuildDelete(s, st)
@@ -307,7 +307,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.AddMember(&st)
+				s.State.MemberAdd(&st)
 			}
 			if s.OnGuildMemberAdd != nil {
 				s.OnGuildMemberAdd(s, st)
@@ -318,7 +318,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.RemoveMember(&st)
+				s.State.MemberRemove(&st)
 			}
 			if s.OnGuildMemberRemove != nil {
 				s.OnGuildMemberRemove(s, st)
@@ -329,7 +329,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.AddMember(&st)
+				s.State.MemberAdd(&st)
 			}
 			if s.OnGuildMemberUpdate != nil {
 				s.OnGuildMemberUpdate(s, st)
