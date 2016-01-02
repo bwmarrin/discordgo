@@ -238,7 +238,6 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "CHANNEL_CREATE":
 		var st Channel
 		if err = unmarshalEvent(e, &st); err == nil {
-			fmt.Println("channel create", st)
 			s.State.AddChannel(&st)
 			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)

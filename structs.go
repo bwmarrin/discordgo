@@ -356,9 +356,9 @@ type GuildBan struct {
 	GuildID string `json:"guild_id"`
 }
 
-// A State contains the current known state, as discord sends this in a
-// READY blob, it seems reasonable to simply use that message type as the
-// data store.
+// A State contains the current known state.
+// As discord sends this in a READY blob, it seems reasonable to simply
+// use that struct as the data store.
 type State struct {
 	Ready
 }
