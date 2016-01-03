@@ -58,6 +58,7 @@ type Session struct {
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
 	OnGuildBanAdd             func(*Session, GuildBan)
 	OnGuildBanRemove          func(*Session, GuildBan)
+	OnGuildEmojisUpdate       func(*Session, GuildEmojisUpdate)
 	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
 
 	// Exposed but should not be modified by User.
@@ -370,6 +371,12 @@ type GuildRoleDelete struct {
 type GuildBan struct {
 	User    User   `json:"user"`
 	GuildID string `json:"guild_id"`
+}
+
+// A GuildEmojisUpdate stores data for a guild emoji update event.
+type GuildEmojisUpdate struct {
+	GuildID string  `json:"guild_id"`
+	Emojis  []Emoji `json:"emojis"`
 }
 
 // A State contains the current known state.
