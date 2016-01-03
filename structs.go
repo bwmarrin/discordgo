@@ -187,6 +187,14 @@ type PermissionOverwrite struct {
 	Allow int    `json:"allow"`
 }
 
+type Emoji struct {
+	Roles         []string `json:"roles"`
+	RequireColons bool     `json:"require_colons"`
+	Name          string   `json:"name"`
+	Managed       bool     `json:"managed"`
+	ID            string   `json:"id"`
+}
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
@@ -202,6 +210,7 @@ type Guild struct {
 	Large          bool         `json:"large"`     // ??
 	JoinedAt       string       `json:"joined_at"` // make this a timestamp
 	Roles          []Role       `json:"roles"`
+	Emojis         []Emoji      `json:"emojis"`
 	Members        []Member     `json:"members"`
 	Presences      []Presence   `json:"presences"`
 	Channels       []Channel    `json:"channels"`

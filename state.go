@@ -43,6 +43,7 @@ func (s *State) GuildAdd(guild *Guild) error {
 			return nil
 		}
 	}
+
 	s.Guilds = append(s.Guilds, *guild)
 	return nil
 }
@@ -59,6 +60,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 			return nil
 		}
 	}
+
 	return errors.New("Guild not found.")
 }
 
@@ -76,6 +78,7 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 			return &g, nil
 		}
 	}
+
 	return nil, errors.New("Guild not found.")
 }
 
@@ -178,6 +181,7 @@ func (s *State) ChannelAdd(channel *Channel) error {
 
 		guild.Channels = append(guild.Channels, *channel)
 	}
+
 	return nil
 }
 
