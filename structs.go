@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -88,6 +89,11 @@ type Session struct {
 	// Managed state object, updated with events.
 	State        *State
 	StateEnabled bool
+
+	// Mutex/Bools for locks that prevent accidents.
+	// TODO: Add channels.
+	heartbeatLock    sync.Mutex
+	heartbeatRunning bool
 }
 
 // A Message stores all data related to a specific Discord message.

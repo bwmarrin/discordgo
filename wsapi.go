@@ -421,6 +421,16 @@ func (s *Session) Heartbeat(i time.Duration) {
 		return // TODO need to return an error.
 	}
 
+	// TODO: Make pretty and include chan
+	s.heartbeatLock.Lock()
+	if s.heartbeatRunning {
+		s.heartbeatLock.Unlock()
+		return
+	}
+	s.heartbeatRunning = true
+	defer func() { s.heartbeatRunning = false }()
+	s.heartbeatLock.Unlock()
+
 	// send first heartbeat immediately because lag could put the
 	// first heartbeat outside the required heartbeat interval window
 	ticker := time.NewTicker(i * time.Millisecond)
