@@ -427,9 +427,10 @@ func (s *Session) Heartbeat(i time.Duration) {
 		s.heartbeatLock.Unlock()
 		return
 	}
-	s.heartbeatRunning = true
-	defer func() { s.heartbeatRunning = false }()
 	s.heartbeatLock.Unlock()
+
+	defer func() { s.heartbeatRunning = false }()
+	s.heartbeatRunning = true
 
 	// send first heartbeat immediately because lag could put the
 	// first heartbeat outside the required heartbeat interval window
