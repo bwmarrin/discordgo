@@ -407,10 +407,6 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	return
 }
 
-// This heartbeat is sent to keep the Websocket conenction
-// to Discord alive. If not sent, Discord will close the
-// connection.
-
 // Heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
@@ -418,28 +414,28 @@ func (s *Session) Heartbeat(i time.Duration) {
 
 	if s.wsConn == nil {
 		fmt.Println("No websocket connection exists.")
-		return // TODO need to return an error.
+		return // TODO need to return/log an error.
 	}
 
-	// TODO: Make pretty and include chan
+	// Make sure Heartbeat is not already running
 	s.heartbeatLock.Lock()
-	if s.heartbeatRunning {
+	if s.heartbeatChan != nil {
 		s.heartbeatLock.Unlock()
 		return
 	}
+	s.heartbeatChan = make(chan struct{})
 	s.heartbeatLock.Unlock()
 
-	defer func() { s.heartbeatRunning = false }()
-	s.heartbeatRunning = true
+	defer close(s.heartbeatChan)
 
 	// send first heartbeat immediately because lag could put the
 	// first heartbeat outside the required heartbeat interval window
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
-		timestamp := int(time.Now().Unix())
+
 		err := s.wsConn.WriteJSON(map[string]int{
 			"op": 1,
-			"d":  timestamp,
+			"d":  int(time.Now().Unix()),
 		})
 		if err != nil {
 			fmt.Println("error sending data heartbeat:", err)
@@ -447,7 +443,12 @@ func (s *Session) Heartbeat(i time.Duration) {
 			return // TODO log error?
 		}
 		s.DataReady = true
-		<-ticker.C
+
+		select {
+		case <-ticker.C:
+		case <-s.heartbeatChan:
+			return
+		}
 	}
 }
 

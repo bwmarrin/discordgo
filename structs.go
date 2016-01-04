@@ -92,8 +92,9 @@ type Session struct {
 
 	// Mutex/Bools for locks that prevent accidents.
 	// TODO: Add channels.
-	heartbeatLock    sync.Mutex
-	heartbeatRunning bool
+
+	heartbeatLock sync.Mutex
+	heartbeatChan chan struct{}
 }
 
 // A Message stores all data related to a specific Discord message.
