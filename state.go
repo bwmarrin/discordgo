@@ -43,6 +43,7 @@ func (s *State) GuildAdd(guild *Guild) error {
 			return nil
 		}
 	}
+
 	s.Guilds = append(s.Guilds, *guild)
 	return nil
 }
@@ -59,6 +60,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 			return nil
 		}
 	}
+
 	return errors.New("Guild not found.")
 }
 
@@ -76,6 +78,7 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 			return &g, nil
 		}
 	}
+
 	return nil, errors.New("Guild not found.")
 }
 
@@ -126,7 +129,7 @@ func (s *State) MemberRemove(member *Member) error {
 }
 
 // Member gets a member by ID from a guild.
-func (s *State) Member(guildID string, userID string) (*Member, error) {
+func (s *State) Member(guildID, userID string) (*Member, error) {
 	if s == nil {
 		return nil, nilError
 	}
@@ -178,6 +181,7 @@ func (s *State) ChannelAdd(channel *Channel) error {
 
 		guild.Channels = append(guild.Channels, *channel)
 	}
+
 	return nil
 }
 
@@ -212,7 +216,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 }
 
 // GuildChannel gets a channel by ID from a guild.
-func (s *State) GuildChannel(guildID string, channelID string) (*Channel, error) {
+func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, nilError
 	}
@@ -265,4 +269,56 @@ func (s *State) Channel(channelID string) (*Channel, error) {
 	}
 
 	return nil, errors.New("Channel not found.")
+}
+
+// Emoji returns an emoji for a guild and emoji id.
+func (s *State) Emoji(guildID, emojiID string) (*Emoji, error) {
+	if s == nil {
+		return nil, nilError
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, e := range guild.Emojis {
+		if e.ID == emojiID {
+			return &e, nil
+		}
+	}
+
+	return nil, errors.New("Emoji not found.")
+}
+
+// EmojiAdd adds an emoji to the current world state.
+func (s *State) EmojiAdd(guildID string, emoji *Emoji) error {
+	if s == nil {
+		return nilError
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	for i, e := range guild.Emojis {
+		if e.ID == emoji.ID {
+			guild.Emojis[i] = *emoji
+			return nil
+		}
+	}
+
+	guild.Emojis = append(guild.Emojis, *emoji)
+	return nil
+}
+
+// EmojisAdd adds multiple emojis to the world state.
+func (s *State) EmojisAdd(guildID string, emojis []Emoji) error {
+	for _, e := range emojis {
+		if err := s.EmojiAdd(guildID, &e); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -397,6 +397,17 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			}
 			return
 		}
+	case "GUILD_EMOJIS_UPDATE":
+		var st GuildEmojisUpdate
+		if err = unmarshalEvent(e, &st); err == nil {
+			if s.StateEnabled {
+				s.State.EmojisAdd(st.GuildID, st.Emojis)
+			}
+			if s.OnGuildEmojisUpdate != nil {
+				s.OnGuildEmojisUpdate(s, st)
+			}
+		}
+		return
 	case "USER_SETTINGS_UPDATE":
 		if s.OnUserSettingsUpdate != nil {
 			var st map[string]interface{}
@@ -407,8 +418,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	default:
 		fmt.Println("UNKNOWN EVENT: ", e.Type)
-		// TODO learn the log package
-		// log.print type and JSON data
+		printJSON(message)
 	}
 
 	// if still here, send to generic OnEvent
