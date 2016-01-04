@@ -136,11 +136,6 @@ func (s *Session) Listen() (err error) {
 // Not sure how needed this is and where it would be best to call it.
 // somewhere.
 
-// Close closes the connection to the websocket.
-func (s *Session) Close() {
-	s.wsConn.Close()
-}
-
 func unmarshalEvent(event Event, i interface{}) (err error) {
 	if err = json.Unmarshal(event.RawData, i); err != nil {
 		fmt.Println(event.Type, err)
