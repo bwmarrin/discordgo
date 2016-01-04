@@ -95,6 +95,9 @@ type Session struct {
 
 	heartbeatLock sync.Mutex
 	heartbeatChan chan struct{}
+
+	listenLock sync.Mutex
+	listenChan chan struct{}
 }
 
 // A Message stores all data related to a specific Discord message.

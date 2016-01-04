@@ -102,6 +102,17 @@ func (s *Session) Listen() (err error) {
 		return // TODO need to return an error.
 	}
 
+	// Make sure Listen is not already running
+	s.listenLock.Lock()
+	if s.listenChan != nil {
+		s.listenLock.Unlock()
+		return
+	}
+	s.listenChan = make(chan struct{})
+	s.listenLock.Unlock()
+
+	defer close(s.heartbeatChan)
+
 	for {
 		messageType, message, err := s.wsConn.ReadMessage()
 		if err != nil {
@@ -110,6 +121,13 @@ func (s *Session) Listen() (err error) {
 			break
 		}
 		go s.event(messageType, message)
+
+		// If our chan gets closed, exit out of this loop.
+		// TODO: Can we make this smarter, using select
+		// and some other trickery?  http://www.goinggo.net/2013/10/my-channel-select-bug.html
+		if s.listenChan == nil {
+			return nil
+		}
 	}
 
 	return
