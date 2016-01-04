@@ -58,6 +58,7 @@ type Session struct {
 	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
 	OnGuildBanAdd             func(*Session, GuildBan)
 	OnGuildBanRemove          func(*Session, GuildBan)
+	OnGuildEmojisUpdate       func(*Session, GuildEmojisUpdate)
 	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
 
 	// Exposed but should not be modified by User.
@@ -187,6 +188,14 @@ type PermissionOverwrite struct {
 	Allow int    `json:"allow"`
 }
 
+type Emoji struct {
+	Roles         []string `json:"roles"`
+	RequireColons bool     `json:"require_colons"`
+	Name          string   `json:"name"`
+	Managed       bool     `json:"managed"`
+	ID            string   `json:"id"`
+}
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
@@ -202,6 +211,7 @@ type Guild struct {
 	Large          bool         `json:"large"`     // ??
 	JoinedAt       string       `json:"joined_at"` // make this a timestamp
 	Roles          []Role       `json:"roles"`
+	Emojis         []Emoji      `json:"emojis"`
 	Members        []Member     `json:"members"`
 	Presences      []Presence   `json:"presences"`
 	Channels       []Channel    `json:"channels"`
@@ -361,6 +371,12 @@ type GuildRoleDelete struct {
 type GuildBan struct {
 	User    User   `json:"user"`
 	GuildID string `json:"guild_id"`
+}
+
+// A GuildEmojisUpdate stores data for a guild emoji update event.
+type GuildEmojisUpdate struct {
+	GuildID string  `json:"guild_id"`
+	Emojis  []Emoji `json:"emojis"`
 }
 
 // A State contains the current known state.
