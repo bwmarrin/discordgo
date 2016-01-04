@@ -151,3 +151,17 @@ func New(args ...interface{}) (s *Session, err error) {
 
 	return
 }
+
+// Close closes a Discord session
+// TODO: Add support for Voice WS/UDP connections
+func (s *Session) Close() {
+
+	s.DataReady = false
+
+	close(s.listenChan)
+	close(s.heartbeatChan)
+
+	if s.wsConn != nil {
+		s.wsConn.Close()
+	}
+}
