@@ -80,5 +80,5 @@ var (
 
 	INTEGRATIONS_JOIN = func(iID string) string { return API + "integrations/" + iID + "/join" }
 	
-	EMOJI = func(eID string) string { return API + "emojis/" + eID + ".png" }
+	EMOJIS = func(eID string) string { return API + "emojis/" + eID + ".png" }
 )
