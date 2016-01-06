@@ -16,7 +16,7 @@ package discordgo
 import "fmt"
 
 // DiscordGo Version, follows Symantic Versioning. (http://semver.org/)
-const VERSION = "0.8.0"
+const VERSION = "0.9.0-alpha"
 
 /*
 type Config struct {
