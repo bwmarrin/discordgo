@@ -299,7 +299,7 @@ func (s *Session) VoiceUDPKeepalive(i time.Duration) {
 	// into it.  Then send that over the UDP connection to Discord
 
 	ticker := time.NewTicker(i * time.Millisecond)
-	for range ticker.C {
+	for _ = range ticker.C {
 		sb := make([]byte, 8)
 		sb[0] = 0x80
 		sb[1] = 0xc9
