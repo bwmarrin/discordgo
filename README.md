@@ -36,7 +36,7 @@ Construct a new Discord client which can be used to access the variety of
 Discord API functions and to set callback functions for Discord events.
 
 ```go
-discord, err := discordgo.New("username, "password")
+discord, err := discordgo.New("username", "password")
 ```
 
 See Documentation and Examples below for more detailed information.
