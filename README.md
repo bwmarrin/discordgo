@@ -82,7 +82,7 @@ discussing it.
 - Create a Pull Request with your changes against the develop branch.
 
 
-## List & Comparison of Discord APIs
+## List of Discord APIs
 
 See [this chart](https://abal.moe/Discord/Libraries.html) for a feature 
 comparison and list of other Discord API libraries.
