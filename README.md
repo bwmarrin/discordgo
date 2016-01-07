@@ -58,7 +58,7 @@ that information in a nice format.
 - Hand crafted documentation coming eventually.
 
 
-## Examples / Projects using Discordgo
+## Examples
 
 Below is a list of examples and other projects using Discordgo.  Please submit 
 an issue if you would like your project added or removed from this list 
