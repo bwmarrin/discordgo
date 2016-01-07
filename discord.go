@@ -1,7 +1,7 @@
 // Discordgo - Discord bindings for Go
 // Available at https://github.com/bwmarrin/discordgo
 
-// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -15,45 +15,10 @@ package discordgo
 
 import "fmt"
 
-// DiscordGo Version, follows Symantic Versioning. (http://semver.org/)
+// Discordgo Version, follows Symantic Versioning. (http://semver.org/)
 const VERSION = "0.9.0-alpha"
 
-/*
-type Config struct {
-	Debug bool
-}
-*/
-/*
-// possible future main struct for discord connection
-type Discord struct {
-	Debug    bool      // Set to true to enable debug logging
-	Token    string    // authentication token
-	User     User      // authenticated user info
-	Guilds   []Guild   // Cached Guild info
-	Channels []Channel // Cached Channel info
-	API      api       // all api endpoint functions
-	DataWS   dataWS    // data websocket connection
-	VoiceWS  voiceWS   // voice websocket/udp connections
-	VoiceUDP voiceUDP
-}
-
-type api struct {
-	Session
-}
-type dataWS struct {
-}
-
-type voiceWS struct {
-}
-
-type voiceUDP struct {
-}
-*/
-// NOTICE: This function should be considered unstable because I am still
-// exploring the best way to implement my goals here.  So, it is more likely
-// to change than than the low level API functions.
-//
-// New creates a new Discord session interface and will automate some startup
+// New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
 // arguments and it will return an empty Discord session. If you pass a token
 // or username and password (in that order), then it will attempt to login to
@@ -72,7 +37,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		return
 	}
 
-	// Varibles used below when parsing func arguments
+	// Variables used below when parsing func arguments
 	var auth, pass string
 
 	// Parse passed arguments

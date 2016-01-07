@@ -1,12 +1,12 @@
 // Discordgo - Discord bindings for Go
 // Available at https://github.com/bwmarrin/discordgo
 
-// Copyright 2015 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 // This file contains variables for all known Discord end points.  All functions
-// throughout the discordgo package use these variables for all connections
+// throughout the Discordgo package use these variables for all connections
 // to Discord.  These are all exported and you may modify them if needed.
 
 package discordgo
@@ -79,6 +79,6 @@ var (
 	INVITE = func(iID string) string { return API + "invite/" + iID }
 
 	INTEGRATIONS_JOIN = func(iID string) string { return API + "integrations/" + iID + "/join" }
-	
+
 	EMOJI = func(eID string) string { return API + "emojis/" + eID + ".png" }
 )

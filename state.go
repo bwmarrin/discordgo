@@ -1,8 +1,21 @@
+// Discordgo - Discord bindings for Go
+// Available at https://github.com/bwmarrin/discordgo
+
+// Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This file contains code related to state tracking.  If enabled, state
+// tracking will capture the initial READY packet and many other websocket
+// events and maintain an in-memory state of of guilds, channels, users, and
+// so forth.  This information can be accessed through the Session.State struct.
+// This code was contributed by https://github.com/iopred
+
 package discordgo
 
 import "errors"
 
-var nilError error = errors.New("State not instantiated, please use discordgo.New() or assign session.State.")
+var nilError error = errors.New("State not instantiated, please use discordgo.New() or assign Session.State.")
 
 // NewState creates an empty state.
 func NewState() *State {
