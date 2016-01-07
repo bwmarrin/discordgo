@@ -54,7 +54,7 @@ type handshakeOp struct {
 func (s *Session) Handshake() (err error) {
 	// maybe this is SendOrigin? not sure the right name here
 
-	data := handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "DiscordGo v" + VERSION, "", "", ""}}}
+	data := handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}}}
 	err = s.wsConn.WriteJSON(data)
 	return
 }
