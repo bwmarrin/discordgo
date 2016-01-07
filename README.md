@@ -1,21 +1,46 @@
-DiscordGo provides direct low level bindings for [Discord](https://discordapp.com/) 
-in the [Go](https://golang.org/)  Programming Language (Golang).
+Discordgo [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
+====
 
-* See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice support.
-* See [Disgord](https://github.com/bwmarrin/Disgord) for an **experimental** scriptable (RC, Lua, JS) Discord client.
+Discordgo is a [Go](https://golang.org/) package that provides low level 
+bindings to the [Discord](https://discordapp.com/) chat client API.
 
-Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord API channel on Discord for support.
+* See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice
+support.
 
-[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) 
-[![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
-[![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) 
-[![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
+Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord chat channel 
+for support.
 
-----
+## Getting Started
 
-## Usage Examples
-See the example sub-folder for examples.  Each example accepts a username and 
-password as a CLI argument when run.
+### Installing
+
+Discordgo has been tested to compile on Debian 8 (Go 1.3.3), 
+FreeBSD 10 (Go 1.5.1), and Windows 7 (Go 1.5.2).
+
+This assumes you already have a working Go environment, if not please see
+[this page](https://golang.org/doc/install) first.
+
+```sh
+$ go get github.com/bwmarrin/discordgo
+```
+
+### Usage
+
+Import the package into your project.
+
+```go
+import "github.com/bwmarrin/discordgo"
+```
+
+Construct a new Discord client which can be used to access the variety of 
+Discord API functions and to set callback functions for Discord events.
+
+```go
+discord, err := discordgo.New("username, "password")
+```
+
+See Documentation and Examples below for more detailed information.
+
 
 ## Documentation
 
@@ -23,64 +48,28 @@ password as a CLI argument when run.
 Because of that there may be major changes to library functions, constants,
 and structures.
 
+The Discordgo code is fairly well documented at this point and is currently
+the only documentation available.  Both GoDoc and GoWalker (below) present
+that information in a nice format.
+
 - [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) 
 - [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
+- [Unofficial Discord API Documentation](https://discordapi.readthedocs.org/en/latest/) 
 - Hand crafted documentation coming eventually.
 
-## What Works
 
-Current package provides a **low level direct mapping** to the majority of Discord 
-REST and Websock API.
+## Examples / Projects using Discordgo
 
-* Login/Logout
-* Open/Close Websocket and listen for events.
-* Accept/Create/Delete Invites
-* Get User details (Name, ID, Settings, etc)
-* List/Create User Channels (Private Message Channels)
-* List/Create Guilds
-* List/Create Guild Channels
-* List Guild Members
-* Receive/Send Messages to Channels
-* Permissions related functions.
-* Editing User Profile settings
+Below is a list of examples and other projects using Discordgo.  Please submit 
+an issue if you would like your project added or removed from this list 
 
-## What's Unfinished
+- [Basic - New](https://github.com/bwmarrin/discordgo/tree/develop/example/new_basic) A basic example using the easy New() helper function
+- [Basic - API](https://github.com/bwmarrin/discordgo/tree/develop/example/api_basic) A basic example using the low level API functions.
+- [Bruxism](https://github.com/iopred/bruxism) A chat bot for YouTube and Discord
+- [GoGerard](https://github.com/GoGerard/GoGerard) A modern bot for Discord
+- [Digo](https://github.com/sethdmoore/digo) A pluggable bot for your Discord server
 
-* Functions for Maintenance Status
-* Finish Voice support.
-* Add a higher level interface with user friendly helper functions.
+## List & Comparison of Discord APIs
 
-## Other Discord APIs
-
-**Go**:
-[gdraynz/**go-discord**](https://github.com/gdraynz/go-discord),
-[Xackery/**discord**](https://github.com/Xackery/discord),
-[Nerketur/**discordapi**](https://github.com/Nerketur/discordapi)
-
-**.NET**:
-[RogueException/**Discord.Net**](https://github.com/RogueException/Discord.Net),
-[Luigifan/**DiscordSharp**](https://github.com/Luigifan/DiscordSharp)
-
-**Java**:
-[nerd/**Discord4J**](https://github.com/nerd/Discord4J)
-
-**Node.js**:
-[izy521/**discord.io**](https://github.com/izy521/discord.io),
-[hydrabolt/**discord.js**](https://github.com/hydrabolt/discord.js),
-[qeled/**discordie**](https://github.com/qeled/discordie),
-
-**PHP**:
-[Cleanse/**discord-hypertext**](https://github.com/Cleanse/discord-hypertext),
-[teamreflex/**DiscordPHP**](https://github.com/teamreflex/DiscordPHP)
-
-**Python**:
-[Rapptz/**discord.py**](https://github.com/Rapptz/discord.py)
-
-**Ruby**:
-[meew0/**discordrb**](https://github.com/meew0/discordrb)
-
-**Scala**:
-[eaceaser/**discord-akka**](https://github.com/eaceaser/discord-akka)
-
-**Rust**:
-[SpaceManiac/**discord-rs**](https://github.com/SpaceManiac/discord-rs)
+See [this chart](https://abal.moe/Discord/Libraries.html) for a feature 
+comparison and list of other Discord API libraries.
