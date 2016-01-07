@@ -42,19 +42,6 @@ discord, err := discordgo.New("username", "password")
 See Documentation and Examples below for more detailed information.
 
 
-## Contributing
-Contributions are very welcomed, however please follow the below guidelines.
-
-- First open an issue describing the bug or enhancement so it can be
-discussed.  
-- Fork the develop branch and make your changes.  
-- Try to match current naming conventions as closely as possible.  
-- This package is intended to be a low level direct mapping of the Discord API 
-so please avoid adding enhancements outside of that scope without first 
-discussing it.
-- Create a Pull Request with your changes against the develop branch.
-
-
 ## Documentation
 
 **NOTICE** : This library and the Discord API are unfinished.
@@ -81,6 +68,19 @@ an issue if you would like your project added or removed from this list
 - [Bruxism](https://github.com/iopred/bruxism) A chat bot for YouTube and Discord
 - [GoGerard](https://github.com/GoGerard/GoGerard) A modern bot for Discord
 - [Digo](https://github.com/sethdmoore/digo) A pluggable bot for your Discord server
+
+## Contributing
+Contributions are very welcomed, however please follow the below guidelines.
+
+- First open an issue describing the bug or enhancement so it can be
+discussed.  
+- Fork the develop branch and make your changes.  
+- Try to match current naming conventions as closely as possible.  
+- This package is intended to be a low level direct mapping of the Discord API 
+so please avoid adding enhancements outside of that scope without first 
+discussing it.
+- Create a Pull Request with your changes against the develop branch.
+
 
 ## List & Comparison of Discord APIs
 
