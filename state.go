@@ -9,7 +9,6 @@
 // tracking will capture the initial READY packet and many other websocket
 // events and maintain an in-memory state of of guilds, channels, users, and
 // so forth.  This information can be accessed through the Session.State struct.
-// This code was contributed by https://github.com/iopred
 
 package discordgo
 
