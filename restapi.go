@@ -152,11 +152,11 @@ func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassw
 	// If left blank, avatar will be set to null/blank
 
 	data := struct {
-		Email       string     `json:"email"`
-		Password    string     `json:"password"`
-		Username    string     `json:"username"`
-		Avatar      string     `json:"avatar,omitempty"`
-		NewPassword json.Token `json:"new_password,omitempty"`
+		Email       string `json:"email"`
+		Password    string `json:"password"`
+		Username    string `json:"username"`
+		Avatar      string `json:"avatar,omitempty"`
+		NewPassword string `json:"new_password,omitempty"`
 	}{email, password, username, avatar, newPassword}
 
 	body, err := s.Request("PATCH", USER(userID), data)
