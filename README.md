@@ -63,8 +63,8 @@ that information in a nice format.
 Below is a list of examples and other projects using Discordgo.  Please submit 
 an issue if you would like your project added or removed from this list 
 
-- [Basic - New](https://github.com/bwmarrin/discordgo/tree/develop/example/new_basic) A basic example using the easy New() helper function
-- [Basic - API](https://github.com/bwmarrin/discordgo/tree/develop/example/api_basic) A basic example using the low level API functions.
+- [Basic - New](https://github.com/bwmarrin/discordgo/tree/develop/examples/new_basic) A basic example using the easy New() helper function
+- [Basic - API](https://github.com/bwmarrin/discordgo/tree/develop/examples/api_basic) A basic example using the low level API functions.
 - [Bruxism](https://github.com/iopred/bruxism) A chat bot for YouTube and Discord
 - [GoGerard](https://github.com/GoGerard/GoGerard) A modern bot for Discord
 - [Digo](https://github.com/sethdmoore/digo) A pluggable bot for your Discord server
