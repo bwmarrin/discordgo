@@ -173,6 +173,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 				s.OnReady(s, st)
 			}
 			go s.Heartbeat(st.HeartbeatInterval)
+		} else if s.OnReady == nil {
+			break
 		}
 		return
 	case "VOICE_SERVER_UPDATE":
@@ -262,6 +264,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)
 			}
+		} else if s.OnChannelCreate == nil {
+			break
 		}
 		return
 	case "CHANNEL_UPDATE":
@@ -276,6 +280,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnChannelUpdate != nil {
 				s.OnChannelUpdate(s, st)
 			}
+		} else if s.OnChannelUpdate == nil {
+			break
 		}
 		return
 	case "CHANNEL_DELETE":
@@ -290,6 +296,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnChannelDelete != nil {
 				s.OnChannelDelete(s, st)
 			}
+		} else if s.OnChannelDelete == nil {
+			break
 		}
 		return
 	case "GUILD_CREATE":
@@ -304,6 +312,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildCreate != nil {
 				s.OnGuildCreate(s, st)
 			}
+		} else if s.OnGuildCreate == nil {
+			break
 		}
 		return
 	case "GUILD_UPDATE":
@@ -318,6 +328,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildCreate != nil {
 				s.OnGuildUpdate(s, st)
 			}
+		} else if s.OnGuildUpdate == nil {
+			break
 		}
 		return
 	case "GUILD_DELETE":
@@ -332,6 +344,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildDelete != nil {
 				s.OnGuildDelete(s, st)
 			}
+		} else if s.OnGuildDelete == nil {
+			break
 		}
 		return
 	case "GUILD_MEMBER_ADD":
@@ -346,6 +360,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildMemberAdd != nil {
 				s.OnGuildMemberAdd(s, st)
 			}
+		} else if s.OnGuildMemberAdd == nil {
+			break
 		}
 		return
 	case "GUILD_MEMBER_REMOVE":
@@ -360,6 +376,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildMemberRemove != nil {
 				s.OnGuildMemberRemove(s, st)
 			}
+		} else if s.OnGuildMemberRemove == nil {
+			break
 		}
 		return
 	case "GUILD_MEMBER_UPDATE":
@@ -374,6 +392,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildMemberUpdate != nil {
 				s.OnGuildMemberUpdate(s, st)
 			}
+		} else if s.OnGuildMemberUpdate == nil {
+			break
 		}
 		return
 	case "GUILD_ROLE_CREATE":
@@ -436,6 +456,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildEmojisUpdate != nil {
 				s.OnGuildEmojisUpdate(s, st)
 			}
+		} else if s.OnGuildEmojisUpdate == nil {
+			break
 		}
 		return
 	case "USER_SETTINGS_UPDATE":
