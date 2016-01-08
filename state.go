@@ -20,8 +20,8 @@ var nilError error = errors.New("State not instantiated, please use discordgo.Ne
 func NewState() *State {
 	return &State{
 		Ready: Ready{
-			PrivateChannels: []Channel{},
-			Guilds:          []Guild{},
+			PrivateChannels: []*Channel{},
+			Guilds:          []*Guild{},
 		},
 	}
 }
@@ -47,16 +47,16 @@ func (s *State) GuildAdd(guild *Guild) error {
 		if g.ID == guild.ID {
 			// This could be a little faster ;)
 			for _, m := range guild.Members {
-				s.MemberAdd(&m)
+				s.MemberAdd(m)
 			}
 			for _, c := range guild.Channels {
-				s.ChannelAdd(&c)
+				s.ChannelAdd(c)
 			}
 			return nil
 		}
 	}
 
-	s.Guilds = append(s.Guilds, *guild)
+	s.Guilds = append(s.Guilds, guild)
 	return nil
 }
 
@@ -87,7 +87,7 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 
 	for _, g := range s.Guilds {
 		if g.ID == guildID {
-			return &g, nil
+			return g, nil
 		}
 	}
 
@@ -110,12 +110,12 @@ func (s *State) MemberAdd(member *Member) error {
 
 	for i, m := range guild.Members {
 		if m.User.ID == member.User.ID {
-			guild.Members[i] = *member
+			guild.Members[i] = member
 			return nil
 		}
 	}
 
-	guild.Members = append(guild.Members, *member)
+	guild.Members = append(guild.Members, member)
 	return nil
 }
 
@@ -153,7 +153,7 @@ func (s *State) Member(guildID, userID string) (*Member, error) {
 
 	for _, m := range guild.Members {
 		if m.User.ID == userID {
-			return &m, nil
+			return m, nil
 		}
 	}
 
@@ -172,12 +172,12 @@ func (s *State) ChannelAdd(channel *Channel) error {
 	if channel.IsPrivate {
 		for i, c := range s.PrivateChannels {
 			if c.ID == channel.ID {
-				s.PrivateChannels[i] = *channel
+				s.PrivateChannels[i] = channel
 				return nil
 			}
 		}
 
-		s.PrivateChannels = append(s.PrivateChannels, *channel)
+		s.PrivateChannels = append(s.PrivateChannels, channel)
 	} else {
 		guild, err := s.Guild(channel.GuildID)
 		if err != nil {
@@ -186,12 +186,12 @@ func (s *State) ChannelAdd(channel *Channel) error {
 
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
-				guild.Channels[i] = *channel
+				guild.Channels[i] = channel
 				return nil
 			}
 		}
 
-		guild.Channels = append(guild.Channels, *channel)
+		guild.Channels = append(guild.Channels, channel)
 	}
 
 	return nil
@@ -240,7 +240,7 @@ func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
 
 	for _, c := range guild.Channels {
 		if c.ID == channelID {
-			return &c, nil
+			return c, nil
 		}
 	}
 
@@ -255,7 +255,7 @@ func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 
 	for _, c := range s.PrivateChannels {
 		if c.ID == channelID {
-			return &c, nil
+			return c, nil
 		}
 	}
 
@@ -296,7 +296,7 @@ func (s *State) Emoji(guildID, emojiID string) (*Emoji, error) {
 
 	for _, e := range guild.Emojis {
 		if e.ID == emojiID {
-			return &e, nil
+			return e, nil
 		}
 	}
 
@@ -316,19 +316,19 @@ func (s *State) EmojiAdd(guildID string, emoji *Emoji) error {
 
 	for i, e := range guild.Emojis {
 		if e.ID == emoji.ID {
-			guild.Emojis[i] = *emoji
+			guild.Emojis[i] = emoji
 			return nil
 		}
 	}
 
-	guild.Emojis = append(guild.Emojis, *emoji)
+	guild.Emojis = append(guild.Emojis, emoji)
 	return nil
 }
 
 // EmojisAdd adds multiple emojis to the world state.
-func (s *State) EmojisAdd(guildID string, emojis []Emoji) error {
+func (s *State) EmojisAdd(guildID string, emojis []*Emoji) error {
 	for _, e := range emojis {
-		if err := s.EmojiAdd(guildID, &e); err != nil {
+		if err := s.EmojiAdd(guildID, e); err != nil {
 			return err
 		}
 	}
