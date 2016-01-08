@@ -136,7 +136,7 @@ func (s *Session) Listen() (err error) {
 // Not sure how needed this is and where it would be best to call it.
 // somewhere.
 
-func unmarshalEvent(event Event, i interface{}) (err error) {
+func unmarshalEvent(event *Event, i interface{}) (err error) {
 	if err = json.Unmarshal(event.RawData, i); err != nil {
 		fmt.Println(event.Type, err)
 		printJSON(event.RawData) // TODO: Better error loggingEvent.
@@ -155,7 +155,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		printJSON(message)
 	}
 
-	var e Event
+	var e *Event
 	if err = json.Unmarshal(message, &e); err != nil {
 		fmt.Println(err)
 		return
@@ -164,10 +164,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	switch e.Type {
 
 	case "READY":
-		var st Ready
+		var st *Ready
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.OnReady(&st)
+				s.State.OnReady(st)
 			}
 			if s.OnReady != nil {
 				s.OnReady(s, st)
@@ -177,21 +177,21 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "VOICE_SERVER_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
-		var st VoiceServerUpdate
+		var st *VoiceServerUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceServerUpdate(st)
 		}
 		return
 	case "VOICE_STATE_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
-		var st VoiceState
+		var st *VoiceState
 		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceStateUpdate(st)
 		}
 		return
 	case "USER_UPDATE":
 		if s.OnUserUpdate != nil {
-			var st User
+			var st *User
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnUserUpdate(s, st)
 			}
@@ -199,7 +199,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "PRESENCE_UPDATE":
 		if s.OnPresenceUpdate != nil {
-			var st PresenceUpdate
+			var st *PresenceUpdate
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnPresenceUpdate(s, st)
 			}
@@ -207,7 +207,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "TYPING_START":
 		if s.OnTypingStart != nil {
-			var st TypingStart
+			var st *TypingStart
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnTypingStart(s, st)
 			}
@@ -220,7 +220,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		*/
 	case "MESSAGE_CREATE":
 		if s.OnMessageCreate != nil {
-			var st Message
+			var st *Message
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageCreate(s, st)
 			}
@@ -228,7 +228,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "MESSAGE_UPDATE":
 		if s.OnMessageUpdate != nil {
-			var st Message
+			var st *Message
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageUpdate(s, st)
 			}
@@ -236,7 +236,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "MESSAGE_DELETE":
 		if s.OnMessageDelete != nil {
-			var st MessageDelete
+			var st *MessageDelete
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageDelete(s, st)
 			}
@@ -244,7 +244,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "MESSAGE_ACK":
 		if s.OnMessageAck != nil {
-			var st MessageAck
+			var st *MessageAck
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageAck(s, st)
 			}
@@ -254,10 +254,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnChannelCreate == nil {
 			return
 		}
-		var st Channel
+		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.ChannelAdd(&st)
+				s.State.ChannelAdd(st)
 			}
 			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)
@@ -268,10 +268,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnChannelUpdate == nil {
 			return
 		}
-		var st Channel
+		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.ChannelAdd(&st)
+				s.State.ChannelAdd(st)
 			}
 			if s.OnChannelUpdate != nil {
 				s.OnChannelUpdate(s, st)
@@ -282,10 +282,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnChannelDelete == nil {
 			return
 		}
-		var st Channel
+		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.ChannelRemove(&st)
+				s.State.ChannelRemove(st)
 			}
 			if s.OnChannelDelete != nil {
 				s.OnChannelDelete(s, st)
@@ -296,10 +296,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnGuildCreate == nil {
 			return
 		}
-		var st Guild
+		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.GuildAdd(&st)
+				s.State.GuildAdd(st)
 			}
 			if s.OnGuildCreate != nil {
 				s.OnGuildCreate(s, st)
@@ -310,10 +310,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnGuildUpdate == nil {
 			return
 		}
-		var st Guild
+		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.GuildAdd(&st)
+				s.State.GuildAdd(st)
 			}
 			if s.OnGuildCreate != nil {
 				s.OnGuildUpdate(s, st)
@@ -324,10 +324,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnGuildDelete == nil {
 			return
 		}
-		var st Guild
+		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.GuildRemove(&st)
+				s.State.GuildRemove(st)
 			}
 			if s.OnGuildDelete != nil {
 				s.OnGuildDelete(s, st)
@@ -338,10 +338,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnGuildMemberAdd == nil {
 			return
 		}
-		var st Member
+		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.MemberAdd(&st)
+				s.State.MemberAdd(st)
 			}
 			if s.OnGuildMemberAdd != nil {
 				s.OnGuildMemberAdd(s, st)
@@ -349,13 +349,13 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 		return
 	case "GUILD_MEMBER_REMOVE":
-		var st Member
 		if !s.StateEnabled && s.OnGuildMemberRemove == nil {
 			return
 		}
+		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.MemberRemove(&st)
+				s.State.MemberRemove(st)
 			}
 			if s.OnGuildMemberRemove != nil {
 				s.OnGuildMemberRemove(s, st)
@@ -366,10 +366,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnGuildMemberUpdate == nil {
 			return
 		}
-		var st Member
+		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.MemberAdd(&st)
+				s.State.MemberAdd(st)
 			}
 			if s.OnGuildMemberUpdate != nil {
 				s.OnGuildMemberUpdate(s, st)
@@ -378,7 +378,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_ROLE_CREATE":
 		if s.OnGuildRoleCreate != nil {
-			var st GuildRole
+			var st *GuildRole
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildRoleCreate(s, st)
 			}
@@ -386,7 +386,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "GUILD_ROLE_UPDATE":
 		if s.OnGuildRoleUpdate != nil {
-			var st GuildRole
+			var st *GuildRole
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildRoleUpdate(s, st)
 			}
@@ -394,7 +394,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "GUILD_ROLE_DELETE":
 		if s.OnGuildRoleDelete != nil {
-			var st GuildRoleDelete
+			var st *GuildRoleDelete
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildRoleDelete(s, st)
 			}
@@ -402,7 +402,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "GUILD_INTEGRATIONS_UPDATE":
 		if s.OnGuildIntegrationsUpdate != nil {
-			var st GuildIntegrationsUpdate
+			var st *GuildIntegrationsUpdate
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildIntegrationsUpdate(s, st)
 			}
@@ -410,7 +410,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "GUILD_BAN_ADD":
 		if s.OnGuildBanAdd != nil {
-			var st GuildBan
+			var st *GuildBan
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildBanAdd(s, st)
 			}
@@ -418,7 +418,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "GUILD_BAN_REMOVE":
 		if s.OnGuildBanRemove != nil {
-			var st GuildBan
+			var st *GuildBan
 			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildBanRemove(s, st)
 			}
@@ -428,7 +428,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if !s.StateEnabled && s.OnGuildEmojisUpdate == nil {
 			return
 		}
-		var st GuildEmojisUpdate
+		var st *GuildEmojisUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.EmojisAdd(st.GuildID, st.Emojis)
@@ -555,7 +555,7 @@ func (s *Session) VoiceChannelJoin(guildID, channelID string) (err error) {
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the authenticated session user.  This block is experimental
 // code and will be chaned in the future.
-func (s *Session) onVoiceStateUpdate(st VoiceState) {
+func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 
 	// Need to have this happen at login and store it in the Session
 	self, err := s.User("@me") // TODO: move to Login/New
@@ -576,7 +576,7 @@ func (s *Session) onVoiceStateUpdate(st VoiceState) {
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
 // This will later be exposed but is only for experimental use now.
-func (s *Session) onVoiceServerUpdate(st VoiceServerUpdate) {
+func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 
 	// Store all the values.  They are used later.
 	// GuildID is probably not needed and may be dropped.

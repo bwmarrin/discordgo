@@ -29,33 +29,33 @@ type Session struct {
 	Debug bool   // Debug for printing JSON request/responses
 
 	// Settable Callback functions for Websocket Events
-	OnEvent                   func(*Session, Event) // should Event be *Event?
-	OnReady                   func(*Session, Ready)
-	OnTypingStart             func(*Session, TypingStart)
-	OnMessageCreate           func(*Session, Message)
-	OnMessageUpdate           func(*Session, Message)
-	OnMessageDelete           func(*Session, MessageDelete)
-	OnMessageAck              func(*Session, MessageAck)
-	OnUserUpdate              func(*Session, User)
-	OnPresenceUpdate          func(*Session, PresenceUpdate)
-	OnVoiceStateUpdate        func(*Session, VoiceState)
-	OnChannelCreate           func(*Session, Channel)
-	OnChannelUpdate           func(*Session, Channel)
-	OnChannelDelete           func(*Session, Channel)
-	OnGuildCreate             func(*Session, Guild)
-	OnGuildUpdate             func(*Session, Guild)
-	OnGuildDelete             func(*Session, Guild)
-	OnGuildMemberAdd          func(*Session, Member)
-	OnGuildMemberRemove       func(*Session, Member)
-	OnGuildMemberDelete       func(*Session, Member) // which is it?
-	OnGuildMemberUpdate       func(*Session, Member)
-	OnGuildRoleCreate         func(*Session, GuildRole)
-	OnGuildRoleUpdate         func(*Session, GuildRole)
-	OnGuildRoleDelete         func(*Session, GuildRoleDelete)
-	OnGuildIntegrationsUpdate func(*Session, GuildIntegrationsUpdate)
-	OnGuildBanAdd             func(*Session, GuildBan)
-	OnGuildBanRemove          func(*Session, GuildBan)
-	OnGuildEmojisUpdate       func(*Session, GuildEmojisUpdate)
+	OnEvent                   func(*Session, *Event)
+	OnReady                   func(*Session, *Ready)
+	OnTypingStart             func(*Session, *TypingStart)
+	OnMessageCreate           func(*Session, *Message)
+	OnMessageUpdate           func(*Session, *Message)
+	OnMessageDelete           func(*Session, *MessageDelete)
+	OnMessageAck              func(*Session, *MessageAck)
+	OnUserUpdate              func(*Session, *User)
+	OnPresenceUpdate          func(*Session, *PresenceUpdate)
+	OnVoiceStateUpdate        func(*Session, *VoiceState)
+	OnChannelCreate           func(*Session, *Channel)
+	OnChannelUpdate           func(*Session, *Channel)
+	OnChannelDelete           func(*Session, *Channel)
+	OnGuildCreate             func(*Session, *Guild)
+	OnGuildUpdate             func(*Session, *Guild)
+	OnGuildDelete             func(*Session, *Guild)
+	OnGuildMemberAdd          func(*Session, *Member)
+	OnGuildMemberRemove       func(*Session, *Member)
+	OnGuildMemberDelete       func(*Session, *Member) // which is it?
+	OnGuildMemberUpdate       func(*Session, *Member)
+	OnGuildRoleCreate         func(*Session, *GuildRole)
+	OnGuildRoleUpdate         func(*Session, *GuildRole)
+	OnGuildRoleDelete         func(*Session, *GuildRoleDelete)
+	OnGuildIntegrationsUpdate func(*Session, *GuildIntegrationsUpdate)
+	OnGuildBanAdd             func(*Session, *GuildBan)
+	OnGuildBanRemove          func(*Session, *GuildBan)
+	OnGuildEmojisUpdate       func(*Session, *GuildEmojisUpdate)
 	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
 
 	// Exposed but should not be modified by User.
@@ -109,8 +109,8 @@ type VoiceRegion struct {
 
 // A VoiceICE stores data for voice ICE servers.
 type VoiceICE struct {
-	TTL     string      `json:"ttl"`
-	Servers []ICEServer `json:"servers"`
+	TTL     string       `json:"ttl"`
+	Servers []*ICEServer `json:"servers"`
 }
 
 // A ICEServer stores data for a specific voice ICE server.
@@ -122,31 +122,31 @@ type ICEServer struct {
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	MaxAge    int     `json:"max_age"`
-	Code      string  `json:"code"`
-	Guild     Guild   `json:"guild"`
-	Revoked   bool    `json:"revoked"`
-	CreatedAt string  `json:"created_at"` // TODO make timestamp
-	Temporary bool    `json:"temporary"`
-	Uses      int     `json:"uses"`
-	MaxUses   int     `json:"max_uses"`
-	Inviter   User    `json:"inviter"`
-	XkcdPass  bool    `json:"xkcdpass"`
-	Channel   Channel `json:"channel"`
+	MaxAge    int      `json:"max_age"`
+	Code      string   `json:"code"`
+	Guild     *Guild   `json:"guild"`
+	Revoked   bool     `json:"revoked"`
+	CreatedAt string   `json:"created_at"` // TODO make timestamp
+	Temporary bool     `json:"temporary"`
+	Uses      int      `json:"uses"`
+	MaxUses   int      `json:"max_uses"`
+	Inviter   *User    `json:"inviter"`
+	XkcdPass  bool     `json:"xkcdpass"`
+	Channel   *Channel `json:"channel"`
 }
 
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
-	ID                   string                `json:"id"`
-	GuildID              string                `json:"guild_id"`
-	Name                 string                `json:"name"`
-	Topic                string                `json:"topic"`
-	Position             int                   `json:"position"`
-	Type                 string                `json:"type"`
-	PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
-	IsPrivate            bool                  `json:"is_private"`
-	LastMessageID        string                `json:"last_message_id"`
-	Recipient            User                  `json:"recipient"`
+	ID                   string                 `json:"id"`
+	GuildID              string                 `json:"guild_id"`
+	Name                 string                 `json:"name"`
+	Topic                string                 `json:"topic"`
+	Position             int                    `json:"position"`
+	Type                 string                 `json:"type"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
+	IsPrivate            bool                   `json:"is_private"`
+	LastMessageID        string                 `json:"last_message_id"`
+	Recipient            *User                  `json:"recipient"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
@@ -168,23 +168,23 @@ type Emoji struct {
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
-	ID             string       `json:"id"`
-	Name           string       `json:"name"`
-	Icon           string       `json:"icon"`
-	Region         string       `json:"region"`
-	AfkTimeout     int          `json:"afk_timeout"`
-	AfkChannelID   string       `json:"afk_channel_id"`
-	EmbedChannelID string       `json:"embed_channel_id"`
-	EmbedEnabled   bool         `json:"embed_enabled"`
-	OwnerID        string       `json:"owner_id"`
-	Large          bool         `json:"large"`     // ??
-	JoinedAt       string       `json:"joined_at"` // make this a timestamp
-	Roles          []Role       `json:"roles"`
-	Emojis         []Emoji      `json:"emojis"`
-	Members        []Member     `json:"members"`
-	Presences      []Presence   `json:"presences"`
-	Channels       []Channel    `json:"channels"`
-	VoiceStates    []VoiceState `json:"voice_states"`
+	ID             string        `json:"id"`
+	Name           string        `json:"name"`
+	Icon           string        `json:"icon"`
+	Region         string        `json:"region"`
+	AfkTimeout     int           `json:"afk_timeout"`
+	AfkChannelID   string        `json:"afk_channel_id"`
+	EmbedChannelID string        `json:"embed_channel_id"`
+	EmbedEnabled   bool          `json:"embed_enabled"`
+	OwnerID        string        `json:"owner_id"`
+	Large          bool          `json:"large"`     // ??
+	JoinedAt       string        `json:"joined_at"` // make this a timestamp
+	Roles          []*Role       `json:"roles"`
+	Emojis         []*Emoji      `json:"emojis"`
+	Members        []*Member     `json:"members"`
+	Presences      []*Presence   `json:"presences"`
+	Channels       []*Channel    `json:"channels"`
+	VoiceStates    []*VoiceState `json:"voice_states"`
 }
 
 // A Role stores information about Discord guild member roles.
@@ -212,9 +212,9 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User   User   `json:"user"`
+	User   *User  `json:"user"`
 	Status string `json:"status"`
-	Game   Game   `json:"game"`
+	Game   *Game  `json:"game"`
 }
 
 type Game struct {
@@ -227,7 +227,7 @@ type Member struct {
 	JoinedAt string   `json:"joined_at"`
 	Deaf     bool     `json:"deaf"`
 	Mute     bool     `json:"mute"`
-	User     User     `json:"user"`
+	User     *User    `json:"user"`
 	Roles    []string `json:"roles"`
 }
 
@@ -277,10 +277,10 @@ type Ready struct {
 	Version           int           `json:"v"`
 	SessionID         string        `json:"session_id"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	User              User          `json:"user"`
-	ReadState         []ReadState
-	PrivateChannels   []Channel `json:"private_channels"`
-	Guilds            []Guild   `json:"guilds"`
+	User              *User         `json:"user"`
+	ReadState         []*ReadState
+	PrivateChannels   []*Channel `json:"private_channels"`
+	Guilds            []*Guild   `json:"guilds"`
 }
 
 // A ReadState stores data on the read state of channels.
@@ -299,11 +299,11 @@ type TypingStart struct {
 
 // A PresenceUpdate stores data for the pressence update websocket event.
 type PresenceUpdate struct {
-	User    User     `json:"user"`
+	User    *User    `json:"user"`
 	Status  string   `json:"status"`
 	Roles   []string `json:"roles"`
 	GuildID string   `json:"guild_id"`
-	Game    Game     `json:"game"`
+	Game    *Game    `json:"game"`
 }
 
 // A MessageAck stores data for the message ack websocket event.
@@ -326,7 +326,7 @@ type GuildIntegrationsUpdate struct {
 
 // A GuildRole stores data for guild role websocket events.
 type GuildRole struct {
-	Role    Role   `json:"role"`
+	Role    *Role  `json:"role"`
 	GuildID string `json:"guild_id"`
 }
 
@@ -338,14 +338,14 @@ type GuildRoleDelete struct {
 
 // A GuildBan stores data for a guild ban.
 type GuildBan struct {
-	User    User   `json:"user"`
+	User    *User  `json:"user"`
 	GuildID string `json:"guild_id"`
 }
 
 // A GuildEmojisUpdate stores data for a guild emoji update event.
 type GuildEmojisUpdate struct {
-	GuildID string  `json:"guild_id"`
-	Emojis  []Emoji `json:"emojis"`
+	GuildID string   `json:"guild_id"`
+	Emojis  []*Emoji `json:"emojis"`
 }
 
 // A State contains the current known state.

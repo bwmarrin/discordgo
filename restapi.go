@@ -165,7 +165,7 @@ func (s *Session) User(userID string) (st User, err error) {
 
 // UserUpdate updates a users settings.
 // userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassword string) (st User, err error) {
+func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassword string) (st *User, err error) {
 
 	// NOTE: Avatar must be either the hash/id of existing Avatar or
 	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
@@ -198,7 +198,7 @@ func (s *Session) UserAvatar(userID string) (st User, err error) {
 // UserSettings returns the settings for a given user
 // userID    : A user ID or "@me" which is a shortcut of current user ID
 // This seems to only return a result for "@me"
-func (s *Session) UserSettings(userID string) (st Settings, err error) {
+func (s *Session) UserSettings(userID string) (st *Settings, err error) {
 
 	body, err := s.Request("GET", USER_SETTINGS(userID), nil)
 	err = json.Unmarshal(body, &st)
@@ -208,7 +208,7 @@ func (s *Session) UserSettings(userID string) (st Settings, err error) {
 // UserChannels returns an array of Channel structures for all private
 // channels for a user
 // userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserChannels(userID string) (st []Channel, err error) {
+func (s *Session) UserChannels(userID string) (st []*Channel, err error) {
 
 	body, err := s.Request("GET", USER_CHANNELS(userID), nil)
 	err = json.Unmarshal(body, &st)
@@ -218,7 +218,7 @@ func (s *Session) UserChannels(userID string) (st []Channel, err error) {
 // UserChannelCreate creates a new User (Private) Channel with another User
 // userID      : A user ID or "@me" which is a shortcut of current user ID
 // recipientID : A user ID for the user to which this channel is opened with.
-func (s *Session) UserChannelCreate(userID, recipientID string) (st Channel, err error) {
+func (s *Session) UserChannelCreate(userID, recipientID string) (st *Channel, err error) {
 
 	data := struct {
 		RecipientID string `json:"recipient_id"`
@@ -235,7 +235,7 @@ func (s *Session) UserChannelCreate(userID, recipientID string) (st Channel, err
 
 // UserGuilds returns an array of Guild structures for all guilds for a given user
 // userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserGuilds(userID string) (st []Guild, err error) {
+func (s *Session) UserGuilds(userID string) (st []*Guild, err error) {
 
 	body, err := s.Request("GET", USER_GUILDS(userID), nil)
 	err = json.Unmarshal(body, &st)
@@ -248,7 +248,7 @@ func (s *Session) UserGuilds(userID string) (st []Guild, err error) {
 
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
-func (s *Session) Guild(guildID string) (st Guild, err error) {
+func (s *Session) Guild(guildID string) (st *Guild, err error) {
 
 	body, err := s.Request("GET", GUILD(guildID), nil)
 	err = json.Unmarshal(body, &st)
@@ -257,7 +257,7 @@ func (s *Session) Guild(guildID string) (st Guild, err error) {
 
 // GuildCreate creates a new Guild
 // name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildCreate(name string) (st Guild, err error) {
+func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 
 	data := struct {
 		Name string `json:"name"`
@@ -271,7 +271,7 @@ func (s *Session) GuildCreate(name string) (st Guild, err error) {
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
 // name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildEdit(guildID, name string) (st Guild, err error) {
+func (s *Session) GuildEdit(guildID, name string) (st *Guild, err error) {
 
 	data := struct {
 		Name string `json:"name"`
@@ -284,7 +284,7 @@ func (s *Session) GuildEdit(guildID, name string) (st Guild, err error) {
 
 // GuildDelete deletes or leaves a Guild.
 // guildID   : The ID of a Guild
-func (s *Session) GuildDelete(guildID string) (st Guild, err error) {
+func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 
 	body, err := s.Request("DELETE", GUILD(guildID), nil)
 	err = json.Unmarshal(body, &st)
@@ -294,7 +294,7 @@ func (s *Session) GuildDelete(guildID string) (st Guild, err error) {
 // GuildBans returns an array of User structures for all bans of a
 // given guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildBans(guildID string) (st []User, err error) {
+func (s *Session) GuildBans(guildID string) (st []*User, err error) {
 
 	body, err := s.Request("GET", GUILD_BANS(guildID), nil)
 	err = json.Unmarshal(body, &st)
@@ -339,7 +339,7 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 // GuildChannels returns an array of Channel structures for all channels of a
 // given guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildChannels(guildID string) (st []Channel, err error) {
+func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 
 	body, err := s.Request("GET", GUILD_CHANNELS(guildID), nil)
 	err = json.Unmarshal(body, &st)
@@ -351,7 +351,7 @@ func (s *Session) GuildChannels(guildID string) (st []Channel, err error) {
 // guildID   : The ID of a Guild.
 // name      : Name of the channel (2-100 chars length)
 // ctype     : Tpye of the channel (voice or text)
-func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st Channel, err error) {
+func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, err error) {
 
 	data := struct {
 		Name string `json:"name"`
@@ -365,7 +365,7 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st Channel, e
 
 // GuildInvites returns an array of Invite structures for the given guild
 // guildID   : The ID of a Guild.
-func (s *Session) GuildInvites(guildID string) (st []Invite, err error) {
+func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	body, err := s.Request("GET", GUILD_INVITES(guildID), nil)
 	err = json.Unmarshal(body, &st)
 	return
@@ -375,7 +375,7 @@ func (s *Session) GuildInvites(guildID string) (st []Invite, err error) {
 // guildID   : The ID of a Guild.
 // i         : An Invite struct with the values MaxAge, MaxUses, Temporary,
 //             and XkcdPass defined.
-func (s *Session) GuildInviteCreate(guildID string, i Invite) (st Invite, err error) {
+func (s *Session) GuildInviteCreate(guildID string, i Invite) (st *Invite, err error) {
 
 	data := struct {
 		MaxAge    int  `json:"max_age"`
@@ -390,7 +390,7 @@ func (s *Session) GuildInviteCreate(guildID string, i Invite) (st Invite, err er
 }
 
 // GuildRoles returns all roles for a given guild.
-func (s *Session) GuildRoles(guildID string) (st []Role, err error) {
+func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 
 	body, err := s.Request("GET", GUILD_ROLES(guildID), nil)
 	err = json.Unmarshal(body, &st)
@@ -399,7 +399,7 @@ func (s *Session) GuildRoles(guildID string) (st []Role, err error) {
 }
 
 // GuildRoleCreate returns a new Guild Role
-func (s *Session) GuildRoleCreate(guildID string) (st Role, err error) {
+func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 
 	body, err := s.Request("POST", GUILD_ROLES(guildID), nil)
 	err = json.Unmarshal(body, &st)
@@ -408,7 +408,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st Role, err error) {
 }
 
 // GuildRoleEdit updates an existing Guild Role with new values
-func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st Role, err error) {
+func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st *Role, err error) {
 
 	data := struct {
 		Name        string `json:"name"`        // The color the role should have (as a decimal, not hex)
@@ -424,7 +424,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 }
 
 // GuildRoleReorder reoders guild roles
-func (s *Session) GuildRoleReorder(guildID string, roles []Role) (st []Role, err error) {
+func (s *Session) GuildRoleReorder(guildID string, roles []Role) (st []*Role, err error) {
 
 	body, err := s.Request("PATCH", GUILD_ROLES(guildID), roles)
 	err = json.Unmarshal(body, &st)
@@ -446,7 +446,7 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 
 // Channel returns a Channel strucutre of a specific Channel.
 // channelID  : The ID of the Channel you want returend.
-func (s *Session) Channel(channelID string) (st Channel, err error) {
+func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	body, err := s.Request("GET", CHANNEL(channelID), nil)
 	err = json.Unmarshal(body, &st)
 	return
@@ -455,7 +455,7 @@ func (s *Session) Channel(channelID string) (st Channel, err error) {
 // ChannelEdit edits the given channel
 // channelID  : The ID of a Channel
 // name       : The new name to assign the channel.
-func (s *Session) ChannelEdit(channelID, name string) (st Channel, err error) {
+func (s *Session) ChannelEdit(channelID, name string) (st *Channel, err error) {
 
 	data := struct {
 		Name string `json:"name"`
@@ -468,7 +468,7 @@ func (s *Session) ChannelEdit(channelID, name string) (st Channel, err error) {
 
 // ChannelDelete deletes the given channel
 // channelID  : The ID of a Channel
-func (s *Session) ChannelDelete(channelID string) (st Channel, err error) {
+func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
 
 	body, err := s.Request("DELETE", CHANNEL(channelID), nil)
 	err = json.Unmarshal(body, &st)
@@ -530,7 +530,7 @@ func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
 // channelID : The ID of a Channel.
 // content   : The message to send.
 // NOTE, mention and tts parameters may be added in 2.x branch.
-func (s *Session) ChannelMessageSend(channelID string, content string) (st Message, err error) {
+func (s *Session) ChannelMessageSend(channelID string, content string) (st *Message, err error) {
 
 	// TODO: nonce string ?
 	data := struct {
@@ -548,7 +548,7 @@ func (s *Session) ChannelMessageSend(channelID string, content string) (st Messa
 // the given content.
 // channeld  : The ID of a Channel
 // messageID : the ID of a Message
-func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st Message, err error) {
+func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st *Message, err error) {
 
 	data := struct {
 		Content string `json:"content"`
@@ -568,7 +568,7 @@ func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) 
 
 // ChannelInvites returns an array of Invite structures for the given channel
 // channelID   : The ID of a Channel
-func (s *Session) ChannelInvites(channelID string) (st []Invite, err error) {
+func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 	body, err := s.Request("GET", CHANNEL_INVITES(channelID), nil)
 	err = json.Unmarshal(body, &st)
 	return
@@ -578,7 +578,7 @@ func (s *Session) ChannelInvites(channelID string) (st []Invite, err error) {
 // channelID   : The ID of a Channel
 // i           : An Invite struct with the values MaxAge, MaxUses, Temporary,
 //               and XkcdPass defined.
-func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st Invite, err error) {
+func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, err error) {
 
 	data := struct {
 		MaxAge    int  `json:"max_age"`
@@ -622,7 +622,7 @@ func (s *Session) ChannelPermissionDelete(channelID, targetID string) (err error
 
 // Invite returns an Invite structure of the given invite
 // inviteID : The invite code (or maybe xkcdpass?)
-func (s *Session) Invite(inviteID string) (st Invite, err error) {
+func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 	body, err := s.Request("GET", INVITE(inviteID), nil)
 	err = json.Unmarshal(body, &st)
 	return
@@ -630,7 +630,7 @@ func (s *Session) Invite(inviteID string) (st Invite, err error) {
 
 // InviteDelete deletes an existing invite
 // inviteID   : the code (or maybe xkcdpass?) of an invite
-func (s *Session) InviteDelete(inviteID string) (st Invite, err error) {
+func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 
 	body, err := s.Request("DELETE", INVITE(inviteID), nil)
 	err = json.Unmarshal(body, &st)
@@ -639,7 +639,7 @@ func (s *Session) InviteDelete(inviteID string) (st Invite, err error) {
 
 // InviteAccept accepts an Invite to a Guild or Channel
 // inviteID : The invite code (or maybe xkcdpass?)
-func (s *Session) InviteAccept(inviteID string) (st Invite, err error) {
+func (s *Session) InviteAccept(inviteID string) (st *Invite, err error) {
 	body, err := s.Request("POST", INVITE(inviteID), nil)
 	err = json.Unmarshal(body, &st)
 	return
@@ -650,7 +650,7 @@ func (s *Session) InviteAccept(inviteID string) (st Invite, err error) {
 // ------------------------------------------------------------------------------------------------
 
 // VoiceRegions returns the voice server regions
-func (s *Session) VoiceRegions() (st []VoiceRegion, err error) {
+func (s *Session) VoiceRegions() (st []*VoiceRegion, err error) {
 
 	body, err := s.Request("GET", VOICE_REGIONS, nil)
 	err = json.Unmarshal(body, &st)
@@ -658,7 +658,7 @@ func (s *Session) VoiceRegions() (st []VoiceRegion, err error) {
 }
 
 // VoiceICE returns the voice server ICE information
-func (s *Session) VoiceICE() (st VoiceICE, err error) {
+func (s *Session) VoiceICE() (st *VoiceICE, err error) {
 
 	body, err := s.Request("GET", VOICE_ICE, nil)
 	err = json.Unmarshal(body, &st)
