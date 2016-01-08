@@ -101,29 +101,6 @@ type Session struct {
 	listenChan chan struct{}
 }
 
-// A Message stores all data related to a specific Discord message.
-type Message struct {
-	ID              string       `json:"id"`
-	Author          User         `json:"author"`
-	Content         string       `json:"content"`
-	Attachments     []Attachment `json:"attachments"`
-	Tts             bool         `json:"tts"`
-	Embeds          []Embed      `json:"embeds"`
-	Timestamp       string       `json:"timestamp"`
-	MentionEveryone bool         `json:"mention_everyone"`
-	EditedTimestamp string       `json:"edited_timestamp"`
-	Mentions        []User       `json:"mentions"`
-	ChannelID       string       `json:"channel_id"`
-}
-
-// An Attachment stores data for message attachments.
-type Attachment struct { //TODO figure this out
-}
-
-// An Embed stores data for message embeds.
-type Embed struct { // TODO figure this out
-}
-
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
 	ID       string `json:"id"`
