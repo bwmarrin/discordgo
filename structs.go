@@ -78,6 +78,7 @@ type Session struct {
 	// Everything below here is used for Voice testing.
 	// This stuff is almost guarenteed to change a lot
 	// and is even a bit hackish right now.
+	Voice      *voice
 	VwsConn    *websocket.Conn // new for voice
 	VSessionID string
 	VToken     string
@@ -269,7 +270,7 @@ type Settings struct {
 type Event struct {
 	Type      string          `json:"t"`
 	State     int             `json:"s"`
-	Operation int             `json:"o"`
+	Operation int             `json:"op"`
 	Direction int             `json:"dir"`
 	RawData   json.RawMessage `json:"d"`
 }
