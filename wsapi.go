@@ -149,6 +149,8 @@ func unmarshalEvent(event *Event, i interface{}) (err error) {
 
 // event is the front line handler for all events.  This needs to be
 // broken up into smaller functions to be more idiomatic Go.
+// Events will be handled by any implemented handler in Session.
+// All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) (err error) {
 
 	if s.Debug {
@@ -173,10 +175,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 				s.OnReady(s, st)
 			}
 			go s.Heartbeat(st.HeartbeatInterval)
-		} else if s.OnReady == nil {
-			break
 		}
-		return
+		if s.OnReady != nil {
+			return
+		}
 	case "VOICE_SERVER_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
 		var st *VoiceServerUpdate
@@ -264,10 +266,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)
 			}
-		} else if s.OnChannelCreate == nil {
-			break
 		}
-		return
+		if s.OnChannelCreate != nil {
+			return
+		}
 	case "CHANNEL_UPDATE":
 		if !s.StateEnabled && s.OnChannelUpdate == nil {
 			break
@@ -280,10 +282,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnChannelUpdate != nil {
 				s.OnChannelUpdate(s, st)
 			}
-		} else if s.OnChannelUpdate == nil {
-			break
 		}
-		return
+		if s.OnChannelUpdate != nil {
+			return
+		}
 	case "CHANNEL_DELETE":
 		if !s.StateEnabled && s.OnChannelDelete == nil {
 			break
@@ -296,10 +298,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnChannelDelete != nil {
 				s.OnChannelDelete(s, st)
 			}
-		} else if s.OnChannelDelete == nil {
-			break
 		}
-		return
+		if s.OnChannelDelete != nil {
+			return
+		}
 	case "GUILD_CREATE":
 		if !s.StateEnabled && s.OnGuildCreate == nil {
 			break
@@ -312,10 +314,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildCreate != nil {
 				s.OnGuildCreate(s, st)
 			}
-		} else if s.OnGuildCreate == nil {
-			break
 		}
-		return
+		if s.OnGuildCreate != nil {
+			return
+		}
 	case "GUILD_UPDATE":
 		if !s.StateEnabled && s.OnGuildUpdate == nil {
 			break
@@ -328,10 +330,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildCreate != nil {
 				s.OnGuildUpdate(s, st)
 			}
-		} else if s.OnGuildUpdate == nil {
-			break
 		}
-		return
+		if s.OnGuildUpdate != nil {
+			return
+		}
 	case "GUILD_DELETE":
 		if !s.StateEnabled && s.OnGuildDelete == nil {
 			break
@@ -344,10 +346,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildDelete != nil {
 				s.OnGuildDelete(s, st)
 			}
-		} else if s.OnGuildDelete == nil {
-			break
 		}
-		return
+		if s.OnGuildDelete != nil {
+			return
+		}
 	case "GUILD_MEMBER_ADD":
 		if !s.StateEnabled && s.OnGuildMemberAdd == nil {
 			break
@@ -360,10 +362,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildMemberAdd != nil {
 				s.OnGuildMemberAdd(s, st)
 			}
-		} else if s.OnGuildMemberAdd == nil {
-			break
 		}
-		return
+		if s.OnGuildMemberAdd != nil {
+			return
+		}
 	case "GUILD_MEMBER_REMOVE":
 		if !s.StateEnabled && s.OnGuildMemberRemove == nil {
 			break
@@ -376,10 +378,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildMemberRemove != nil {
 				s.OnGuildMemberRemove(s, st)
 			}
-		} else if s.OnGuildMemberRemove == nil {
-			break
 		}
-		return
+		if s.OnGuildMemberRemove != nil {
+			return
+		}
 	case "GUILD_MEMBER_UPDATE":
 		if !s.StateEnabled && s.OnGuildMemberUpdate == nil {
 			break
@@ -392,10 +394,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildMemberUpdate != nil {
 				s.OnGuildMemberUpdate(s, st)
 			}
-		} else if s.OnGuildMemberUpdate == nil {
-			break
 		}
-		return
+		if s.OnGuildMemberUpdate != nil {
+			return
+		}
 	case "GUILD_ROLE_CREATE":
 		if s.OnGuildRoleCreate != nil {
 			var st *GuildRole
@@ -456,10 +458,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnGuildEmojisUpdate != nil {
 				s.OnGuildEmojisUpdate(s, st)
 			}
-		} else if s.OnGuildEmojisUpdate == nil {
-			break
 		}
-		return
+		if s.OnGuildEmojisUpdate != nil {
+			return
+		}
 	case "USER_SETTINGS_UPDATE":
 		if s.OnUserSettingsUpdate != nil {
 			var st map[string]interface{}
