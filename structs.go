@@ -13,9 +13,7 @@ package discordgo
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
-	"strings"
 	"sync"
 	"time"
 
@@ -27,9 +25,8 @@ import (
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
 	// General configurable settings.
-	Token       string // Authentication token for this session
-	Debug       bool   // Debug for printing JSON request/responses
-	AutoMention bool   // if set to True, ChannelSendMessage will auto mention <@ID>
+	Token string // Authentication token for this session
+	Debug bool   // Debug for printing JSON request/responses
 
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, *Event)
@@ -78,13 +75,14 @@ type Session struct {
 	// Everything below here is used for Voice testing.
 	// This stuff is almost guarenteed to change a lot
 	// and is even a bit hackish right now.
+	Voice      *voice
 	VwsConn    *websocket.Conn // new for voice
 	VSessionID string
 	VToken     string
 	VEndpoint  string
 	VGuildID   string
 	VChannelID string
-	Vop2       VoiceOP2
+	Vop2       voiceOP2
 	UDPConn    *net.UDPConn
 
 	// Managed state object, updated with events.
@@ -99,39 +97,6 @@ type Session struct {
 
 	listenLock sync.Mutex
 	listenChan chan struct{}
-}
-
-// A Message stores all data related to a specific Discord message.
-type Message struct {
-	ID              string        `json:"id"`
-	Author          User          `json:"author"`
-	Content         string        `json:"content"`
-	Attachments     []*Attachment `json:"attachments"`
-	Tts             bool          `json:"tts"`
-	Embeds          []*Embed      `json:"embeds"`
-	Timestamp       string        `json:"timestamp"`
-	MentionEveryone bool          `json:"mention_everyone"`
-	EditedTimestamp string        `json:"edited_timestamp"`
-	Mentions        []*User       `json:"mentions"`
-	ChannelID       string        `json:"channel_id"`
-}
-
-// ContentWithMentionsReplaced will replace all @<id> mentions with the
-// username of the mention.
-func (m *Message) ContentWithMentionsReplaced() string {
-	content := m.Content
-	for _, user := range m.Mentions {
-		content = strings.Replace(content, fmt.Sprintf("<@%s>", user.ID), fmt.Sprintf("@%s", user.Username), -1)
-	}
-	return content
-}
-
-// An Attachment stores data for message attachments.
-type Attachment struct { //TODO figure this out
-}
-
-// An Embed stores data for message embeds.
-type Embed struct { // TODO figure this out
 }
 
 // A VoiceRegion stores data for a specific voice region server.
@@ -302,7 +267,7 @@ type Settings struct {
 type Event struct {
 	Type      string          `json:"t"`
 	State     int             `json:"s"`
-	Operation int             `json:"o"`
+	Operation int             `json:"op"`
 	Direction int             `json:"dir"`
 	RawData   json.RawMessage `json:"d"`
 }
