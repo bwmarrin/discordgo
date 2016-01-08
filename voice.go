@@ -18,23 +18,44 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-// A VEvent is the initial structure for voice websocket events.  I think
-// I can reuse the data websocket structure here.
-type VEvent struct {
-	Type      string          `json:"t"`
-	State     int             `json:"s"`
-	Operation int             `json:"op"`
-	RawData   json.RawMessage `json:"d"`
+// A Voice struct holds all data and functions related to Discord Voice support.
+// NOTE: This is not used right at this moment, but it will be used soon.
+type voice struct {
+	Ready bool
+	WS    *voiceWS
+	UDP   *voiceUDP
+
+	SessionID string
+	Token     string
+	Endpoint  string
+	GuildID   string
+	ChannelID string
+	OP2       *voiceOP2
 }
 
-// A VoiceOP2 stores the data for voice operation 2 websocket events
+type voiceWS struct {
+	Ready bool
+	Chan  chan struct{}
+	Lock  sync.Mutex
+	Conn  *websocket.Conn
+}
+
+type voiceUDP struct {
+	Ready bool
+	Chan  chan struct{}
+	Lock  sync.Mutex
+	Conn  *net.UDPConn
+}
+
+// A voiceOP2 stores the data for voice operation 2 websocket events
 // which is sort of like the voice READY packet
-type VoiceOP2 struct {
+type voiceOP2 struct {
 	SSRC              uint32        `json:"ssrc"`
 	Port              int           `json:"port"`
 	Modes             []string      `json:"modes"`
@@ -117,7 +138,7 @@ func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
 		printJSON(message)
 	}
 
-	var e VEvent
+	var e Event
 	if err := json.Unmarshal(message, &e); err != nil {
 		return err
 	}
@@ -125,7 +146,7 @@ func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
 	switch e.Operation {
 
 	case 2: // READY packet
-		var st VoiceOP2
+		var st voiceOP2
 		if err := json.Unmarshal(e.RawData, &st); err != nil {
 			fmt.Println(e.Type, err)
 			printJSON(e.RawData) // TODO: Better error logginEventg
