@@ -242,21 +242,6 @@ func (s *Session) UserGuilds(userID string) (st []Guild, err error) {
 	return
 }
 
-// UserVerify updates account information to make vertification possible.
-// Account still needs to be activated using the send email
-func (s *Session) UserVerify(username, email, password string) (st User, err error) {
-
-	data := struct {
-		Username string `json:"username"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}{username, email, password}
-
-	body, err := s.Request("PATCH", USER("@me"), data)
-	err = json.Unmarshal(body, &st)
-	return
-}
-
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Guilds
 // ------------------------------------------------------------------------------------------------
