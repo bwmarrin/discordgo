@@ -16,17 +16,17 @@ import (
 
 // A Message stores all data related to a specific Discord message.
 type Message struct {
-	ID              string       `json:"id"`
-	Author          User         `json:"author"`
-	Content         string       `json:"content"`
-	Attachments     []Attachment `json:"attachments"`
-	Tts             bool         `json:"tts"`
-	Embeds          []Embed      `json:"embeds"`
-	Timestamp       string       `json:"timestamp"`
-	MentionEveryone bool         `json:"mention_everyone"`
-	EditedTimestamp string       `json:"edited_timestamp"`
-	Mentions        []User       `json:"mentions"`
-	ChannelID       string       `json:"channel_id"`
+	ID              string        `json:"id"`
+	Author          *User         `json:"author"`
+	Content         string        `json:"content"`
+	Attachments     []*Attachment `json:"attachments"`
+	Tts             bool          `json:"tts"`
+	Embeds          []*Embed      `json:"embeds"`
+	Timestamp       string        `json:"timestamp"`
+	MentionEveryone bool          `json:"mention_everyone"`
+	EditedTimestamp string        `json:"edited_timestamp"`
+	Mentions        []*User       `json:"mentions"`
+	ChannelID       string        `json:"channel_id"`
 }
 
 // An Attachment stores data for message attachments.
