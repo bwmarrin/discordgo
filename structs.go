@@ -13,9 +13,7 @@ package discordgo
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
-	"strings"
 	"sync"
 	"time"
 
@@ -27,9 +25,8 @@ import (
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
 	// General configurable settings.
-	Token       string // Authentication token for this session
-	Debug       bool   // Debug for printing JSON request/responses
-	AutoMention bool   // if set to True, ChannelSendMessage will auto mention <@ID>
+	Token string // Authentication token for this session
+	Debug bool   // Debug for printing JSON request/responses
 
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, Event) // should Event be *Event?
@@ -85,7 +82,7 @@ type Session struct {
 	VEndpoint  string
 	VGuildID   string
 	VChannelID string
-	Vop2       VoiceOP2
+	Vop2       voiceOP2
 	UDPConn    *net.UDPConn
 
 	// Managed state object, updated with events.
