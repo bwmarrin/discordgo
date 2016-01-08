@@ -252,7 +252,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "CHANNEL_CREATE":
 		if !s.StateEnabled && s.OnChannelCreate == nil {
-			return
+			break
 		}
 		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -266,7 +266,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "CHANNEL_UPDATE":
 		if !s.StateEnabled && s.OnChannelUpdate == nil {
-			return
+			break
 		}
 		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -280,7 +280,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "CHANNEL_DELETE":
 		if !s.StateEnabled && s.OnChannelDelete == nil {
-			return
+			break
 		}
 		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -294,7 +294,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_CREATE":
 		if !s.StateEnabled && s.OnGuildCreate == nil {
-			return
+			break
 		}
 		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -308,7 +308,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_UPDATE":
 		if !s.StateEnabled && s.OnGuildUpdate == nil {
-			return
+			break
 		}
 		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -322,7 +322,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_DELETE":
 		if !s.StateEnabled && s.OnGuildDelete == nil {
-			return
+			break
 		}
 		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -336,7 +336,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_MEMBER_ADD":
 		if !s.StateEnabled && s.OnGuildMemberAdd == nil {
-			return
+			break
 		}
 		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -350,7 +350,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_MEMBER_REMOVE":
 		if !s.StateEnabled && s.OnGuildMemberRemove == nil {
-			return
+			break
 		}
 		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -364,7 +364,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		return
 	case "GUILD_MEMBER_UPDATE":
 		if !s.StateEnabled && s.OnGuildMemberUpdate == nil {
-			return
+			break
 		}
 		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
@@ -426,7 +426,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		}
 	case "GUILD_EMOJIS_UPDATE":
 		if !s.StateEnabled && s.OnGuildEmojisUpdate == nil {
-			return
+			break
 		}
 		var st *GuildEmojisUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
