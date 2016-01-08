@@ -43,6 +43,26 @@ func waitBoolEqual(timeout time.Duration, check *bool, want bool) bool {
 	}
 }
 
+// Checks if we're connected to Discord
+func isConnected() bool {
+
+	if dg == nil {
+		return false
+	}
+
+	if dg.Token == "" {
+		return false
+	}
+
+	// Need a way to see if the ws connection is nil
+
+	if !waitBoolEqual(10*time.Second, &dg.DataReady, true) {
+		return false
+	}
+
+	return true
+}
+
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
@@ -60,6 +80,11 @@ func TestNew(t *testing.T) {
 // This should return a valid Session{}, a valid Session.Token, and open
 // a websocket connection to Discord.
 func TestNewUserPass(t *testing.T) {
+
+	if isConnected() {
+		t.Skip("Skipping New(username,password), already connected.")
+	}
+
 	if envUsername == "" || envPassword == "" {
 		t.Skip("Skipping New(username,password), DG_USERNAME or DG_PASSWORD not set")
 		return
@@ -70,9 +95,13 @@ func TestNewUserPass(t *testing.T) {
 // TestNewToken tests the New() function with a Token.  This should return
 // the same as the TestNewUserPass function.
 func TestNewToken(t *testing.T) {
+
+	if isConnected() {
+		t.Skip("Skipping New(token), already connected.")
+	}
+
 	if envToken == "" {
 		t.Skip("Skipping New(token), DG_TOKEN not set")
-		return
 	}
 
 	d, err := New(envToken)
