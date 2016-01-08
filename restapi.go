@@ -119,6 +119,27 @@ func (s *Session) Login(email string, password string) (token string, err error)
 	return
 }
 
+// Register sends a Register request to Discord, and returns the authentication token
+// Note that this account is temporary and should be verified for future use.
+// Another option is to save the authentication token external, but this isn't recommended.
+func (s *Session) Register(username string) (token string, err error) {
+
+	data := struct {
+		Username string `json:"username"`
+	}{username}
+
+	response, err := s.Request("POST", REGISTER, data)
+
+	var temp map[string]interface{}
+	err = json.Unmarshal(response, &temp)
+	if err != nil {
+		return
+	}
+
+	token = temp["token"].(string)
+	return
+}
+
 // Logout sends a logout request to Discord.
 // This does not seem to actually invalidate the token.  So you can still
 // make API calls even after a Logout.  So, it seems almost pointless to
