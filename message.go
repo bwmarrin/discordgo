@@ -17,7 +17,7 @@ import (
 // A Message stores all data related to a specific Discord message.
 type Message struct {
 	ID              string        `json:"id"`
-	Author          User          `json:"author"`
+	Author          *User         `json:"author"`
 	Content         string        `json:"content"`
 	Attachments     []*Attachment `json:"attachments"`
 	Tts             bool          `json:"tts"`
