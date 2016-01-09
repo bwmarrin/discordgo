@@ -81,24 +81,37 @@ func TestNew(t *testing.T) {
 // a websocket connection to Discord.
 func TestNewUserPass(t *testing.T) {
 
-	if isConnected() {
-		t.Skip("Skipping New(username,password), already connected.")
-	}
-
 	if envUsername == "" || envPassword == "" {
 		t.Skip("Skipping New(username,password), DG_USERNAME or DG_PASSWORD not set")
 		return
 	}
+
+	d, err := New(envUsername, envPassword)
+	if err != nil {
+		t.Fatalf("New(user,pass) returned error: %+v", err)
+	}
+
+	if d == nil {
+		t.Fatal("New(user,pass), d is nil, should be Session{}")
+	}
+
+	if d.Token == "" {
+		t.Fatal("New(user,pass), d.Token is empty, should be a valid Token.")
+	}
+
+	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
+		t.Fatal("New(user,pass), d.DataReady is false after 10 seconds.  Should be true.")
+	}
+
+	t.Log("Successfully connected to Discord via New(user,pass).")
+	dg = d
+
 	// Not testing yet.
 }
 
 // TestNewToken tests the New() function with a Token.  This should return
 // the same as the TestNewUserPass function.
 func TestNewToken(t *testing.T) {
-
-	if isConnected() {
-		t.Skip("Skipping New(token), already connected.")
-	}
 
 	if envToken == "" {
 		t.Skip("Skipping New(token), DG_TOKEN not set")
@@ -121,7 +134,7 @@ func TestNewToken(t *testing.T) {
 		t.Fatal("New(envToken), d.DataReady is false after 10 seconds.  Should be true.")
 	}
 
-	t.Log("Successfully connected to Discord.")
+	t.Log("Successfully connected to Discord via New(token).")
 	dg = d
 
 }
