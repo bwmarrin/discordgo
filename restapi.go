@@ -110,10 +110,10 @@ func (s *Session) Login(email string, password string) (token string, err error)
 	response, err := s.Request("POST", LOGIN, data)
 
 	temp := struct {
-		token string
+		Token string `json:"token"`
 	}{}
 	err = json.Unmarshal(response, &temp)
-	token = temp.token
+	token = temp.Token
 	return
 }
 
@@ -129,10 +129,10 @@ func (s *Session) Register(username string) (token string, err error) {
 	response, err := s.Request("POST", REGISTER, data)
 
 	temp := struct {
-		token string
+		Token string `json:"token"`
 	}{}
 	err = json.Unmarshal(response, &temp)
-	token = temp.token
+	token = temp.Token
 	return
 }
 
