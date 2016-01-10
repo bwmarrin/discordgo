@@ -30,9 +30,12 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 		fmt.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
 	}
 
-	body, err := json.Marshal(data)
-	if err != nil {
-		return
+	var body []byte
+	if data != nil {
+		body, err = json.Marshal(data)
+		if err != nil {
+			return
+		}
 	}
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(body))
@@ -59,6 +62,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
@@ -67,7 +71,6 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	if err != nil {
 		return
 	}
-	resp.Body.Close()
 
 	if s.Debug {
 
@@ -88,8 +91,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	// TODO check for 429 response, rate-limit when we get one.
 
 	default: // Error condition
-		err = fmt.Errorf("HTTP %d", resp.StatusCode)
-		return
+		err = fmt.Errorf("HTTP %s, %s", resp.Status, response)
 	}
 
 	return
