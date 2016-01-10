@@ -108,6 +108,9 @@ func (s *Session) Login(email string, password string) (token string, err error)
 	}{email, password}
 
 	response, err := s.Request("POST", LOGIN, data)
+	if err != nil {
+		return response, err
+	}
 
 	temp := struct {
 		Token string `json:"token"`
