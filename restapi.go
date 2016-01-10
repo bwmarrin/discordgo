@@ -109,7 +109,7 @@ func (s *Session) Login(email string, password string) (token string, err error)
 
 	response, err := s.Request("POST", LOGIN, data)
 	if err != nil {
-		return response, err
+		return "", err
 	}
 
 	temp := struct {
