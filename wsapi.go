@@ -553,35 +553,53 @@ type voiceChannelJoinOp struct {
 	Data voiceChannelJoinData `json:"d"`
 }
 
-// VoiceChannelJoin joins the authenticated session user to
-// a voice channel.  All the voice magic starts with this.
-func (s *Session) VoiceChannelJoin(guildID, channelID string) (err error) {
+// ChannelVoiceJoin joins the session user to a voice channel. After calling
+// this func please monitor the Session.Voice.Ready bool to determine when
+// it is ready and able to send/receive audio, that should happen quickly.
+//
+//    gID   : Guild ID of the channel to join.
+//    cID   : Channel ID of the channel to join.
+//    mute  : If true, you will be set to muted upon joining.
+//    deaf  : If true, you will be set to deafened upon joining.
+func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error) {
 
 	if s.wsConn == nil {
-		fmt.Println("error: no websocket connection exists.")
-		return // TODO return error
+		return fmt.Errorf("no websocket connection exists.")
 	}
 
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{guildID, channelID, false, false}}
+	// Create new voice{} struct if one does not exist.
+	if s.Voice == nil {
+		s.Voice = &voice{}
+	}
+	// TODO : Determine how to properly change channels and change guild
+	// and channel when you are already connected to an existing channel.
+
+	// Send the request to Discord that we want to join the voice channel
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{gID, cID, mute, deaf}}
 	err = s.wsConn.WriteJSON(data)
 	if err != nil {
 		return
 	}
 
-	// Probably will be removed later.
-	s.VGuildID = guildID
-	s.VChannelID = channelID
+	// Store gID and cID for later use
+	s.Voice.guildID = gID
+	s.Voice.channelID = cID
 
+	// NOTE: This could remain open and monitor for the followup
+	// websocket events and then the voice ws/udp
+	// connection then if that fails, return with an error
+	// but doing so would add a lot of delay to the response..
 	return
 }
 
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
-// for the authenticated session user.  This block is experimental
-// code and will be chaned in the future.
+// for the session user.
 func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 
 	// Need to have this happen at login and store it in the Session
+	// TODO : This should be done upon connecting to Discord, or
+	// be moved to a small helper function
 	self, err := s.User("@me") // TODO: move to Login/New
 	if err != nil {
 		fmt.Println(err)
@@ -590,25 +608,41 @@ func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 
 	// This event comes for all users, if it's not for the session
 	// user just ignore it.
+	// TODO Move this IF to the event() func
 	if st.UserID != self.ID {
 		return
 	}
 
-	// Store the SessionID. Used later.
-	s.VSessionID = st.SessionID
+	// This shouldn't ever be the case, I don't think.
+	if s.Voice == nil {
+		s.Voice = &voice{}
+	}
+
+	// Store the SessionID for later use.
+	s.Voice.userID = self.ID // TODO: Review
+	s.Voice.sessionID = st.SessionID
 }
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
-// This will later be exposed but is only for experimental use now.
+// This event tells us the information needed to open a voice websocket
+// connection and should happen after the VOICE_STATE event.
 func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 
-	// Store all the values.  They are used later.
-	// GuildID is probably not needed and may be dropped.
-	s.VToken = st.Token
-	s.VEndpoint = st.Endpoint
-	s.VGuildID = st.GuildID
+	// This shouldn't ever be the case, I don't think.
+	if s.Voice == nil {
+		s.Voice = &voice{}
+	}
+
+	// Store values for later use
+	s.Voice.token = st.Token
+	s.Voice.endpoint = st.Endpoint
+	s.Voice.guildID = st.GuildID
 
 	// We now have enough information to open a voice websocket conenction
 	// so, that's what the next call does.
-	s.VoiceOpenWS()
+	err := s.Voice.Open()
+	if err != nil {
+		fmt.Println("onVoiceServerUpdate Voice.Open error: ", err)
+		// TODO better logging
+	}
 }

@@ -24,34 +24,32 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// ------------------------------------------------------------------------------------------------
+// Code related to both Voice Websocket and UDP connections.
+// ------------------------------------------------------------------------------------------------
+
 // A Voice struct holds all data and functions related to Discord Voice support.
-// NOTE: This is not used right at this moment, but it will be used soon.
 type voice struct {
-	Ready bool
-	WS    *voiceWS
-	UDP   *voiceUDP
+	sync.Mutex
+	Ready   bool
+	Debug   bool
+	Chan    chan struct{}
+	UDPConn *net.UDPConn // exported for dgvoice, may change.
 
-	SessionID string
-	Token     string
-	Endpoint  string
-	GuildID   string
-	ChannelID string
-	OP2       *voiceOP2
+	wsConn *websocket.Conn
+
+	sessionID string
+	token     string
+	endpoint  string
+	guildID   string
+	channelID string
+	userID    string
+	OP2       *voiceOP2 // exported for dgvoice, may change.
 }
 
-type voiceWS struct {
-	Ready bool
-	Chan  chan struct{}
-	Lock  sync.Mutex
-	Conn  *websocket.Conn
-}
-
-type voiceUDP struct {
-	Ready bool
-	Chan  chan struct{}
-	Lock  sync.Mutex
-	Conn  *net.UDPConn
-}
+// ------------------------------------------------------------------------------------------------
+// Code related to the Voice websocket connection
+// ------------------------------------------------------------------------------------------------
 
 // A voiceOP2 stores the data for voice operation 2 websocket events
 // which is sort of like the voice READY packet
@@ -74,93 +72,106 @@ type voiceHandshakeOp struct {
 	Data voiceHandshakeData `json:"d"`
 }
 
-// VoiceOpenWS opens a voice websocket connection.  This should be called
+// Open opens a voice connection.  This should be called
 // after VoiceChannelJoin is used and the data VOICE websocket events
 // are captured.
-func (s *Session) VoiceOpenWS() {
+func (v *voice) Open() (err error) {
 
-	// Don't open a socket if one is already open
-	if s.VwsConn != nil {
+	// TODO: How do we handle changing channels?
+	// Don't open a websocket if one is already open
+	if v.wsConn != nil {
 		return
 	}
 
-	var self User
-	var err error
-
-	self, err = s.User("@me") // TODO: Move to @ login and store in session
-
 	// Connect to Voice Websocket
-	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(s.VEndpoint, ":80"))
-	s.VwsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
+	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
+	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
 	if err != nil {
 		fmt.Println("VOICE cannot open websocket:", err)
+		return
 	}
 
-	json := voiceHandshakeOp{0, voiceHandshakeData{s.VGuildID, self.ID, s.VSessionID, s.VToken}}
+	data := voiceHandshakeOp{0, voiceHandshakeData{v.guildID, v.userID, v.sessionID, v.token}}
 
-	err = s.VwsConn.WriteJSON(json)
+	err = v.wsConn.WriteJSON(data)
 	if err != nil {
 		fmt.Println("VOICE ERROR sending init packet:", err)
+		return
 	}
 
 	// Start a listening for voice websocket events
-	go s.VoiceListen()
+	// TODO add a check here to make sure Listen worked by monitoring
+	// a chan or bool?
+	//	go vws.Listen()
+	go v.wsListen()
+	return
 }
 
-// Close closes the connection to the voice websocket.
-func (s *Session) VoiceCloseWS() {
-	s.VwsConn.Close()
+// Close closes the voice connection
+func (v *voice) Close() {
+
+	if v.UDPConn != nil {
+		v.UDPConn.Close()
+	}
+
+	if v.wsConn != nil {
+		v.wsConn.Close()
+	}
 }
 
-// VoiceListen listens on the voice websocket for messages and passes them
-// to the voice event handler.
-func (s *Session) VoiceListen() (err error) {
+// wsListen listens on the voice websocket for messages and passes them
+// to the voice event handler.  This is automaticly called by the WS.Open
+// func when needed.
+func (v *voice) wsListen() {
 
 	for {
-		messageType, message, err := s.VwsConn.ReadMessage()
+		messageType, message, err := v.wsConn.ReadMessage()
 		if err != nil {
+			// TODO: Handle this problem better.
+			// TODO: needs proper logging
 			fmt.Println("Voice Listen Error:", err)
 			break
 		}
 
 		// Pass received message to voice event handler
-		go s.VoiceEvent(messageType, message)
+		go v.wsEvent(messageType, message)
 	}
 
 	return
 }
 
-// VoiceEvent handles any messages received on the voice websocket
-func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
+// wsEvent handles any voice websocket events. This is only called by the
+// wsListen() function.
+func (v *voice) wsEvent(messageType int, message []byte) {
 
-	if s.Debug {
-		fmt.Println("VOICE EVENT:", messageType)
+	if v.Debug {
+		fmt.Println("wsEvent received: ", messageType)
 		printJSON(message)
 	}
 
 	var e Event
 	if err := json.Unmarshal(message, &e); err != nil {
-		return err
+		fmt.Println("wsEvent Unmarshall error: ", err)
+		return
 	}
 
 	switch e.Operation {
 
-	case 2: // READY packet
-		var st voiceOP2
-		if err := json.Unmarshal(e.RawData, &st); err != nil {
-			fmt.Println(e.Type, err)
-			printJSON(e.RawData) // TODO: Better error logginEventg
-			return err
+	case 2: // READY
+
+		v.OP2 = &voiceOP2{}
+		if err := json.Unmarshal(e.RawData, v.OP2); err != nil {
+			fmt.Println("voiceWS.onEvent OP2 Unmarshall error: ", err)
+			printJSON(e.RawData) // TODO: Better error logging
+			return
 		}
 
 		// Start the voice websocket heartbeat to keep the connection alive
-		go s.VoiceHeartbeat(st.HeartbeatInterval)
-
-		// Store all event data into the session
-		s.Vop2 = st
+		go v.wsHeartbeat(v.OP2.HeartbeatInterval)
+		// TODO monitor a chan/bool to verify this was successful
 
 		// We now have enough data to start the UDP connection
-		s.VoiceOpenUDP()
+		v.udpOpen()
 
 		return
 	case 3: // HEARTBEAT response
@@ -175,6 +186,62 @@ func (s *Session) VoiceEvent(messageType int, message []byte) (err error) {
 
 	return
 }
+
+type voiceHeartbeatOp struct {
+	Op   int `json:"op"` // Always 3
+	Data int `json:"d"`
+}
+
+// wsHeartbeat sends regular heartbeats to voice Discord so it knows the client
+// is still connected.  If you do not send these heartbeats Discord will
+// disconnect the websocket connection after a few seconds.
+func (v *voice) wsHeartbeat(i time.Duration) {
+
+	ticker := time.NewTicker(i * time.Millisecond)
+	for {
+		err := v.wsConn.WriteJSON(voiceHeartbeatOp{3, int(time.Now().Unix())})
+		if err != nil {
+			v.Ready = false
+			fmt.Println("wsHeartbeat send error: ", err)
+			return // TODO better logging
+		}
+		<-ticker.C
+	}
+}
+
+type voiceSpeakingData struct {
+	Speaking bool `json:"speaking"`
+	Delay    int  `json:"delay"`
+}
+
+type voiceSpeakingOp struct {
+	Op   int               `json:"op"` // Always 5
+	Data voiceSpeakingData `json:"d"`
+}
+
+// Speaking sends a speaking notification to Discord over the voice websocket.
+// This must be sent as true prior to sending audio and should be set to false
+// once finished sending audio.
+//  b  : Send true if speaking, false if not.
+func (v *voice) Speaking(b bool) (err error) {
+
+	if v.wsConn == nil {
+		return fmt.Errorf("No Voice websocket.")
+	}
+
+	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
+	err = v.wsConn.WriteJSON(data)
+	if err != nil {
+		fmt.Println("Speaking() write json error:", err)
+		return
+	}
+
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
+// Code related to the Voice UDP connection
+// ------------------------------------------------------------------------------------------------
 
 type voiceUDPData struct {
 	Address string `json:"address"` // Public IP of machine running this code
@@ -192,34 +259,39 @@ type voiceUDPOp struct {
 	Data voiceUDPD `json:"d"`
 }
 
-// VoiceOpenUDP opens a UDP connect to the voice server and completes the
+// udpOpen opens a UDP connect to the voice server and completes the
 // initial required handshake.  This connect is left open in the session
-// and can be used to send or receive audio.
-func (s *Session) VoiceOpenUDP() {
+// and can be used to send or receive audio.  This should only be called
+// from voice.wsEvent OP2
+func (v *voice) udpOpen() (err error) {
 
-	udpHost := fmt.Sprintf("%s:%d", strings.TrimSuffix(s.VEndpoint, ":80"), s.Vop2.Port)
-	serverAddr, err := net.ResolveUDPAddr("udp", udpHost)
+	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.OP2.Port)
+	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("udpOpen() resolve addr error: ", err)
+		// TODO better logging
+		return
 	}
 
-	s.UDPConn, err = net.DialUDP("udp", nil, serverAddr)
+	v.UDPConn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("udpOpen() dial udp error: ", err)
+		// TODO better logging
+		return
 	}
 
 	// Create a 70 byte array and put the SSRC code from the Op 2 Voice event
 	// into it.  Then send that over the UDP connection to Discord
 	sb := make([]byte, 70)
-	binary.BigEndian.PutUint32(sb, s.Vop2.SSRC)
-	s.UDPConn.Write(sb)
+	binary.BigEndian.PutUint32(sb, v.OP2.SSRC)
+	v.UDPConn.Write(sb)
 
 	// Create a 70 byte array and listen for the initial handshake response
 	// from Discord.  Once we get it parse the IP and PORT information out
 	// of the response.  This should be our public IP and PORT as Discord
 	// saw us.
 	rb := make([]byte, 70)
-	rlen, _, err := s.UDPConn.ReadFromUDP(rb)
+	rlen, _, err := v.UDPConn.ReadFromUDP(rb)
 	if rlen < 70 {
 		fmt.Println("Voice RLEN should be 70 but isn't")
 	}
@@ -239,126 +311,14 @@ func (s *Session) VoiceOpenUDP() {
 
 	// Take the parsed data from above and send it back to Discord
 	// to finalize the UDP handshake.
-	jsondata := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "plain"}}}
+	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "plain"}}}
 
-	err = s.VwsConn.WriteJSON(jsondata)
+	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-	s.UDPReady = true
-}
-
-// VoiceCloseUDP closes the voice UDP connection.
-func (s *Session) VoiceCloseUDP() {
-	s.UDPConn.Close()
-}
-
-type voiceSpeakingData struct {
-	Speaking bool `json:"speaking"`
-	Delay    int  `json:"delay"`
-}
-
-type voiceSpeakingOp struct {
-	Op   int               `json:"op"` // Always 5
-	Data voiceSpeakingData `json:"d"`
-}
-
-func (s *Session) VoiceSpeaking() {
-
-	if s.VwsConn == nil {
-		// TODO return an error
-		fmt.Println("No Voice websocket.")
+		fmt.Println("udpOpen write json error:", err)
 		return
 	}
 
-	json := voiceSpeakingOp{5, voiceSpeakingData{true, 0}}
-	err := s.VwsConn.WriteJSON(json)
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-}
-
-// VoiceListenUDP is test code to listen for UDP packets
-func (s *Session) VoiceListenUDP() {
-
-	// start the udp keep alive too.  Otherwise listening doesn't get much.
-	// THIS DOES NOT WORK YET
-	// go s.VoiceUDPKeepalive(s.Vop2.HeartbeatInterval) // lets try the ws timer
-
-	for {
-		b := make([]byte, 1024) //TODO DO NOT PUT MAKE INSIDE LOOP
-		rlen, _, err := s.UDPConn.ReadFromUDP(b)
-		if err != nil {
-			fmt.Println("Error reading from UDP:", err)
-			//			return
-		}
-
-		if rlen < 1 {
-			fmt.Println("Empty UDP packet received")
-			continue
-			// empty packet?
-		}
-		fmt.Println("READ FROM UDP: ", b)
-	}
-
-}
-
-// VoiceUDPKeepalive sends a packet to keep the UDP connection forwarding
-// alive for NATed clients.  Without this no audio can be received
-// after short periods of silence.
-// Not sure how often this is supposed to be sent or even what payload
-// I am suppose to be sending.  So this is very.. unfinished :)
-func (s *Session) VoiceUDPKeepalive(i time.Duration) {
-
-	// NONE OF THIS WORKS. SO DON'T USE IT.
-	//
-	// testing with the above 70 byte SSRC packet.
-	//
-	// Create a 70 byte array and put the SSRC code from the Op 2 Voice event
-	// into it.  Then send that over the UDP connection to Discord
-
-	ticker := time.NewTicker(i * time.Millisecond)
-	for _ = range ticker.C {
-		sb := make([]byte, 8)
-		sb[0] = 0x80
-		sb[1] = 0xc9
-		sb[2] = 0x00
-		sb[3] = 0x01
-
-		ssrcBE := make([]byte, 4)
-		binary.BigEndian.PutUint32(ssrcBE, s.Vop2.SSRC)
-
-		sb[4] = ssrcBE[0]
-		sb[5] = ssrcBE[1]
-		sb[6] = ssrcBE[2]
-		sb[7] = ssrcBE[3]
-
-		s.UDPConn.Write(ssrcBE)
-	}
-}
-
-type voiceHeartbeatOp struct {
-	Op   int `json:"op"` // Always 3
-	Data int `json:"d"`
-}
-
-// VoiceHeartbeat sends regular heartbeats to voice Discord so it knows the client
-// is still connected.  If you do not send these heartbeats Discord will
-// disconnect the websocket connection after a few seconds.
-func (s *Session) VoiceHeartbeat(i time.Duration) {
-
-	ticker := time.NewTicker(i * time.Millisecond)
-	for {
-		err := s.VwsConn.WriteJSON(voiceHeartbeatOp{3, int(time.Now().Unix())})
-		if err != nil {
-			s.VoiceReady = false
-			fmt.Println(err)
-			return // TODO LOG ERROR
-		}
-
-		s.VoiceReady = true
-		<-ticker.C
-	}
+	v.Ready = true
+	return
 }

@@ -13,7 +13,6 @@ package discordgo
 
 import (
 	"encoding/json"
-	"net"
 	"sync"
 	"time"
 
@@ -75,15 +74,7 @@ type Session struct {
 	// Everything below here is used for Voice testing.
 	// This stuff is almost guarenteed to change a lot
 	// and is even a bit hackish right now.
-	Voice      *voice
-	VwsConn    *websocket.Conn // new for voice
-	VSessionID string
-	VToken     string
-	VEndpoint  string
-	VGuildID   string
-	VChannelID string
-	Vop2       voiceOP2
-	UDPConn    *net.UDPConn
+	Voice *voice // Stores all details related to voice connections
 
 	// Managed state object, updated with events.
 	State        *State
