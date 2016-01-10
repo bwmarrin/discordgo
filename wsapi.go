@@ -24,6 +24,9 @@ func (s *Session) Open() (err error) {
 
 	// Get the gateway to use for the Websocket connection
 	g, err := s.Gateway()
+	if err != nil {
+		return
+	}
 
 	// TODO: See if there's a use for the http response.
 	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
