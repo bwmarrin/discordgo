@@ -76,6 +76,39 @@ func TestNew(t *testing.T) {
 	}
 }
 
+// TestInvalidToken tests the New() function with an invalid token
+func TestInvalidToken(t *testing.T) {
+
+	_, err := New("asjkldhflkjasdh")
+	if err == nil {
+		t.Errorf("New(InvalidToken) returned nil error.")
+	}
+
+}
+
+// TestInvalidUserPass tests the New() function with an invalid Email and Pass
+func TestInvalidEmailPass(t *testing.T) {
+
+	_, err := New("invalidemail", "invalidpassword")
+	if err == nil {
+		t.Errorf("New(InvalidEmail, InvalidPass) returned nil error.")
+	}
+
+}
+
+// TestInvalidPass tests the New() function with an invalid Password
+func TestInvalidPass(t *testing.T) {
+
+	if envUsername == "" {
+		t.Skip("Skipping New(username,InvalidPass), DG_USERNAME not set")
+		return
+	}
+	_, err := New(envUsername, "invalidpassword")
+	if err == nil {
+		t.Errorf("New(Email, InvalidPass) returned nil error.")
+	}
+}
+
 // TestNewUserPass tests the New() function with a username and password.
 // This should return a valid Session{}, a valid Session.Token, and open
 // a websocket connection to Discord.
