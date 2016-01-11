@@ -98,7 +98,7 @@ func TestInvalidEmailPass(t *testing.T) {
 func TestInvalidPass(t *testing.T) {
 
 	if envEmail == "" {
-		t.Skip("Skipping New(username,InvalidPass), DG_USERNAME not set")
+		t.Skip("Skipping New(username,InvalidPass), DG_EMAIL not set")
 		return
 	}
 	_, err := New(envEmail, "invalidpassword")
@@ -113,7 +113,7 @@ func TestInvalidPass(t *testing.T) {
 func TestNewUserPass(t *testing.T) {
 
 	if envEmail == "" || envPassword == "" {
-		t.Skip("Skipping New(username,password), DG_USERNAME or DG_PASSWORD not set")
+		t.Skip("Skipping New(username,password), DG_EMAIL or DG_PASSWORD not set")
 		return
 	}
 
@@ -142,7 +142,9 @@ func TestNewUserPass(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-	dg.Close()
+	if dg != nil {
+		dg.Close()
+	}
 }
 
 // TestNewToken tests the New() function with a Token.  This should return
