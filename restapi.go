@@ -674,9 +674,19 @@ func (s *Session) VoiceICE() (st *VoiceICE, err error) {
 func (s *Session) Gateway() (gateway string, err error) {
 
 	response, err := s.Request("GET", GATEWAY, nil)
+	if err != nil {
+		return
+	}
 
-	var temp map[string]interface{}
+	temp := struct {
+		URL string `json:"url"`
+	}{}
+
 	err = json.Unmarshal(response, &temp)
-	gateway = temp["url"].(string)
+	if err != nil {
+		return
+	}
+
+	gateway = temp.URL
 	return
 }

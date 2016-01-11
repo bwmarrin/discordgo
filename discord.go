@@ -103,12 +103,14 @@ func New(args ...interface{}) (s *Session, err error) {
 	err = s.Open()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	// Do websocket handshake.
 	err = s.Handshake()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	// Listen for events.
