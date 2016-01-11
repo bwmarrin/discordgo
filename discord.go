@@ -125,12 +125,24 @@ func (s *Session) Close() {
 
 	s.DataReady = false
 
-	if s.listenChan != nil {
-		close(s.listenChan)
+	if s.heartbeatChan != nil {
+		select {
+		case <-s.heartbeatChan:
+			break
+		default:
+			close(s.heartbeatChan)
+		}
+		s.heartbeatChan = nil
 	}
 
-	if s.heartbeatChan != nil {
-		close(s.heartbeatChan)
+	if s.listenChan != nil {
+		select {
+		case <-s.listenChan:
+			break
+		default:
+			close(s.listenChan)
+		}
+		s.listenChan = nil
 	}
 
 	if s.wsConn != nil {
