@@ -29,7 +29,7 @@ import (
 // ------------------------------------------------------------------------------------------------
 
 // A Voice struct holds all data and functions related to Discord Voice support.
-type voice struct {
+type Voice struct {
 	sync.Mutex
 	Ready   bool
 	Debug   bool
@@ -75,7 +75,7 @@ type voiceHandshakeOp struct {
 // Open opens a voice connection.  This should be called
 // after VoiceChannelJoin is used and the data VOICE websocket events
 // are captured.
-func (v *voice) Open() (err error) {
+func (v *Voice) Open() (err error) {
 
 	// TODO: How do we handle changing channels?
 	// Don't open a websocket if one is already open
@@ -108,7 +108,7 @@ func (v *voice) Open() (err error) {
 }
 
 // Close closes the voice connection
-func (v *voice) Close() {
+func (v *Voice) Close() {
 
 	if v.UDPConn != nil {
 		v.UDPConn.Close()
@@ -122,7 +122,7 @@ func (v *voice) Close() {
 // wsListen listens on the voice websocket for messages and passes them
 // to the voice event handler.  This is automaticly called by the WS.Open
 // func when needed.
-func (v *voice) wsListen() {
+func (v *Voice) wsListen() {
 
 	for {
 		messageType, message, err := v.wsConn.ReadMessage()
@@ -142,7 +142,7 @@ func (v *voice) wsListen() {
 
 // wsEvent handles any voice websocket events. This is only called by the
 // wsListen() function.
-func (v *voice) wsEvent(messageType int, message []byte) {
+func (v *Voice) wsEvent(messageType int, message []byte) {
 
 	if v.Debug {
 		fmt.Println("wsEvent received: ", messageType)
@@ -195,7 +195,7 @@ type voiceHeartbeatOp struct {
 // wsHeartbeat sends regular heartbeats to voice Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
-func (v *voice) wsHeartbeat(i time.Duration) {
+func (v *Voice) wsHeartbeat(i time.Duration) {
 
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
@@ -223,7 +223,7 @@ type voiceSpeakingOp struct {
 // This must be sent as true prior to sending audio and should be set to false
 // once finished sending audio.
 //  b  : Send true if speaking, false if not.
-func (v *voice) Speaking(b bool) (err error) {
+func (v *Voice) Speaking(b bool) (err error) {
 
 	if v.wsConn == nil {
 		return fmt.Errorf("No Voice websocket.")
@@ -263,7 +263,7 @@ type voiceUDPOp struct {
 // initial required handshake.  This connect is left open in the session
 // and can be used to send or receive audio.  This should only be called
 // from voice.wsEvent OP2
-func (v *voice) udpOpen() (err error) {
+func (v *Voice) udpOpen() (err error) {
 
 	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.OP2.Port)
 	addr, err := net.ResolveUDPAddr("udp", host)

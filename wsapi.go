@@ -532,8 +532,9 @@ func (s *Session) Heartbeat(i time.Duration) {
 	}
 }
 
-// Everything below is experimental Voice support code
-// all of it will get changed and moved around.
+// ------------------------------------------------------------------------------------------------
+// Code related to voice connections that initiate over the data websocket
+// ------------------------------------------------------------------------------------------------
 
 // A VoiceServerUpdate stores the data received during the Voice Server Update
 // data websocket event. This data is used during the initial Voice Channel
@@ -571,8 +572,10 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 	}
 
 	// Create new voice{} struct if one does not exist.
+	// If you create this prior to calling this func then you can manually
+	// set some variables if needed, such as to enable debugging.
 	if s.Voice == nil {
-		s.Voice = &voice{}
+		s.Voice = &Voice{}
 	}
 	// TODO : Determine how to properly change channels and change guild
 	// and channel when you are already connected to an existing channel.
@@ -588,10 +591,6 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 	s.Voice.guildID = gID
 	s.Voice.channelID = cID
 
-	// NOTE: This could remain open and monitor for the followup
-	// websocket events and then the voice ws/udp
-	// connection then if that fails, return with an error
-	// but doing so would add a lot of delay to the response..
 	return
 }
 
@@ -599,6 +598,12 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
 func (s *Session) onVoiceStateUpdate(st *VoiceState) {
+
+	// If s.Voice is nil, we must not have even requested to join
+	// a voice channel yet, so this shouldn't be processed.
+	if s.Voice == nil {
+		return
+	}
 
 	// Need to have this happen at login and store it in the Session
 	// TODO : This should be done upon connecting to Discord, or
@@ -616,11 +621,6 @@ func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 		return
 	}
 
-	// This shouldn't ever be the case, I don't think.
-	if s.Voice == nil {
-		s.Voice = &voice{}
-	}
-
 	// Store the SessionID for later use.
 	s.Voice.userID = self.ID // TODO: Review
 	s.Voice.sessionID = st.SessionID
@@ -633,7 +633,7 @@ func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 
 	// This shouldn't ever be the case, I don't think.
 	if s.Voice == nil {
-		s.Voice = &voice{}
+		return
 	}
 
 	// Store values for later use
