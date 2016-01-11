@@ -1,12 +1,10 @@
-package discordgo_test
+package discordgo
 
 import (
 	"os"
 	"runtime"
 	"testing"
 	"time"
-
-	. "github.com/bwmarrin/discordgo"
 )
 
 //////////////////////////////////////////////////////////////////////////////
