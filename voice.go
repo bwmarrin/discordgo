@@ -5,10 +5,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// This file contains experimental functions for interacting with the Discord
-// Voice websocket and UDP connections.
-//
-// EVERYTHING in this file is very experimental and will change.
+// This file contains code related to Discord voice suppport
 
 package discordgo
 
@@ -30,11 +27,12 @@ import (
 
 // A Voice struct holds all data and functions related to Discord Voice support.
 type Voice struct {
-	sync.Mutex
-	Ready   bool
-	Debug   bool
-	Chan    chan struct{}
-	UDPConn *net.UDPConn // exported for dgvoice, may change.
+	sync.Mutex               // future use
+	Ready      bool          // If true, voice is ready to send/receive audio
+	Debug      bool          // If true, print extra logging
+	Chan       chan struct{} // future use
+	UDPConn    *net.UDPConn  // exported for dgvoice, may change.
+	OP2        *voiceOP2     // exported for dgvoice, may change.
 
 	wsConn *websocket.Conn
 
@@ -44,14 +42,13 @@ type Voice struct {
 	guildID   string
 	channelID string
 	userID    string
-	OP2       *voiceOP2 // exported for dgvoice, may change.
 }
 
 // ------------------------------------------------------------------------------------------------
 // Code related to the Voice websocket connection
 // ------------------------------------------------------------------------------------------------
 
-// A voiceOP2 stores the data for voice operation 2 websocket events
+// A voiceOP2 stores the data for the voice operation 2 websocket event
 // which is sort of like the voice READY packet
 type voiceOP2 struct {
 	SSRC              uint32        `json:"ssrc"`
@@ -78,6 +75,7 @@ type voiceHandshakeOp struct {
 func (v *Voice) Open() (err error) {
 
 	// TODO: How do we handle changing channels?
+
 	// Don't open a websocket if one is already open
 	if v.wsConn != nil {
 		return
@@ -87,7 +85,7 @@ func (v *Voice) Open() (err error) {
 	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
 	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
 	if err != nil {
-		fmt.Println("VOICE cannot open websocket:", err)
+		fmt.Println("VOICE error opening websocket:", err)
 		return
 	}
 
@@ -95,15 +93,15 @@ func (v *Voice) Open() (err error) {
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("VOICE ERROR sending init packet:", err)
+		fmt.Println("VOICE error sending init packet:", err)
 		return
 	}
 
 	// Start a listening for voice websocket events
 	// TODO add a check here to make sure Listen worked by monitoring
 	// a chan or bool?
-	//	go vws.Listen()
 	go v.wsListen()
+
 	return
 }
 
@@ -120,8 +118,7 @@ func (v *Voice) Close() {
 }
 
 // wsListen listens on the voice websocket for messages and passes them
-// to the voice event handler.  This is automaticly called by the WS.Open
-// func when needed.
+// to the voice event handler.  This is automaticly called by the Open func
 func (v *Voice) wsListen() {
 
 	for {
@@ -170,15 +167,18 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 		go v.wsHeartbeat(v.OP2.HeartbeatInterval)
 		// TODO monitor a chan/bool to verify this was successful
 
-		// We now have enough data to start the UDP connection
+		// Start the UDP connection
 		v.udpOpen()
 
 		return
+
 	case 3: // HEARTBEAT response
 		// add code to use this to track latency?
 		return
+
 	case 4:
 		// TODO
+
 	default:
 		fmt.Println("UNKNOWN VOICE OP: ", e.Operation)
 		printJSON(e.RawData)
@@ -259,8 +259,8 @@ type voiceUDPOp struct {
 	Data voiceUDPD `json:"d"`
 }
 
-// udpOpen opens a UDP connect to the voice server and completes the
-// initial required handshake.  This connect is left open in the session
+// udpOpen opens a UDP connection to the voice server and completes the
+// initial required handshake.  This connection is left open in the session
 // and can be used to send or receive audio.  This should only be called
 // from voice.wsEvent OP2
 func (v *Voice) udpOpen() (err error) {
@@ -268,14 +268,14 @@ func (v *Voice) udpOpen() (err error) {
 	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.OP2.Port)
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
-		fmt.Println("udpOpen() resolve addr error: ", err)
+		fmt.Println("udpOpen resolve addr error: ", err)
 		// TODO better logging
 		return
 	}
 
 	v.UDPConn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
-		fmt.Println("udpOpen() dial udp error: ", err)
+		fmt.Println("udpOpen dial udp error: ", err)
 		// TODO better logging
 		return
 	}
@@ -284,7 +284,12 @@ func (v *Voice) udpOpen() (err error) {
 	// into it.  Then send that over the UDP connection to Discord
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, v.OP2.SSRC)
-	v.UDPConn.Write(sb)
+	_, err = v.UDPConn.Write(sb)
+	if err != nil {
+		fmt.Println("udpOpen udp write error : ", err)
+		// TODO better logging
+		return
+	}
 
 	// Create a 70 byte array and listen for the initial handshake response
 	// from Discord.  Once we get it parse the IP and PORT information out
@@ -292,6 +297,11 @@ func (v *Voice) udpOpen() (err error) {
 	// saw us.
 	rb := make([]byte, 70)
 	rlen, _, err := v.UDPConn.ReadFromUDP(rb)
+	if err != nil {
+		fmt.Println("udpOpen udp read error : ", err)
+		// TODO better logging
+		return
+	}
 	if rlen < 70 {
 		fmt.Println("Voice RLEN should be 70 but isn't")
 	}
@@ -309,8 +319,8 @@ func (v *Voice) udpOpen() (err error) {
 	// Grab port from postion 68 and 69
 	port := binary.LittleEndian.Uint16(rb[68:70])
 
-	// Take the parsed data from above and send it back to Discord
-	// to finalize the UDP handshake.
+	// Take the data from above and send it back to Discord to finalize
+	// the UDP connection handshake.
 	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "plain"}}}
 
 	err = v.wsConn.WriteJSON(data)
