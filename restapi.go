@@ -163,6 +163,16 @@ func (s *Session) Register(username string) (token string, err error) {
 func (s *Session) Logout() (err error) {
 
 	//  _, err = s.Request("POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, s.Token))
+
+	if s.Token == "" {
+		return
+	}
+
+	data := struct {
+		Token string `json:"token"`
+	}{s.Token}
+
+	_, err = s.Request("POST", LOGOUT, data)
 	return
 }
 
