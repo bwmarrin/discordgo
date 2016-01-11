@@ -66,6 +66,7 @@ var (
 	GUILD_EMBED        = func(gID string) string { return GUILDS + gID + "/embed" }
 	GUILD_PRUNE        = func(gID string) string { return GUILDS + gID + "/prune" }
 	GUILD_ICON         = func(gID, hash string) string { return GUILDS + gID + "/icons/" + hash + ".jpg" }
+	GUILD_SPLASH       = func(gID, hash string) string { return GUILDS + gID + "/splashes/" + hash + ".jpg" }
 
 	CHANNEL             = func(cID string) string { return CHANNELS + cID }
 	CHANNEL_PERMISSIONS = func(cID string) string { return CHANNELS + cID + "/permissions" }
