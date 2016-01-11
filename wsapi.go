@@ -114,7 +114,33 @@ func (s *Session) Listen() (err error) {
 	s.listenChan = make(chan struct{})
 	s.listenLock.Unlock()
 
-	defer close(s.heartbeatChan)
+	// this is ugly.
+	defer func() {
+		if s.listenChan == nil {
+			return
+		}
+		select {
+		case <-s.listenChan:
+			break
+		default:
+			close(s.listenChan)
+		}
+		s.listenChan = nil
+	}()
+
+	// this is ugly.
+	defer func() {
+		if s.heartbeatChan == nil {
+			return
+		}
+		select {
+		case <-s.heartbeatChan:
+			break
+		default:
+			close(s.heartbeatChan)
+		}
+		s.listenChan = nil
+	}()
 
 	for {
 		messageType, message, err := s.wsConn.ReadMessage()
@@ -506,7 +532,19 @@ func (s *Session) Heartbeat(i time.Duration) {
 	s.heartbeatChan = make(chan struct{})
 	s.heartbeatLock.Unlock()
 
-	defer close(s.heartbeatChan)
+	// this is ugly.
+	defer func() {
+		if s.heartbeatChan == nil {
+			return
+		}
+		select {
+		case <-s.heartbeatChan:
+			break
+		default:
+			close(s.heartbeatChan)
+		}
+		s.listenChan = nil
+	}()
 
 	// send first heartbeat immediately because lag could put the
 	// first heartbeat outside the required heartbeat interval window
