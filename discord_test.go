@@ -13,7 +13,7 @@ var (
 	dg *Session // Stores global discordgo session
 
 	envToken    string = os.Getenv("DG_TOKEN")    // Token to use when authenticating
-	envUsername string = os.Getenv("DG_USERNAME") // Username to use when authenticating
+	envEmail    string = os.Getenv("DG_EMAIL")    // Email to use when authenticating
 	envPassword string = os.Getenv("DG_PASSWORD") // Password to use when authenticating
 	envGuild    string = os.Getenv("DG_GUILD")    // Guild ID to use for tests
 	envChannel  string = os.Getenv("DG_CHANNEL")  // Channel ID to use for tests
@@ -97,11 +97,11 @@ func TestInvalidEmailPass(t *testing.T) {
 // TestInvalidPass tests the New() function with an invalid Password
 func TestInvalidPass(t *testing.T) {
 
-	if envUsername == "" {
+	if envEmail == "" {
 		t.Skip("Skipping New(username,InvalidPass), DG_USERNAME not set")
 		return
 	}
-	_, err := New(envUsername, "invalidpassword")
+	_, err := New(envEmail, "invalidpassword")
 	if err == nil {
 		t.Errorf("New(Email, InvalidPass) returned nil error.")
 	}
@@ -112,12 +112,12 @@ func TestInvalidPass(t *testing.T) {
 // a websocket connection to Discord.
 func TestNewUserPass(t *testing.T) {
 
-	if envUsername == "" || envPassword == "" {
+	if envEmail == "" || envPassword == "" {
 		t.Skip("Skipping New(username,password), DG_USERNAME or DG_PASSWORD not set")
 		return
 	}
 
-	d, err := New(envUsername, envPassword)
+	d, err := New(envEmail, envPassword)
 	if err != nil {
 		t.Fatalf("New(user,pass) returned error: %+v", err)
 	}
