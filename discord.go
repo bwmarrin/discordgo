@@ -125,8 +125,13 @@ func (s *Session) Close() {
 
 	s.DataReady = false
 
-	close(s.listenChan)
-	close(s.heartbeatChan)
+	if s.listenChan != nil {
+		close(s.listenChan)
+	}
+
+	if s.heartbeatChan != nil {
+		close(s.heartbeatChan)
+	}
 
 	if s.wsConn != nil {
 		s.wsConn.Close()
