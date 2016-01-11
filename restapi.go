@@ -87,8 +87,20 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	case 200: // OK
 	case 204: // No Content
 
-	// TODO check for 401 response, invalidate token if we get one.
-	// TODO check for 429 response, rate-limit when we get one.
+		// TODO check for 401 response, invalidate token if we get one.
+
+	case 429: // TOO MANY REQUESTS - Rate limiting
+		// This will be changed to a more robust method later.
+		// which may be hugely different as this method could cause
+		// unending recursion
+		rl := RateLimit{}
+		err = json.Unmarshal(response, &rl)
+		if err != nil {
+			err = fmt.Errorf("Request unmarshal rate limit error : ", err)
+			return
+		}
+		time.Sleep(rl.RetryAfter)
+		response, err = s.Request(method, urlStr, data)
 
 	default: // Error condition
 		err = fmt.Errorf("HTTP %s, %s", resp.Status, response)
