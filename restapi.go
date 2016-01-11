@@ -180,8 +180,7 @@ func (s *Session) User(userID string) (st *User, err error) {
 }
 
 // UserUpdate updates a users settings.
-// userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassword string) (st *User, err error) {
+func (s *Session) UserUpdate(email, password, username, avatar, newPassword string) (st *User, err error) {
 
 	// NOTE: Avatar must be either the hash/id of existing Avatar or
 	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
@@ -196,7 +195,7 @@ func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassw
 		NewPassword string `json:"new_password,omitempty"`
 	}{email, password, username, avatar, newPassword}
 
-	body, err := s.Request("PATCH", USER(userID), data)
+	body, err := s.Request("PATCH", USER("@me"), data)
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -218,45 +217,37 @@ func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
 }
 
 // UserSettings returns the settings for a given user
-// userID    : A user ID or "@me" which is a shortcut of current user ID
-// This seems to only return a result for "@me"
 func (s *Session) UserSettings(userID string) (st *Settings, err error) {
 
-	body, err := s.Request("GET", USER_SETTINGS(userID), nil)
+	body, err := s.Request("GET", USER_SETTINGS("@me"), nil)
 	err = json.Unmarshal(body, &st)
 	return
 }
 
 // UserChannels returns an array of Channel structures for all private
-// channels for a user
-// userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserChannels(userID string) (st []*Channel, err error) {
+// channels.
+func (s *Session) UserChannels() (st []*Channel, err error) {
 
-	body, err := s.Request("GET", USER_CHANNELS(userID), nil)
+	body, err := s.Request("GET", USER_CHANNELS("@me"), nil)
 	err = json.Unmarshal(body, &st)
 	return
 }
 
 // UserChannelCreate creates a new User (Private) Channel with another User
-// userID      : A user ID or "@me" which is a shortcut of current user ID
 // recipientID : A user ID for the user to which this channel is opened with.
-func (s *Session) UserChannelCreate(userID, recipientID string) (st *Channel, err error) {
+func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
 
 	data := struct {
 		RecipientID string `json:"recipient_id"`
 	}{recipientID}
 
-	body, err := s.Request(
-		"POST",
-		USER_CHANNELS(userID),
-		data)
+	body, err := s.Request("POST", USER_CHANNELS("@me"), data)
 
 	err = json.Unmarshal(body, &st)
 	return
 }
 
-// UserGuilds returns an array of Guild structures for all guilds for a given user
-// userID    : A user ID or "@me" which is a shortcut of current user ID
+// UserGuilds returns an array of Guild structures for all guilds.
 func (s *Session) UserGuilds(userID string) (st []*Guild, err error) {
 
 	body, err := s.Request("GET", USER_GUILDS(userID), nil)
