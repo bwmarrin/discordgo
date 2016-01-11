@@ -273,6 +273,11 @@ type Ready struct {
 	PrivateChannels   []*Channel `json:"private_channels"`
 	Guilds            []*Guild   `json:"guilds"`
 }
+type RateLimit struct {
+	Bucket     string        `json:"bucket"`
+	Message    string        `json:"message"`
+	RetryAfter time.Duration `json:"retry_after"`
+}
 
 // A ReadState stores data on the read state of channels.
 type ReadState struct {
