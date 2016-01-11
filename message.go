@@ -30,7 +30,14 @@ type Message struct {
 }
 
 // An Attachment stores data for message attachments.
-type Attachment struct { //TODO figure this out
+type Attachment struct {
+	Width    int    `json:"width"`
+	URL      string `json:"url"`
+	Size     int    `json:"size"`
+	ProxyURL string `json:"proxy_url"`
+	ID       string `json:"id"`
+	Height   int    `json:"height"`
+	Filename string `json:"filename"`
 }
 
 // An Embed stores data for message embeds.
