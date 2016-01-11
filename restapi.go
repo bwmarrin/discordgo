@@ -227,7 +227,7 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 }
 
 // UserSettings returns the settings for a given user
-func (s *Session) UserSettings(userID string) (st *Settings, err error) {
+func (s *Session) UserSettings() (st *Settings, err error) {
 
 	body, err := s.Request("GET", USER_SETTINGS("@me"), nil)
 	err = json.Unmarshal(body, &st)
