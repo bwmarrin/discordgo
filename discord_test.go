@@ -136,8 +136,13 @@ func TestNewUserPass(t *testing.T) {
 
 	t.Log("Successfully connected to Discord via New(user,pass).")
 	dg = d
+	if envToken == "" {
+		envToken = dg.Token
+	}
+}
 
-	// Not testing yet.
+func TestClose(t *testing.T) {
+	dg.Close()
 }
 
 // TestNewToken tests the New() function with a Token.  This should return
