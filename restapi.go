@@ -14,6 +14,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"image"
+	_ "image/jpeg" // For JPEG decoding
+	_ "image/png"  // For PNG decoding
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -169,7 +172,7 @@ func (s *Session) Logout() (err error) {
 
 // User returns the user details of the given userID
 // userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) User(userID string) (st User, err error) {
+func (s *Session) User(userID string) (st *User, err error) {
 
 	body, err := s.Request("GET", USER(userID), nil)
 	err = json.Unmarshal(body, &st)
@@ -198,13 +201,19 @@ func (s *Session) UserUpdate(userID, email, password, username, avatar, newPassw
 	return
 }
 
-// UserAvatar returns a ?? of a users Avatar
+// UserAvatar returns an image.Image of a users Avatar
 // userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserAvatar(userID string) (st User, err error) {
-
+func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
 	u, err := s.User(userID)
-	_, err = s.Request("GET", USER_AVATAR(userID, u.Avatar), nil)
-	// TODO need to figure out how to handle returning a file
+	if err != nil {
+		return
+	}
+	body, err := s.Request("GET", USER_AVATAR(userID, u.Avatar), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	img, _, err = image.Decode(bytes.NewReader(body))
 	return
 }
 
@@ -388,7 +397,7 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 // guildID   : The ID of a Guild.
 // i         : An Invite struct with the values MaxAge, MaxUses, Temporary,
 //             and XkcdPass defined.
-func (s *Session) GuildInviteCreate(guildID string, i Invite) (st *Invite, err error) {
+func (s *Session) GuildInviteCreate(guildID string, i *Invite) (st *Invite, err error) {
 
 	data := struct {
 		MaxAge    int  `json:"max_age"`
@@ -497,13 +506,13 @@ func (s *Session) ChannelTyping(channelID string) (err error) {
 	return
 }
 
-// ChannelMessages returns an array of Message structures for messaages within
+// ChannelMessages returns an array of Message structures for messages within
 // a given channel.
 // channelID : The ID of a Channel.
 // limit     : The number messages that can be returned.
 // beforeID  : If provided all messages returned will be before given ID.
 // afterID   : If provided all messages returned will be after given ID.
-func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, afterID int) (st []Message, err error) {
+func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, afterID int) (st []*Message, err error) {
 
 	uri := CHANNEL_MESSAGES(channelID)
 
