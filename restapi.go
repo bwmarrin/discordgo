@@ -179,6 +179,22 @@ func (s *Session) User(userID string) (st *User, err error) {
 	return
 }
 
+// UserAvatar returns an image.Image of a users Avatar
+// userID    : A user ID or "@me" which is a shortcut of current user ID
+func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
+	u, err := s.User(userID)
+	if err != nil {
+		return
+	}
+	body, err := s.Request("GET", USER_AVATAR(userID, u.Avatar), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	img, _, err = image.Decode(bytes.NewReader(body))
+	return
+}
+
 // UserUpdate updates a users settings.
 func (s *Session) UserUpdate(email, password, username, avatar, newPassword string) (st *User, err error) {
 
@@ -197,22 +213,6 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 
 	body, err := s.Request("PATCH", USER("@me"), data)
 	err = json.Unmarshal(body, &st)
-	return
-}
-
-// UserAvatar returns an image.Image of a users Avatar
-// userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
-	u, err := s.User(userID)
-	if err != nil {
-		return
-	}
-	body, err := s.Request("GET", USER_AVATAR(userID, u.Avatar), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	img, _, err = image.Decode(bytes.NewReader(body))
 	return
 }
 
@@ -248,9 +248,9 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 }
 
 // UserGuilds returns an array of Guild structures for all guilds.
-func (s *Session) UserGuilds(userID string) (st []*Guild, err error) {
+func (s *Session) UserGuilds() (st []*Guild, err error) {
 
-	body, err := s.Request("GET", USER_GUILDS(userID), nil)
+	body, err := s.Request("GET", USER_GUILDS("@me"), nil)
 	err = json.Unmarshal(body, &st)
 	return
 }
