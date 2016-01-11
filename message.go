@@ -31,17 +31,40 @@ type Message struct {
 
 // An Attachment stores data for message attachments.
 type Attachment struct {
-	Width    int    `json:"width"`
-	URL      string `json:"url"`
-	Size     int    `json:"size"`
-	ProxyURL string `json:"proxy_url"`
 	ID       string `json:"id"`
+	URL      string `json:"url"`
+	ProxyURL string `json:"proxy_url"`
+	Width    int    `json:"width"`
 	Height   int    `json:"height"`
 	Filename string `json:"filename"`
+	Size     int    `json:"size"`
 }
 
 // An Embed stores data for message embeds.
-type Embed struct { // TODO figure this out
+type Embed struct {
+	URL         string `json:"url"`
+	Type        string `json:"type"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Thumbnail   *struct {
+		URL      string `json:"url"`
+		ProxyURL string `json:"proxy_url"`
+		Width    int    `json:"width"`
+		Height   int    `json:"height"`
+	} `json:"thumbnail"`
+	Provider *struct {
+		URL  string `json:"url"`
+		Name string `json:"name"`
+	} `json:"provider"`
+	Author *struct {
+		URL  string `json:"url"`
+		Name string `json:"name"`
+	} `json:"author"`
+	Video *struct {
+		URL    string `json:"url"`
+		Width  int    `json:"width"`
+		Height int    `json:"height"`
+	} `json:"video"`
 }
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
