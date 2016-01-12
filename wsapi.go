@@ -11,7 +11,6 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"fmt"
 	"runtime"
 	"time"
@@ -166,7 +165,7 @@ func (s *Session) Listen() (err error) {
 // somewhere.
 
 func unmarshalEvent(event *Event, i interface{}) (err error) {
-	if err = json.Unmarshal(event.RawData, i); err != nil {
+	if err = s.Unmarshal(event.RawData, i); err != nil {
 		fmt.Println(event.Type, err)
 		printJSON(event.RawData) // TODO: Better error loggingEvent.
 	}
@@ -187,7 +186,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	}
 
 	var e *Event
-	if err = json.Unmarshal(message, &e); err != nil {
+	if err = s.Unmarshal(message, &e); err != nil {
 		fmt.Println(err)
 		return
 	}
