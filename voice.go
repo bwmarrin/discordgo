@@ -168,7 +168,15 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 		// TODO monitor a chan/bool to verify this was successful
 
 		// Start the UDP connection
-		v.udpOpen()
+		err := v.udpOpen()
+		if err != nil {
+			fmt.Println("Error opening udp connection: ", err)
+			return
+		}
+
+		// start udpKeepAlive
+		go v.udpKeepAlive(5 * time.Second)
+		// TODO: find a way to check that it fired off okay
 
 		return
 
@@ -331,4 +339,29 @@ func (v *Voice) udpOpen() (err error) {
 
 	v.Ready = true
 	return
+}
+
+// udpKeepAlive sends a udp packet to keep the udp connection open
+// This is still a bit of a "proof of concept"
+func (v *Voice) udpKeepAlive(i time.Duration) {
+
+	var err error
+	var sequence uint64 = 0
+
+	packet := make([]byte, 8)
+
+	ticker := time.NewTicker(i)
+	for {
+		// TODO: Add a way to break from loop
+
+		binary.LittleEndian.PutUint64(packet, sequence)
+		sequence++
+
+		_, err = v.UDPConn.Write(packet)
+		if err != nil {
+			fmt.Println("udpKeepAlive udp write error : ", err)
+			return
+		}
+		<-ticker.C
+	}
 }
