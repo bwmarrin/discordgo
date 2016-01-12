@@ -187,6 +187,16 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 	case 4:
 		// TODO
 
+	case 5:
+		// SPEAKING TRUE/FALSE NOTIFICATION
+		/*
+			{
+				"user_id": "1238921738912",
+				"ssrc": 2,
+				"speaking": false
+			}
+		*/
+
 	default:
 		fmt.Println("UNKNOWN VOICE OP: ", e.Operation)
 		printJSON(e.RawData)
