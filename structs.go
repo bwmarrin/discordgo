@@ -170,6 +170,7 @@ type Guild struct {
 	OwnerID        string        `json:"owner_id"`
 	Large          bool          `json:"large"`     // ??
 	JoinedAt       string        `json:"joined_at"` // make this a timestamp
+	Splash         string        `json:"splash"`
 	Roles          []*Role       `json:"roles"`
 	Emojis         []*Emoji      `json:"emojis"`
 	Members        []*Member     `json:"members"`
@@ -269,9 +270,9 @@ type Ready struct {
 	SessionID         string        `json:"session_id"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 	User              *User         `json:"user"`
-	ReadState         []*ReadState
-	PrivateChannels   []*Channel `json:"private_channels"`
-	Guilds            []*Guild   `json:"guilds"`
+	ReadState         []*ReadState  `json:"read_state"`
+	PrivateChannels   []*Channel    `json:"private_channels"`
+	Guilds            []*Guild      `json:"guilds"`
 }
 type RateLimit struct {
 	Bucket     string        `json:"bucket"`
