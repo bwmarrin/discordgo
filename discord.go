@@ -16,7 +16,7 @@ package discordgo
 import "fmt"
 
 // Discordgo Version, follows Symantic Versioning. (http://semver.org/)
-const VERSION = "0.9.0"
+const VERSION = "0.10.0-alpha"
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
