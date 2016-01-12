@@ -321,10 +321,12 @@ func (s *Session) UserGuilds() (st []*Guild, err error) {
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
-	// Attempt to grab the guild from State first.
-	st, err = s.State.Guild(guildID)
-	if err == nil {
-		return
+	if s.StateEnabled {
+		// Attempt to grab the guild from State first.
+		st, err = s.State.Guild(guildID)
+		if err == nil {
+			return
+		}
 	}
 
 	body, err := s.Request("GET", GUILD(guildID), nil)
