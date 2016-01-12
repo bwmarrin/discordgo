@@ -164,8 +164,8 @@ func (s *Session) Listen() (err error) {
 // Not sure how needed this is and where it would be best to call it.
 // somewhere.
 
-func (s *Session) unmarshalEvent(event *Event, i interface{}) (err error) {
-	if err = s.unmarshal(event.RawData, i); err != nil {
+func unmarshalEvent(event *Event, i interface{}) (err error) {
+	if err = unmarshal(event.RawData, i); err != nil {
 		fmt.Println(event.Type, err)
 		printJSON(event.RawData) // TODO: Better error loggingEvent.
 	}
@@ -186,7 +186,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	}
 
 	var e *Event
-	if err = s.unmarshal(message, &e); err != nil {
+	if err = unmarshal(message, &e); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -195,7 +195,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 
 	case "READY":
 		var st *Ready
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.OnReady(st)
 			}
@@ -210,21 +210,21 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "VOICE_SERVER_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
 		var st *VoiceServerUpdate
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceServerUpdate(st)
 		}
 		return
 	case "VOICE_STATE_UPDATE":
 		// TEMP CODE FOR TESTING VOICE
 		var st *VoiceState
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceStateUpdate(st)
 		}
 		return
 	case "USER_UPDATE":
 		if s.OnUserUpdate != nil {
 			var st *User
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnUserUpdate(s, st)
 			}
 			return
@@ -232,7 +232,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "PRESENCE_UPDATE":
 		if s.OnPresenceUpdate != nil {
 			var st *PresenceUpdate
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnPresenceUpdate(s, st)
 			}
 			return
@@ -240,7 +240,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "TYPING_START":
 		if s.OnTypingStart != nil {
 			var st *TypingStart
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnTypingStart(s, st)
 			}
 			return
@@ -253,7 +253,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "MESSAGE_CREATE":
 		if s.OnMessageCreate != nil {
 			var st *Message
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageCreate(s, st)
 			}
 			return
@@ -261,7 +261,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "MESSAGE_UPDATE":
 		if s.OnMessageUpdate != nil {
 			var st *Message
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageUpdate(s, st)
 			}
 			return
@@ -269,7 +269,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "MESSAGE_DELETE":
 		if s.OnMessageDelete != nil {
 			var st *MessageDelete
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageDelete(s, st)
 			}
 			return
@@ -277,7 +277,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "MESSAGE_ACK":
 		if s.OnMessageAck != nil {
 			var st *MessageAck
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnMessageAck(s, st)
 			}
 			return
@@ -287,7 +287,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Channel
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.ChannelAdd(st)
 			}
@@ -303,7 +303,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Channel
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.ChannelAdd(st)
 			}
@@ -319,7 +319,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Channel
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.ChannelRemove(st)
 			}
@@ -335,7 +335,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Guild
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.GuildAdd(st)
 			}
@@ -351,7 +351,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Guild
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.GuildAdd(st)
 			}
@@ -367,7 +367,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Guild
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.GuildRemove(st)
 			}
@@ -383,7 +383,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Member
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.MemberAdd(st)
 			}
@@ -399,7 +399,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Member
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.MemberRemove(st)
 			}
@@ -415,7 +415,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *Member
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.MemberAdd(st)
 			}
@@ -429,7 +429,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "GUILD_ROLE_CREATE":
 		if s.OnGuildRoleCreate != nil {
 			var st *GuildRole
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildRoleCreate(s, st)
 			}
 			return
@@ -437,7 +437,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "GUILD_ROLE_UPDATE":
 		if s.OnGuildRoleUpdate != nil {
 			var st *GuildRole
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildRoleUpdate(s, st)
 			}
 			return
@@ -445,7 +445,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "GUILD_ROLE_DELETE":
 		if s.OnGuildRoleDelete != nil {
 			var st *GuildRoleDelete
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildRoleDelete(s, st)
 			}
 			return
@@ -453,7 +453,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "GUILD_INTEGRATIONS_UPDATE":
 		if s.OnGuildIntegrationsUpdate != nil {
 			var st *GuildIntegrationsUpdate
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildIntegrationsUpdate(s, st)
 			}
 			return
@@ -461,7 +461,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "GUILD_BAN_ADD":
 		if s.OnGuildBanAdd != nil {
 			var st *GuildBan
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildBanAdd(s, st)
 			}
 			return
@@ -469,7 +469,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "GUILD_BAN_REMOVE":
 		if s.OnGuildBanRemove != nil {
 			var st *GuildBan
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnGuildBanRemove(s, st)
 			}
 			return
@@ -479,7 +479,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			break
 		}
 		var st *GuildEmojisUpdate
-		if err = s.unmarshalEvent(e, &st); err == nil {
+		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
 				s.State.EmojisAdd(st.GuildID, st.Emojis)
 			}
@@ -493,7 +493,7 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	case "USER_SETTINGS_UPDATE":
 		if s.OnUserSettingsUpdate != nil {
 			var st map[string]interface{}
-			if err = s.unmarshalEvent(e, &st); err == nil {
+			if err = unmarshalEvent(e, &st); err == nil {
 				s.OnUserSettingsUpdate(s, st)
 			}
 			return
