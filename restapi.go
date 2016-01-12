@@ -126,13 +126,18 @@ func (s *Session) Login(email string, password string) (token string, err error)
 
 	response, err := s.Request("POST", LOGIN, data)
 	if err != nil {
-		return "", err
+		return
 	}
 
 	temp := struct {
 		Token string `json:"token"`
 	}{}
+
 	err = json.Unmarshal(response, &temp)
+	if err != nil {
+		return
+	}
+
 	token = temp.Token
 	return
 }
@@ -147,11 +152,19 @@ func (s *Session) Register(username string) (token string, err error) {
 	}{username}
 
 	response, err := s.Request("POST", REGISTER, data)
+	if err != nil {
+		return
+	}
 
 	temp := struct {
 		Token string `json:"token"`
 	}{}
+
 	err = json.Unmarshal(response, &temp)
+	if err != nil {
+		return
+	}
+
 	token = temp.Token
 	return
 }
@@ -185,6 +198,10 @@ func (s *Session) Logout() (err error) {
 func (s *Session) User(userID string) (st *User, err error) {
 
 	body, err := s.Request("GET", USER(userID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -192,13 +209,15 @@ func (s *Session) User(userID string) (st *User, err error) {
 // UserAvatar returns an image.Image of a users Avatar
 // userID    : A user ID or "@me" which is a shortcut of current user ID
 func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
+
 	u, err := s.User(userID)
 	if err != nil {
 		return
 	}
+
 	body, err := s.Request("GET", USER_AVATAR(userID, u.Avatar), nil)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	img, _, err = image.Decode(bytes.NewReader(body))
@@ -222,6 +241,10 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 	}{email, password, username, avatar, newPassword}
 
 	body, err := s.Request("PATCH", USER("@me"), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -230,6 +253,10 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 func (s *Session) UserSettings() (st *Settings, err error) {
 
 	body, err := s.Request("GET", USER_SETTINGS("@me"), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -239,6 +266,10 @@ func (s *Session) UserSettings() (st *Settings, err error) {
 func (s *Session) UserChannels() (st []*Channel, err error) {
 
 	body, err := s.Request("GET", USER_CHANNELS("@me"), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -252,6 +283,9 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 	}{recipientID}
 
 	body, err := s.Request("POST", USER_CHANNELS("@me"), data)
+	if err != nil {
+		return
+	}
 
 	err = json.Unmarshal(body, &st)
 	return
@@ -261,6 +295,10 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 func (s *Session) UserGuilds() (st []*Guild, err error) {
 
 	body, err := s.Request("GET", USER_GUILDS("@me"), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -274,6 +312,10 @@ func (s *Session) UserGuilds() (st []*Guild, err error) {
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
 
 	body, err := s.Request("GET", GUILD(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -287,6 +329,10 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 	}{name}
 
 	body, err := s.Request("POST", GUILDS, data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -301,6 +347,10 @@ func (s *Session) GuildEdit(guildID, name string) (st *Guild, err error) {
 	}{name}
 
 	body, err := s.Request("POST", GUILD(guildID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -310,6 +360,10 @@ func (s *Session) GuildEdit(guildID, name string) (st *Guild, err error) {
 func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 
 	body, err := s.Request("DELETE", GUILD(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -320,6 +374,10 @@ func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 func (s *Session) GuildBans(guildID string) (st []*User, err error) {
 
 	body, err := s.Request("GET", GUILD_BANS(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 
 	return
@@ -365,6 +423,10 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 
 	body, err := s.Request("GET", GUILD_CHANNELS(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 
 	return
@@ -382,6 +444,10 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 	}{name, ctype}
 
 	body, err := s.Request("POST", GUILD_CHANNELS(guildID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -390,6 +456,10 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 // guildID   : The ID of a Guild.
 func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	body, err := s.Request("GET", GUILD_INVITES(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -408,6 +478,10 @@ func (s *Session) GuildInviteCreate(guildID string, i *Invite) (st *Invite, err 
 	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
 
 	body, err := s.Request("POST", GUILD_INVITES(guildID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -416,6 +490,10 @@ func (s *Session) GuildInviteCreate(guildID string, i *Invite) (st *Invite, err 
 func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 
 	body, err := s.Request("GET", GUILD_ROLES(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 
 	return // TODO return pointer
@@ -425,6 +503,10 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 
 	body, err := s.Request("POST", GUILD_ROLES(guildID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 
 	return
@@ -441,6 +523,10 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 	}{name, color, hoist, perm}
 
 	body, err := s.Request("PATCH", GUILD_ROLE(guildID, roleID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 
 	return
@@ -450,6 +536,10 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 func (s *Session) GuildRoleReorder(guildID string, roles []Role) (st []*Role, err error) {
 
 	body, err := s.Request("PATCH", GUILD_ROLES(guildID), roles)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 
 	return
@@ -471,6 +561,10 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 // channelID  : The ID of the Channel you want returend.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	body, err := s.Request("GET", CHANNEL(channelID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -485,6 +579,10 @@ func (s *Session) ChannelEdit(channelID, name string) (st *Channel, err error) {
 	}{name}
 
 	body, err := s.Request("PATCH", CHANNEL(channelID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -494,6 +592,10 @@ func (s *Session) ChannelEdit(channelID, name string) (st *Channel, err error) {
 func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
 
 	body, err := s.Request("DELETE", CHANNEL(channelID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -563,6 +665,10 @@ func (s *Session) ChannelMessageSend(channelID string, content string) (st *Mess
 
 	// Send the message to the given channel
 	response, err := s.Request("POST", CHANNEL_MESSAGES(channelID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(response, &st)
 	return
 }
@@ -578,6 +684,10 @@ func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st *
 	}{content}
 
 	response, err := s.Request("PATCH", CHANNEL_MESSAGE(channelID, messageID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(response, &st)
 	return
 }
@@ -592,7 +702,12 @@ func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) 
 // ChannelInvites returns an array of Invite structures for the given channel
 // channelID   : The ID of a Channel
 func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
+
 	body, err := s.Request("GET", CHANNEL_INVITES(channelID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -611,6 +726,10 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
 
 	body, err := s.Request("POST", CHANNEL_INVITES(channelID), data)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -646,7 +765,12 @@ func (s *Session) ChannelPermissionDelete(channelID, targetID string) (err error
 // Invite returns an Invite structure of the given invite
 // inviteID : The invite code (or maybe xkcdpass?)
 func (s *Session) Invite(inviteID string) (st *Invite, err error) {
+
 	body, err := s.Request("GET", INVITE(inviteID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -656,6 +780,10 @@ func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 
 	body, err := s.Request("DELETE", INVITE(inviteID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -663,7 +791,12 @@ func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 // InviteAccept accepts an Invite to a Guild or Channel
 // inviteID : The invite code (or maybe xkcdpass?)
 func (s *Session) InviteAccept(inviteID string) (st *Invite, err error) {
+
 	body, err := s.Request("POST", INVITE(inviteID), nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -676,6 +809,10 @@ func (s *Session) InviteAccept(inviteID string) (st *Invite, err error) {
 func (s *Session) VoiceRegions() (st []*VoiceRegion, err error) {
 
 	body, err := s.Request("GET", VOICE_REGIONS, nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
@@ -684,6 +821,10 @@ func (s *Session) VoiceRegions() (st []*VoiceRegion, err error) {
 func (s *Session) VoiceICE() (st *VoiceICE, err error) {
 
 	body, err := s.Request("GET", VOICE_ICE, nil)
+	if err != nil {
+		return
+	}
+
 	err = json.Unmarshal(body, &st)
 	return
 }
