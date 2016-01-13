@@ -218,10 +218,9 @@ func (s *Session) User(userID string) (st *User, err error) {
 	return
 }
 
-// UserAvatar returns an image.Image of a users Avatar
+// UserAvatar returns an image.Image of a users Avatar.
 // userID    : A user ID or "@me" which is a shortcut of current user ID
 func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
-
 	u, err := s.User(userID)
 	if err != nil {
 		return
@@ -322,6 +321,13 @@ func (s *Session) UserGuilds() (st []*Guild, err error) {
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
+	if s.StateEnabled {
+		// Attempt to grab the guild from State first.
+		st, err = s.State.Guild(guildID)
+		if err == nil {
+			return
+		}
+	}
 
 	body, err := s.Request("GET", GUILD(guildID), nil)
 	if err != nil {
@@ -499,6 +505,7 @@ func (s *Session) GuildInviteCreate(guildID string, i *Invite) (st *Invite, err 
 }
 
 // GuildRoles returns all roles for a given guild.
+// guildID   : The ID of a Guild.
 func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 
 	body, err := s.Request("GET", GUILD_ROLES(guildID), nil)
@@ -511,7 +518,8 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 	return // TODO return pointer
 }
 
-// GuildRoleCreate returns a new Guild Role
+// GuildRoleCreate returns a new Guild Role.
+// guildID: The ID of a Guild.
 func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 
 	body, err := s.Request("POST", GUILD_ROLES(guildID), nil)
@@ -525,6 +533,12 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 }
 
 // GuildRoleEdit updates an existing Guild Role with new values
+// guildID   : The ID of a Guild.
+// roleID    : The ID of a Role.
+// name      : The name of the Role.
+// color     : The color of the role (decimal, not hex).
+// hoist     : Whether to display the role's users separately.
+// perm      : The permissions for the role.
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st *Role, err error) {
 
 	data := struct {
@@ -545,7 +559,9 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 }
 
 // GuildRoleReorder reoders guild roles
-func (s *Session) GuildRoleReorder(guildID string, roles []Role) (st []*Role, err error) {
+// guildID   : The ID of a Guild.
+// roles     : A list of ordered roles.
+func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, err error) {
 
 	body, err := s.Request("PATCH", GUILD_ROLES(guildID), roles)
 	if err != nil {
@@ -558,10 +574,56 @@ func (s *Session) GuildRoleReorder(guildID string, roles []Role) (st []*Role, er
 }
 
 // GuildRoleDelete deletes an existing role.
+// guildID   : The ID of a Guild.
+// roleID    : The ID of a Role.
 func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 
 	_, err = s.Request("DELETE", GUILD_ROLE(guildID, roleID), nil)
 
+	return
+}
+
+// GuildIcon returns an image.Image of a guild icon.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildIcon(guildID string) (img image.Image, err error) {
+	g, err := s.Guild(guildID)
+	if err != nil {
+		return
+	}
+
+	if g.Icon == "" {
+		err = errors.New("Guild does not have an icon set.")
+		return
+	}
+
+	body, err := s.Request("GET", GUILD_ICON(guildID, g.Icon), nil)
+	if err != nil {
+		return
+	}
+
+	img, _, err = image.Decode(bytes.NewReader(body))
+	return
+}
+
+// GuildSplash returns an image.Image of a guild splash image.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
+	g, err := s.Guild(guildID)
+	if err != nil {
+		return
+	}
+
+	if g.Splash == "" {
+		err = errors.New("Guild does not have a splash set.")
+		return
+	}
+
+	body, err := s.Request("GET", GUILD_SPLASH(guildID, g.Splash), nil)
+	if err != nil {
+		return
+	}
+
+	img, _, err = image.Decode(bytes.NewReader(body))
 	return
 }
 
