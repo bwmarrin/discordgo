@@ -1,6 +1,6 @@
+<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 Discordgo [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 ====
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 Discordgo is a [Go](https://golang.org/) package that provides low level 
 bindings to the [Discord](https://discordapp.com/) chat client API.
 
