@@ -2,13 +2,48 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Discordgo Documentation\n\n\nPlaceholder", 
+            "text": "Discordgo\n\n\nDiscordgo Documentation\n\n\nPlaceholder\n\n\nIntro\n\n\nDiscordGo provides an interface to the four known connections to the Discord \nAPI.  First is the JSON REST API endpoints, second is the Data Websocket, third\nis the Voice Websocket, and forth is the UDP RTP connection.  All functions\nin the DiscordGo package interact with one of these connections.\n\n\nDiscord API Basics\n\n\nDiscordgo Layout\n\n\nREST vs Websocket vs Combined\n\n\nUsing the Low-Level REST API.\n\n\nUsing the Low-Level Websockets API\n\n\nUsing the Combined High-Level API.\n\n\nThe combined API pairs functions from the Rest API and Websocket\nAPI together to provide an easy way to access Discord.  This layer makes \nsome assumptions by trying to provide what it thinks is the best access\nmethod for a given request.", 
             "title": "Home"
         }, 
         {
             "location": "/#discordgo-documentation", 
             "text": "Placeholder", 
             "title": "Discordgo Documentation"
+        }, 
+        {
+            "location": "/#intro", 
+            "text": "DiscordGo provides an interface to the four known connections to the Discord \nAPI.  First is the JSON REST API endpoints, second is the Data Websocket, third\nis the Voice Websocket, and forth is the UDP RTP connection.  All functions\nin the DiscordGo package interact with one of these connections.", 
+            "title": "Intro"
+        }, 
+        {
+            "location": "/#discord-api-basics", 
+            "text": "", 
+            "title": "Discord API Basics"
+        }, 
+        {
+            "location": "/#discordgo-layout", 
+            "text": "", 
+            "title": "Discordgo Layout"
+        }, 
+        {
+            "location": "/#rest-vs-websocket-vs-combined", 
+            "text": "", 
+            "title": "REST vs Websocket vs Combined"
+        }, 
+        {
+            "location": "/#using-the-low-level-rest-api", 
+            "text": "", 
+            "title": "Using the Low-Level REST API."
+        }, 
+        {
+            "location": "/#using-the-low-level-websockets-api", 
+            "text": "", 
+            "title": "Using the Low-Level Websockets API"
+        }, 
+        {
+            "location": "/#using-the-combined-high-level-api", 
+            "text": "The combined API pairs functions from the Rest API and Websocket\nAPI together to provide an easy way to access Discord.  This layer makes \nsome assumptions by trying to provide what it thinks is the best access\nmethod for a given request.", 
+            "title": "Using the Combined High-Level API."
         }
     ]
 }

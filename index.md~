@@ -1,0 +1,31 @@
+# Discordgo Documentation
+
+Placeholder
+
+# Intro
+DiscordGo provides an interface to the four known connections to the Discord 
+API.  First is the JSON REST API endpoints, second is the Data Websocket, third
+is the Voice Websocket, and forth is the UDP RTP connection.  All functions
+in the DiscordGo package interact with one of these connections.
+
+# Discord API Basics
+
+
+# Discordgo Layout
+
+
+# REST vs Websocket vs Combined
+
+
+
+# Using the Low-Level REST API.
+
+
+# Using the Low-Level Websockets API
+
+
+# Using the Combined High-Level API.
+The combined API pairs functions from the Rest API and Websocket
+API together to provide an easy way to access Discord.  This layer makes 
+some assumptions by trying to provide what it thinks is the best access
+method for a given request.
