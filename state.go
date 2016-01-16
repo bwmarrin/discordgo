@@ -233,6 +233,9 @@ func (s *State) ChannelRemove(channel *Channel) error {
 	}
 
 	if channel.IsPrivate {
+		s.Lock()
+		defer s.Unlock()
+
 		for i, c := range s.PrivateChannels {
 			if c.ID == channel.ID {
 				s.PrivateChannels = append(s.PrivateChannels[:i], s.PrivateChannels[i+1:]...)
