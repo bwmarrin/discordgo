@@ -50,6 +50,11 @@ func (s *State) GuildAdd(guild *Guild) error {
 	// If the guild exists, replace it.
 	for i, g := range s.Guilds {
 		if g.ID == guild.ID {
+			// Don't stomp on properties that don't come in updates.
+			guild.Members = g.Members
+			guild.Presences = g.Presences
+			guild.Channels = g.Channels
+			guild.VoiceStates = g.VoiceStates
 			s.Guilds[i] = guild
 			return nil
 		}
@@ -105,13 +110,14 @@ func (s *State) MemberAdd(member *Member) error {
 	if s == nil {
 		return nilError
 	}
-	s.Lock()
-	defer s.Unlock()
 
 	guild, err := s.Guild(member.GuildID)
 	if err != nil {
 		return err
 	}
+
+	s.Lock()
+	defer s.Unlock()
 
 	for i, m := range guild.Members {
 		if m.User.ID == member.User.ID {
@@ -129,13 +135,14 @@ func (s *State) MemberRemove(member *Member) error {
 	if s == nil {
 		return nilError
 	}
-	s.Lock()
-	defer s.Unlock()
 
 	guild, err := s.Guild(member.GuildID)
 	if err != nil {
 		return err
 	}
+
+	s.Lock()
+	defer s.Unlock()
 
 	for i, m := range guild.Members {
 		if m.User.ID == member.User.ID {
@@ -152,13 +159,14 @@ func (s *State) Member(guildID, userID string) (*Member, error) {
 	if s == nil {
 		return nil, nilError
 	}
-	s.RLock()
-	defer s.RUnlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
 		return nil, err
 	}
+
+	s.RLock()
+	defer s.RUnlock()
 
 	for _, m := range guild.Members {
 		if m.User.ID == userID {
@@ -177,13 +185,16 @@ func (s *State) ChannelAdd(channel *Channel) error {
 	if s == nil {
 		return nilError
 	}
-	s.Lock()
-	defer s.Unlock()
 
 	if channel.IsPrivate {
+		s.Lock()
+		defer s.Unlock()
+
 		// If the channel exists, replace it.
 		for i, c := range s.PrivateChannels {
 			if c.ID == channel.ID {
+				// Don't stomp on messages.
+				channel.Messages = c.Messages
 				s.PrivateChannels[i] = channel
 				return nil
 			}
@@ -196,9 +207,14 @@ func (s *State) ChannelAdd(channel *Channel) error {
 			return err
 		}
 
+		s.Lock()
+		defer s.Unlock()
+
 		// If the channel exists, replace it.
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
+				// Don't stomp on messages.
+				channel.Messages = c.Messages
 				guild.Channels[i] = channel
 				return nil
 			}
@@ -215,8 +231,6 @@ func (s *State) ChannelRemove(channel *Channel) error {
 	if s == nil {
 		return nilError
 	}
-	s.Lock()
-	defer s.Unlock()
 
 	if channel.IsPrivate {
 		for i, c := range s.PrivateChannels {
@@ -230,6 +244,9 @@ func (s *State) ChannelRemove(channel *Channel) error {
 		if err != nil {
 			return err
 		}
+
+		s.Lock()
+		defer s.Unlock()
 
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
@@ -247,13 +264,14 @@ func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, nilError
 	}
-	s.RLock()
-	defer s.RUnlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
 		return nil, err
 	}
+
+	s.RLock()
+	defer s.RUnlock()
 
 	for _, c := range guild.Channels {
 		if c.ID == channelID {
@@ -307,13 +325,14 @@ func (s *State) Emoji(guildID, emojiID string) (*Emoji, error) {
 	if s == nil {
 		return nil, nilError
 	}
-	s.RLock()
-	defer s.RUnlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
 		return nil, err
 	}
+
+	s.RLock()
+	defer s.RUnlock()
 
 	for _, e := range guild.Emojis {
 		if e.ID == emojiID {
@@ -329,13 +348,14 @@ func (s *State) EmojiAdd(guildID string, emoji *Emoji) error {
 	if s == nil {
 		return nilError
 	}
-	s.Lock()
-	defer s.Unlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
 		return err
 	}
+
+	s.Lock()
+	defer s.Unlock()
 
 	for i, e := range guild.Emojis {
 		if e.ID == emoji.ID {
