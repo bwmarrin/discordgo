@@ -50,6 +50,11 @@ func (s *State) GuildAdd(guild *Guild) error {
 	// If the guild exists, replace it.
 	for i, g := range s.Guilds {
 		if g.ID == guild.ID {
+			// Don't stomp on properties that don't come in updates.
+			guild.Members = g.Members
+			guild.Presences = g.Presences
+			guild.Channels = g.Channels
+			guild.VoiceStates = g.VoiceStates
 			s.Guilds[i] = guild
 			return nil
 		}
@@ -184,6 +189,8 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		// If the channel exists, replace it.
 		for i, c := range s.PrivateChannels {
 			if c.ID == channel.ID {
+				// Don't stomp on messages.
+				channel.Messages = c.Messages
 				s.PrivateChannels[i] = channel
 				return nil
 			}
@@ -199,6 +206,8 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		// If the channel exists, replace it.
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
+				// Don't stomp on messages.
+				channel.Messages = c.Messages
 				guild.Channels[i] = channel
 				return nil
 			}
