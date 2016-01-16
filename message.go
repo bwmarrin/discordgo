@@ -70,6 +70,9 @@ type Embed struct {
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
 // username of the mention.
 func (m *Message) ContentWithMentionsReplaced() string {
+	if m.Mentions == nil {
+		return m.Content
+	}
 	content := m.Content
 	for _, user := range m.Mentions {
 		content = strings.Replace(content, fmt.Sprintf("<@%s>", user.ID),

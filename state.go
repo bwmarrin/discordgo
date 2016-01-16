@@ -31,6 +31,8 @@ func (s *State) OnReady(r *Ready) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	s.Ready = *r
 	return nil
@@ -42,16 +44,13 @@ func (s *State) GuildAdd(guild *Guild) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
-	for _, g := range s.Guilds {
+	// If the guild exists, replace it.
+	for i, g := range s.Guilds {
 		if g.ID == guild.ID {
-			// This could be a little faster ;)
-			for _, m := range guild.Members {
-				s.MemberAdd(m)
-			}
-			for _, c := range guild.Channels {
-				s.ChannelAdd(c)
-			}
+			s.Guilds[i] = guild
 			return nil
 		}
 	}
@@ -65,6 +64,8 @@ func (s *State) GuildRemove(guild *Guild) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	for i, g := range s.Guilds {
 		if g.ID == guild.ID {
@@ -84,6 +85,8 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {
 		return nil, nilError
 	}
+	s.RLock()
+	defer s.RUnlock()
 
 	for _, g := range s.Guilds {
 		if g.ID == guildID {
@@ -102,6 +105,8 @@ func (s *State) MemberAdd(member *Member) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	guild, err := s.Guild(member.GuildID)
 	if err != nil {
@@ -124,6 +129,8 @@ func (s *State) MemberRemove(member *Member) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	guild, err := s.Guild(member.GuildID)
 	if err != nil {
@@ -145,6 +152,8 @@ func (s *State) Member(guildID, userID string) (*Member, error) {
 	if s == nil {
 		return nil, nilError
 	}
+	s.RLock()
+	defer s.RUnlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
@@ -168,8 +177,11 @@ func (s *State) ChannelAdd(channel *Channel) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	if channel.IsPrivate {
+		// If the channel exists, replace it.
 		for i, c := range s.PrivateChannels {
 			if c.ID == channel.ID {
 				s.PrivateChannels[i] = channel
@@ -184,6 +196,7 @@ func (s *State) ChannelAdd(channel *Channel) error {
 			return err
 		}
 
+		// If the channel exists, replace it.
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
 				guild.Channels[i] = channel
@@ -202,6 +215,8 @@ func (s *State) ChannelRemove(channel *Channel) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	if channel.IsPrivate {
 		for i, c := range s.PrivateChannels {
@@ -232,6 +247,8 @@ func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, nilError
 	}
+	s.RLock()
+	defer s.RUnlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
@@ -252,6 +269,8 @@ func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, nilError
 	}
+	s.RLock()
+	defer s.RUnlock()
 
 	for _, c := range s.PrivateChannels {
 		if c.ID == channelID {
@@ -288,6 +307,8 @@ func (s *State) Emoji(guildID, emojiID string) (*Emoji, error) {
 	if s == nil {
 		return nil, nilError
 	}
+	s.RLock()
+	defer s.RUnlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
@@ -308,6 +329,8 @@ func (s *State) EmojiAdd(guildID string, emoji *Emoji) error {
 	if s == nil {
 		return nilError
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	guild, err := s.Guild(guildID)
 	if err != nil {
@@ -333,4 +356,85 @@ func (s *State) EmojisAdd(guildID string, emojis []*Emoji) error {
 		}
 	}
 	return nil
+}
+
+// MessageAdd adds a message to the current world state, or updates it if it exists.
+// If the channel cannot be found, the message is discarded.
+// Messages are kept in state up to s.MaxMessageCount
+func (s *State) MessageAdd(message *Message) error {
+	if s == nil {
+		return nilError
+	}
+
+	c, err := s.Channel(message.ChannelID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// If the message exists, replace it.
+	for i, m := range c.Messages {
+		if m.ID == message.ID {
+			c.Messages[i] = message
+			return nil
+		}
+	}
+
+	c.Messages = append(c.Messages, message)
+
+	if len(c.Messages) > s.MaxMessageCount {
+		s.Unlock()
+		for len(c.Messages) > s.MaxMessageCount {
+			s.MessageRemove(c.Messages[0])
+		}
+		s.Lock()
+	}
+	return nil
+}
+
+// MessageRemove removes a message from the world state.
+func (s *State) MessageRemove(message *Message) error {
+	if s == nil {
+		return nilError
+	}
+	c, err := s.Channel(message.ChannelID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, m := range c.Messages {
+		if m.ID == message.ID {
+			c.Messages = append(c.Messages[:i], c.Messages[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("Message not found.")
+}
+
+// Message gets a message by channel and message ID.
+func (s *State) Message(channelID, messageID string) (*Message, error) {
+	if s == nil {
+		return nil, nilError
+	}
+	c, err := s.Channel(channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	for _, m := range c.Messages {
+		if m.ID == messageID {
+			return m, nil
+		}
+	}
+
+	return nil, errors.New("Message not found.")
 }
