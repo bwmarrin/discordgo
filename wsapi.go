@@ -251,27 +251,56 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			}
 		*/
 	case "MESSAGE_CREATE":
-		if s.OnMessageCreate != nil {
-			var st *Message
-			if err = unmarshalEvent(e, &st); err == nil {
+		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
+		if !stateEnabled && s.OnMessageCreate == nil {
+			break
+		}
+		var st *Message
+		if err = unmarshalEvent(e, &st); err == nil {
+			if stateEnabled {
+				s.State.MessageAdd(st)
+			}
+			if s.OnMessageCreate != nil {
 				s.OnMessageCreate(s, st)
 			}
+		}
+		if s.OnMessageCreate != nil {
 			return
 		}
 	case "MESSAGE_UPDATE":
-		if s.OnMessageUpdate != nil {
-			var st *Message
-			if err = unmarshalEvent(e, &st); err == nil {
+		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
+		if !stateEnabled && s.OnMessageUpdate == nil {
+			break
+		}
+		var st *Message
+		if err = unmarshalEvent(e, &st); err == nil {
+			if stateEnabled {
+				s.State.MessageAdd(st)
+			}
+			if s.OnMessageUpdate != nil {
 				s.OnMessageUpdate(s, st)
 			}
+		}
+		return
+		if s.OnMessageUpdate != nil {
 			return
 		}
 	case "MESSAGE_DELETE":
-		if s.OnMessageDelete != nil {
-			var st *MessageDelete
-			if err = unmarshalEvent(e, &st); err == nil {
+		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
+		if !stateEnabled && s.OnMessageDelete == nil {
+			break
+		}
+		var st *Message
+		if err = unmarshalEvent(e, &st); err == nil {
+			if stateEnabled {
+				s.State.MessageRemove(st)
+			}
+			if s.OnMessageDelete != nil {
 				s.OnMessageDelete(s, st)
 			}
+		}
+		return
+		if s.OnMessageDelete != nil {
 			return
 		}
 	case "MESSAGE_ACK":

@@ -33,7 +33,7 @@ type Session struct {
 	OnTypingStart             func(*Session, *TypingStart)
 	OnMessageCreate           func(*Session, *Message)
 	OnMessageUpdate           func(*Session, *Message)
-	OnMessageDelete           func(*Session, *MessageDelete)
+	OnMessageDelete           func(*Session, *Message)
 	OnMessageAck              func(*Session, *MessageAck)
 	OnUserUpdate              func(*Session, *User)
 	OnPresenceUpdate          func(*Session, *PresenceUpdate)
@@ -46,7 +46,7 @@ type Session struct {
 	OnGuildDelete             func(*Session, *Guild)
 	OnGuildMemberAdd          func(*Session, *Member)
 	OnGuildMemberRemove       func(*Session, *Member)
-	OnGuildMemberDelete       func(*Session, *Member) // which is it?
+	OnGuildMemberDelete       func(*Session, *Member)
 	OnGuildMemberUpdate       func(*Session, *Member)
 	OnGuildRoleCreate         func(*Session, *GuildRole)
 	OnGuildRoleUpdate         func(*Session, *GuildRole)
@@ -77,8 +77,9 @@ type Session struct {
 	Voice *Voice // Stores all details related to voice connections
 
 	// Managed state object, updated with events.
-	State        *State
-	StateEnabled bool
+	State                *State
+	StateEnabled         bool
+	StateMaxMessageCount int
 
 	// Mutex/Bools for locks that prevent accidents.
 	// TODO: Add channels.
@@ -138,6 +139,7 @@ type Channel struct {
 	IsPrivate            bool                   `json:"is_private"`
 	LastMessageID        string                 `json:"last_message_id"`
 	Recipient            *User                  `json:"recipient"`
+	Messages             []*Message             `json:"-"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
@@ -309,12 +311,6 @@ type MessageAck struct {
 	ChannelID string `json:"channel_id"`
 }
 
-// A MessageDelete stores data for the message delete websocket event.
-type MessageDelete struct {
-	ID        string `json:"id"`
-	ChannelID string `json:"channel_id"`
-} // so much like MessageAck..
-
 // A GuildIntegrationsUpdate stores data for the guild integrations update
 // websocket event.
 type GuildIntegrationsUpdate struct {
@@ -349,5 +345,7 @@ type GuildEmojisUpdate struct {
 // As discord sends this in a READY blob, it seems reasonable to simply
 // use that struct as the data store.
 type State struct {
+	sync.RWMutex
 	Ready
+	MaxMessageCount int
 }
