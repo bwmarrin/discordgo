@@ -128,8 +128,8 @@ func unmarshal(data []byte, v interface{}) error {
 // Functions specific to Discord Sessions
 // ------------------------------------------------------------------------------------------------
 
-// Login asks the Discord server for an authentication token
-func (s *Session) Login(email string, password string) (token string, err error) {
+// Login asks the Discord server for an authentication token.
+func (s *Session) Login(email, password string) (token string, err error) {
 
 	data := struct {
 		Email    string `json:"email"`
@@ -151,6 +151,18 @@ func (s *Session) Login(email string, password string) (token string, err error)
 	}
 
 	token = temp.Token
+	return
+}
+
+// LoginWithToken will verify a login token, or return a new one if it is invalid.
+// This is the preferred way to login, as it uses less rate limiting quota.
+func (s *Session) LoginWithToken(email, password, token string) (token string, err error) {
+
+	old := s.Token
+	s.Token = token
+	token, err = s.Login(email, password)
+	s.Token = old
+
 	return
 }
 
