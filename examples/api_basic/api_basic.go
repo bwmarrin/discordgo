@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// Login to the Discord server and store the authentication token
-	dg.Token, err = dg.Login(os.Args[1], os.Args[2])
+	err = dg.Login(os.Args[1], os.Args[2])
 	if err != nil {
 		fmt.Println(err)
 		return
