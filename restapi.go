@@ -431,7 +431,7 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 // userID    : The ID of a User
 func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 
-	_, err = s.Request("DELETE", GUILD_MEMBER_DEL(guildID, userID), nil)
+	_, err = s.Request("DELETE", GUILD_MEMBER(guildID, userID), nil)
 	return
 }
 
