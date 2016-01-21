@@ -53,6 +53,7 @@ func (s *Session) Open() (err error) {
 }
 
 // Close closes a websocket and stops all listening/heartbeat goroutines.
+// TODO: Add support for Voice WS/UDP connections
 func (s *Session) Close() (err error) {
 	s.Lock()
 	defer func() {
