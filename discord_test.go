@@ -21,6 +21,16 @@ var (
 	envAdmin    string = os.Getenv("DG_ADMIN")    // User ID of admin user to use for tests
 )
 
+func init() {
+	if envEmail == "" || envPassword == "" || envToken == "" {
+		return
+	}
+
+	if d, err := New(envEmail, envPassword, envToken); err == nil {
+		dg = d
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////// HELPER FUNCTIONS USED FOR TESTING
 
@@ -76,15 +86,10 @@ func TestNew(t *testing.T) {
 
 // TestInvalidToken tests the New() function with an invalid token
 func TestInvalidToken(t *testing.T) {
-	d, err := New("asjkldhflkjasdh")
+	_, err := New("asjkldhflkjasdh")
 	if err != nil {
 		t.Fatalf("New(InvalidToken) returned error: %+v", err)
 	}
-
-	if err = d.OpenAndListen(); err == nil {
-		t.Fatalf("New(InvalidToken), d.OpenAndListen did not fail.")
-	}
-
 }
 
 // TestInvalidUserPass tests the New() function with an invalid Email and Pass
@@ -132,20 +137,6 @@ func TestNewUserPass(t *testing.T) {
 	if d.Token == "" {
 		t.Fatal("New(user,pass), d.Token is empty, should be a valid Token.")
 	}
-
-	if err = d.OpenAndListen(); err != nil {
-		t.Fatalf("New(user,pass), d.OpenAndListen failed: %+v", err)
-	}
-
-	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
-		t.Fatal("New(user,pass), d.DataReady is false after 10 seconds.  Should be true.")
-	}
-
-	t.Log("Successfully connected to Discord via New(user,pass).")
-	dg = d
-	if envToken == "" {
-		envToken = dg.Token
-	}
 }
 
 // TestNewToken tests the New() function with a Token.  This should return
@@ -168,21 +159,9 @@ func TestNewToken(t *testing.T) {
 	if d.Token == "" {
 		t.Fatal("New(envToken), d.Token is empty, should be a valid Token.")
 	}
-
-	if err = d.OpenAndListen(); err != nil {
-		t.Fatalf("New(envToken), d.OpenAndListen failed: %+v", err)
-	}
-
-	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
-		t.Fatal("New(envToken), d.DataReady is false after 10 seconds.  Should be true.")
-	}
-
-	t.Log("Successfully connected to Discord via New(token).")
-	dg = d
-
 }
 
-func TestClose(t *testing.T) {
+func TestOpenClose(t *testing.T) {
 	if envToken == "" {
 		t.Skip("Skipping TestClose, DG_TOKEN not set")
 	}

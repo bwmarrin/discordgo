@@ -10,8 +10,8 @@ import (
 // TestLogout tests the Logout() function. This should not return an error.
 func TestLogout(t *testing.T) {
 
-	if dg == nil || dg.Token == "" {
-		t.Skip("Cannot test logout, dg.Token not set.")
+	if dg == nil {
+		t.Skip("Cannot TestLogout, dg not set.")
 	}
 
 	err := dg.Logout()
@@ -21,8 +21,8 @@ func TestLogout(t *testing.T) {
 }
 
 func TestUserAvatar(t *testing.T) {
-	if !isConnected() {
-		t.Skip("Skipped, Not connected to Discord.")
+	if dg == nil {
+		t.Skip("Cannot TestUserAvatar, dg not set.")
 	}
 
 	a, err := dg.UserAvatar("@me")
@@ -39,14 +39,8 @@ func TestUserAvatar(t *testing.T) {
 }
 
 func TestUserUpdate(t *testing.T) {
-
-	if envEmail == "" || envPassword == "" {
-		t.Skip("Skipping, DG_USERNAME or DG_PASSWORD not set")
-		return
-	}
-
-	if !isConnected() {
-		t.Skip("Skipped, Not connected to Discord.")
+	if dg == nil {
+		t.Skip("Cannot test logout, dg not set.")
 	}
 
 	u, err := dg.User("@me")
@@ -73,9 +67,8 @@ func TestUserUpdate(t *testing.T) {
 //func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
 
 func TestUserChannelCreate(t *testing.T) {
-
-	if !isConnected() {
-		t.Skip("Skipped, Not connected to Discord.")
+	if dg == nil {
+		t.Skip("Cannot TestUserChannelCreate, dg not set.")
 	}
 
 	if envAdmin == "" {
@@ -91,9 +84,8 @@ func TestUserChannelCreate(t *testing.T) {
 }
 
 func TestUserChannels(t *testing.T) {
-
-	if !isConnected() {
-		t.Skip("Skipped, Not connected to Discord.")
+	if dg == nil {
+		t.Skip("Cannot TestUserChannels, dg not set.")
 	}
 
 	_, err := dg.UserChannels()
@@ -103,9 +95,8 @@ func TestUserChannels(t *testing.T) {
 }
 
 func TestUserGuilds(t *testing.T) {
-
-	if !isConnected() {
-		t.Skip("Skipped, Not connected to Discord.")
+	if dg == nil {
+		t.Skip("Cannot TestUserGuilds, dg not set.")
 	}
 
 	_, err := dg.UserGuilds()
@@ -115,9 +106,8 @@ func TestUserGuilds(t *testing.T) {
 }
 
 func TestUserSettings(t *testing.T) {
-
-	if !isConnected() {
-		t.Skip("Skipped, Not connected to Discord.")
+	if dg == nil {
+		t.Skip("Cannot TestUserSettings, dg not set.")
 	}
 
 	_, err := dg.UserSettings()
