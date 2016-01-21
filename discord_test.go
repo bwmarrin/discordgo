@@ -122,8 +122,7 @@ func TestInvalidPass(t *testing.T) {
 }
 
 // TestNewUserPass tests the New() function with a username and password.
-// This should return a valid Session{}, a valid Session.Token, and open
-// a websocket connection to Discord.
+// This should return a valid Session{}, a valid Session.Token.
 func TestNewUserPass(t *testing.T) {
 
 	if envEmail == "" || envPassword == "" {
@@ -164,6 +163,29 @@ func TestNewToken(t *testing.T) {
 
 	if d.Token == "" {
 		t.Fatal("New(envToken), d.Token is empty, should be a valid Token.")
+	}
+}
+
+// TestNewUserPassToken tests the New() function with a username, password and token.
+// This should return the same as the TestNewUserPass function.
+func TestNewUserPassToken(t *testing.T) {
+
+	if envEmail == "" || envPassword == "" || envToken == "" {
+		t.Skip("Skipping New(username,password,token), DG_EMAIL, DG_PASSWORD or DG_TOKEN not set")
+		return
+	}
+
+	d, err := New(envEmail, envPassword, envToken)
+	if err != nil {
+		t.Fatalf("New(user,pass,token) returned error: %+v", err)
+	}
+
+	if d == nil {
+		t.Fatal("New(user,pass,token), d is nil, should be Session{}")
+	}
+
+	if d.Token == "" {
+		t.Fatal("New(user,pass,token), d.Token is empty, should be a valid Token.")
 	}
 }
 
