@@ -86,9 +86,15 @@ func TestNew(t *testing.T) {
 
 // TestInvalidToken tests the New() function with an invalid token
 func TestInvalidToken(t *testing.T) {
-	_, err := New("asjkldhflkjasdh")
+	d, err := New("asjkldhflkjasdh")
 	if err != nil {
 		t.Fatalf("New(InvalidToken) returned error: %+v", err)
+	}
+
+	// New with just a token does not do any communication, so attempt an api call.
+	_, err = d.UserSettings()
+	if err == nil {
+		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
 	}
 }
 
