@@ -129,12 +129,6 @@ func (s *Session) OpenAndListen() (err error) {
 		return
 	}
 
-	// Do websocket handshake.
-	err = s.Handshake()
-	if err != nil {
-		return
-	}
-
 	// Listen for events.
 	go s.Listen()
 

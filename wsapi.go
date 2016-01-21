@@ -19,15 +19,31 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type handshakeProperties struct {
+	OS              string `json:"$os"`
+	Browser         string `json:"$browser"`
+	Device          string `json:"$device"`
+	Referer         string `json:"$referer"`
+	ReferringDomain string `json:"$referring_domain"`
+}
+
+type handshakeData struct {
+	Version    int                 `json:"v"`
+	Token      string              `json:"token"`
+	Properties handshakeProperties `json:"properties"`
+}
+
+type handshakeOp struct {
+	Op   int           `json:"op"`
+	Data handshakeData `json:"d"`
+}
+
 // Open opens a websocket connection to Discord.
 func (s *Session) Open() (err error) {
 	s.Lock()
 	defer func() {
-		s.Unlock()
-		// Fire OnConnect after we have unlocked the mutex,
-		// otherwise we may deadlock.
-		if err == nil && s.OnConnect != nil {
-			s.OnConnect(s)
+		if err != nil {
+			s.Unlock()
 		}
 	}()
 
@@ -49,6 +65,17 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}}})
+	if err != nil {
+		return
+	}
+
+	s.Unlock()
+
+	if s.OnConnect != nil {
+		s.OnConnect(s)
+	}
+
 	return
 }
 
@@ -56,14 +83,6 @@ func (s *Session) Open() (err error) {
 // TODO: Add support for Voice WS/UDP connections
 func (s *Session) Close() (err error) {
 	s.Lock()
-	defer func() {
-		s.Unlock()
-		// Fire OnDisconnect after we have unlocked the mutex
-		// otherwise we may deadlock, especially in reconnect logic.
-		if err == nil && s.OnDisconnect != nil {
-			s.OnDisconnect(s)
-		}
-	}()
 
 	s.DataReady = false
 
@@ -77,32 +96,13 @@ func (s *Session) Close() (err error) {
 		s.wsConn = nil
 	}
 
+	s.Unlock()
+
+	if s.OnDisconnect != nil {
+		s.OnDisconnect(s)
+	}
+
 	return
-}
-
-type handshakeProperties struct {
-	OS              string `json:"$os"`
-	Browser         string `json:"$browser"`
-	Device          string `json:"$device"`
-	Referer         string `json:"$referer"`
-	ReferringDomain string `json:"$referring_domain"`
-}
-
-type handshakeData struct {
-	Version    int                 `json:"v"`
-	Token      string              `json:"token"`
-	Properties handshakeProperties `json:"properties"`
-}
-
-type handshakeOp struct {
-	Op   int           `json:"op"`
-	Data handshakeData `json:"d"`
-}
-
-// Handshake sends the client data to Discord during websocket initial connection.
-func (s *Session) Handshake() error {
-	data := handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}}}
-	return s.wsConn.WriteJSON(data)
 }
 
 type updateStatusGame struct {
@@ -137,27 +137,27 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 		usd.Game = &updateStatusGame{game}
 	}
 
-	data := updateStatusOp{3, usd}
-	err = s.wsConn.WriteJSON(data)
+	err = s.wsConn.WriteJSON(updateStatusOp{3, usd})
 
 	return
 }
 
 // Listen starts listening to the websocket connection for events.
 func (s *Session) Listen() (err error) {
-	s.Lock()
+	s.RLock()
+
 	if s.wsConn == nil {
-		s.Unlock()
+		s.RUnlock()
 		return errors.New("No websocket connection exists.")
 	}
 	if s.listening != nil {
-		s.Unlock()
+		s.RUnlock()
 		return errors.New("Already listening to websocket.")
 	}
 
 	s.listening = make(chan interface{})
 
-	s.Unlock()
+	s.RUnlock()
 
 	// Keep a reference, as s.listening can be nilled out.
 	listening := s.listening
@@ -562,11 +562,13 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	return
 }
 
+type heartbeatOp struct {
+	Op   int `json:"op"`
+	Data int `json:"d"`
+}
+
 func (s *Session) sendHeartbeat() error {
-	return s.wsConn.WriteJSON(map[string]int{
-		"op": 1,
-		"d":  int(time.Now().Unix()),
-	})
+	return s.wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
 }
 
 // heartbeat sends regular heartbeats to Discord so it knows the client

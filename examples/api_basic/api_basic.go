@@ -40,12 +40,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// Do websocket handshake.
-	err = dg.Handshake()
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	// Listen for events.
 	go dg.Listen()
 
