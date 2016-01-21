@@ -11,6 +11,7 @@
 package discordgo
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"time"
@@ -20,6 +21,20 @@ import (
 
 // Open opens a websocket connection to Discord.
 func (s *Session) Open() (err error) {
+	s.Lock()
+	defer func() {
+		s.Unlock()
+		// Fire OnConnect after we have unlocked the mutex,
+		// otherwise we may deadlock.
+		if err == nil && s.OnConnect != nil {
+			s.OnConnect(s)
+		}
+	}()
+
+	if s.wsConn != nil {
+		err = errors.New("Web socket already opened.")
+		return
+	}
 
 	// Get the gateway to use for the Websocket connection
 	g, err := s.Gateway()
@@ -30,6 +45,37 @@ func (s *Session) Open() (err error) {
 	// TODO: See if there's a use for the http response.
 	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
 	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, nil)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// Close closes a websocket and stops all listening/heartbeat goroutines.
+func (s *Session) Close() (err error) {
+	s.Lock()
+	defer func() {
+		s.Unlock()
+		// Fire OnDisconnect after we have unlocked the mutex
+		// otherwise we may deadlock, especially in reconnect logic.
+		if err == nil && s.OnDisconnect != nil {
+			s.OnDisconnect(s)
+		}
+	}()
+
+	s.DataReady = false
+
+	if s.listening != nil {
+		close(s.listening)
+		s.listening = nil
+	}
+
+	if s.wsConn != nil {
+		err = s.wsConn.Close()
+		s.wsConn = nil
+	}
+
 	return
 }
 
@@ -53,12 +99,9 @@ type handshakeOp struct {
 }
 
 // Handshake sends the client data to Discord during websocket initial connection.
-func (s *Session) Handshake() (err error) {
-	// maybe this is SendOrigin? not sure the right name here
-
+func (s *Session) Handshake() error {
 	data := handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}}}
-	err = s.wsConn.WriteJSON(data)
-	return
+	return s.wsConn.WriteJSON(data)
 }
 
 type updateStatusGame struct {
@@ -79,6 +122,11 @@ type updateStatusOp struct {
 // If idle>0 then set status to idle.  If game>0 then set game.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStatus(idle int, game string) (err error) {
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return errors.New("No websocket connection exists.")
+	}
 
 	var usd updateStatusData
 	if idle > 0 {
@@ -96,65 +144,36 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 
 // Listen starts listening to the websocket connection for events.
 func (s *Session) Listen() (err error) {
-	// TODO: need a channel or something to communicate
-	// to this so I can tell it to stop listening
-
+	s.Lock()
 	if s.wsConn == nil {
-		fmt.Println("No websocket connection exists.")
-		return // TODO need to return an error.
+		s.Unlock()
+		return errors.New("No websocket connection exists.")
+	}
+	if s.listening != nil {
+		s.Unlock()
+		return errors.New("Already listening to websocket.")
 	}
 
-	// Make sure Listen is not already running
-	s.listenLock.Lock()
-	if s.listenChan != nil {
-		s.listenLock.Unlock()
-		return
-	}
-	s.listenChan = make(chan struct{})
-	s.listenLock.Unlock()
+	s.listening = make(chan interface{})
 
-	// this is ugly.
-	defer func() {
-		if s.listenChan == nil {
-			return
-		}
-		select {
-		case <-s.listenChan:
-			break
-		default:
-			close(s.listenChan)
-		}
-		s.listenChan = nil
-	}()
+	s.Unlock()
 
-	// this is ugly.
-	defer func() {
-		if s.heartbeatChan == nil {
-			return
-		}
-		select {
-		case <-s.heartbeatChan:
-			break
-		default:
-			close(s.heartbeatChan)
-		}
-		s.listenChan = nil
-	}()
+	// Keep a reference, as s.listening can be nilled out.
+	listening := s.listening
 
 	for {
 		messageType, message, err := s.wsConn.ReadMessage()
 		if err != nil {
-			fmt.Println("Websocket Listen Error", err)
-			// TODO Log error
-			break
+			// Defer so we get better log ordering.
+			defer s.Close()
+			return fmt.Errorf("Websocket Listen Error", err)
 		}
-		go s.event(messageType, message)
 
-		// If our chan gets closed, exit out of this loop.
-		// TODO: Can we make this smarter, using select
-		// and some other trickery?  http://www.goinggo.net/2013/10/my-channel-select-bug.html
-		if s.listenChan == nil {
-			return nil
+		select {
+		case <-listening:
+			return
+		default:
+			go s.event(messageType, message)
 		}
 	}
 
@@ -192,8 +211,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	}
 
 	switch e.Type {
-
 	case "READY":
+		s.DataReady = true
 		var st *Ready
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
@@ -202,8 +221,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			if s.OnReady != nil {
 				s.OnReady(s, st)
 			}
-			go s.Heartbeat(st.HeartbeatInterval)
 		}
+		go s.heartbeat(st.HeartbeatInterval)
 		if s.OnReady != nil {
 			return
 		}
@@ -541,58 +560,38 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	return
 }
 
-// Heartbeat sends regular heartbeats to Discord so it knows the client
+func (s *Session) sendHeartbeat() error {
+	return s.wsConn.WriteJSON(map[string]int{
+		"op": 1,
+		"d":  int(time.Now().Unix()),
+	})
+}
+
+// heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
-func (s *Session) Heartbeat(i time.Duration) {
+func (s *Session) heartbeat(i time.Duration) {
+	// Keep a reference, as s.listening can be nilled out.
+	listening := s.listening
 
-	if s.wsConn == nil {
-		fmt.Println("No websocket connection exists.")
-		return // TODO need to return/log an error.
-	}
-
-	// Make sure Heartbeat is not already running
-	s.heartbeatLock.Lock()
-	if s.heartbeatChan != nil {
-		s.heartbeatLock.Unlock()
+	// Send first heartbeat immediately because lag could put the
+	// first heartbeat outside the required heartbeat interval window.
+	err := s.sendHeartbeat()
+	if err != nil {
+		fmt.Println("Error sending initial heartbeat:", err)
 		return
 	}
-	s.heartbeatChan = make(chan struct{})
-	s.heartbeatLock.Unlock()
 
-	// this is ugly.
-	defer func() {
-		if s.heartbeatChan == nil {
-			return
-		}
-		select {
-		case <-s.heartbeatChan:
-			break
-		default:
-			close(s.heartbeatChan)
-		}
-		s.listenChan = nil
-	}()
-
-	// send first heartbeat immediately because lag could put the
-	// first heartbeat outside the required heartbeat interval window
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
-
-		err := s.wsConn.WriteJSON(map[string]int{
-			"op": 1,
-			"d":  int(time.Now().Unix()),
-		})
-		if err != nil {
-			fmt.Println("error sending data heartbeat:", err)
-			s.DataReady = false
-			return // TODO log error?
-		}
-		s.DataReady = true
-
 		select {
 		case <-ticker.C:
-		case <-s.heartbeatChan:
+			err := s.sendHeartbeat()
+			if err != nil {
+				fmt.Println("Error sending heartbeat:", err)
+				return
+			}
+		case <-listening:
 			return
 		}
 	}

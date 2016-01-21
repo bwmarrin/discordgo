@@ -31,6 +31,9 @@ func main() {
 	// Register messageCreate as a callback for the OnMessageCreate event.
 	dg.OnMessageCreate = messageCreate
 
+	// Open the websocket and begin listening.
+	dg.OpenAndListen()
+
 	// Simple way to keep program running until any key press.
 	var input string
 	fmt.Scanln(&input)
