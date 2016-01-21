@@ -76,10 +76,13 @@ func TestNew(t *testing.T) {
 
 // TestInvalidToken tests the New() function with an invalid token
 func TestInvalidToken(t *testing.T) {
+	d, err := New("asjkldhflkjasdh")
+	if err != nil {
+		t.Fatalf("New(InvalidToken) returned error: %+v", err)
+	}
 
-	_, err := New("asjkldhflkjasdh")
-	if err == nil {
-		t.Errorf("New(InvalidToken) returned nil error.")
+	if err = d.OpenAndListen(); err == nil {
+		t.Fatalf("New(InvalidToken), d.OpenAndListen did not fail.")
 	}
 
 }
@@ -130,6 +133,10 @@ func TestNewUserPass(t *testing.T) {
 		t.Fatal("New(user,pass), d.Token is empty, should be a valid Token.")
 	}
 
+	if err = d.OpenAndListen(); err != nil {
+		t.Fatalf("New(user,pass), d.OpenAndListen failed: %+v", err)
+	}
+
 	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
 		t.Fatal("New(user,pass), d.DataReady is false after 10 seconds.  Should be true.")
 	}
@@ -138,12 +145,6 @@ func TestNewUserPass(t *testing.T) {
 	dg = d
 	if envToken == "" {
 		envToken = dg.Token
-	}
-}
-
-func TestClose(t *testing.T) {
-	if dg != nil {
-		dg.Close()
 	}
 }
 
@@ -168,6 +169,10 @@ func TestNewToken(t *testing.T) {
 		t.Fatal("New(envToken), d.Token is empty, should be a valid Token.")
 	}
 
+	if err = d.OpenAndListen(); err != nil {
+		t.Fatalf("New(envToken), d.OpenAndListen failed: %+v", err)
+	}
+
 	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
 		t.Fatal("New(envToken), d.DataReady is false after 10 seconds.  Should be true.")
 	}
@@ -175,4 +180,23 @@ func TestNewToken(t *testing.T) {
 	t.Log("Successfully connected to Discord via New(token).")
 	dg = d
 
+}
+
+func TestClose(t *testing.T) {
+	if envToken == "" {
+		t.Skip("Skipping TestClose, DG_TOKEN not set")
+	}
+
+	d, err := New(envToken)
+	if err != nil {
+		t.Fatalf("TestClose, New(envToken) returned error: %+v", err)
+	}
+
+	if err = d.OpenAndListen(); err != nil {
+		t.Fatalf("TestClose, d.OpenAndListen failed: %+v", err)
+	}
+
+	if err = d.Close(); err != nil {
+		t.Fatalf("TestClose, d.Close failed: %+v", err)
+	}
 }
