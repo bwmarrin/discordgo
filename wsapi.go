@@ -73,7 +73,7 @@ func (s *Session) Open() (err error) {
 	// Create listening outside of listen, as it needs to happen inside the mutex
 	// lock.
 	s.listening = make(chan interface{})
-	go s.listen(s.listening)
+	go s.listen(s.wsConn, s.listening)
 
 	s.Unlock()
 
@@ -112,9 +112,9 @@ func (s *Session) Close() (err error) {
 
 // listen polls the websocket connection for events, it will stop when
 // the listening channel is closed, or an error occurs.
-func (s *Session) listen(listening <-chan interface{}) {
+func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 	for {
-		messageType, message, err := s.wsConn.ReadMessage()
+		messageType, message, err := wsConn.ReadMessage()
 		if err != nil {
 			// There has been an error reading, Close() the websocket so that
 			// OnDisconnect is fired.
