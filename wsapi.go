@@ -214,9 +214,9 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 
 	switch e.Type {
 	case "READY":
-		s.DataReady = true
 		var st *Ready
 		if err = unmarshalEvent(e, &st); err == nil {
+			go s.heartbeat(st.HeartbeatInterval)
 			if s.StateEnabled {
 				s.State.OnReady(st)
 			}
@@ -224,7 +224,6 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 				s.OnReady(s, st)
 			}
 		}
-		go s.heartbeat(st.HeartbeatInterval)
 		if s.OnReady != nil {
 			return
 		}
@@ -575,8 +574,20 @@ func (s *Session) sendHeartbeat() error {
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
 func (s *Session) heartbeat(i time.Duration) {
+	s.Lock()
+
+	// We have been closed between the first Ready event, abort.
+	if s.listening == nil {
+		s.Unlock()
+		return
+	}
+
 	// Keep a reference, as s.listening can be nilled out.
 	listening := s.listening
+
+	s.DataReady = true
+
+	s.Unlock()
 
 	// Send first heartbeat immediately because lag could put the
 	// first heartbeat outside the required heartbeat interval window.
