@@ -70,6 +70,11 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
+	// Create listening outside of listen, as it needs to happen inside the mutex
+	// lock.
+	s.listening = make(chan interface{})
+	go s.listen(s.listening)
+
 	s.Unlock()
 
 	if s.OnConnect != nil {
@@ -100,6 +105,29 @@ func (s *Session) Close() (err error) {
 
 	if s.OnDisconnect != nil {
 		s.OnDisconnect(s)
+	}
+
+	return
+}
+
+// listen polls the websocket connection for events, it will stop when
+// the listening channel is closed, or an error occurs.
+func (s *Session) listen(listening <-chan interface{}) {
+	for {
+		messageType, message, err := s.wsConn.ReadMessage()
+		if err != nil {
+			// There has been an error reading, Close() the websocket so that
+			// OnDisconnect is fired.
+			s.Close()
+			return
+		}
+
+		select {
+		case <-listening:
+			return
+		default:
+			go s.event(messageType, message)
+		}
 	}
 
 	return
@@ -138,46 +166,6 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	}
 
 	err = s.wsConn.WriteJSON(updateStatusOp{3, usd})
-
-	return
-}
-
-// Listen starts listening to the websocket connection for events.
-func (s *Session) Listen() (err error) {
-	s.RLock()
-
-	if s.wsConn == nil {
-		s.RUnlock()
-		return errors.New("No websocket connection exists.")
-	}
-	if s.listening != nil {
-		s.RUnlock()
-		return errors.New("Already listening to websocket.")
-	}
-
-	s.listening = make(chan interface{})
-
-	s.RUnlock()
-
-	// Keep a reference, as s.listening can be nilled out.
-	listening := s.listening
-
-	for {
-		messageType, message, err1 := s.wsConn.ReadMessage()
-		if err1 != nil {
-			err = err1
-			// Defer so we get better log ordering.
-			defer s.Close()
-			return fmt.Errorf("Websocket Listen Error", err)
-		}
-
-		select {
-		case <-listening:
-			return
-		default:
-			go s.event(messageType, message)
-		}
-	}
 
 	return
 }

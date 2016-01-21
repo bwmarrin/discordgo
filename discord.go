@@ -117,20 +117,3 @@ func New(args ...interface{}) (s *Session, err error) {
 
 	return
 }
-
-// OpenAndListen is a helper method that opens the websocket connection,
-// does the required handshake and then immediately begins listening.
-// This is the preferred way to start listening for events and is safe
-// to be called inside an OnDisconnect handler.
-func (s *Session) OpenAndListen() (err error) {
-	// Open websocket connection.
-	err = s.Open()
-	if err != nil {
-		return
-	}
-
-	// Listen for events.
-	go s.Listen()
-
-	return
-}

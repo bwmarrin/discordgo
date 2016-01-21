@@ -32,7 +32,7 @@ func main() {
 	dg.OnMessageCreate = messageCreate
 
 	// Open the websocket and begin listening.
-	dg.OpenAndListen()
+	dg.Open()
 
 	// Simple way to keep program running until any key press.
 	var input string

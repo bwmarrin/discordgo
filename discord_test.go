@@ -199,8 +199,8 @@ func TestOpenClose(t *testing.T) {
 		t.Fatalf("TestClose, New(envToken) returned error: %+v", err)
 	}
 
-	if err = d.OpenAndListen(); err != nil {
-		t.Fatalf("TestClose, d.OpenAndListen failed: %+v", err)
+	if err = d.Open(); err != nil {
+		t.Fatalf("TestClose, d.Open failed: %+v", err)
 	}
 
 	if err = d.Close(); err != nil {
