@@ -116,9 +116,32 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 	for {
 		messageType, message, err := wsConn.ReadMessage()
 		if err != nil {
-			// There has been an error reading, Close() the websocket so that
-			// OnDisconnect is fired.
-			s.Close()
+			// Detect if we have been closed manually. If a Close() has already
+			// happened, the websocket we are listening on will be different to the
+			// current session.
+			s.RLock()
+			sameConnection := s.wsConn == wsConn
+			s.RUnlock()
+			if sameConnection {
+				// There has been an error reading, Close() the websocket so that
+				// OnDisconnect is fired.
+				s.Close()
+
+				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
+				if s.ShouldReconnectOnError {
+					wait := time.Duration(1)
+					for {
+						if s.Open() == nil {
+							return
+						}
+						<-time.After(wait * time.Second)
+						wait *= 2
+						if wait > 600 {
+							wait = 600
+						}
+					}
+				}
+			}
 			return
 		}
 
@@ -131,6 +154,50 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 	}
 
 	return
+}
+
+type heartbeatOp struct {
+	Op   int `json:"op"`
+	Data int `json:"d"`
+}
+
+func (s *Session) sendHeartbeat(wsConn *websocket.Conn) error {
+	return wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
+}
+
+// heartbeat sends regular heartbeats to Discord so it knows the client
+// is still connected.  If you do not send these heartbeats Discord will
+// disconnect the websocket connection after a few seconds.
+func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, i time.Duration) {
+	if listening == nil || wsConn == nil {
+		return
+	}
+
+	s.Lock()
+	s.DataReady = true
+	s.Unlock()
+
+	// Send first heartbeat immediately because lag could put the
+	// first heartbeat outside the required heartbeat interval window.
+	err := s.sendHeartbeat(wsConn)
+	if err != nil {
+		fmt.Println("Error sending initial heartbeat:", err)
+		return
+	}
+
+	ticker := time.NewTicker(i * time.Millisecond)
+	for {
+		select {
+		case <-ticker.C:
+			err := s.sendHeartbeat(wsConn)
+			if err != nil {
+				fmt.Println("Error sending heartbeat:", err)
+				return
+			}
+		case <-listening:
+			return
+		}
+	}
 }
 
 type updateStatusGame struct {
@@ -547,50 +614,6 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	}
 
 	return
-}
-
-type heartbeatOp struct {
-	Op   int `json:"op"`
-	Data int `json:"d"`
-}
-
-func (s *Session) sendHeartbeat(wsConn *websocket.Conn) error {
-	return wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
-}
-
-// heartbeat sends regular heartbeats to Discord so it knows the client
-// is still connected.  If you do not send these heartbeats Discord will
-// disconnect the websocket connection after a few seconds.
-func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, i time.Duration) {
-	if listening == nil || wsConn == nil {
-		return
-	}
-
-	s.Lock()
-	s.DataReady = true
-	s.Unlock()
-
-	// Send first heartbeat immediately because lag could put the
-	// first heartbeat outside the required heartbeat interval window.
-	err := s.sendHeartbeat(wsConn)
-	if err != nil {
-		fmt.Println("Error sending initial heartbeat:", err)
-		return
-	}
-
-	ticker := time.NewTicker(i * time.Millisecond)
-	for {
-		select {
-		case <-ticker.C:
-			err := s.sendHeartbeat(wsConn)
-			if err != nil {
-				fmt.Println("Error sending heartbeat:", err)
-				return
-			}
-		case <-listening:
-			return
-		}
-	}
 }
 
 // ------------------------------------------------------------------------------------------------
