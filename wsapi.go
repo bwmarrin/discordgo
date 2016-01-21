@@ -163,8 +163,9 @@ func (s *Session) Listen() (err error) {
 	listening := s.listening
 
 	for {
-		messageType, message, err := s.wsConn.ReadMessage()
-		if err != nil {
+		messageType, message, err1 := s.wsConn.ReadMessage()
+		if err1 != nil {
+			err = err1
 			// Defer so we get better log ordering.
 			defer s.Close()
 			return fmt.Errorf("Websocket Listen Error", err)

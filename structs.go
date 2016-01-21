@@ -23,7 +23,7 @@ import (
 // token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
-	sync.Mutex
+	sync.RWMutex
 
 	// General configurable settings.
 	Token string // Authentication token for this session
