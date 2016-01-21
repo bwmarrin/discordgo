@@ -111,56 +111,8 @@ func New(args ...interface{}) (s *Session, err error) {
 		}
 	}
 
-	// TODO: Add code here to fetch authenticated user info like settings,
-	// avatar, User ID, etc.  If fails, return error.
-
-	// Open websocket connection
-	err = s.Open()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Do websocket handshake.
-	err = s.Handshake()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Listen for events.
-	go s.Listen()
+	// The Session is now able to have RestAPI methods called on it.
+	// It is recommended that you now call Open() so that events will trigger.
 
 	return
-}
-
-// Close closes a Discord session
-// TODO: Add support for Voice WS/UDP connections
-func (s *Session) Close() {
-
-	s.DataReady = false
-
-	if s.heartbeatChan != nil {
-		select {
-		case <-s.heartbeatChan:
-			break
-		default:
-			close(s.heartbeatChan)
-		}
-		s.heartbeatChan = nil
-	}
-
-	if s.listenChan != nil {
-		select {
-		case <-s.listenChan:
-			break
-		default:
-			close(s.listenChan)
-		}
-		s.listenChan = nil
-	}
-
-	if s.wsConn != nil {
-		s.wsConn.Close()
-	}
 }
