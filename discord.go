@@ -112,8 +112,7 @@ func New(args ...interface{}) (s *Session, err error) {
 	}
 
 	// The Session is now able to have RestAPI methods called on it.
-	// It is recommended that you now call OpenAndListen so that events
-	// will begin to trigger.
+	// It is recommended that you now call Open() so that events will trigger.
 
 	return
 }
