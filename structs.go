@@ -92,6 +92,8 @@ type Session struct {
 
 	// When nil, the session is not listening.
 	listening chan interface{}
+
+	ShouldReconnectOnError bool
 }
 
 // A VoiceRegion stores data for a specific voice region server.
