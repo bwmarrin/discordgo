@@ -20,9 +20,15 @@ const VERSION = "0.10.0-alpha"
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
-// arguments and it will return an empty Discord session. If you pass a token
-// or username and password (in that order), then it will attempt to login to
-// Discord and open a websocket connection.
+// arguments and it will return an empty Discord session.
+// There are 3 ways to call New:
+//     With a single auth token - All requests will use the token blindly,
+//         no verification of the token will be done and requests may fail.
+//     With an email and password - Discord will sign in with the provided
+//         credentials.
+//     With an email, password and auth token - Discord will verify the auth
+//         token, if it is invalid it will sign in with the provided
+//         credentials. This is the Discord recommended way to sign in.
 func New(args ...interface{}) (s *Session, err error) {
 
 	// Create an empty Session interface.
@@ -46,7 +52,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		switch v := arg.(type) {
 
 		case []string:
-			if len(v) > 2 {
+			if len(v) > 3 {
 				err = fmt.Errorf("Too many string parameters provided.")
 				return
 			}
@@ -61,6 +67,11 @@ func New(args ...interface{}) (s *Session, err error) {
 				pass = v[1]
 			}
 
+			// If third string exists, it must be an auth token.
+			if len(v) > 2 {
+				s.Token = v[2]
+			}
+
 		case string:
 			// First string must be either auth token or username.
 			// Second string must be a password.
@@ -70,6 +81,8 @@ func New(args ...interface{}) (s *Session, err error) {
 				auth = v
 			} else if pass == "" {
 				pass = v
+			} else if s.Token == "" {
+				s.Token = v
 			} else {
 				err = fmt.Errorf("Too many string parameters provided.")
 				return
@@ -85,67 +98,21 @@ func New(args ...interface{}) (s *Session, err error) {
 	}
 
 	// If only one string was provided, assume it is an auth token.
-	// Otherwise get auth token from Discord
+	// Otherwise get auth token from Discord, if a token was specified
+	// Discord will verify it for free, or log the user in if it is
+	// invalid.
 	if pass == "" {
 		s.Token = auth
 	} else {
-		s.Token, err = s.Login(auth, pass)
+		err = s.Login(auth, pass)
 		if err != nil || s.Token == "" {
 			err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
 			return
 		}
 	}
 
-	// TODO: Add code here to fetch authenticated user info like settings,
-	// avatar, User ID, etc.  If fails, return error.
-
-	// Open websocket connection
-	err = s.Open()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Do websocket handshake.
-	err = s.Handshake()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Listen for events.
-	go s.Listen()
+	// The Session is now able to have RestAPI methods called on it.
+	// It is recommended that you now call Open() so that events will trigger.
 
 	return
-}
-
-// Close closes a Discord session
-// TODO: Add support for Voice WS/UDP connections
-func (s *Session) Close() {
-
-	s.DataReady = false
-
-	if s.heartbeatChan != nil {
-		select {
-		case <-s.heartbeatChan:
-			break
-		default:
-			close(s.heartbeatChan)
-		}
-		s.heartbeatChan = nil
-	}
-
-	if s.listenChan != nil {
-		select {
-		case <-s.listenChan:
-			break
-		default:
-			close(s.listenChan)
-		}
-		s.listenChan = nil
-	}
-
-	if s.wsConn != nil {
-		s.wsConn.Close()
-	}
 }

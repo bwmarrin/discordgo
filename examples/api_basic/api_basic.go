@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// Login to the Discord server and store the authentication token
-	dg.Token, err = dg.Login(os.Args[1], os.Args[2])
+	err = dg.Login(os.Args[1], os.Args[2])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -39,15 +39,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	// Do websocket handshake.
-	err = dg.Handshake()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Listen for events.
-	go dg.Listen()
 
 	// Simple way to keep program running until any key press.
 	var input string

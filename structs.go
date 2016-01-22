@@ -23,9 +23,18 @@ import (
 // token : The authentication token returned from Discord
 // Debug : If set to ture debug logging will be displayed.
 type Session struct {
+	sync.RWMutex
+
 	// General configurable settings.
 	Token string // Authentication token for this session
 	Debug bool   // Debug for printing JSON request/responses
+
+	// Settable Callback functions for Internal Events
+	// OnConnect is called when the websocket connection opens.
+	OnConnect func(*Session)
+	// OnDisconnect is called when the websocket connection closes.
+	// This is a good handler to add reconnection logic to.
+	OnDisconnect func(*Session)
 
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, *Event)
@@ -81,14 +90,10 @@ type Session struct {
 	StateEnabled         bool
 	StateMaxMessageCount int
 
-	// Mutex/Bools for locks that prevent accidents.
-	// TODO: Add channels.
+	// When nil, the session is not listening.
+	listening chan interface{}
 
-	heartbeatLock sync.Mutex
-	heartbeatChan chan struct{}
-
-	listenLock sync.Mutex
-	listenChan chan struct{}
+	ShouldReconnectOnError bool
 }
 
 // A VoiceRegion stores data for a specific voice region server.

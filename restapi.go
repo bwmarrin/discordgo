@@ -128,8 +128,8 @@ func unmarshal(data []byte, v interface{}) error {
 // Functions specific to Discord Sessions
 // ------------------------------------------------------------------------------------------------
 
-// Login asks the Discord server for an authentication token
-func (s *Session) Login(email string, password string) (token string, err error) {
+// Login asks the Discord server for an authentication token.
+func (s *Session) Login(email, password string) (err error) {
 
 	data := struct {
 		Email    string `json:"email"`
@@ -150,7 +150,7 @@ func (s *Session) Login(email string, password string) (token string, err error)
 		return
 	}
 
-	token = temp.Token
+	s.Token = temp.Token
 	return
 }
 
@@ -431,7 +431,7 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 // userID    : The ID of a User
 func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 
-	_, err = s.Request("DELETE", GUILD_MEMBER_DEL(guildID, userID), nil)
+	_, err = s.Request("DELETE", GUILD_MEMBER(guildID, userID), nil)
 	return
 }
 

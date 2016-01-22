@@ -21,6 +21,16 @@ var (
 	envAdmin    string = os.Getenv("DG_ADMIN")    // User ID of admin user to use for tests
 )
 
+func init() {
+	if envEmail == "" || envPassword == "" || envToken == "" {
+		return
+	}
+
+	if d, err := New(envEmail, envPassword, envToken); err == nil {
+		dg = d
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////// HELPER FUNCTIONS USED FOR TESTING
 
@@ -76,12 +86,16 @@ func TestNew(t *testing.T) {
 
 // TestInvalidToken tests the New() function with an invalid token
 func TestInvalidToken(t *testing.T) {
-
-	_, err := New("asjkldhflkjasdh")
-	if err == nil {
-		t.Errorf("New(InvalidToken) returned nil error.")
+	d, err := New("asjkldhflkjasdh")
+	if err != nil {
+		t.Fatalf("New(InvalidToken) returned error: %+v", err)
 	}
 
+	// New with just a token does not do any communication, so attempt an api call.
+	_, err = d.UserSettings()
+	if err == nil {
+		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
+	}
 }
 
 // TestInvalidUserPass tests the New() function with an invalid Email and Pass
@@ -108,8 +122,7 @@ func TestInvalidPass(t *testing.T) {
 }
 
 // TestNewUserPass tests the New() function with a username and password.
-// This should return a valid Session{}, a valid Session.Token, and open
-// a websocket connection to Discord.
+// This should return a valid Session{}, a valid Session.Token.
 func TestNewUserPass(t *testing.T) {
 
 	if envEmail == "" || envPassword == "" {
@@ -128,22 +141,6 @@ func TestNewUserPass(t *testing.T) {
 
 	if d.Token == "" {
 		t.Fatal("New(user,pass), d.Token is empty, should be a valid Token.")
-	}
-
-	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
-		t.Fatal("New(user,pass), d.DataReady is false after 10 seconds.  Should be true.")
-	}
-
-	t.Log("Successfully connected to Discord via New(user,pass).")
-	dg = d
-	if envToken == "" {
-		envToken = dg.Token
-	}
-}
-
-func TestClose(t *testing.T) {
-	if dg != nil {
-		dg.Close()
 	}
 }
 
@@ -167,12 +164,46 @@ func TestNewToken(t *testing.T) {
 	if d.Token == "" {
 		t.Fatal("New(envToken), d.Token is empty, should be a valid Token.")
 	}
+}
 
-	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
-		t.Fatal("New(envToken), d.DataReady is false after 10 seconds.  Should be true.")
+// TestNewUserPassToken tests the New() function with a username, password and token.
+// This should return the same as the TestNewUserPass function.
+func TestNewUserPassToken(t *testing.T) {
+
+	if envEmail == "" || envPassword == "" || envToken == "" {
+		t.Skip("Skipping New(username,password,token), DG_EMAIL, DG_PASSWORD or DG_TOKEN not set")
+		return
 	}
 
-	t.Log("Successfully connected to Discord via New(token).")
-	dg = d
+	d, err := New(envEmail, envPassword, envToken)
+	if err != nil {
+		t.Fatalf("New(user,pass,token) returned error: %+v", err)
+	}
 
+	if d == nil {
+		t.Fatal("New(user,pass,token), d is nil, should be Session{}")
+	}
+
+	if d.Token == "" {
+		t.Fatal("New(user,pass,token), d.Token is empty, should be a valid Token.")
+	}
+}
+
+func TestOpenClose(t *testing.T) {
+	if envToken == "" {
+		t.Skip("Skipping TestClose, DG_TOKEN not set")
+	}
+
+	d, err := New(envToken)
+	if err != nil {
+		t.Fatalf("TestClose, New(envToken) returned error: %+v", err)
+	}
+
+	if err = d.Open(); err != nil {
+		t.Fatalf("TestClose, d.Open failed: %+v", err)
+	}
+
+	if err = d.Close(); err != nil {
+		t.Fatalf("TestClose, d.Close failed: %+v", err)
+	}
 }
