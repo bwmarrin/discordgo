@@ -7,16 +7,20 @@ import (
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
-// TestLogout tests the Logout() function. This should not return an error.
-func TestLogout(t *testing.T) {
+// TestChannelMessageSend tests the ChannelMessageSend() function. This should not return an error.
+func TestChannelMessageSend(t *testing.T) {
 
-	if dg == nil {
-		t.Skip("Cannot TestLogout, dg not set.")
+	if envChannel == "" {
+		t.Skip("Skipping, DG_CHANNEL not set.")
 	}
 
-	err := dg.Logout()
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.ChannelMessageSend(envChannel, "Running REST API Tests!")
 	if err != nil {
-		t.Errorf("Logout() returned error: %+v", err)
+		t.Errorf("ChannelMessageSend returned error: %+v", err)
 	}
 }
 
@@ -113,5 +117,35 @@ func TestUserSettings(t *testing.T) {
 	_, err := dg.UserSettings()
 	if err != nil {
 		t.Errorf(err.Error())
+	}
+}
+
+// TestLogout tests the Logout() function. This should not return an error.
+func TestLogout(t *testing.T) {
+
+	if dg == nil {
+		t.Skip("Cannot TestLogout, dg not set.")
+	}
+
+	err := dg.Logout()
+	if err != nil {
+		t.Errorf("Logout() returned error: %+v", err)
+	}
+}
+
+// TestChannelMessageSend2 tests the ChannelMessageSend() function. This should not return an error.
+func TestChannelMessageSend2(t *testing.T) {
+
+	if envChannel == "" {
+		t.Skip("Skipping, DG_CHANNEL not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.ChannelMessageSend(envChannel, "All done running REST API Tests!")
+	if err != nil {
+		t.Errorf("ChannelMessageSend returned error: %+v", err)
 	}
 }
