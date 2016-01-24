@@ -11,8 +11,13 @@
 package discordgo
 
 import (
+	"bytes"
+	"compress/zlib"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"runtime"
 	"time"
 
@@ -31,6 +36,7 @@ type handshakeData struct {
 	Version    int                 `json:"v"`
 	Token      string              `json:"token"`
 	Properties handshakeProperties `json:"properties"`
+	Compress   bool                `json:"compress"`
 }
 
 type handshakeOp struct {
@@ -58,14 +64,17 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
+	header := http.Header{}
+	header.Add("accept-encoding", "zlib")
+
 	// TODO: See if there's a use for the http response.
 	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
-	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, nil)
+	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, header)
 	if err != nil {
 		return
 	}
 
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}}})
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, s.Compress}})
 	if err != nil {
 		return
 	}
@@ -242,8 +251,8 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 
 func unmarshalEvent(event *Event, i interface{}) (err error) {
 	if err = unmarshal(event.RawData, i); err != nil {
-		fmt.Println(event.Type, err)
-		printJSON(event.RawData) // TODO: Better error loggingEvent.
+		fmt.Println("Unable to unmarshal event data.")
+		printEvent(event)
 	}
 	return
 }
@@ -256,15 +265,28 @@ func unmarshalEvent(event *Event, i interface{}) (err error) {
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) (err error) {
+	var reader io.Reader
+	reader = bytes.NewBuffer(message)
 
-	if s.Debug {
-		printJSON(message)
+	if messageType == 2 {
+		z, err1 := zlib.NewReader(reader)
+		if err1 != nil {
+			fmt.Println(err1)
+			return err1
+		}
+		defer z.Close()
+		reader = z
 	}
 
 	var e *Event
-	if err = unmarshal(message, &e); err != nil {
+	decoder := json.NewDecoder(reader)
+	if err = decoder.Decode(&e); err != nil {
 		fmt.Println(err)
 		return
+	}
+
+	if s.Debug {
+		printEvent(e)
 	}
 
 	switch e.Type {
@@ -603,8 +625,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			return
 		}
 	default:
-		fmt.Println("UNKNOWN EVENT: ", e.Type)
-		printJSON(message)
+		fmt.Println("Unknown Event.")
+		printEvent(e)
 	}
 
 	// if still here, send to generic OnEvent
