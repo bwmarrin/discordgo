@@ -11,8 +11,14 @@
 package discordgo
 
 import (
+	"bytes"
+	"compress/flate"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"runtime"
 	"time"
 
@@ -31,6 +37,7 @@ type handshakeData struct {
 	Version    int                 `json:"v"`
 	Token      string              `json:"token"`
 	Properties handshakeProperties `json:"properties"`
+	Compress   bool                `json:"compress"`
 }
 
 type handshakeOp struct {
@@ -58,14 +65,17 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
+	header := http.Header{}
+	header.Add("accept-encoding", "gzip, deflate")
+
 	// TODO: See if there's a use for the http response.
 	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
-	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, nil)
+	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, header)
 	if err != nil {
 		return
 	}
 
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}}})
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, true}})
 	if err != nil {
 		return
 	}
@@ -261,14 +271,27 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		printJSON(message)
 	}
 
+	var reader io.Reader
+	reader = bytes.NewBuffer(message)
+
+	if messageType == 2 {
+		ioutil.WriteFile("ready", message, 0644)
+		f := flate.NewReader(reader)
+		defer f.Close()
+		reader = f
+	}
+
+	decoder := json.NewDecoder(reader)
+
 	var e *Event
-	if err = unmarshal(message, &e); err != nil {
+	if err = decoder.Decode(&e); err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	switch e.Type {
 	case "READY":
+		fmt.Println(messageType, e)
 		var st *Ready
 		if err = unmarshalEvent(e, &st); err == nil {
 			go s.heartbeat(s.wsConn, s.listening, st.HeartbeatInterval)
