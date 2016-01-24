@@ -33,8 +33,10 @@ func New(args ...interface{}) (s *Session, err error) {
 
 	// Create an empty Session interface.
 	s = &Session{
-		State:        NewState(),
-		StateEnabled: true,
+		State:                  NewState(),
+		StateEnabled:           true,
+		Compress:               true,
+		ShouldReconnectOnError: true,
 	}
 
 	// If no arguments are passed return the empty Session interface.
