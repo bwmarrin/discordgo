@@ -72,28 +72,24 @@ type Session struct {
 	VoiceReady bool   // Set to true when Voice Websocket is ready
 	UDPReady   bool   // Set to true when UDP Connection is ready
 
-	// Other..
+	// The websocket connection.
 	wsConn *websocket.Conn
-	//TODO, add bools for like.
-	// are we connnected to websocket?
-	// have we authenticated to login?
-	// lets put all the general session
-	// tracking and infos here.. clearly
 
-	// Everything below here is used for Voice testing.
-	// This stuff is almost guarenteed to change a lot
-	// and is even a bit hackish right now.
-	Voice *Voice // Stores all details related to voice connections
+	// Stores all details related to voice connections
+	Voice *Voice
 
 	// Managed state object, updated with events.
-	State                *State
-	StateEnabled         bool
-	StateMaxMessageCount int
+	State        *State
+	StateEnabled bool
 
 	// When nil, the session is not listening.
 	listening chan interface{}
 
+	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
+
+	// Should the session request compressed websocket data.
+	Compress bool
 }
 
 // A VoiceRegion stores data for a specific voice region server.
