@@ -12,12 +12,11 @@ package discordgo
 
 import (
 	"bytes"
-	"compress/flate"
+	"compress/zlib"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"runtime"
 	"time"
@@ -66,7 +65,7 @@ func (s *Session) Open() (err error) {
 	}
 
 	header := http.Header{}
-	header.Add("accept-encoding", "gzip, deflate")
+	header.Add("accept-encoding", "zlib")
 
 	// TODO: See if there's a use for the http response.
 	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
@@ -252,8 +251,8 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 
 func unmarshalEvent(event *Event, i interface{}) (err error) {
 	if err = unmarshal(event.RawData, i); err != nil {
-		fmt.Println(event.Type, err)
-		printJSON(event.RawData) // TODO: Better error loggingEvent.
+		fmt.Println("Unable to unmarshal event data.")
+		printEvent(event)
 	}
 	return
 }
@@ -266,32 +265,33 @@ func unmarshalEvent(event *Event, i interface{}) (err error) {
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) (err error) {
-
-	if s.Debug {
-		printJSON(message)
-	}
-
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
 
 	if messageType == 2 {
-		ioutil.WriteFile("ready", message, 0644)
-		f := flate.NewReader(reader)
-		defer f.Close()
-		reader = f
+		z, err1 := zlib.NewReader(reader)
+		if err1 != nil {
+			err = err1
+			fmt.Println(err)
+			return
+		}
+		defer z.Close()
+		reader = z
 	}
 
-	decoder := json.NewDecoder(reader)
-
 	var e *Event
+	decoder := json.NewDecoder(reader)
 	if err = decoder.Decode(&e); err != nil {
 		fmt.Println(err)
 		return
 	}
 
+	if s.Debug {
+		printEvent(e)
+	}
+
 	switch e.Type {
 	case "READY":
-		fmt.Println(messageType, e)
 		var st *Ready
 		if err = unmarshalEvent(e, &st); err == nil {
 			go s.heartbeat(s.wsConn, s.listening, st.HeartbeatInterval)
@@ -626,8 +626,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			return
 		}
 	default:
-		fmt.Println("UNKNOWN EVENT: ", e.Type)
-		printJSON(message)
+		fmt.Println("Unknown Event.")
+		printEvent(e)
 	}
 
 	// if still here, send to generic OnEvent
