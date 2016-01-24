@@ -271,9 +271,8 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 	if messageType == 2 {
 		z, err1 := zlib.NewReader(reader)
 		if err1 != nil {
-			err = err1
-			fmt.Println(err)
-			return
+			fmt.Println(err1)
+			return err1
 		}
 		defer z.Close()
 		reader = z
