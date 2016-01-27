@@ -422,6 +422,7 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 		// Get data from chan.  If chan is closed, return.
 		recvbuf, ok := <-opus
 		if !ok {
+			v.Ready = false
 			return
 		}
 
