@@ -355,7 +355,6 @@ func (v *Voice) udpOpen() (err error) {
 	go v.udpKeepAlive(5 * time.Second)
 	// TODO: find a way to check that it fired off okay
 
-	v.Ready = true
 	return
 }
 
@@ -398,6 +397,10 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 	v.Unlock()
 
 	runtime.LockOSThread()
+
+	// Voice is now ready to receive audio packets
+	// TODO: this needs reviewed as I think there must be a better way.
+	v.Ready = true
 
 	var sequence uint16 = 0
 	var timestamp uint32 = 0
