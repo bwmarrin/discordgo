@@ -401,6 +401,7 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 	// Voice is now ready to receive audio packets
 	// TODO: this needs reviewed as I think there must be a better way.
 	v.Ready = true
+	defer func() { v.Ready = false }()
 
 	var sequence uint16 = 0
 	var timestamp uint32 = 0
@@ -422,7 +423,6 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 		// Get data from chan.  If chan is closed, return.
 		recvbuf, ok := <-opus
 		if !ok {
-			v.Ready = false
 			return
 		}
 
