@@ -435,6 +435,27 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 	return
 }
 
+// GuildMemberEdit edits the roles of a member.
+// guildID  : The ID of a Guild.
+// userID   : The ID of a User.
+// roles    : A list of roles to set on the member.
+func (s *Session) GuildMemberEdit(guildID, userID string, roles []*Role) (err error) {
+	data := struct {
+		Roles []string `json:"roles"`
+	}{[]string{}}
+
+	for _, r := range roles {
+		data.Roles = append(data.Roles, r.ID)
+	}
+
+	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 // GuildChannels returns an array of Channel structures for all channels of a
 // given guild.
 // guildID   : The ID of a Guild.
