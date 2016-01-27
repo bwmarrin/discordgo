@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -27,14 +28,16 @@ import (
 
 // A Voice struct holds all data and functions related to Discord Voice support.
 type Voice struct {
-	sync.Mutex               // future use
-	Ready      bool          // If true, voice is ready to send/receive audio
-	Debug      bool          // If true, print extra logging
-	Chan       chan struct{} // future use
-	UDPConn    *net.UDPConn  // exported for dgvoice, may change.
-	OP2        *voiceOP2     // exported for dgvoice, may change.
+	sync.Mutex             // future use
+	Ready      bool        // If true, voice is ready to send/receive audio
+	Debug      bool        // If true, print extra logging
+	OP2        *voiceOP2   // exported for dgvoice, may change.
+	Opus       chan []byte // Chan for sending opus audio
+	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
+	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
-	wsConn *websocket.Conn
+	wsConn  *websocket.Conn
+	UDPConn *net.UDPConn // this will become unexported soon.
 
 	sessionID string
 	token     string
@@ -174,9 +177,10 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 			return
 		}
 
-		// start udpKeepAlive
-		go v.udpKeepAlive(5 * time.Second)
-		// TODO: find a way to check that it fired off okay
+		// Start the opusSender.
+		// TODO: Should we allow 48000/960 values to be user defined?
+		v.Opus = make(chan []byte, 2)
+		go v.opusSender(v.Opus, 48000, 960)
 
 		return
 
@@ -347,7 +351,10 @@ func (v *Voice) udpOpen() (err error) {
 		return
 	}
 
-	v.Ready = true
+	// start udpKeepAlive
+	go v.udpKeepAlive(5 * time.Second)
+	// TODO: find a way to check that it fired off okay
+
 	return
 }
 
@@ -373,5 +380,70 @@ func (v *Voice) udpKeepAlive(i time.Duration) {
 			return
 		}
 		<-ticker.C
+	}
+}
+
+// opusSender will listen on the given channel and send any
+// pre-encoded opus audio to Discord.  Supposedly.
+func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
+
+	// TODO: Better checking to prevent this from running more than
+	// one instance at a time.
+	v.Lock()
+	if opus == nil {
+		v.Unlock()
+		return
+	}
+	v.Unlock()
+
+	runtime.LockOSThread()
+
+	// Voice is now ready to receive audio packets
+	// TODO: this needs reviewed as I think there must be a better way.
+	v.Ready = true
+	defer func() { v.Ready = false }()
+
+	var sequence uint16 = 0
+	var timestamp uint32 = 0
+	udpHeader := make([]byte, 12)
+
+	// build the parts that don't change in the udpHeader
+	udpHeader[0] = 0x80
+	udpHeader[1] = 0x78
+	binary.BigEndian.PutUint32(udpHeader[8:], v.OP2.SSRC)
+
+	// start a send loop that loops until buf chan is closed
+	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
+	for {
+
+		// Add sequence and timestamp to udpPacket
+		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
+		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
+
+		// Get data from chan.  If chan is closed, return.
+		recvbuf, ok := <-opus
+		if !ok {
+			return
+		}
+
+		// Combine the UDP Header and the opus data
+		sendbuf := append(udpHeader, recvbuf...)
+
+		// block here until we're exactly at the right time :)
+		// Then send rtp audio packet to Discord over UDP
+		<-ticker.C
+		v.UDPConn.Write(sendbuf)
+
+		if (sequence) == 0xFFFF {
+			sequence = 0
+		} else {
+			sequence += 1
+		}
+
+		if (timestamp + uint32(size)) >= 0xFFFFFFFF {
+			timestamp = 0
+		} else {
+			timestamp += uint32(size)
+		}
 	}
 }
