@@ -379,9 +379,6 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			}
 		}
 		return
-		if s.OnMessageUpdate != nil {
-			return
-		}
 	case "MESSAGE_DELETE":
 		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
 		if !stateEnabled && s.OnMessageDelete == nil {
