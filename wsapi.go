@@ -161,8 +161,6 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			go s.event(messageType, message)
 		}
 	}
-
-	return
 }
 
 type heartbeatOp struct {
