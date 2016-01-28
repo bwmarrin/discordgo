@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-// Error returned for unmarshal errors.
+// ErrJSONUnmarshal is returned for JSON Unmarshall errors.
 var ErrJSONUnmarshal = errors.New("json unmarshal")
 
 // Request makes a (GET/POST/...) Requests to Discord REST API.
@@ -69,10 +69,15 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			fmt.Println("error closing resp body")
+		}
+	}()
 
 	response, err = ioutil.ReadAll(resp.Body)
 	if err != nil {

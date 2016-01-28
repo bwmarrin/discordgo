@@ -151,6 +151,7 @@ type PermissionOverwrite struct {
 	Allow int    `json:"allow"`
 }
 
+// Emoji struct holds data related to Emoji's
 type Emoji struct {
 	Roles         []string `json:"roles"`
 	RequireColons bool     `json:"require_colons"`
@@ -212,6 +213,7 @@ type Presence struct {
 	Game   *Game  `json:"game"`
 }
 
+// A Game struct holds the name of the "playing .." game for a user
 type Game struct {
 	Name string `json:"name"`
 }
@@ -277,6 +279,8 @@ type Ready struct {
 	PrivateChannels   []*Channel    `json:"private_channels"`
 	Guilds            []*Guild      `json:"guilds"`
 }
+
+// A RateLimit struct holds information related to a specific rate limit.
 type RateLimit struct {
 	Bucket     string        `json:"bucket"`
 	Message    string        `json:"message"`

@@ -134,7 +134,10 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			if sameConnection {
 				// There has been an error reading, Close() the websocket so that
 				// OnDisconnect is fired.
-				s.Close()
+				err := s.Close()
+				if err != nil {
+					fmt.Println("error closing session connection: ", err)
+				}
 
 				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
 				if s.ShouldReconnectOnError {
@@ -262,7 +265,8 @@ func unmarshalEvent(event *Event, i interface{}) (err error) {
 // broken up into smaller functions to be more idiomatic Go.
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
-func (s *Session) event(messageType int, message []byte) (err error) {
+func (s *Session) event(messageType int, message []byte) {
+	var err error
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
 
@@ -270,9 +274,14 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		z, err1 := zlib.NewReader(reader)
 		if err1 != nil {
 			fmt.Println(err1)
-			return err1
+			return
 		}
-		defer z.Close()
+		defer func() {
+			err := z.Close()
+			if err != nil {
+				fmt.Println("error closing zlib:", err)
+			}
+		}()
 		reader = z
 	}
 
@@ -293,7 +302,11 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		if err = unmarshalEvent(e, &st); err == nil {
 			go s.heartbeat(s.wsConn, s.listening, st.HeartbeatInterval)
 			if s.StateEnabled {
-				s.State.OnReady(st)
+				err := s.State.OnReady(st)
+				if err != nil {
+					fmt.Println("error: ", err)
+				}
+
 			}
 			if s.OnReady != nil {
 				s.OnReady(s, st)
@@ -353,7 +366,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Message
 		if err = unmarshalEvent(e, &st); err == nil {
 			if stateEnabled {
-				s.State.MessageAdd(st)
+				err := s.State.MessageAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnMessageCreate != nil {
 				s.OnMessageCreate(s, st)
@@ -370,7 +386,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Message
 		if err = unmarshalEvent(e, &st); err == nil {
 			if stateEnabled {
-				s.State.MessageAdd(st)
+				err := s.State.MessageAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnMessageUpdate != nil {
 				s.OnMessageUpdate(s, st)
@@ -385,7 +404,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Message
 		if err = unmarshalEvent(e, &st); err == nil {
 			if stateEnabled {
-				s.State.MessageRemove(st)
+				err := s.State.MessageRemove(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnMessageDelete != nil {
 				s.OnMessageDelete(s, st)
@@ -407,7 +429,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.ChannelAdd(st)
+				err := s.State.ChannelAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnChannelCreate != nil {
 				s.OnChannelCreate(s, st)
@@ -423,7 +448,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.ChannelAdd(st)
+				err := s.State.ChannelAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnChannelUpdate != nil {
 				s.OnChannelUpdate(s, st)
@@ -439,7 +467,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Channel
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.ChannelRemove(st)
+				err := s.State.ChannelRemove(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnChannelDelete != nil {
 				s.OnChannelDelete(s, st)
@@ -455,7 +486,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.GuildAdd(st)
+				err := s.State.GuildAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildCreate != nil {
 				s.OnGuildCreate(s, st)
@@ -471,7 +505,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.GuildAdd(st)
+				err := s.State.GuildAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildCreate != nil {
 				s.OnGuildUpdate(s, st)
@@ -487,7 +524,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Guild
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.GuildRemove(st)
+				err := s.State.GuildRemove(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildDelete != nil {
 				s.OnGuildDelete(s, st)
@@ -503,7 +543,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.MemberAdd(st)
+				err := s.State.MemberAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildMemberAdd != nil {
 				s.OnGuildMemberAdd(s, st)
@@ -519,7 +562,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.MemberRemove(st)
+				err := s.State.MemberRemove(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildMemberRemove != nil {
 				s.OnGuildMemberRemove(s, st)
@@ -535,7 +581,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *Member
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.MemberAdd(st)
+				err := s.State.MemberAdd(st)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildMemberUpdate != nil {
 				s.OnGuildMemberUpdate(s, st)
@@ -599,7 +648,10 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 		var st *GuildEmojisUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
 			if s.StateEnabled {
-				s.State.EmojisAdd(st.GuildID, st.Emojis)
+				err := s.State.EmojisAdd(st.GuildID, st.Emojis)
+				if err != nil {
+					fmt.Println("error :", err)
+				}
 			}
 			if s.OnGuildEmojisUpdate != nil {
 				s.OnGuildEmojisUpdate(s, st)

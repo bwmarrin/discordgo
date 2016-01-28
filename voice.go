@@ -112,11 +112,17 @@ func (v *Voice) Open() (err error) {
 func (v *Voice) Close() {
 
 	if v.UDPConn != nil {
-		v.UDPConn.Close()
+		err := v.UDPConn.Close()
+		if err != nil {
+			fmt.Println("error closing udp connection: ", err)
+		}
 	}
 
 	if v.wsConn != nil {
-		v.wsConn.Close()
+		err := v.wsConn.Close()
+		if err != nil {
+			fmt.Println("error closing websocket connection: ", err)
+		}
 	}
 }
 
@@ -363,7 +369,7 @@ func (v *Voice) udpOpen() (err error) {
 func (v *Voice) udpKeepAlive(i time.Duration) {
 
 	var err error
-	var sequence uint64 = 0
+	var sequence uint64
 
 	packet := make([]byte, 8)
 
@@ -403,8 +409,8 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 	v.Ready = true
 	defer func() { v.Ready = false }()
 
-	var sequence uint16 = 0
-	var timestamp uint32 = 0
+	var sequence uint16
+	var timestamp uint32
 	udpHeader := make([]byte, 12)
 
 	// build the parts that don't change in the udpHeader
@@ -432,12 +438,16 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
 		<-ticker.C
-		v.UDPConn.Write(sendbuf)
+		_, err := v.UDPConn.Write(sendbuf)
+
+		if err != nil {
+			fmt.Println("error writing to udp connection: ", err)
+		}
 
 		if (sequence) == 0xFFFF {
 			sequence = 0
 		} else {
-			sequence += 1
+			sequence++
 		}
 
 		if (timestamp + uint32(size)) >= 0xFFFFFFFF {
