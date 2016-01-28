@@ -102,7 +102,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
-			err = fmt.Errorf("Request unmarshal rate limit error : ", err)
+			err = fmt.Errorf("Request unmarshal rate limit error : %+v", err)
 			return
 		}
 		time.Sleep(rl.RetryAfter)
