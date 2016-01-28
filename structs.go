@@ -6,7 +6,7 @@
 // license that can be found in the LICENSE file.
 
 // This file contains all structures for the discordgo package.  These
-// may be moved about later into seperate files but I find it easier to have
+// may be moved about later into separate files but I find it easier to have
 // them all located together.
 
 package discordgo

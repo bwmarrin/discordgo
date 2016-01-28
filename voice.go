@@ -121,7 +121,7 @@ func (v *Voice) Close() {
 }
 
 // wsListen listens on the voice websocket for messages and passes them
-// to the voice event handler.  This is automaticly called by the Open func
+// to the voice event handler.  This is automatically called by the Open func
 func (v *Voice) wsListen() {
 
 	for {
@@ -338,7 +338,7 @@ func (v *Voice) udpOpen() (err error) {
 		ip += string(rb[i])
 	}
 
-	// Grab port from postion 68 and 69
+	// Grab port from position 68 and 69
 	port := binary.LittleEndian.Uint16(rb[68:70])
 
 	// Take the data from above and send it back to Discord to finalize
