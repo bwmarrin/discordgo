@@ -397,9 +397,6 @@ func (s *Session) event(messageType int, message []byte) (err error) {
 			}
 		}
 		return
-		if s.OnMessageDelete != nil {
-			return
-		}
 	case "MESSAGE_ACK":
 		if s.OnMessageAck != nil {
 			var st *MessageAck
