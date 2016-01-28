@@ -666,7 +666,7 @@ type voiceChannelJoinOp struct {
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error) {
 
 	if s.wsConn == nil {
-		return fmt.Errorf("no websocket connection exists.")
+		return fmt.Errorf("no websocket connection exists")
 	}
 
 	// Create new voice{} struct if one does not exist.
