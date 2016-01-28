@@ -25,6 +25,7 @@ import (
 	"time"
 )
 
+// Error returned for unmarshal errors.
 var ErrJSONUnmarshal = errors.New("json unmarshal")
 
 // Request makes a (GET/POST/...) Requests to Discord REST API.
