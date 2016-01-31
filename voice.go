@@ -32,7 +32,8 @@ type Voice struct {
 	Ready      bool        // If true, voice is ready to send/receive audio
 	Debug      bool        // If true, print extra logging
 	OP2        *voiceOP2   // exported for dgvoice, may change.
-	Opus       chan []byte // Chan for sending opus audio
+	OpusSend   chan []byte // Chan for sending opus audio
+	OpusRecv   chan []byte // Chan for receiving opus audio
 	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
@@ -185,8 +186,8 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 
 		// Start the opusSender.
 		// TODO: Should we allow 48000/960 values to be user defined?
-		v.Opus = make(chan []byte, 2)
-		go v.opusSender(v.Opus, 48000, 960)
+		v.OpusSend = make(chan []byte, 2)
+		go v.opusSender(v.OpusSend, 48000, 960)
 
 		return
 
