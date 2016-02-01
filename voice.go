@@ -462,6 +462,7 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 	}
 }
 
+// A Packet contains the headers and content of a received voice packet.
 type Packet struct {
 	SSRC      uint32
 	Sequence  uint16
