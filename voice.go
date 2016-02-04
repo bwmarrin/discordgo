@@ -472,7 +472,7 @@ type Packet struct {
 	PCM       []int16
 }
 
-// opusReceiver listens on the UDP socket for incomming packets
+// opusReceiver listens on the UDP socket for incoming packets
 // and sends them across the given channel
 // NOTE :: This function may change names later.
 func (v *Voice) opusReceiver(c chan *Packet) {
