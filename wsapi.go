@@ -316,12 +316,21 @@ func (s *Session) event(messageType int, message []byte) {
 			return
 		}
 	case "VOICE_SERVER_UPDATE":
-		// TEMP CODE FOR TESTING VOICE
+		if s.Voice == nil && s.OnVoiceServerUpdate == nil {
+			break
+		}
 		var st *VoiceServerUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
-			s.onVoiceServerUpdate(st)
+			if s.Voice != nil {
+				s.onVoiceServerUpdate(st)
+			}
+			if s.OnVoiceServerUpdate != nil {
+				s.OnVoiceServerUpdate(s, st)
+			}
 		}
-		return
+		if s.OnVoiceServerUpdate != nil {
+			return
+		}
 	case "VOICE_STATE_UPDATE":
 		if s.Voice == nil && s.OnVoiceStateUpdate == nil {
 			break
@@ -333,8 +342,10 @@ func (s *Session) event(messageType int, message []byte) {
 			}
 			if s.OnVoiceStateUpdate != nil {
 				s.OnVoiceStateUpdate(s, st)
-				return
 			}
+		}
+		if s.OnVoiceStateUpdate != nil {
+			return
 		}
 	case "USER_UPDATE":
 		if s.OnUserUpdate != nil {
@@ -781,11 +792,6 @@ func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 // This event tells us the information needed to open a voice websocket
 // connection and should happen after the VOICE_STATE event.
 func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
-
-	// This shouldn't ever be the case, I don't think.
-	if s.Voice == nil {
-		return
-	}
 
 	// Store values for later use
 	s.Voice.token = st.Token
