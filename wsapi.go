@@ -323,12 +323,20 @@ func (s *Session) event(messageType int, message []byte) {
 		}
 		return
 	case "VOICE_STATE_UPDATE":
-		// TEMP CODE FOR TESTING VOICE
+		if s.Voice == nil && s.OnVoiceStateUpdate == nil {
+			break
+		}
 		var st *VoiceState
 		if err = unmarshalEvent(e, &st); err == nil {
-			s.onVoiceStateUpdate(st)
+			if s.Voice != nil {
+				s.onVoiceStateUpdate(st)
+			}
+			if s.OnVoiceStateUpdate != nil {
+				s.OnVoiceStateUpdate(s, st)
+				return
+			}
+
 		}
-		return
 	case "USER_UPDATE":
 		if s.OnUserUpdate != nil {
 			var st *User
@@ -748,12 +756,6 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
 func (s *Session) onVoiceStateUpdate(st *VoiceState) {
-
-	// If s.Voice is nil, we must not have even requested to join
-	// a voice channel yet, so this shouldn't be processed.
-	if s.Voice == nil {
-		return
-	}
 
 	// Need to have this happen at login and store it in the Session
 	// TODO : This should be done upon connecting to Discord, or
