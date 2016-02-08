@@ -319,16 +319,24 @@ func (s *Session) event(messageType int, message []byte) {
 		var st *VoiceServerUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceServerUpdate(st)
-			s.OnVoiceServerUpdate(s, st)
+			if s.OnVoiceServerUpdate != nil {
+				s.OnVoiceServerUpdate(s, st)
+			}
 		}
-		return
+		if s.OnVoiceServerUpdate != nil {
+			return
+		}
 	case "VOICE_STATE_UPDATE":
 		var st *VoiceState
 		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceStateUpdate(st)
-			s.OnVoiceStateUpdate(s, st)
+			if s.OnVoiceStateUpdate != nil {
+				s.OnVoiceStateUpdate(s, st)
+			}
 		}
-		return
+		if s.OnVoiceStateUpdate != nil {
+			return
+		}
 	case "USER_UPDATE":
 		if s.OnUserUpdate != nil {
 			var st *User
