@@ -335,7 +335,6 @@ func (s *Session) event(messageType int, message []byte) {
 				s.OnVoiceStateUpdate(s, st)
 				return
 			}
-
 		}
 	case "USER_UPDATE":
 		if s.OnUserUpdate != nil {
