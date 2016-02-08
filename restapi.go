@@ -655,7 +655,7 @@ func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
 // ------------------------------------------------------------------------------------------------
 
 // Channel returns a Channel strucutre of a specific Channel.
-// channelID  : The ID of the Channel you want returend.
+// channelID  : The ID of the Channel you want returned.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	body, err := s.Request("GET", CHANNEL(channelID), nil)
 	if err != nil {
