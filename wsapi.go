@@ -321,7 +321,9 @@ func (s *Session) event(messageType int, message []byte) {
 		}
 		var st *VoiceServerUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
-			s.onVoiceServerUpdate(st)
+			if s.Voice != nil {
+				s.onVoiceServerUpdate(st)
+			}
 			if s.OnVoiceServerUpdate != nil {
 				s.OnVoiceServerUpdate(s, st)
 			}
@@ -335,7 +337,9 @@ func (s *Session) event(messageType int, message []byte) {
 		}
 		var st *VoiceState
 		if err = unmarshalEvent(e, &st); err == nil {
-			s.onVoiceStateUpdate(st)
+			if s.Voice != nil {
+				s.onVoiceStateUpdate(st)
+			}
 			if s.OnVoiceStateUpdate != nil {
 				s.OnVoiceStateUpdate(s, st)
 			}
@@ -788,11 +792,6 @@ func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 // This event tells us the information needed to open a voice websocket
 // connection and should happen after the VOICE_STATE event.
 func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
-
-	// This shouldn't ever be the case, I don't think.
-	if s.Voice == nil {
-		return
-	}
 
 	// Store values for later use
 	s.Voice.token = st.Token
