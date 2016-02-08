@@ -316,17 +316,17 @@ func (s *Session) event(messageType int, message []byte) {
 			return
 		}
 	case "VOICE_SERVER_UPDATE":
-		// TEMP CODE FOR TESTING VOICE
 		var st *VoiceServerUpdate
 		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceServerUpdate(st)
+			s.OnVoiceServerUpdate(s, st)
 		}
 		return
 	case "VOICE_STATE_UPDATE":
-		// TEMP CODE FOR TESTING VOICE
 		var st *VoiceState
 		if err = unmarshalEvent(e, &st); err == nil {
 			s.onVoiceStateUpdate(st)
+			s.OnVoiceStateUpdate(s, st)
 		}
 		return
 	case "USER_UPDATE":
