@@ -824,10 +824,6 @@ func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Mess
 
 	bodywriter.Close()
 
-	se := body.String()
-	fmt.Println(se)
-
-	// Send the message to the given channel
 	response, err := s.request("POST", CHANNEL_MESSAGES(channelID), bodywriter.FormDataContentType(), body.Bytes())
 	if err != nil {
 		return
