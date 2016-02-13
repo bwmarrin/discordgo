@@ -28,11 +28,12 @@ import (
 
 // A Voice struct holds all data and functions related to Discord Voice support.
 type Voice struct {
-	sync.Mutex             // future use
-	Ready      bool        // If true, voice is ready to send/receive audio
-	Debug      bool        // If true, print extra logging
-	OP2        *voiceOP2   // exported for dgvoice, may change.
-	Opus       chan []byte // Chan for sending opus audio
+	sync.Mutex              // future use
+	Ready      bool         // If true, voice is ready to send/receive audio
+	Debug      bool         // If true, print extra logging
+	OP2        *voiceOP2    // exported for dgvoice, may change.
+	OpusSend   chan []byte  // Chan for sending opus audio
+	OpusRecv   chan *Packet // Chan for receiving opus audio
 	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
@@ -112,16 +113,22 @@ func (v *Voice) Open() (err error) {
 func (v *Voice) Close() {
 
 	if v.UDPConn != nil {
-		v.UDPConn.Close()
+		err := v.UDPConn.Close()
+		if err != nil {
+			fmt.Println("error closing udp connection: ", err)
+		}
 	}
 
 	if v.wsConn != nil {
-		v.wsConn.Close()
+		err := v.wsConn.Close()
+		if err != nil {
+			fmt.Println("error closing websocket connection: ", err)
+		}
 	}
 }
 
 // wsListen listens on the voice websocket for messages and passes them
-// to the voice event handler.  This is automaticly called by the Open func
+// to the voice event handler.  This is automatically called by the Open func
 func (v *Voice) wsListen() {
 
 	for {
@@ -179,9 +186,12 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 
 		// Start the opusSender.
 		// TODO: Should we allow 48000/960 values to be user defined?
-		v.Opus = make(chan []byte, 2)
-		go v.opusSender(v.Opus, 48000, 960)
+		v.OpusSend = make(chan []byte, 2)
+		go v.opusSender(v.OpusSend, 48000, 960)
 
+		// Start the opusReceiver
+		v.OpusRecv = make(chan *Packet, 2)
+		go v.opusReceiver(v.OpusRecv)
 		return
 
 	case 3: // HEARTBEAT response
@@ -338,7 +348,7 @@ func (v *Voice) udpOpen() (err error) {
 		ip += string(rb[i])
 	}
 
-	// Grab port from postion 68 and 69
+	// Grab port from position 68 and 69
 	port := binary.LittleEndian.Uint16(rb[68:70])
 
 	// Take the data from above and send it back to Discord to finalize
@@ -363,7 +373,7 @@ func (v *Voice) udpOpen() (err error) {
 func (v *Voice) udpKeepAlive(i time.Duration) {
 
 	var err error
-	var sequence uint64 = 0
+	var sequence uint64
 
 	packet := make([]byte, 8)
 
@@ -403,8 +413,8 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 	v.Ready = true
 	defer func() { v.Ready = false }()
 
-	var sequence uint16 = 0
-	var timestamp uint32 = 0
+	var sequence uint16
+	var timestamp uint32
 	udpHeader := make([]byte, 12)
 
 	// build the parts that don't change in the udpHeader
@@ -432,18 +442,73 @@ func (v *Voice) opusSender(opus <-chan []byte, rate, size int) {
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
 		<-ticker.C
-		v.UDPConn.Write(sendbuf)
+		_, err := v.UDPConn.Write(sendbuf)
+
+		if err != nil {
+			fmt.Println("error writing to udp connection: ", err)
+		}
 
 		if (sequence) == 0xFFFF {
 			sequence = 0
 		} else {
-			sequence += 1
+			sequence++
 		}
 
 		if (timestamp + uint32(size)) >= 0xFFFFFFFF {
 			timestamp = 0
 		} else {
 			timestamp += uint32(size)
+		}
+	}
+}
+
+// A Packet contains the headers and content of a received voice packet.
+type Packet struct {
+	SSRC      uint32
+	Sequence  uint16
+	Timestamp uint32
+	Type      []byte
+	Opus      []byte
+	PCM       []int16
+}
+
+// opusReceiver listens on the UDP socket for incoming packets
+// and sends them across the given channel
+// NOTE :: This function may change names later.
+func (v *Voice) opusReceiver(c chan *Packet) {
+
+	// TODO: Better checking to prevent this from running more than
+	// one instance at a time.
+	v.Lock()
+	if c == nil {
+		v.Unlock()
+		return
+	}
+	v.Unlock()
+
+	p := Packet{}
+	recvbuf := make([]byte, 1024)
+
+	for {
+		rlen, err := v.UDPConn.Read(recvbuf)
+		if err != nil {
+			fmt.Println("opusReceiver UDP Read error:", err)
+			return
+		}
+
+		// For now, skip anything except audio.
+		if rlen < 12 || recvbuf[0] != 0x80 {
+			continue
+		}
+
+		p.Type = recvbuf[0:2]
+		p.Sequence = binary.BigEndian.Uint16(recvbuf[2:4])
+		p.Timestamp = binary.BigEndian.Uint32(recvbuf[4:8])
+		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
+		p.Opus = recvbuf[12:rlen]
+
+		if c != nil {
+			c <- &p
 		}
 	}
 }

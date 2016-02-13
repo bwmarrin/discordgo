@@ -18,21 +18,23 @@ import (
 	"image"
 	_ "image/jpeg" // For JPEG decoding
 	_ "image/png"  // For PNG decoding
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 )
 
+// ErrJSONUnmarshal is returned for JSON Unmarshall errors.
 var ErrJSONUnmarshal = errors.New("json unmarshal")
 
-// Request makes a (GET/POST/...) Requests to Discord REST API.
+// Request makes a (GET/POST/...) Requests to Discord REST API with JSON data.
 // All the other Discord REST Calls in this file use this function.
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 
 	if s.Debug {
-		fmt.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		fmt.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
 	}
 
@@ -44,7 +46,17 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 		}
 	}
 
-	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(body))
+	return s.request(method, urlStr, "application/json", body)
+}
+
+// request makes a (GET/POST/...) Requests to Discord REST API.
+func (s *Session) request(method, urlStr, contentType string, b []byte) (response []byte, err error) {
+
+	if s.Debug {
+		fmt.Printf("API REQUEST %8s :: %s\n", method, urlStr)
+	}
+
+	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
 	if err != nil {
 		return
 	}
@@ -55,7 +67,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 		req.Header.Set("authorization", s.Token)
 	}
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", contentType)
 	// TODO: Make a configurable static variable.
 	req.Header.Set("User-Agent", fmt.Sprintf("DiscordBot (https://github.com/bwmarrin/discordgo, v%s)", VERSION))
 
@@ -68,10 +80,15 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			fmt.Println("error closing resp body")
+		}
+	}()
 
 	response, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -102,11 +119,11 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
-			err = fmt.Errorf("Request unmarshal rate limit error : ", err)
+			err = fmt.Errorf("Request unmarshal rate limit error : %+v", err)
 			return
 		}
 		time.Sleep(rl.RetryAfter)
-		response, err = s.Request(method, urlStr, data)
+		response, err = s.request(method, urlStr, contentType, b)
 
 	default: // Error condition
 		err = fmt.Errorf("HTTP %s, %s", resp.Status, response)
@@ -649,7 +666,7 @@ func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
 // ------------------------------------------------------------------------------------------------
 
 // Channel returns a Channel strucutre of a specific Channel.
-// channelID  : The ID of the Channel you want returend.
+// channelID  : The ID of the Channel you want returned.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	body, err := s.Request("GET", CHANNEL(channelID), nil)
 	if err != nil {
@@ -787,6 +804,32 @@ func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st *
 func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) {
 
 	_, err = s.Request("DELETE", CHANNEL_MESSAGE(channelID, messageID), nil)
+	return
+}
+
+// ChannelFileSend sends a file to the given channel.
+// channelID : The ID of a Channel.
+// io.Reader : A reader for the file contents.
+func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Message, err error) {
+
+	body := &bytes.Buffer{}
+	bodywriter := multipart.NewWriter(body)
+
+	writer, err := bodywriter.CreateFormFile("file", name)
+	if err != nil {
+		return nil, err
+	}
+
+	io.Copy(writer, r)
+
+	bodywriter.Close()
+
+	response, err := s.request("POST", CHANNEL_MESSAGES(channelID), bodywriter.FormDataContentType(), body.Bytes())
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
 	return
 }
 

@@ -12,13 +12,13 @@ import (
 var (
 	dg *Session // Stores global discordgo session
 
-	envToken    string = os.Getenv("DG_TOKEN")    // Token to use when authenticating
-	envEmail    string = os.Getenv("DG_EMAIL")    // Email to use when authenticating
-	envPassword string = os.Getenv("DG_PASSWORD") // Password to use when authenticating
-	envGuild    string = os.Getenv("DG_GUILD")    // Guild ID to use for tests
-	envChannel  string = os.Getenv("DG_CHANNEL")  // Channel ID to use for tests
-	envUser     string = os.Getenv("DG_USER")     // User ID to use for tests
-	envAdmin    string = os.Getenv("DG_ADMIN")    // User ID of admin user to use for tests
+	envToken    = os.Getenv("DG_TOKEN")    // Token to use when authenticating
+	envEmail    = os.Getenv("DG_EMAIL")    // Email to use when authenticating
+	envPassword = os.Getenv("DG_PASSWORD") // Password to use when authenticating
+	//	envGuild    = os.Getenv("DG_GUILD")    // Guild ID to use for tests
+	envChannel = os.Getenv("DG_CHANNEL") // Channel ID to use for tests
+	//	envUser     = os.Getenv("DG_USER")     // User ID to use for tests
+	envAdmin = os.Getenv("DG_ADMIN") // User ID of admin user to use for tests
 )
 
 func init() {

@@ -10,13 +10,13 @@
 // experimental at this point.  They will most likley change so please use the
 // low level functions if that's a problem.
 
-// package discordgo provides Discord binding for Go
+// Package discordgo provides Discord binding for Go
 package discordgo
 
 import "fmt"
 
-// Discordgo Version, follows Symantic Versioning. (http://semver.org/)
-const VERSION = "0.10.0-alpha"
+// VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
+const VERSION = "0.11.0-alpha"
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero

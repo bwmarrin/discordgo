@@ -11,6 +11,7 @@
 
 package discordgo
 
+// Known Discord API Endpoints.
 var (
 	STATUS      = "https://status.discordapp.com/api/v2/"
 	SM          = STATUS + "scheduled-maintenances/"
