@@ -29,45 +29,7 @@ type Session struct {
 	Token string // Authentication token for this session
 	Debug bool   // Debug for printing JSON request/responses
 
-	// Settable Callback functions for Internal Events
-	// OnConnect is called when the websocket connection opens.
-	OnConnect func(*Session)
-	// OnDisconnect is called when the websocket connection closes.
-	// This is a good handler to add reconnection logic to.
-	OnDisconnect func(*Session)
-
 	Handlers map[interface{}][]interface{}
-
-	// Settable Callback functions for Websocket Events
-	OnEvent                   func(*Session, *Event)
-	OnReady                   func(*Session, *Ready)
-	OnTypingStart             func(*Session, *TypingStart)
-	OnMessageCreate           func(*Session, *Message)
-	OnMessageUpdate           func(*Session, *Message)
-	OnMessageDelete           func(*Session, *Message)
-	OnMessageAck              func(*Session, *MessageAck)
-	OnUserUpdate              func(*Session, *User)
-	OnPresenceUpdate          func(*Session, *PresenceUpdate)
-	OnVoiceServerUpdate       func(*Session, *VoiceServerUpdate)
-	OnVoiceStateUpdate        func(*Session, *VoiceState)
-	OnChannelCreate           func(*Session, *Channel)
-	OnChannelUpdate           func(*Session, *Channel)
-	OnChannelDelete           func(*Session, *Channel)
-	OnGuildCreate             func(*Session, *Guild)
-	OnGuildUpdate             func(*Session, *Guild)
-	OnGuildDelete             func(*Session, *Guild)
-	OnGuildMemberAdd          func(*Session, *Member)
-	OnGuildMemberRemove       func(*Session, *Member)
-	OnGuildMemberDelete       func(*Session, *Member)
-	OnGuildMemberUpdate       func(*Session, *Member)
-	OnGuildRoleCreate         func(*Session, *GuildRole)
-	OnGuildRoleUpdate         func(*Session, *GuildRole)
-	OnGuildRoleDelete         func(*Session, *GuildRoleDelete)
-	OnGuildIntegrationsUpdate func(*Session, *GuildIntegrationsUpdate)
-	OnGuildBanAdd             func(*Session, *GuildBan)
-	OnGuildBanRemove          func(*Session, *GuildBan)
-	OnGuildEmojisUpdate       func(*Session, *GuildEmojisUpdate)
-	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
 
 	// Exposed but should not be modified by User.
 	SessionID  string // from websocket READY packet

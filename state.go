@@ -469,30 +469,30 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 	return nil, errors.New("Message not found.")
 }
 
-// ready is an event handler.
-func (s *State) ready(se *Session, r *Ready) {
+// onReady handles the ready event.
+func (s *State) onReady(se *Session, r *Ready) {
 	if se.StateEnabled {
 		s.OnReady(r)
 	}
 }
 
-// messageCreate is an event handler.
-func (s *State) messageCreate(se *Session, m *MessageCreate) {
+// onMessageCreate handles the messageCreate event.
+func (s *State) onMessageCreate(se *Session, m *MessageCreate) {
 	if se.StateEnabled {
-		s.MessageAdd(&m.Message)
+		s.MessageAdd(m.Message)
 	}
 }
 
-// messageUpdate is an event handler.
-func (s *State) messageUpdate(se *Session, m *MessageUpdate) {
+// onMessageUpdate handles the messageUpdate event.
+func (s *State) onMessageUpdate(se *Session, m *MessageUpdate) {
 	if se.StateEnabled {
-		s.MessageAdd(&m.Message)
+		s.MessageAdd(m.Message)
 	}
 }
 
-// messageDelete is an event handler.
-func (s *State) messageDelete(se *Session, m *MessageDelete) {
+// onMessageDelete handles the messageDelete event.
+func (s *State) onMessageDelete(se *Session, m *MessageDelete) {
 	if se.StateEnabled {
-		s.MessageRemove(&m.Message)
+		s.MessageRemove(m.Message)
 	}
 }

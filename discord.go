@@ -123,6 +123,9 @@ func New(args ...interface{}) (s *Session, err error) {
 }
 
 func (s *Session) AddHandler(handler interface{}) {
+	s.Lock()
+	defer s.Unlock()
+
 	handlerType := reflect.TypeOf(handler)
 
 	if handlerType.NumIn() != 2 {
@@ -133,11 +136,13 @@ func (s *Session) AddHandler(handler interface{}) {
 		panic("Unable to add event handler, first argument must be of type *discordgo.Session.")
 	}
 
-	eventType := handlerType.In(1)
-
 	if s.Handlers == nil {
+		s.Unlock()
 		s.initialize()
+		s.Lock()
 	}
+
+	eventType := handlerType.In(1)
 
 	handlers := s.Handlers[eventType]
 	if handlers == nil {
@@ -149,6 +154,9 @@ func (s *Session) AddHandler(handler interface{}) {
 }
 
 func (s *Session) Handle(event interface{}) (handled bool) {
+	s.RLock()
+	defer s.RUnlock()
+
 	eventType := reflect.TypeOf(event)
 
 	handlers, ok := s.Handlers[eventType]
@@ -164,17 +172,23 @@ func (s *Session) Handle(event interface{}) (handled bool) {
 	return
 }
 
-// initialize adds internal handlers such as onEvent and state tracking
-// handlers.
+// initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
+	s.Lock()
+	defer s.Unlock()
+
 	s.Handlers = map[interface{}][]interface{}{}
-	s.AddHandler(s.ready)
-	s.AddHandler(s.State.ready)
-	s.AddHandler(s.State.messageCreate)
-	s.AddHandler(s.State.messageUpdate)
-	s.AddHandler(s.State.messageDelete)
+	s.AddHandler(s.onReady)
+	s.AddHandler(s.onVoiceServerUpdate)
+	s.AddHandler(s.onVoiceStateUpdate)
+
+	s.AddHandler(s.State.onReady)
+	s.AddHandler(s.State.onMessageCreate)
+	s.AddHandler(s.State.onMessageUpdate)
+	s.AddHandler(s.State.onMessageDelete)
 }
 
-func (s *Session) ready(se *Session, r *Ready) {
+// onReady handles the ready event.
+func (s *Session) onReady(se *Session, r *Ready) {
 	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }

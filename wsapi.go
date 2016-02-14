@@ -86,9 +86,7 @@ func (s *Session) Open() (err error) {
 
 	s.Unlock()
 
-	if s.OnConnect != nil {
-		s.OnConnect(s)
-	}
+	s.Handle(&Connect{})
 
 	return
 }
@@ -112,9 +110,7 @@ func (s *Session) Close() (err error) {
 
 	s.Unlock()
 
-	if s.OnDisconnect != nil {
-		s.OnDisconnect(s)
-	}
+	s.Handle(&Disconnect{})
 
 	return
 }
@@ -255,8 +251,12 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) {
+	s.RLock()
 	if s.Handlers == nil {
+		s.RUnlock()
 		s.initialize()
+	} else {
+		s.RUnlock()
 	}
 
 	var err error
@@ -291,6 +291,9 @@ func (s *Session) event(messageType int, message []byte) {
 
 	var i interface{}
 
+	// TODO(iopred): Figure out a clean way to do this with a map, simply
+	// creating a map[string]interface{} will not work, as that will reuse
+	// the same instance for each event.
 	switch e.Type {
 	case "READY":
 		i = &Ready{}
@@ -304,63 +307,28 @@ func (s *Session) event(messageType int, message []byte) {
 		i = &PresenceUpdate{}
 	case "TYPING_START":
 		i = &TypingStart{}
+	case "VOICE_SERVER_UPDATE":
+		i = &VoiceServerUpdate{}
+	case "VOICE_STATE_UPDATE":
+		i = &VoiceStateUpdate{}
+	case "USER_UPDATE":
+		i = &UserUpdate{}
+	case "MESSAGE_ACK":
+		i = &MessageAck{}
+	case "GUILD_ROLE_CREATE":
+		i = &GuildRoleCreate{}
+	case "GUILD_ROLE_UPDATE":
+		i = &GuildRoleUpdate{}
+	case "GUILD_ROLE_DELETE":
+		i = &GuildRoleDelete{}
+	case "GUILD_INTEGRATIONS_UPDATE":
+		i = &GuildIntegrationsUpdate{}
+	case "GUILD_BAN_ADD":
+		i = &GuildBanAdd{}
+	case "GUILD_BAN_REMOVE":
+		i = &GuildBanRemove{}
 	}
 
-	// case "VOICE_SERVER_UPDATE":
-	// 	if s.Voice == nil && s.OnVoiceServerUpdate == nil {
-	// 		break
-	// 	}
-	// 	var st *VoiceServerUpdate
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.Voice != nil {
-	// 			s.onVoiceServerUpdate(st)
-	// 		}
-	// 		if s.OnVoiceServerUpdate != nil {
-	// 			s.OnVoiceServerUpdate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnVoiceServerUpdate != nil {
-	// 		return
-	// 	}
-	// case "VOICE_STATE_UPDATE":
-	// 	if s.Voice == nil && s.OnVoiceStateUpdate == nil {
-	// 		break
-	// 	}
-	// 	var st *VoiceState
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.Voice != nil {
-	// 			s.onVoiceStateUpdate(st)
-	// 		}
-	// 		if s.OnVoiceStateUpdate != nil {
-	// 			s.OnVoiceStateUpdate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnVoiceStateUpdate != nil {
-	// 		return
-	// 	}
-	// case "USER_UPDATE":
-	// 	if s.OnUserUpdate != nil {
-	// 		var st *User
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnUserUpdate(s, st)
-	// 		}
-	// 		return
-	// 	}
-
-	// 	/* Never seen this come in but saw it in another Library.
-	// 	case "MESSAGE_ACK":
-	// 		if s.OnMessageAck != nil {
-	// 		}
-	// 	*/
-
-	// case "MESSAGE_ACK":
-	// 	if s.OnMessageAck != nil {
-	// 		var st *MessageAck
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnMessageAck(s, st)
-	// 		}
-	// 		return
-	// 	}
 	// case "CHANNEL_CREATE":
 	// 	if !s.StateEnabled && s.OnChannelCreate == nil {
 	// 		break
@@ -696,7 +664,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
-func (s *Session) onVoiceStateUpdate(st *VoiceState) {
+func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 
 	// Need to have this happen at login and store it in the Session
 	// TODO : This should be done upon connecting to Discord, or
@@ -722,7 +690,7 @@ func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
 // This event tells us the information needed to open a voice websocket
 // connection and should happen after the VOICE_STATE event.
-func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
+func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// Store values for later use
 	s.Voice.token = st.Token
