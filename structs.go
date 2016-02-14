@@ -36,6 +36,8 @@ type Session struct {
 	// This is a good handler to add reconnection logic to.
 	OnDisconnect func(*Session)
 
+	Handlers map[interface{}][]interface{}
+
 	// Settable Callback functions for Websocket Events
 	OnEvent                   func(*Session, *Event)
 	OnReady                   func(*Session, *Ready)

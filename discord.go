@@ -13,7 +13,10 @@
 // Package discordgo provides Discord binding for Go
 package discordgo
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 // VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
 const VERSION = "0.11.0-alpha"
@@ -117,4 +120,61 @@ func New(args ...interface{}) (s *Session, err error) {
 	// It is recommended that you now call Open() so that events will trigger.
 
 	return
+}
+
+func (s *Session) AddHandler(handler interface{}) {
+	handlerType := reflect.TypeOf(handler)
+
+	if handlerType.NumIn() != 2 {
+		panic("Unable to add event handler, handler must be of the type func(*discordgo.Session, *discordgo.EventType).")
+	}
+
+	if handlerType.In(0) != reflect.TypeOf(s) {
+		panic("Unable to add event handler, first argument must be of type *discordgo.Session.")
+	}
+
+	eventType := handlerType.In(1)
+
+	if s.Handlers == nil {
+		s.initialize()
+	}
+
+	handlers := s.Handlers[eventType]
+	if handlers == nil {
+		handlers = []interface{}{}
+	}
+
+	handlers = append(handlers, handler)
+	s.Handlers[eventType] = handlers
+}
+
+func (s *Session) Handle(event interface{}) (handled bool) {
+	eventType := reflect.TypeOf(event)
+
+	handlers, ok := s.Handlers[eventType]
+	if !ok {
+		return
+	}
+
+	for _, handler := range handlers {
+		reflect.ValueOf(handler).Call([]reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)})
+		handled = true
+	}
+
+	return
+}
+
+// initialize adds internal handlers such as onEvent and state tracking
+// handlers.
+func (s *Session) initialize() {
+	s.Handlers = map[interface{}][]interface{}{}
+	s.AddHandler(s.ready)
+	s.AddHandler(s.State.ready)
+	s.AddHandler(s.State.messageCreate)
+	s.AddHandler(s.State.messageUpdate)
+	s.AddHandler(s.State.messageDelete)
+}
+
+func (s *Session) ready(se *Session, r *Ready) {
+	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }
