@@ -759,17 +759,17 @@ func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
 	return
 }
 
-// ChannelMessageSend sends a message to the given channel.
+// channelMessageSend sends a message to the given channel.
 // channelID : The ID of a Channel.
 // content   : The message to send.
-// NOTE, mention and tts parameters may be added in 2.x branch.
-func (s *Session) ChannelMessageSend(channelID string, content string) (st *Message, err error) {
+// tts       : Whether to send the message with TTS.
+func (s *Session) channelMessageSend(channelID, content string, tts bool) (st *Message, err error) {
 
 	// TODO: nonce string ?
 	data := struct {
 		Content string `json:"content"`
 		TTS     bool   `json:"tts"`
-	}{content, false}
+	}{content, tts}
 
 	// Send the message to the given channel
 	response, err := s.Request("POST", CHANNEL_MESSAGES(channelID), data)
@@ -779,6 +779,22 @@ func (s *Session) ChannelMessageSend(channelID string, content string) (st *Mess
 
 	err = unmarshal(response, &st)
 	return
+}
+
+// ChannelMessageSend sends a message to the given channel.
+// channelID : The ID of a Channel.
+// content   : The message to send.
+func (s *Session) ChannelMessageSend(channelID string, content string) (st *Message, err error) {
+
+	return s.channelMessageSend(channelID, content, false)
+}
+
+// ChannelMessageSendTTS sends a message to the given channel with Text to Speech.
+// channelID : The ID of a Channel.
+// content   : The message to send.
+func (s *Session) ChannelMessageSendTTS(channelID string, content string) (st *Message, err error) {
+
+	return s.channelMessageSend(channelID, content, true)
 }
 
 // ChannelMessageEdit edits an existing message, replacing it entirely with
