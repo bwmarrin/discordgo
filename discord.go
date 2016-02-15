@@ -144,6 +144,11 @@ func (s *Session) AddHandler(handler interface{}) {
 
 	eventType := handlerType.In(1)
 
+	// Support handlers of type interface{}, this is a special handler, which is triggered on every event.
+	if eventType.Kind() == reflect.Interface {
+		eventType = nil
+	}
+
 	handlers := s.Handlers[eventType]
 	if handlers == nil {
 		handlers = []interface{}{}
@@ -153,39 +158,39 @@ func (s *Session) AddHandler(handler interface{}) {
 	s.Handlers[eventType] = handlers
 }
 
-func (s *Session) Handle(event interface{}) (handled bool) {
+func (s *Session) handle(event interface{}) {
 	s.RLock()
 	defer s.RUnlock()
 
-	eventType := reflect.TypeOf(event)
-
-	handlers, ok := s.Handlers[eventType]
-	if !ok {
-		return
+	if handlers, ok := s.Handlers[reflect.TypeOf(event)]; ok {
+		for _, handler := range handlers {
+			reflect.ValueOf(handler).Call([]reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)})
+		}
 	}
 
-	for _, handler := range handlers {
-		reflect.ValueOf(handler).Call([]reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)})
-		handled = true
+	if handlers, ok := s.Handlers[nil]; ok {
+		for _, handler := range handlers {
+			reflect.ValueOf(handler).Call([]reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)})
+		}
 	}
-
-	return
 }
 
 // initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
 	s.Lock()
-	defer s.Unlock()
-
 	s.Handlers = map[interface{}][]interface{}{}
+	s.Unlock()
+
+	s.AddHandler(s.onEvent)
 	s.AddHandler(s.onReady)
 	s.AddHandler(s.onVoiceServerUpdate)
 	s.AddHandler(s.onVoiceStateUpdate)
+	s.AddHandler(s.State.onInterface)
+}
 
-	s.AddHandler(s.State.onReady)
-	s.AddHandler(s.State.onMessageCreate)
-	s.AddHandler(s.State.onMessageUpdate)
-	s.AddHandler(s.State.onMessageDelete)
+// onEvent handles events that are unhandled or errored while unmarshalling
+func (s *Session) onEvent(se *Session, e *Event) {
+	printEvent(e)
 }
 
 // onReady handles the ready event.

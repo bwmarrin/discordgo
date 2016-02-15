@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"runtime"
 	"time"
 
@@ -86,7 +87,7 @@ func (s *Session) Open() (err error) {
 
 	s.Unlock()
 
-	s.Handle(&Connect{})
+	s.handle(&Connect{})
 
 	return
 }
@@ -110,7 +111,7 @@ func (s *Session) Close() (err error) {
 
 	s.Unlock()
 
-	s.Handle(&Disconnect{})
+	s.handle(&Disconnect{})
 
 	return
 }
@@ -243,6 +244,38 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return
 }
 
+// eventToInterface is a mapping of Discord WSAPI events to their
+// DiscordGo event container.
+var eventToInterface = map[string]interface{}{
+	"CHANNEL_CREATE":            ChannelCreate{},
+	"CHANNEL_UPDATE":            ChannelUpdate{},
+	"CHANNEL_DELETE":            ChannelDelete{},
+	"GUILD_CREATE":              GuildCreate{},
+	"GUILD_UPDATE":              GuildUpdate{},
+	"GUILD_DELETE":              GuildDelete{},
+	"GUILD_BAN_ADD":             GuildBanAdd{},
+	"GUILD_BAN_REMOVE":          GuildBanRemove{},
+	"GUILD_MEMBER_ADD":          GuildMemberAdd{},
+	"GUILD_MEMBER_UPDATE":       GuildMemberUpdate{},
+	"GUILD_MEMBER_REMOVE":       GuildMemberRemove{},
+	"GUILD_ROLE_CREATE":         GuildRoleCreate{},
+	"GUILD_ROLE_UPDATE":         GuildRoleUpdate{},
+	"GUILD_ROLE_DELETE":         GuildRoleDelete{},
+	"GUILD_INTEGRATIONS_UPDATE": GuildIntegrationsUpdate{},
+	"GUILD_EMOJIS_UPDATE":       GuildEmojisUpdate{},
+	"MESSAGE_ACK":               MessageAck{},
+	"MESSAGE_CREATE":            MessageCreate{},
+	"MESSAGE_UPDATE":            MessageUpdate{},
+	"MESSAGE_DELETE":            MessageDelete{},
+	"PRESENCE_UPDATE":           PresenceUpdate{},
+	"READY":                     Ready{},
+	"USER_UPDATE":               UserUpdate{},
+	"USER_SETTINGS_UPDATE":      UserSettingsUpdate{},
+	"TYPING_START":              TypingStart{},
+	"VOICE_SERVER_UPDATE":       VoiceServerUpdate{},
+	"VOICE_STATE_UPDATE":        VoiceStateUpdate{},
+}
+
 // Front line handler for all Websocket Events.  Determines the
 // event type and passes the message along to the next handler.
 
@@ -289,312 +322,23 @@ func (s *Session) event(messageType int, message []byte) {
 		printEvent(e)
 	}
 
-	var i interface{}
+	i := eventToInterface[e.Type]
+	if i != nil {
+		// Create a new instance of the event type.
+		i = reflect.New(reflect.TypeOf(i)).Interface()
 
-	// TODO(iopred): Figure out a clean way to do this with a map, simply
-	// creating a map[string]interface{} will not work, as that will reuse
-	// the same instance for each event.
-	switch e.Type {
-	case "READY":
-		i = &Ready{}
-	case "MESSAGE_CREATE":
-		i = &MessageCreate{}
-	case "MESSAGE_UPDATE":
-		i = &MessageUpdate{}
-	case "MESSAGE_DELETE":
-		i = &MessageDelete{}
-	case "PRESENCE_UPDATE":
-		i = &PresenceUpdate{}
-	case "TYPING_START":
-		i = &TypingStart{}
-	case "VOICE_SERVER_UPDATE":
-		i = &VoiceServerUpdate{}
-	case "VOICE_STATE_UPDATE":
-		i = &VoiceStateUpdate{}
-	case "USER_UPDATE":
-		i = &UserUpdate{}
-	case "MESSAGE_ACK":
-		i = &MessageAck{}
-	case "GUILD_ROLE_CREATE":
-		i = &GuildRoleCreate{}
-	case "GUILD_ROLE_UPDATE":
-		i = &GuildRoleUpdate{}
-	case "GUILD_ROLE_DELETE":
-		i = &GuildRoleDelete{}
-	case "GUILD_INTEGRATIONS_UPDATE":
-		i = &GuildIntegrationsUpdate{}
-	case "GUILD_BAN_ADD":
-		i = &GuildBanAdd{}
-	case "GUILD_BAN_REMOVE":
-		i = &GuildBanRemove{}
-	}
-
-	// case "CHANNEL_CREATE":
-	// 	if !s.StateEnabled && s.OnChannelCreate == nil {
-	// 		break
-	// 	}
-	// 	var st *Channel
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.ChannelAdd(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnChannelCreate != nil {
-	// 			s.OnChannelCreate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnChannelCreate != nil {
-	// 		return
-	// 	}
-	// case "CHANNEL_UPDATE":
-	// 	if !s.StateEnabled && s.OnChannelUpdate == nil {
-	// 		break
-	// 	}
-	// 	var st *Channel
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.ChannelAdd(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnChannelUpdate != nil {
-	// 			s.OnChannelUpdate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnChannelUpdate != nil {
-	// 		return
-	// 	}
-	// case "CHANNEL_DELETE":
-	// 	if !s.StateEnabled && s.OnChannelDelete == nil {
-	// 		break
-	// 	}
-	// 	var st *Channel
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.ChannelRemove(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnChannelDelete != nil {
-	// 			s.OnChannelDelete(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnChannelDelete != nil {
-	// 		return
-	// 	}
-	// case "GUILD_CREATE":
-	// 	if !s.StateEnabled && s.OnGuildCreate == nil {
-	// 		break
-	// 	}
-	// 	var st *Guild
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.GuildAdd(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildCreate != nil {
-	// 			s.OnGuildCreate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildCreate != nil {
-	// 		return
-	// 	}
-	// case "GUILD_UPDATE":
-	// 	if !s.StateEnabled && s.OnGuildUpdate == nil {
-	// 		break
-	// 	}
-	// 	var st *Guild
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.GuildAdd(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildCreate != nil {
-	// 			s.OnGuildUpdate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildUpdate != nil {
-	// 		return
-	// 	}
-	// case "GUILD_DELETE":
-	// 	if !s.StateEnabled && s.OnGuildDelete == nil {
-	// 		break
-	// 	}
-	// 	var st *Guild
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.GuildRemove(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildDelete != nil {
-	// 			s.OnGuildDelete(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildDelete != nil {
-	// 		return
-	// 	}
-	// case "GUILD_MEMBER_ADD":
-	// 	if !s.StateEnabled && s.OnGuildMemberAdd == nil {
-	// 		break
-	// 	}
-	// 	var st *Member
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.MemberAdd(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildMemberAdd != nil {
-	// 			s.OnGuildMemberAdd(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildMemberAdd != nil {
-	// 		return
-	// 	}
-	// case "GUILD_MEMBER_REMOVE":
-	// 	if !s.StateEnabled && s.OnGuildMemberRemove == nil {
-	// 		break
-	// 	}
-	// 	var st *Member
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.MemberRemove(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildMemberRemove != nil {
-	// 			s.OnGuildMemberRemove(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildMemberRemove != nil {
-	// 		return
-	// 	}
-	// case "GUILD_MEMBER_UPDATE":
-	// 	if !s.StateEnabled && s.OnGuildMemberUpdate == nil {
-	// 		break
-	// 	}
-	// 	var st *Member
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.MemberAdd(st)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildMemberUpdate != nil {
-	// 			s.OnGuildMemberUpdate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildMemberUpdate != nil {
-	// 		return
-	// 	}
-	// case "GUILD_ROLE_CREATE":
-	// 	if s.OnGuildRoleCreate != nil {
-	// 		var st *GuildRole
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnGuildRoleCreate(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// case "GUILD_ROLE_UPDATE":
-	// 	if s.OnGuildRoleUpdate != nil {
-	// 		var st *GuildRole
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnGuildRoleUpdate(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// case "GUILD_ROLE_DELETE":
-	// 	if s.OnGuildRoleDelete != nil {
-	// 		var st *GuildRoleDelete
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnGuildRoleDelete(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// case "GUILD_INTEGRATIONS_UPDATE":
-	// 	if s.OnGuildIntegrationsUpdate != nil {
-	// 		var st *GuildIntegrationsUpdate
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnGuildIntegrationsUpdate(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// case "GUILD_BAN_ADD":
-	// 	if s.OnGuildBanAdd != nil {
-	// 		var st *GuildBan
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnGuildBanAdd(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// case "GUILD_BAN_REMOVE":
-	// 	if s.OnGuildBanRemove != nil {
-	// 		var st *GuildBan
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnGuildBanRemove(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// case "GUILD_EMOJIS_UPDATE":
-	// 	if !s.StateEnabled && s.OnGuildEmojisUpdate == nil {
-	// 		break
-	// 	}
-	// 	var st *GuildEmojisUpdate
-	// 	if err = unmarshalEvent(e, &st); err == nil {
-	// 		if s.StateEnabled {
-	// 			err := s.State.EmojisAdd(st.GuildID, st.Emojis)
-	// 			if err != nil {
-	// 				fmt.Println("error :", err)
-	// 			}
-	// 		}
-	// 		if s.OnGuildEmojisUpdate != nil {
-	// 			s.OnGuildEmojisUpdate(s, st)
-	// 		}
-	// 	}
-	// 	if s.OnGuildEmojisUpdate != nil {
-	// 		return
-	// 	}
-	// case "USER_SETTINGS_UPDATE":
-	// 	if s.OnUserSettingsUpdate != nil {
-	// 		var st map[string]interface{}
-	// 		if err = unmarshalEvent(e, &st); err == nil {
-	// 			s.OnUserSettingsUpdate(s, st)
-	// 		}
-	// 		return
-	// 	}
-	// default:
-	// 	fmt.Println("Unknown Event.")
-	// 	printEvent(e)
-	// }
-
-	// Attempt to unmarshal our event.
-	// If there is an error (eg. we don't know how to handle it) we should handle the event itself.
-	if err = unmarshal(e.RawData, i); err != nil {
-		fmt.Println("Unable to unmarshal event data.")
-		printEvent(e)
+		// Attempt to unmarshal our event.
+		// If there is an error we should handle the event itself.
+		if err = unmarshal(e.RawData, i); err != nil {
+			fmt.Println("Unable to unmarshal event data.")
+			i = e
+		}
+	} else {
+		fmt.Println("Unknown event.")
 		i = e
 	}
 
-	if !s.Handle(i) {
-		if i != e {
-			// If there was not a handler for the struct, handle the event, as long as it wasn't the
-			// event we were trying to handle.
-			s.Handle(e)
-		}
-	}
+	s.handle(i)
 
 	return
 }
