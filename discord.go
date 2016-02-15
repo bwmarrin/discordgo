@@ -151,10 +151,10 @@ func (s *Session) AddHandler(handler interface{}) {
 
 	handlers := s.Handlers[eventType]
 	if handlers == nil {
-		handlers = []interface{}{}
+		handlers = []reflect.Value{}
 	}
 
-	handlers = append(handlers, handler)
+	handlers = append(handlers, reflect.ValueOf(handler))
 	s.Handlers[eventType] = handlers
 }
 
@@ -162,15 +162,17 @@ func (s *Session) handle(event interface{}) {
 	s.RLock()
 	defer s.RUnlock()
 
+	handlerParameters := []reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)}
+
 	if handlers, ok := s.Handlers[reflect.TypeOf(event)]; ok {
 		for _, handler := range handlers {
-			reflect.ValueOf(handler).Call([]reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)})
+			handler.Call(handlerParameters)
 		}
 	}
 
 	if handlers, ok := s.Handlers[nil]; ok {
 		for _, handler := range handlers {
-			reflect.ValueOf(handler).Call([]reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)})
+			handler.Call(handlerParameters)
 		}
 	}
 }
@@ -178,7 +180,7 @@ func (s *Session) handle(event interface{}) {
 // initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
 	s.Lock()
-	s.Handlers = map[interface{}][]interface{}{}
+	s.Handlers = map[interface{}][]reflect.Value{}
 	s.Unlock()
 
 	s.AddHandler(s.onEvent)

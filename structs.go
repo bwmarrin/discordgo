@@ -13,6 +13,7 @@ package discordgo
 
 import (
 	"encoding/json"
+	"reflect"
 	"sync"
 	"time"
 
@@ -29,7 +30,12 @@ type Session struct {
 	Token string // Authentication token for this session
 	Debug bool   // Debug for printing JSON request/responses
 
-	Handlers map[interface{}][]interface{}
+	// This is a mapping of event structs to a reflected value
+	// for event handlers.
+	// We store the reflected value instead of the function
+	// reference as it is more performant, instead of re-reflecting
+	// the function each event.
+	Handlers map[interface{}][]reflect.Value
 
 	// Exposed but should not be modified by User.
 	SessionID  string // from websocket READY packet
