@@ -285,7 +285,7 @@ var eventToInterface = map[string]interface{}{
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) {
 	s.RLock()
-	if s.Handlers == nil {
+	if s.handlers == nil {
 		s.RUnlock()
 		s.initialize()
 	} else {

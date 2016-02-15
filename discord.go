@@ -136,7 +136,7 @@ func (s *Session) AddHandler(handler interface{}) {
 		panic("Unable to add event handler, first argument must be of type *discordgo.Session.")
 	}
 
-	if s.Handlers == nil {
+	if s.handlers == nil {
 		s.Unlock()
 		s.initialize()
 		s.Lock()
@@ -149,13 +149,13 @@ func (s *Session) AddHandler(handler interface{}) {
 		eventType = nil
 	}
 
-	handlers := s.Handlers[eventType]
+	handlers := s.handlers[eventType]
 	if handlers == nil {
 		handlers = []reflect.Value{}
 	}
 
 	handlers = append(handlers, reflect.ValueOf(handler))
-	s.Handlers[eventType] = handlers
+	s.handlers[eventType] = handlers
 }
 
 func (s *Session) handle(event interface{}) {
@@ -164,13 +164,13 @@ func (s *Session) handle(event interface{}) {
 
 	handlerParameters := []reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)}
 
-	if handlers, ok := s.Handlers[reflect.TypeOf(event)]; ok {
+	if handlers, ok := s.handlers[reflect.TypeOf(event)]; ok {
 		for _, handler := range handlers {
 			handler.Call(handlerParameters)
 		}
 	}
 
-	if handlers, ok := s.Handlers[nil]; ok {
+	if handlers, ok := s.handlers[nil]; ok {
 		for _, handler := range handlers {
 			handler.Call(handlerParameters)
 		}
@@ -180,7 +180,7 @@ func (s *Session) handle(event interface{}) {
 // initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
 	s.Lock()
-	s.Handlers = map[interface{}][]reflect.Value{}
+	s.handlers = map[interface{}][]reflect.Value{}
 	s.Unlock()
 
 	s.AddHandler(s.onEvent)
