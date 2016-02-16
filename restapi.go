@@ -405,9 +405,9 @@ func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 
 // GuildLeave leaves a Guild.
 // guildID   : The ID of a Guild
-func (s *Session) GuildLeave(guildID string) (st *Guild, err error) {
+func (s *Session) GuildLeave(guildID string) (err error) {
 
-	_, err := s.Request("DELETE", USER_GUILD("@me", guildID), nil)
+	_, err = s.Request("DELETE", USER_GUILD("@me", guildID), nil)
 	return
 }
 
