@@ -844,9 +844,15 @@ func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Mess
 		return nil, err
 	}
 
-	io.Copy(writer, r)
+	_, err = io.Copy(writer, r)
+	if err != nil {
+		return
+	}
 
-	bodywriter.Close()
+	err = bodywriter.Close()
+	if err != nil {
+		return
+	}
 
 	response, err := s.request("POST", CHANNEL_MESSAGES(channelID), bodywriter.FormDataContentType(), body.Bytes())
 	if err != nil {
