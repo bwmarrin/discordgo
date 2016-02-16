@@ -122,6 +122,8 @@ func New(args ...interface{}) (s *Session, err error) {
 	return
 }
 
+// AddHandler allows you to add an event handler that will be fired anytime
+// the given event is triggered.
 func (s *Session) AddHandler(handler interface{}) {
 	s.Lock()
 	defer s.Unlock()
