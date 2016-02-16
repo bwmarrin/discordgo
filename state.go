@@ -35,6 +35,7 @@ func (s *State) OnReady(r *Ready) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -48,6 +49,7 @@ func (s *State) GuildAdd(guild *Guild) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -73,6 +75,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -94,6 +97,7 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
+
 	s.RLock()
 	defer s.RUnlock()
 
@@ -294,6 +298,7 @@ func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
+
 	s.RLock()
 	defer s.RUnlock()
 
@@ -429,6 +434,7 @@ func (s *State) MessageRemove(message *Message) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	c, err := s.Channel(message.ChannelID)
 	if err != nil {
 		return err
@@ -452,6 +458,7 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
+
 	c, err := s.Channel(channelID)
 	if err != nil {
 		return nil, err
@@ -467,4 +474,47 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 	}
 
 	return nil, errors.New("Message not found.")
+}
+
+// onInterface handles all events related to states.
+func (s *State) onInterface(se *Session, i interface{}) (err error) {
+	if s == nil {
+		return ErrNilState
+	}
+	if !se.StateEnabled {
+		return nil
+	}
+
+	switch t := i.(type) {
+	case *Ready:
+		err = s.OnReady(t)
+	case *GuildCreate:
+		err = s.GuildAdd(t.Guild)
+	case *GuildUpdate:
+		err = s.GuildAdd(t.Guild)
+	case *GuildDelete:
+		err = s.GuildRemove(t.Guild)
+	case *GuildMemberAdd:
+		err = s.MemberAdd(t.Member)
+	case *GuildMemberUpdate:
+		err = s.MemberAdd(t.Member)
+	case *GuildMemberRemove:
+		err = s.MemberRemove(t.Member)
+	case *GuildEmojisUpdate:
+		err = s.EmojisAdd(t.GuildID, t.Emojis)
+	case *ChannelCreate:
+		err = s.ChannelAdd(t.Channel)
+	case *ChannelUpdate:
+		err = s.ChannelAdd(t.Channel)
+	case *ChannelDelete:
+		err = s.ChannelRemove(t.Channel)
+	case *MessageCreate:
+		err = s.MessageAdd(t.Message)
+	case *MessageUpdate:
+		err = s.MessageAdd(t.Message)
+	case *MessageDelete:
+		err = s.MessageRemove(t.Message)
+	}
+
+	return
 }

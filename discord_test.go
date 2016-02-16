@@ -224,3 +224,39 @@ func TestOpenClose(t *testing.T) {
 		t.Fatalf("TestClose, d.Close failed: %+v", err)
 	}
 }
+
+func TestHandlers(t *testing.T) {
+	testHandlerCalled := false
+	testHandler := func(s *Session, t *testing.T) {
+		testHandlerCalled = true
+	}
+
+	interfaceHandlerCalled := false
+	interfaceHandler := func(s *Session, i interface{}) {
+		interfaceHandlerCalled = true
+	}
+
+	bogusHandlerCalled := false
+	bogusHandler := func(s *Session, se *Session) {
+		bogusHandlerCalled = true
+	}
+
+	d := Session{}
+	d.AddHandler(testHandler)
+	d.AddHandler(interfaceHandler)
+	d.AddHandler(bogusHandler)
+
+	d.handle(t)
+
+	if !testHandlerCalled {
+		t.Fatalf("testHandler was not called.")
+	}
+
+	if !interfaceHandlerCalled {
+		t.Fatalf("interfaceHandler was not called.")
+	}
+
+	if bogusHandlerCalled {
+		t.Fatalf("bogusHandler was called.")
+	}
+}

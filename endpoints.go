@@ -50,6 +50,7 @@ var (
 	USER_AVATAR      = func(uID, aID string) string { return USERS + uID + "/avatars/" + aID + ".jpg" }
 	USER_SETTINGS    = func(uID string) string { return USERS + uID + "/settings" }
 	USER_GUILDS      = func(uID string) string { return USERS + uID + "/guilds" }
+	USER_GUILD       = func(uID, gID string) string { return USERS + uID + "/guilds/" + gID }
 	USER_CHANNELS    = func(uID string) string { return USERS + uID + "/channels" }
 	USER_DEVICES     = func(uID string) string { return USERS + uID + "/devices" }
 	USER_CONNECTIONS = func(uID string) string { return USERS + uID + "/connections" }

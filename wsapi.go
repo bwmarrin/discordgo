@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"runtime"
 	"time"
 
@@ -86,9 +87,7 @@ func (s *Session) Open() (err error) {
 
 	s.Unlock()
 
-	if s.OnConnect != nil {
-		s.OnConnect(s)
-	}
+	s.handle(&Connect{})
 
 	return
 }
@@ -112,9 +111,7 @@ func (s *Session) Close() (err error) {
 
 	s.Unlock()
 
-	if s.OnDisconnect != nil {
-		s.OnDisconnect(s)
-	}
+	s.handle(&Disconnect{})
 
 	return
 }
@@ -247,15 +244,36 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return
 }
 
-// Not sure how needed this is and where it would be best to call it.
-// somewhere.
-
-func unmarshalEvent(event *Event, i interface{}) (err error) {
-	if err = unmarshal(event.RawData, i); err != nil {
-		fmt.Println("Unable to unmarshal event data.")
-		printEvent(event)
-	}
-	return
+// eventToInterface is a mapping of Discord WSAPI events to their
+// DiscordGo event container.
+var eventToInterface = map[string]interface{}{
+	"CHANNEL_CREATE":            ChannelCreate{},
+	"CHANNEL_UPDATE":            ChannelUpdate{},
+	"CHANNEL_DELETE":            ChannelDelete{},
+	"GUILD_CREATE":              GuildCreate{},
+	"GUILD_UPDATE":              GuildUpdate{},
+	"GUILD_DELETE":              GuildDelete{},
+	"GUILD_BAN_ADD":             GuildBanAdd{},
+	"GUILD_BAN_REMOVE":          GuildBanRemove{},
+	"GUILD_MEMBER_ADD":          GuildMemberAdd{},
+	"GUILD_MEMBER_UPDATE":       GuildMemberUpdate{},
+	"GUILD_MEMBER_REMOVE":       GuildMemberRemove{},
+	"GUILD_ROLE_CREATE":         GuildRoleCreate{},
+	"GUILD_ROLE_UPDATE":         GuildRoleUpdate{},
+	"GUILD_ROLE_DELETE":         GuildRoleDelete{},
+	"GUILD_INTEGRATIONS_UPDATE": GuildIntegrationsUpdate{},
+	"GUILD_EMOJIS_UPDATE":       GuildEmojisUpdate{},
+	"MESSAGE_ACK":               MessageAck{},
+	"MESSAGE_CREATE":            MessageCreate{},
+	"MESSAGE_UPDATE":            MessageUpdate{},
+	"MESSAGE_DELETE":            MessageDelete{},
+	"PRESENCE_UPDATE":           PresenceUpdate{},
+	"READY":                     Ready{},
+	"USER_UPDATE":               UserUpdate{},
+	"USER_SETTINGS_UPDATE":      UserSettingsUpdate{},
+	"TYPING_START":              TypingStart{},
+	"VOICE_SERVER_UPDATE":       VoiceServerUpdate{},
+	"VOICE_STATE_UPDATE":        VoiceStateUpdate{},
 }
 
 // Front line handler for all Websocket Events.  Determines the
@@ -266,6 +284,14 @@ func unmarshalEvent(event *Event, i interface{}) (err error) {
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) {
+	s.RLock()
+	if s.handlers == nil {
+		s.RUnlock()
+		s.initialize()
+	} else {
+		s.RUnlock()
+	}
+
 	var err error
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
@@ -296,406 +322,23 @@ func (s *Session) event(messageType int, message []byte) {
 		printEvent(e)
 	}
 
-	switch e.Type {
-	case "READY":
-		var st *Ready
-		if err = unmarshalEvent(e, &st); err == nil {
-			go s.heartbeat(s.wsConn, s.listening, st.HeartbeatInterval)
-			if s.StateEnabled {
-				err := s.State.OnReady(st)
-				if err != nil {
-					fmt.Println("error: ", err)
-				}
+	i := eventToInterface[e.Type]
+	if i != nil {
+		// Create a new instance of the event type.
+		i = reflect.New(reflect.TypeOf(i)).Interface()
 
-			}
-			if s.OnReady != nil {
-				s.OnReady(s, st)
-			}
+		// Attempt to unmarshal our event.
+		// If there is an error we should handle the event itself.
+		if err = unmarshal(e.RawData, i); err != nil {
+			fmt.Println("Unable to unmarshal event data.")
+			i = e
 		}
-		if s.OnReady != nil {
-			return
-		}
-	case "VOICE_SERVER_UPDATE":
-		if s.Voice == nil && s.OnVoiceServerUpdate == nil {
-			break
-		}
-		var st *VoiceServerUpdate
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.Voice != nil {
-				s.onVoiceServerUpdate(st)
-			}
-			if s.OnVoiceServerUpdate != nil {
-				s.OnVoiceServerUpdate(s, st)
-			}
-		}
-		if s.OnVoiceServerUpdate != nil {
-			return
-		}
-	case "VOICE_STATE_UPDATE":
-		if s.Voice == nil && s.OnVoiceStateUpdate == nil {
-			break
-		}
-		var st *VoiceState
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.Voice != nil {
-				s.onVoiceStateUpdate(st)
-			}
-			if s.OnVoiceStateUpdate != nil {
-				s.OnVoiceStateUpdate(s, st)
-			}
-		}
-		if s.OnVoiceStateUpdate != nil {
-			return
-		}
-	case "USER_UPDATE":
-		if s.OnUserUpdate != nil {
-			var st *User
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnUserUpdate(s, st)
-			}
-			return
-		}
-	case "PRESENCE_UPDATE":
-		if s.OnPresenceUpdate != nil {
-			var st *PresenceUpdate
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnPresenceUpdate(s, st)
-			}
-			return
-		}
-	case "TYPING_START":
-		if s.OnTypingStart != nil {
-			var st *TypingStart
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnTypingStart(s, st)
-			}
-			return
-		}
-		/* Never seen this come in but saw it in another Library.
-		case "MESSAGE_ACK":
-			if s.OnMessageAck != nil {
-			}
-		*/
-	case "MESSAGE_CREATE":
-		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
-		if !stateEnabled && s.OnMessageCreate == nil {
-			break
-		}
-		var st *Message
-		if err = unmarshalEvent(e, &st); err == nil {
-			if stateEnabled {
-				err := s.State.MessageAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnMessageCreate != nil {
-				s.OnMessageCreate(s, st)
-			}
-		}
-		if s.OnMessageCreate != nil {
-			return
-		}
-	case "MESSAGE_UPDATE":
-		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
-		if !stateEnabled && s.OnMessageUpdate == nil {
-			break
-		}
-		var st *Message
-		if err = unmarshalEvent(e, &st); err == nil {
-			if stateEnabled {
-				err := s.State.MessageAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnMessageUpdate != nil {
-				s.OnMessageUpdate(s, st)
-			}
-		}
-		return
-	case "MESSAGE_DELETE":
-		stateEnabled := s.StateEnabled && s.State.MaxMessageCount > 0
-		if !stateEnabled && s.OnMessageDelete == nil {
-			break
-		}
-		var st *Message
-		if err = unmarshalEvent(e, &st); err == nil {
-			if stateEnabled {
-				err := s.State.MessageRemove(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnMessageDelete != nil {
-				s.OnMessageDelete(s, st)
-			}
-		}
-		return
-	case "MESSAGE_ACK":
-		if s.OnMessageAck != nil {
-			var st *MessageAck
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnMessageAck(s, st)
-			}
-			return
-		}
-	case "CHANNEL_CREATE":
-		if !s.StateEnabled && s.OnChannelCreate == nil {
-			break
-		}
-		var st *Channel
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.ChannelAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnChannelCreate != nil {
-				s.OnChannelCreate(s, st)
-			}
-		}
-		if s.OnChannelCreate != nil {
-			return
-		}
-	case "CHANNEL_UPDATE":
-		if !s.StateEnabled && s.OnChannelUpdate == nil {
-			break
-		}
-		var st *Channel
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.ChannelAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnChannelUpdate != nil {
-				s.OnChannelUpdate(s, st)
-			}
-		}
-		if s.OnChannelUpdate != nil {
-			return
-		}
-	case "CHANNEL_DELETE":
-		if !s.StateEnabled && s.OnChannelDelete == nil {
-			break
-		}
-		var st *Channel
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.ChannelRemove(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnChannelDelete != nil {
-				s.OnChannelDelete(s, st)
-			}
-		}
-		if s.OnChannelDelete != nil {
-			return
-		}
-	case "GUILD_CREATE":
-		if !s.StateEnabled && s.OnGuildCreate == nil {
-			break
-		}
-		var st *Guild
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.GuildAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildCreate != nil {
-				s.OnGuildCreate(s, st)
-			}
-		}
-		if s.OnGuildCreate != nil {
-			return
-		}
-	case "GUILD_UPDATE":
-		if !s.StateEnabled && s.OnGuildUpdate == nil {
-			break
-		}
-		var st *Guild
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.GuildAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildCreate != nil {
-				s.OnGuildUpdate(s, st)
-			}
-		}
-		if s.OnGuildUpdate != nil {
-			return
-		}
-	case "GUILD_DELETE":
-		if !s.StateEnabled && s.OnGuildDelete == nil {
-			break
-		}
-		var st *Guild
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.GuildRemove(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildDelete != nil {
-				s.OnGuildDelete(s, st)
-			}
-		}
-		if s.OnGuildDelete != nil {
-			return
-		}
-	case "GUILD_MEMBER_ADD":
-		if !s.StateEnabled && s.OnGuildMemberAdd == nil {
-			break
-		}
-		var st *Member
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.MemberAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildMemberAdd != nil {
-				s.OnGuildMemberAdd(s, st)
-			}
-		}
-		if s.OnGuildMemberAdd != nil {
-			return
-		}
-	case "GUILD_MEMBER_REMOVE":
-		if !s.StateEnabled && s.OnGuildMemberRemove == nil {
-			break
-		}
-		var st *Member
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.MemberRemove(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildMemberRemove != nil {
-				s.OnGuildMemberRemove(s, st)
-			}
-		}
-		if s.OnGuildMemberRemove != nil {
-			return
-		}
-	case "GUILD_MEMBER_UPDATE":
-		if !s.StateEnabled && s.OnGuildMemberUpdate == nil {
-			break
-		}
-		var st *Member
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.MemberAdd(st)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildMemberUpdate != nil {
-				s.OnGuildMemberUpdate(s, st)
-			}
-		}
-		if s.OnGuildMemberUpdate != nil {
-			return
-		}
-	case "GUILD_ROLE_CREATE":
-		if s.OnGuildRoleCreate != nil {
-			var st *GuildRole
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnGuildRoleCreate(s, st)
-			}
-			return
-		}
-	case "GUILD_ROLE_UPDATE":
-		if s.OnGuildRoleUpdate != nil {
-			var st *GuildRole
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnGuildRoleUpdate(s, st)
-			}
-			return
-		}
-	case "GUILD_ROLE_DELETE":
-		if s.OnGuildRoleDelete != nil {
-			var st *GuildRoleDelete
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnGuildRoleDelete(s, st)
-			}
-			return
-		}
-	case "GUILD_INTEGRATIONS_UPDATE":
-		if s.OnGuildIntegrationsUpdate != nil {
-			var st *GuildIntegrationsUpdate
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnGuildIntegrationsUpdate(s, st)
-			}
-			return
-		}
-	case "GUILD_BAN_ADD":
-		if s.OnGuildBanAdd != nil {
-			var st *GuildBan
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnGuildBanAdd(s, st)
-			}
-			return
-		}
-	case "GUILD_BAN_REMOVE":
-		if s.OnGuildBanRemove != nil {
-			var st *GuildBan
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnGuildBanRemove(s, st)
-			}
-			return
-		}
-	case "GUILD_EMOJIS_UPDATE":
-		if !s.StateEnabled && s.OnGuildEmojisUpdate == nil {
-			break
-		}
-		var st *GuildEmojisUpdate
-		if err = unmarshalEvent(e, &st); err == nil {
-			if s.StateEnabled {
-				err := s.State.EmojisAdd(st.GuildID, st.Emojis)
-				if err != nil {
-					fmt.Println("error :", err)
-				}
-			}
-			if s.OnGuildEmojisUpdate != nil {
-				s.OnGuildEmojisUpdate(s, st)
-			}
-		}
-		if s.OnGuildEmojisUpdate != nil {
-			return
-		}
-	case "USER_SETTINGS_UPDATE":
-		if s.OnUserSettingsUpdate != nil {
-			var st map[string]interface{}
-			if err = unmarshalEvent(e, &st); err == nil {
-				s.OnUserSettingsUpdate(s, st)
-			}
-			return
-		}
-	default:
-		fmt.Println("Unknown Event.")
-		printEvent(e)
+	} else {
+		fmt.Println("Unknown event.")
+		i = e
 	}
 
-	// if still here, send to generic OnEvent
-	if s.OnEvent != nil {
-		s.OnEvent(s, e)
-		return
-	}
+	s.handle(i)
 
 	return
 }
@@ -765,7 +408,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
-func (s *Session) onVoiceStateUpdate(st *VoiceState) {
+func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 
 	// Need to have this happen at login and store it in the Session
 	// TODO : This should be done upon connecting to Discord, or
@@ -791,7 +434,7 @@ func (s *Session) onVoiceStateUpdate(st *VoiceState) {
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
 // This event tells us the information needed to open a voice websocket
 // connection and should happen after the VOICE_STATE event.
-func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
+func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// Store values for later use
 	s.Voice.token = st.Token

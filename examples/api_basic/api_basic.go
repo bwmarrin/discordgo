@@ -23,9 +23,10 @@ func main() {
 
 	// Create a new Discord Session interface and set a handler for the
 	// OnMessageCreate event that happens for every new message on any channel
-	dg := discordgo.Session{
-		OnMessageCreate: messageCreate,
-	}
+	dg := discordgo.Session{}
+
+	// Register messageCreate as a callback for the messageCreate events.
+	dg.AddHandler(messageCreate)
 
 	// Login to the Discord server and store the authentication token
 	err = dg.Login(os.Args[1], os.Args[2])
@@ -46,9 +47,9 @@ func main() {
 	return
 }
 
-// This function will be called (due to above assignment) every time a new
+// This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the autenticated user has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.Message) {
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Print message to stdout.
 	fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
