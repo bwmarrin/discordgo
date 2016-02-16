@@ -477,39 +477,44 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 }
 
 // onInterface handles all events related to states.
-func (s *State) onInterface(se *Session, i interface{}) {
-	if s == nil || !se.StateEnabled {
-		return
+func (s *State) onInterface(se *Session, i interface{}) (err error) {
+	if s == nil {
+		return ErrNilState
+	}
+	if !se.StateEnabled {
+		return nil
 	}
 
 	switch t := i.(type) {
 	case *Ready:
-		s.OnReady(t)
+		err = s.OnReady(t)
 	case *GuildCreate:
-		s.GuildAdd(t.Guild)
+		err = s.GuildAdd(t.Guild)
 	case *GuildUpdate:
-		s.GuildAdd(t.Guild)
+		err = s.GuildAdd(t.Guild)
 	case *GuildDelete:
-		s.GuildRemove(t.Guild)
+		err = s.GuildRemove(t.Guild)
 	case *GuildMemberAdd:
-		s.MemberAdd(t.Member)
+		err = s.MemberAdd(t.Member)
 	case *GuildMemberUpdate:
-		s.MemberAdd(t.Member)
+		err = s.MemberAdd(t.Member)
 	case *GuildMemberRemove:
-		s.MemberRemove(t.Member)
+		err = s.MemberRemove(t.Member)
 	case *GuildEmojisUpdate:
-		s.EmojisAdd(t.GuildID, t.Emojis)
+		err = s.EmojisAdd(t.GuildID, t.Emojis)
 	case *ChannelCreate:
-		s.ChannelAdd(t.Channel)
+		err = s.ChannelAdd(t.Channel)
 	case *ChannelUpdate:
-		s.ChannelAdd(t.Channel)
+		err = s.ChannelAdd(t.Channel)
 	case *ChannelDelete:
-		s.ChannelRemove(t.Channel)
+		err = s.ChannelRemove(t.Channel)
 	case *MessageCreate:
-		s.MessageAdd(t.Message)
+		err = s.MessageAdd(t.Message)
 	case *MessageUpdate:
-		s.MessageAdd(t.Message)
+		err = s.MessageAdd(t.Message)
 	case *MessageDelete:
-		s.MessageRemove(t.Message)
+		err = s.MessageRemove(t.Message)
 	}
+
+	return
 }
