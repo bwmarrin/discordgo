@@ -390,7 +390,7 @@ func (s *Session) GuildEdit(guildID, name string) (st *Guild, err error) {
 	return
 }
 
-// GuildDelete deletes or leaves a Guild.
+// GuildDelete deletes a Guild.
 // guildID   : The ID of a Guild
 func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 
@@ -400,6 +400,14 @@ func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	return
+}
+
+// GuildLeave leaves a Guild.
+// guildID   : The ID of a Guild
+func (s *Session) GuildLeave(guildID string) (st *Guild, err error) {
+
+	_, err := s.Request("DELETE", USER_GUILD("@me", guildID), nil)
 	return
 }
 
