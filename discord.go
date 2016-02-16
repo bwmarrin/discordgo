@@ -13,7 +13,10 @@
 // Package discordgo provides Discord binding for Go
 package discordgo
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 // VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
 const VERSION = "0.11.0-alpha"
@@ -117,4 +120,82 @@ func New(args ...interface{}) (s *Session, err error) {
 	// It is recommended that you now call Open() so that events will trigger.
 
 	return
+}
+
+func (s *Session) AddHandler(handler interface{}) {
+	s.Lock()
+	defer s.Unlock()
+
+	handlerType := reflect.TypeOf(handler)
+
+	if handlerType.NumIn() != 2 {
+		panic("Unable to add event handler, handler must be of the type func(*discordgo.Session, *discordgo.EventType).")
+	}
+
+	if handlerType.In(0) != reflect.TypeOf(s) {
+		panic("Unable to add event handler, first argument must be of type *discordgo.Session.")
+	}
+
+	if s.handlers == nil {
+		s.Unlock()
+		s.initialize()
+		s.Lock()
+	}
+
+	eventType := handlerType.In(1)
+
+	// Support handlers of type interface{}, this is a special handler, which is triggered on every event.
+	if eventType.Kind() == reflect.Interface {
+		eventType = nil
+	}
+
+	handlers := s.handlers[eventType]
+	if handlers == nil {
+		handlers = []reflect.Value{}
+	}
+
+	handlers = append(handlers, reflect.ValueOf(handler))
+	s.handlers[eventType] = handlers
+}
+
+func (s *Session) handle(event interface{}) {
+	s.RLock()
+	defer s.RUnlock()
+
+	handlerParameters := []reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)}
+
+	if handlers, ok := s.handlers[reflect.TypeOf(event)]; ok {
+		for _, handler := range handlers {
+			handler.Call(handlerParameters)
+		}
+	}
+
+	if handlers, ok := s.handlers[nil]; ok {
+		for _, handler := range handlers {
+			handler.Call(handlerParameters)
+		}
+	}
+}
+
+// initialize adds all internal handlers and state tracking handlers.
+func (s *Session) initialize() {
+	s.Lock()
+	s.handlers = map[interface{}][]reflect.Value{}
+	s.Unlock()
+
+	s.AddHandler(s.onEvent)
+	s.AddHandler(s.onReady)
+	s.AddHandler(s.onVoiceServerUpdate)
+	s.AddHandler(s.onVoiceStateUpdate)
+	s.AddHandler(s.State.onInterface)
+}
+
+// onEvent handles events that are unhandled or errored while unmarshalling
+func (s *Session) onEvent(se *Session, e *Event) {
+	printEvent(e)
+}
+
+// onReady handles the ready event.
+func (s *Session) onReady(se *Session, r *Ready) {
+	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }
