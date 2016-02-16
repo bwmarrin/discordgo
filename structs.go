@@ -13,84 +13,66 @@ package discordgo
 
 import (
 	"encoding/json"
+	"reflect"
 	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-// A Session represents a connection to the Discord REST API.
-// token : The authentication token returned from Discord
-// Debug : If set to ture debug logging will be displayed.
+// A Session represents a connection to the Discord API.
 type Session struct {
 	sync.RWMutex
 
 	// General configurable settings.
-	Token string // Authentication token for this session
-	Debug bool   // Debug for printing JSON request/responses
 
-	// Settable Callback functions for Internal Events
-	// OnConnect is called when the websocket connection opens.
-	OnConnect func(*Session)
-	// OnDisconnect is called when the websocket connection closes.
-	// This is a good handler to add reconnection logic to.
-	OnDisconnect func(*Session)
+	// Authentication token for this session
+	Token string
 
-	// Settable Callback functions for Websocket Events
-	OnEvent                   func(*Session, *Event)
-	OnReady                   func(*Session, *Ready)
-	OnTypingStart             func(*Session, *TypingStart)
-	OnMessageCreate           func(*Session, *Message)
-	OnMessageUpdate           func(*Session, *Message)
-	OnMessageDelete           func(*Session, *Message)
-	OnMessageAck              func(*Session, *MessageAck)
-	OnUserUpdate              func(*Session, *User)
-	OnPresenceUpdate          func(*Session, *PresenceUpdate)
-	OnVoiceServerUpdate       func(*Session, *VoiceServerUpdate)
-	OnVoiceStateUpdate        func(*Session, *VoiceState)
-	OnChannelCreate           func(*Session, *Channel)
-	OnChannelUpdate           func(*Session, *Channel)
-	OnChannelDelete           func(*Session, *Channel)
-	OnGuildCreate             func(*Session, *Guild)
-	OnGuildUpdate             func(*Session, *Guild)
-	OnGuildDelete             func(*Session, *Guild)
-	OnGuildMemberAdd          func(*Session, *Member)
-	OnGuildMemberRemove       func(*Session, *Member)
-	OnGuildMemberDelete       func(*Session, *Member)
-	OnGuildMemberUpdate       func(*Session, *Member)
-	OnGuildRoleCreate         func(*Session, *GuildRole)
-	OnGuildRoleUpdate         func(*Session, *GuildRole)
-	OnGuildRoleDelete         func(*Session, *GuildRoleDelete)
-	OnGuildIntegrationsUpdate func(*Session, *GuildIntegrationsUpdate)
-	OnGuildBanAdd             func(*Session, *GuildBan)
-	OnGuildBanRemove          func(*Session, *GuildBan)
-	OnGuildEmojisUpdate       func(*Session, *GuildEmojisUpdate)
-	OnUserSettingsUpdate      func(*Session, map[string]interface{}) // TODO: Find better way?
-
-	// Exposed but should not be modified by User.
-	SessionID  string // from websocket READY packet
-	DataReady  bool   // Set to true when Data Websocket is ready
-	VoiceReady bool   // Set to true when Voice Websocket is ready
-	UDPReady   bool   // Set to true when UDP Connection is ready
-
-	// The websocket connection.
-	wsConn *websocket.Conn
-
-	// Stores all details related to voice connections
-	Voice *Voice
-
-	// Managed state object, updated with events.
-	State        *State
-	StateEnabled bool
-
-	// When nil, the session is not listening.
-	listening chan interface{}
+	// Debug for printing JSON request/responses
+	Debug bool
 
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
 
 	// Should the session request compressed websocket data.
 	Compress bool
+
+	// Should state tracking be enabled.
+	// State tracking is the best way for getting the the users
+	// active guilds and the members of the guilds.
+	StateEnabled bool
+
+	// Exposed but should not be modified by User.
+
+	// Whether the Data Websocket is ready
+	DataReady bool
+
+	// Whether the Voice Websocket is ready
+	VoiceReady bool
+
+	// Whether the UDP Connection is ready
+	UDPReady bool
+
+	// Stores all details related to voice connections
+	Voice *Voice
+
+	// Managed state object, updated internally with events when
+	// StateEnabled is true.
+	State *State
+
+	// This is a mapping of event structs to a reflected value
+	// for event handlers.
+	// We store the reflected value instead of the function
+	// reference as it is more performant, instead of re-reflecting
+	// the function each event.
+	handlers map[interface{}][]reflect.Value
+
+	// The websocket connection.
+	wsConn *websocket.Conn
+
+	// When nil, the session is not listening.
+	listening chan interface{}
 }
 
 // A VoiceRegion stores data for a specific voice region server.

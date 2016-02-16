@@ -35,6 +35,7 @@ func (s *State) OnReady(r *Ready) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -48,6 +49,7 @@ func (s *State) GuildAdd(guild *Guild) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -73,6 +75,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -94,6 +97,7 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
+
 	s.RLock()
 	defer s.RUnlock()
 
@@ -294,6 +298,7 @@ func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
+
 	s.RLock()
 	defer s.RUnlock()
 
@@ -429,6 +434,7 @@ func (s *State) MessageRemove(message *Message) error {
 	if s == nil {
 		return ErrNilState
 	}
+
 	c, err := s.Channel(message.ChannelID)
 	if err != nil {
 		return err
@@ -452,6 +458,7 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
+
 	c, err := s.Channel(channelID)
 	if err != nil {
 		return nil, err
@@ -467,4 +474,42 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 	}
 
 	return nil, errors.New("Message not found.")
+}
+
+// onInterface handles all events related to states.
+func (s *State) onInterface(se *Session, i interface{}) {
+	if s == nil || !se.StateEnabled {
+		return
+	}
+
+	switch t := i.(type) {
+	case *Ready:
+		s.OnReady(t)
+	case *GuildCreate:
+		s.GuildAdd(t.Guild)
+	case *GuildUpdate:
+		s.GuildAdd(t.Guild)
+	case *GuildDelete:
+		s.GuildRemove(t.Guild)
+	case *GuildMemberAdd:
+		s.MemberAdd(t.Member)
+	case *GuildMemberUpdate:
+		s.MemberAdd(t.Member)
+	case *GuildMemberRemove:
+		s.MemberRemove(t.Member)
+	case *GuildEmojisUpdate:
+		s.EmojisAdd(t.GuildID, t.Emojis)
+	case *ChannelCreate:
+		s.ChannelAdd(t.Channel)
+	case *ChannelUpdate:
+		s.ChannelAdd(t.Channel)
+	case *ChannelDelete:
+		s.ChannelRemove(t.Channel)
+	case *MessageCreate:
+		s.MessageAdd(t.Message)
+	case *MessageUpdate:
+		s.MessageAdd(t.Message)
+	case *MessageDelete:
+		s.MessageRemove(t.Message)
+	}
 }
