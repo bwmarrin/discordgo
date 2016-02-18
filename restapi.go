@@ -455,7 +455,7 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 // guildID   : The ID of a Guild.
 func (s *Session) GuildMembers(guildID string) (st []*Member, err error) {
 
-	body, err := s.Request("GET", GUILD_MEMBERS(guildID), data)
+	body, err := s.Request("GET", GUILD_MEMBERS(guildID), nil)
 	if err != nil {
 		return
 	}
