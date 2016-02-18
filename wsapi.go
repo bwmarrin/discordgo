@@ -378,18 +378,12 @@ type voiceChannelJoinOp struct {
 //    deaf  : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error) {
 
-	if s.wsConn == nil {
-		return fmt.Errorf("no websocket connection exists")
-	}
-
 	// Create new voice{} struct if one does not exist.
 	// If you create this prior to calling this func then you can manually
 	// set some variables if needed, such as to enable debugging.
 	if s.Voice == nil {
 		s.Voice = &Voice{}
 	}
-	// TODO : Determine how to properly change channels and change guild
-	// and channel when you are already connected to an existing channel.
 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{gID, cID, mute, deaf}}
@@ -434,6 +428,10 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
 // This event tells us the information needed to open a voice websocket
 // connection and should happen after the VOICE_STATE event.
+//
+// This is also fired if the Guild's voice region changes while connected
+// to a voice channel.  In that case, need to re-establish connection to
+// the new region endpoint.
 func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// Store values for later use
