@@ -284,14 +284,6 @@ var eventToInterface = map[string]interface{}{
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) {
-	s.RLock()
-	if s.handlers == nil {
-		s.RUnlock()
-		s.initialize()
-	} else {
-		s.RUnlock()
-	}
-
 	var err error
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
