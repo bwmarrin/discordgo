@@ -465,9 +465,30 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 // userID   : The ID of a User.
 // roles    : A list of role ID's to set on the member.
 func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
+
 	data := struct {
 		Roles []string `json:"roles"`
 	}{roles}
+
+	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// GuildMemberMove moves a guild member from one voice channel to another/none
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  channelID : The ID of a channel to move user to, or null?
+// NOTE : I am not entirely set on the name of this function and it may change
+// prior to the final 1.0.0 release of Discordgo
+func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error) {
+
+	data := struct {
+		ChannelID string `json:"channel_id"`
+	}{channelID}
 
 	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
 	if err != nil {
