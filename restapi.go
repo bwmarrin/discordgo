@@ -452,10 +452,28 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 }
 
 // GuildMembers returns a list of members for a guild.
-// guildID   : The ID of a Guild.
-func (s *Session) GuildMembers(guildID string) (st []*Member, err error) {
+//  guildID  : The ID of a Guild.
+//  offset   : A number of members to skip
+//  limit    : max number of members to return
+func (s *Session) GuildMembers(guildID string, offset, limit int) (st []*Member, err error) {
 
-	body, err := s.Request("GET", GUILD_MEMBERS(guildID), nil)
+	uri := GUILD_MEMBERS(guildID)
+
+	v := url.Values{}
+
+	if offset > 0 {
+		v.Set("offset", strconv.Itoa(offset))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.Request("GET", uri, nil)
 	if err != nil {
 		return
 	}
@@ -464,9 +482,9 @@ func (s *Session) GuildMembers(guildID string) (st []*Member, err error) {
 	return
 }
 
-// GuildMember returns a members of a guild.
-// guildID   : The ID of a Guild.
-// userID    : The ID of a User
+// GuildMember returns a member of a guild.
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User
 func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 
 	body, err := s.Request("GET", GUILD_MEMBER(guildID, userID), nil)
