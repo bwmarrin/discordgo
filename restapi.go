@@ -451,6 +451,33 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 	return
 }
 
+// GuildMembers returns a list of members for a guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildMembers(guildID string) (st []*Member, err error) {
+
+	body, err := s.Request("GET", GUILD_MEMBERS(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildMember returns a members of a guild.
+// guildID   : The ID of a Guild.
+// userID    : The ID of a User
+func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
+
+	body, err := s.Request("GET", GUILD_MEMBER(guildID, userID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildMemberDelete removes the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User

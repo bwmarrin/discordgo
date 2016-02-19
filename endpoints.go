@@ -58,6 +58,7 @@ var (
 	GUILD              = func(gID string) string { return GUILDS + gID }
 	GUILD_INIVTES      = func(gID string) string { return GUILDS + gID + "/invites" }
 	GUILD_CHANNELS     = func(gID string) string { return GUILDS + gID + "/channels" }
+	GUILD_MEMBERS      = func(gID string) string { return GUILDS + gID + "/members" }
 	GUILD_MEMBER       = func(gID, uID string) string { return GUILDS + gID + "/members/" + uID }
 	GUILD_BANS         = func(gID string) string { return GUILDS + gID + "/bans" }
 	GUILD_BAN          = func(gID, uID string) string { return GUILDS + gID + "/bans/" + uID }
