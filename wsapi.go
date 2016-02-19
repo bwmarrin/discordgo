@@ -34,10 +34,11 @@ type handshakeProperties struct {
 }
 
 type handshakeData struct {
-	Version    int                 `json:"v"`
-	Token      string              `json:"token"`
-	Properties handshakeProperties `json:"properties"`
-	Compress   bool                `json:"compress"`
+	Version        int                 `json:"v"`
+	Token          string              `json:"token"`
+	Properties     handshakeProperties `json:"properties"`
+	LargeThreshold int                 `json:"large_threshold"`
+	Compress       bool                `json:"compress"`
 }
 
 type handshakeOp struct {
@@ -75,7 +76,7 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, s.Compress}})
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
 	if err != nil {
 		return
 	}
