@@ -314,6 +314,10 @@ func (v *Voice) udpOpen() (err error) {
 		return fmt.Errorf("nil voice websocket")
 	}
 
+	if v.UDPConn != nil {
+		return fmt.Errorf("udp connection already open")
+	}
+
 	if v.close == nil {
 		return fmt.Errorf("nil close channel")
 	}
@@ -408,7 +412,6 @@ func (v *Voice) udpKeepAlive(UDPConn *net.UDPConn, close <-chan struct{}, i time
 
 	ticker := time.NewTicker(i)
 	for {
-		// TODO: Add a way to break from loop
 
 		binary.LittleEndian.PutUint64(packet, sequence)
 		sequence++
@@ -441,12 +444,12 @@ func (v *Voice) opusSender(UDPConn *net.UDPConn, close <-chan struct{}, opus <-c
 	// Voice is now ready to receive audio packets
 	// TODO: this needs reviewed as I think there must be a better way.
 	v.Ready = true
-	defer func() {
-		v.Ready = false
-	}()
+	defer func() { v.Ready = false }()
 
 	var sequence uint16
 	var timestamp uint32
+	var recvbuf []byte
+	var ok bool
 	udpHeader := make([]byte, 12)
 
 	// build the parts that don't change in the udpHeader
@@ -459,9 +462,14 @@ func (v *Voice) opusSender(UDPConn *net.UDPConn, close <-chan struct{}, opus <-c
 	for {
 
 		// Get data from chan.  If chan is closed, return.
-		recvbuf, ok := <-opus
-		if !ok {
+		select {
+		case <-close:
 			return
+		case recvbuf, ok = <-opus:
+			if !ok {
+				return
+			}
+			// else, continue loop
 		}
 
 		// Add sequence and timestamp to udpPacket
@@ -474,10 +482,10 @@ func (v *Voice) opusSender(UDPConn *net.UDPConn, close <-chan struct{}, opus <-c
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
 		select {
-		case <-ticker.C:
-			// continue
 		case <-close:
 			return
+		case <-ticker.C:
+			// continue
 		}
 		_, err := UDPConn.Write(sendbuf)
 
