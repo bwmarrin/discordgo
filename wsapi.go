@@ -357,10 +357,10 @@ type VoiceServerUpdate struct {
 }
 
 type voiceChannelJoinData struct {
-	GuildID   string `json:"guild_id"`
-	ChannelID string `json:"channel_id"`
-	SelfMute  bool   `json:"self_mute"`
-	SelfDeaf  bool   `json:"self_deaf"`
+	GuildID   *string `json:"guild_id"`
+	ChannelID *string `json:"channel_id"`
+	SelfMute  bool    `json:"self_mute"`
+	SelfDeaf  bool    `json:"self_deaf"`
 }
 
 type voiceChannelJoinOp struct {
@@ -386,7 +386,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 	}
 
 	// Send the request to Discord that we want to join the voice channel
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{gID, cID, mute, deaf}}
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
 	err = s.wsConn.WriteJSON(data)
 	if err != nil {
 		return
@@ -399,10 +399,37 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 	return
 }
 
+// ChannelVoiceLeave disconnects from the currently connected
+// voice channel.
+func (s *Session) ChannelVoiceLeave() (err error) {
+
+	if s.Voice == nil {
+		return
+	}
+
+	// Send the request to Discord that we want to leave voice
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{nil, nil, true, true}}
+	err = s.wsConn.WriteJSON(data)
+	if err != nil {
+		return
+	}
+
+	// Close voice and nil data struct
+	s.Voice.Close()
+	s.Voice = nil
+
+	return
+}
+
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
 func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
+
+	// Ignore if Voice is nil
+	if s.Voice == nil {
+		return
+	}
 
 	// Need to have this happen at login and store it in the Session
 	// TODO : This should be done upon connecting to Discord, or
