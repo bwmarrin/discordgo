@@ -466,6 +466,10 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	s.Voice.endpoint = st.Endpoint
 	s.Voice.guildID = st.GuildID
 
+	// If currently connected to voice ws/udp, then disconnect.
+	// Has no effect if not connected.
+	s.Voice.Close()
+
 	// We now have enough information to open a voice websocket conenction
 	// so, that's what the next call does.
 	err := s.Voice.Open()
