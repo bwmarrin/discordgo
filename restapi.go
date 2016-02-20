@@ -113,9 +113,6 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		// TODO check for 401 response, invalidate token if we get one.
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
-		// This will be changed to a more robust method later.
-		// which may be hugely different as this method could cause
-		// unending recursion
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
