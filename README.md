@@ -14,6 +14,23 @@ for support.
 
 ## Getting Started
 
+### master vs develop Branch
+* The master branch represents the latest released version of Discordgo.  This
+branch will always have a stable and tested version of the library. Each release
+is tagged and you can easily download a specific release and view release notes
+on the github [releases](https://github.com/bwmarrin/discordgo/releases) page.
+
+* The develop branch is where all development happens and almost always has
+new features over the master branch.  However breaking changes are frequently
+added to develop and even sometimes bugs are introduced.  Bugs get fixed and 
+the breaking changes get documented before pushing to master.  
+
+*So, what should you use?*
+
+If you can accept the constant changing nature of *develop* then it is the 
+recommended branch to use.  Otherwise, if you want to tail behind development
+slightly and have a more stable package with documented releases then use *master*
+
 ### Installing
 
 Discordgo has been tested to compile on Debian 8 (Go 1.3.3), 
@@ -22,9 +39,20 @@ FreeBSD 10 (Go 1.5.1), and Windows 7 (Go 1.5.2).
 This assumes you already have a working Go environment, if not please see
 [this page](https://golang.org/doc/install) first.
 
+`go get` *will always pull the latest released version from the master branch.*
+
 ```sh
-$ go get github.com/bwmarrin/discordgo
+go get github.com/bwmarrin/discordgo
 ```
+
+If you want to use the develop branch, follow these steps next.
+
+```sh
+cd $GOPATH/src/github.com/bwmarrin/discordgo
+git checkout develop
+```
+
+
 
 ### Usage
 
