@@ -794,7 +794,7 @@ func (s *Session) ChannelTyping(channelID string) (err error) {
 // limit     : The number messages that can be returned.
 // beforeID  : If provided all messages returned will be before given ID.
 // afterID   : If provided all messages returned will be after given ID.
-func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, afterID int) (st []*Message, err error) {
+func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID string) (st []*Message, err error) {
 
 	uri := CHANNEL_MESSAGES(channelID)
 
@@ -802,11 +802,11 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, aft
 	if limit > 0 {
 		v.Set("limit", strconv.Itoa(limit))
 	}
-	if afterID > 0 {
-		v.Set("after", strconv.Itoa(afterID))
+	if afterID != "" {
+		v.Set("after", afterID)
 	}
-	if beforeID > 0 {
-		v.Set("before", strconv.Itoa(beforeID))
+	if beforeID != "" {
+		v.Set("before", beforeID)
 	}
 	if len(v) > 0 {
 		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
