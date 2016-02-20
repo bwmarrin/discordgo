@@ -61,7 +61,8 @@ type Session struct {
 	// StateEnabled is true.
 	State *State
 
-	// This is a mapping of event structs to a reflected value
+	handlersMu sync.RWMutex
+	// This is a mapping of event struct to a reflected value
 	// for event handlers.
 	// We store the reflected value instead of the function
 	// reference as it is more performant, instead of re-reflecting

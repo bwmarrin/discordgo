@@ -225,15 +225,15 @@ func TestOpenClose(t *testing.T) {
 	}
 }
 
-func TestHandlers(t *testing.T) {
-	testHandlerCalled := false
-	testHandler := func(s *Session, t *testing.T) {
-		testHandlerCalled = true
+func TestAddHandler(t *testing.T) {
+	testHandlerCalled := 0
+	testHandler := func(s *Session, m *MessageCreate) {
+		testHandlerCalled++
 	}
 
-	interfaceHandlerCalled := false
+	interfaceHandlerCalled := 0
 	interfaceHandler := func(s *Session, i interface{}) {
-		interfaceHandlerCalled = true
+		interfaceHandlerCalled++
 	}
 
 	bogusHandlerCalled := false
@@ -243,20 +243,46 @@ func TestHandlers(t *testing.T) {
 
 	d := Session{}
 	d.AddHandler(testHandler)
+	d.AddHandler(testHandler)
+
 	d.AddHandler(interfaceHandler)
 	d.AddHandler(bogusHandler)
 
-	d.handle(t)
+	d.handle(&MessageCreate{})
+	d.handle(&MessageDelete{})
 
-	if !testHandlerCalled {
-		t.Fatalf("testHandler was not called.")
+	// testHandler will be called twice because it was added twice.
+	if testHandlerCalled != 2 {
+		t.Fatalf("testHandler was not called twice.")
 	}
 
-	if !interfaceHandlerCalled {
-		t.Fatalf("interfaceHandler was not called.")
+	// interfaceHandler will be called twice, once for each event.
+	if interfaceHandlerCalled != 2 {
+		t.Fatalf("interfaceHandler was not called twice.")
 	}
 
 	if bogusHandlerCalled {
 		t.Fatalf("bogusHandler was called.")
+	}
+}
+
+func TestRemoveHandler(t *testing.T) {
+	testHandlerCalled := 0
+	testHandler := func(s *Session, m *MessageCreate) {
+		testHandlerCalled++
+	}
+
+	d := Session{}
+	r := d.AddHandler(testHandler)
+
+	d.handle(&MessageCreate{})
+
+	r()
+
+	d.handle(&MessageCreate{})
+
+	// testHandler will be called once, as it was removed in between calls.
+	if testHandlerCalled != 1 {
+		t.Fatalf("testHandler was not called once.")
 	}
 }
