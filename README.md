@@ -4,10 +4,16 @@ Discordgo
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
 Discordgo is a [Go](https://golang.org/) package that provides low level 
-bindings to the [Discord](https://discordapp.com/) chat client API.
+bindings to the [Discord](https://discordapp.com/) chat client API. Discordgo 
+has nearly complete support for all of the Discord JSON-API endpoints, websocket
+interface, and voice interface.
 
-* See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice
-support.
+* See [dgVoice](https://github.com/bwmarrin/dgvoice) package to extend Discordgo
+with additional voice helper functions and features.
+
+* See [dca](https://github.com/bwmarrin/dca) for an **experimental** stand alone
+tool that wraps `ffmpeg` to create opus encoded audio appropriate for use with
+Discord (and Discordgo)
 
 Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord chat channel 
 for support.
