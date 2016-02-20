@@ -170,14 +170,11 @@ type heartbeatOp struct {
 	Data int `json:"d"`
 }
 
-func (s *Session) sendHeartbeat(wsConn *websocket.Conn) error {
-	return wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
-}
-
 // heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
 func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, i time.Duration) {
+
 	if listening == nil || wsConn == nil {
 		return
 	}
@@ -186,23 +183,18 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	s.DataReady = true
 	s.Unlock()
 
-	// Send first heartbeat immediately because lag could put the
-	// first heartbeat outside the required heartbeat interval window.
-	err := s.sendHeartbeat(wsConn)
-	if err != nil {
-		fmt.Println("Error sending initial heartbeat:", err)
-		return
-	}
-
+	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
+		err = wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
+		if err != nil {
+			fmt.Println("Error sending heartbeat:", err)
+			return
+		}
+
 		select {
 		case <-ticker.C:
-			err := s.sendHeartbeat(wsConn)
-			if err != nil {
-				fmt.Println("Error sending heartbeat:", err)
-				return
-			}
+			// continue loop and send heartbeat
 		case <-listening:
 			return
 		}
