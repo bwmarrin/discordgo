@@ -218,14 +218,12 @@ func (s *Session) handle(event interface{}) {
 
 // initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
-	s.handlersMu.RLock()
+	s.handlersMu.Lock()
 	if s.handlers != nil {
-		s.handlersMu.RUnlock()
+		s.handlersMu.Unlock()
 		return
 	}
-	s.handlersMu.RUnlock()
 
-	s.handlersMu.Lock()
 	s.handlers = map[interface{}][]reflect.Value{}
 	s.handlersMu.Unlock()
 
