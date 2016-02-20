@@ -256,7 +256,7 @@ func TestAddHandler(t *testing.T) {
 		t.Fatalf("testHandler was not called twice.")
 	}
 
-	// interfaceHandler will be called twice for each event.
+	// interfaceHandler will be called twice, once for each event.
 	if interfaceHandlerCalled != 2 {
 		t.Fatalf("interfaceHandler was not called twice.")
 	}
@@ -281,6 +281,7 @@ func TestRemoveHandler(t *testing.T) {
 
 	d.handle(&MessageCreate{})
 
+	// testHandler will be called once, as it was removed in between calls.
 	if testHandlerCalled != 1 {
 		t.Fatalf("testHandler was not called once.")
 	}
