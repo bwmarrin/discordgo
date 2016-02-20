@@ -136,8 +136,6 @@ func (v *Voice) wsListen(wsConn *websocket.Conn, close <-chan struct{}) {
 			go v.wsEvent(messageType, message)
 		}
 	}
-
-	return
 }
 
 // wsEvent handles any voice websocket events. This is only called by the
