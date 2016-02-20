@@ -196,10 +196,12 @@ func (s *Session) AddHandler(handler interface{}) func() {
 // handle calls any handlers that match the event type and any handlers of
 // interface{}.
 func (s *Session) handle(event interface{}) {
-	s.initialize()
-
 	s.handlersMu.RLock()
 	defer s.handlersMu.RUnlock()
+
+	if s.handlers == nil {
+		return
+	}
 
 	handlerParameters := []reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)}
 

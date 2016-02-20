@@ -88,6 +88,7 @@ func (s *Session) Open() (err error) {
 
 	s.Unlock()
 
+	s.initialize()
 	s.handle(&Connect{})
 
 	return
