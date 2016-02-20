@@ -119,6 +119,7 @@ type Channel struct {
 	Name                 string                 `json:"name"`
 	Topic                string                 `json:"topic"`
 	Position             int                    `json:"position"`
+	Bitrate              int                    `json:"bitrate"`
 	Type                 string                 `json:"type"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 	IsPrivate            bool                   `json:"is_private"`
