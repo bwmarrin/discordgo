@@ -215,23 +215,13 @@ type Member struct {
 
 // A User stores all data for an individual Discord user.
 type User struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Avatar   string `json:"Avatar"`
-	Verified bool   `json:"verified"`
-	//Discriminator int    `json:"discriminator,string"` // TODO: See below
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	Username      string `json:"username"`
+	Avatar        string `json:"Avatar"`
+	Verified      bool   `json:"verified"`
+	Discriminator string `json:"discriminator"`
 }
-
-// TODO: Research issue.
-// Discriminator sometimes comes as a string
-// and sometimes it comes as a int.  Weird.
-// to avoid errors I've just commented it out
-// but it doesn't seem to just kill the whole
-// program.  Heartbeat is taken on READY even
-// with error and the system continues to read
-// it just doesn't seem able to handle this one
-// field correctly.  Need to research this more.
 
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
