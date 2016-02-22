@@ -331,6 +331,23 @@ type GuildEmojisUpdate struct {
 	Emojis  []*Emoji `json:"emojis"`
 }
 
+// A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
+type UserGuildSettingsChannelOverride struct {
+	Muted                bool   `json:"muted"`
+	MessageNotifications int    `json:"message_notifications"`
+	ChannelID            string `json:"channel_id"`
+}
+
+// A UserGuildSettings stores data for a users guild settings.
+type UserGuildSettings struct {
+	SupressEveryone      bool                                `json:"suppress_everyone"`
+	Muted                bool                                `json:"muted"`
+	MobilePush           bool                                `json:"mobile_push"`
+	MessageNotifications int                                 `json:"message_notifications"`
+	GuildID              string                              `json:"guild_id"`
+	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
+}
+
 // A State contains the current known state.
 // As discord sends this in a READY blob, it seems reasonable to simply
 // use that struct as the data store.
