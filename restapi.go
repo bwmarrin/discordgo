@@ -587,28 +587,6 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	return
 }
 
-// GuildInviteCreate creates a new invite for the given guild.
-// guildID   : The ID of a Guild.
-// i         : An Invite struct with the values MaxAge, MaxUses, Temporary,
-//             and XkcdPass defined.
-func (s *Session) GuildInviteCreate(guildID string, i *Invite) (st *Invite, err error) {
-
-	data := struct {
-		MaxAge    int  `json:"max_age"`
-		MaxUses   int  `json:"max_uses"`
-		Temporary bool `json:"temporary"`
-		XKCDPass  bool `json:"xkcdpass"`
-	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
-
-	body, err := s.Request("POST", GUILD_INVITES(guildID), data)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
 // GuildRoles returns all roles for a given guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
