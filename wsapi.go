@@ -284,8 +284,11 @@ func (s *Session) event(messageType int, message []byte) {
 		// Attempt to unmarshal our event.
 		// If there is an error we should handle the event itself.
 		if err = unmarshal(e.RawData, i); err != nil {
-			fmt.Println("Unable to unmarshal event data.")
-			i = e
+			fmt.Println("Unable to unmarshal event data.", err)
+			// Ready events must fire, even if they are empty.
+			if e.Type != "READY" {
+				i = e
+			}
 		}
 	} else {
 		fmt.Println("Unknown event.")
