@@ -170,13 +170,14 @@ type Guild struct {
 
 // A Role stores information about Discord guild member roles.
 type Role struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Managed     bool   `json:"managed"`
-	Hoist       bool   `json:"hoist"`
-	Color       int    `json:"color"`
-	Position    int    `json:"position"`
-	Permissions int    `json:"permissions"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Managed bool   `json:"managed"`
+	Hoist   bool   `json:"hoist"`
+	// This is coming back as an int or string, for now do not parse.
+	Color       int `json:"-"`
+	Position    int `json:"position"`
+	Permissions int `json:"permissions"`
 }
 
 // A VoiceState stores the voice states of Guilds
@@ -274,7 +275,7 @@ type RateLimit struct {
 
 // A ReadState stores data on the read state of channels.
 type ReadState struct {
-	MentionCount  int
+	MentionCount  int    `json:"mention_count"`
 	LastMessageID string `json:"last_message_id"`
 	ID            string `json:"id"`
 }
