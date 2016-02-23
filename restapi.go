@@ -113,9 +113,6 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		// TODO check for 401 response, invalidate token if we get one.
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
-		// This will be changed to a more robust method later.
-		// which may be hugely different as this method could cause
-		// unending recursion
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
@@ -451,6 +448,51 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 	return
 }
 
+// GuildMembers returns a list of members for a guild.
+//  guildID  : The ID of a Guild.
+//  offset   : A number of members to skip
+//  limit    : max number of members to return
+func (s *Session) GuildMembers(guildID string, offset, limit int) (st []*Member, err error) {
+
+	uri := GUILD_MEMBERS(guildID)
+
+	v := url.Values{}
+
+	if offset > 0 {
+		v.Set("offset", strconv.Itoa(offset))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.Request("GET", uri, nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildMember returns a member of a guild.
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User
+func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
+
+	body, err := s.Request("GET", GUILD_MEMBER(guildID, userID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildMemberDelete removes the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
@@ -465,9 +507,30 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 // userID   : The ID of a User.
 // roles    : A list of role ID's to set on the member.
 func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
+
 	data := struct {
 		Roles []string `json:"roles"`
 	}{roles}
+
+	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// GuildMemberMove moves a guild member from one voice channel to another/none
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  channelID : The ID of a channel to move user to, or null?
+// NOTE : I am not entirely set on the name of this function and it may change
+// prior to the final 1.0.0 release of Discordgo
+func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error) {
+
+	data := struct {
+		ChannelID string `json:"channel_id"`
+	}{channelID}
 
 	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
 	if err != nil {
@@ -516,28 +579,6 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 // guildID   : The ID of a Guild.
 func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	body, err := s.Request("GET", GUILD_INVITES(guildID), nil)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// GuildInviteCreate creates a new invite for the given guild.
-// guildID   : The ID of a Guild.
-// i         : An Invite struct with the values MaxAge, MaxUses, Temporary,
-//             and XkcdPass defined.
-func (s *Session) GuildInviteCreate(guildID string, i *Invite) (st *Invite, err error) {
-
-	data := struct {
-		MaxAge    int  `json:"max_age"`
-		MaxUses   int  `json:"max_uses"`
-		Temporary bool `json:"temporary"`
-		XKCDPass  bool `json:"xkcdpass"`
-	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
-
-	body, err := s.Request("POST", GUILD_INVITES(guildID), data)
 	if err != nil {
 		return
 	}
@@ -731,7 +772,7 @@ func (s *Session) ChannelTyping(channelID string) (err error) {
 // limit     : The number messages that can be returned.
 // beforeID  : If provided all messages returned will be before given ID.
 // afterID   : If provided all messages returned will be after given ID.
-func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, afterID int) (st []*Message, err error) {
+func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID string) (st []*Message, err error) {
 
 	uri := CHANNEL_MESSAGES(channelID)
 
@@ -739,11 +780,11 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID int, aft
 	if limit > 0 {
 		v.Set("limit", strconv.Itoa(limit))
 	}
-	if afterID > 0 {
-		v.Set("after", strconv.Itoa(afterID))
+	if afterID != "" {
+		v.Set("after", afterID)
 	}
-	if beforeID > 0 {
-		v.Set("before", strconv.Itoa(beforeID))
+	if beforeID != "" {
+		v.Set("before", beforeID)
 	}
 	if len(v) > 0 {
 		uri = fmt.Sprintf("%s?%s", uri, v.Encode())

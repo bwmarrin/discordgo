@@ -4,15 +4,38 @@ Discordgo
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
 Discordgo is a [Go](https://golang.org/) package that provides low level 
-bindings to the [Discord](https://discordapp.com/) chat client API.
+bindings to the [Discord](https://discordapp.com/) chat client API. Discordgo 
+has nearly complete support for all of the Discord JSON-API endpoints, websocket
+interface, and voice interface.
 
-* See [dgVoice](https://github.com/bwmarrin/dgvoice) for **experimental** voice
-support.
+* See [dgVoice](https://github.com/bwmarrin/dgvoice) package to extend Discordgo
+with additional voice helper functions and features.
+
+* See [dca](https://github.com/bwmarrin/dca) for an **experimental** stand alone
+tool that wraps `ffmpeg` to create opus encoded audio appropriate for use with
+Discord (and Discordgo)
 
 Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord chat channel 
 for support.
 
 ## Getting Started
+
+### master vs develop Branch
+* The master branch represents the latest released version of Discordgo.  This
+branch will always have a stable and tested version of the library. Each release
+is tagged and you can easily download a specific release and view release notes
+on the github [releases](https://github.com/bwmarrin/discordgo/releases) page.
+
+* The develop branch is where all development happens and almost always has
+new features over the master branch.  However breaking changes are frequently
+added to develop and even sometimes bugs are introduced.  Bugs get fixed and 
+the breaking changes get documented before pushing to master.  
+
+*So, what should you use?*
+
+If you can accept the constant changing nature of *develop* then it is the 
+recommended branch to use.  Otherwise, if you want to tail behind development
+slightly and have a more stable package with documented releases then use *master*
 
 ### Installing
 
@@ -22,9 +45,20 @@ FreeBSD 10 (Go 1.5.1), and Windows 7 (Go 1.5.2).
 This assumes you already have a working Go environment, if not please see
 [this page](https://golang.org/doc/install) first.
 
+`go get` *will always pull the latest released version from the master branch.*
+
 ```sh
-$ go get github.com/bwmarrin/discordgo
+go get github.com/bwmarrin/discordgo
 ```
+
+If you want to use the develop branch, follow these steps next.
+
+```sh
+cd $GOPATH/src/github.com/bwmarrin/discordgo
+git checkout develop
+```
+
+
 
 ### Usage
 

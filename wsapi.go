@@ -34,10 +34,11 @@ type handshakeProperties struct {
 }
 
 type handshakeData struct {
-	Version    int                 `json:"v"`
-	Token      string              `json:"token"`
-	Properties handshakeProperties `json:"properties"`
-	Compress   bool                `json:"compress"`
+	Version        int                 `json:"v"`
+	Token          string              `json:"token"`
+	Properties     handshakeProperties `json:"properties"`
+	LargeThreshold int                 `json:"large_threshold"`
+	Compress       bool                `json:"compress"`
 }
 
 type handshakeOp struct {
@@ -75,7 +76,7 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, s.Compress}})
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
 	if err != nil {
 		return
 	}
@@ -87,6 +88,7 @@ func (s *Session) Open() (err error) {
 
 	s.Unlock()
 
+	s.initialize()
 	s.handle(&Connect{})
 
 	return
@@ -168,14 +170,11 @@ type heartbeatOp struct {
 	Data int `json:"d"`
 }
 
-func (s *Session) sendHeartbeat(wsConn *websocket.Conn) error {
-	return wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
-}
-
 // heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
 func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, i time.Duration) {
+
 	if listening == nil || wsConn == nil {
 		return
 	}
@@ -184,23 +183,18 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	s.DataReady = true
 	s.Unlock()
 
-	// Send first heartbeat immediately because lag could put the
-	// first heartbeat outside the required heartbeat interval window.
-	err := s.sendHeartbeat(wsConn)
-	if err != nil {
-		fmt.Println("Error sending initial heartbeat:", err)
-		return
-	}
-
+	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
+		err = wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
+		if err != nil {
+			fmt.Println("Error sending heartbeat:", err)
+			return
+		}
+
 		select {
 		case <-ticker.C:
-			err := s.sendHeartbeat(wsConn)
-			if err != nil {
-				fmt.Println("Error sending heartbeat:", err)
-				return
-			}
+			// continue loop and send heartbeat
 		case <-listening:
 			return
 		}
@@ -244,38 +238,6 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return
 }
 
-// eventToInterface is a mapping of Discord WSAPI events to their
-// DiscordGo event container.
-var eventToInterface = map[string]interface{}{
-	"CHANNEL_CREATE":            ChannelCreate{},
-	"CHANNEL_UPDATE":            ChannelUpdate{},
-	"CHANNEL_DELETE":            ChannelDelete{},
-	"GUILD_CREATE":              GuildCreate{},
-	"GUILD_UPDATE":              GuildUpdate{},
-	"GUILD_DELETE":              GuildDelete{},
-	"GUILD_BAN_ADD":             GuildBanAdd{},
-	"GUILD_BAN_REMOVE":          GuildBanRemove{},
-	"GUILD_MEMBER_ADD":          GuildMemberAdd{},
-	"GUILD_MEMBER_UPDATE":       GuildMemberUpdate{},
-	"GUILD_MEMBER_REMOVE":       GuildMemberRemove{},
-	"GUILD_ROLE_CREATE":         GuildRoleCreate{},
-	"GUILD_ROLE_UPDATE":         GuildRoleUpdate{},
-	"GUILD_ROLE_DELETE":         GuildRoleDelete{},
-	"GUILD_INTEGRATIONS_UPDATE": GuildIntegrationsUpdate{},
-	"GUILD_EMOJIS_UPDATE":       GuildEmojisUpdate{},
-	"MESSAGE_ACK":               MessageAck{},
-	"MESSAGE_CREATE":            MessageCreate{},
-	"MESSAGE_UPDATE":            MessageUpdate{},
-	"MESSAGE_DELETE":            MessageDelete{},
-	"PRESENCE_UPDATE":           PresenceUpdate{},
-	"READY":                     Ready{},
-	"USER_UPDATE":               UserUpdate{},
-	"USER_SETTINGS_UPDATE":      UserSettingsUpdate{},
-	"TYPING_START":              TypingStart{},
-	"VOICE_SERVER_UPDATE":       VoiceServerUpdate{},
-	"VOICE_STATE_UPDATE":        VoiceStateUpdate{},
-}
-
 // Front line handler for all Websocket Events.  Determines the
 // event type and passes the message along to the next handler.
 
@@ -284,14 +246,6 @@ var eventToInterface = map[string]interface{}{
 // Events will be handled by any implemented handler in Session.
 // All unhandled events will then be handled by OnEvent.
 func (s *Session) event(messageType int, message []byte) {
-	s.RLock()
-	if s.handlers == nil {
-		s.RUnlock()
-		s.initialize()
-	} else {
-		s.RUnlock()
-	}
-
 	var err error
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
@@ -330,8 +284,11 @@ func (s *Session) event(messageType int, message []byte) {
 		// Attempt to unmarshal our event.
 		// If there is an error we should handle the event itself.
 		if err = unmarshal(e.RawData, i); err != nil {
-			fmt.Println("Unable to unmarshal event data.")
-			i = e
+			fmt.Println("Unable to unmarshal event data.", err)
+			// Ready events must fire, even if they are empty.
+			if e.Type != "READY" {
+				i = e
+			}
 		}
 	} else {
 		fmt.Println("Unknown event.")
@@ -357,10 +314,10 @@ type VoiceServerUpdate struct {
 }
 
 type voiceChannelJoinData struct {
-	GuildID   string `json:"guild_id"`
-	ChannelID string `json:"channel_id"`
-	SelfMute  bool   `json:"self_mute"`
-	SelfDeaf  bool   `json:"self_deaf"`
+	GuildID   *string `json:"guild_id"`
+	ChannelID *string `json:"channel_id"`
+	SelfMute  bool    `json:"self_mute"`
+	SelfDeaf  bool    `json:"self_deaf"`
 }
 
 type voiceChannelJoinOp struct {
@@ -378,21 +335,15 @@ type voiceChannelJoinOp struct {
 //    deaf  : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error) {
 
-	if s.wsConn == nil {
-		return fmt.Errorf("no websocket connection exists")
-	}
-
 	// Create new voice{} struct if one does not exist.
 	// If you create this prior to calling this func then you can manually
 	// set some variables if needed, such as to enable debugging.
 	if s.Voice == nil {
 		s.Voice = &Voice{}
 	}
-	// TODO : Determine how to properly change channels and change guild
-	// and channel when you are already connected to an existing channel.
 
 	// Send the request to Discord that we want to join the voice channel
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{gID, cID, mute, deaf}}
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
 	err = s.wsConn.WriteJSON(data)
 	if err != nil {
 		return
@@ -405,10 +356,37 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error)
 	return
 }
 
+// ChannelVoiceLeave disconnects from the currently connected
+// voice channel.
+func (s *Session) ChannelVoiceLeave() (err error) {
+
+	if s.Voice == nil {
+		return
+	}
+
+	// Send the request to Discord that we want to leave voice
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{nil, nil, true, true}}
+	err = s.wsConn.WriteJSON(data)
+	if err != nil {
+		return
+	}
+
+	// Close voice and nil data struct
+	s.Voice.Close()
+	s.Voice = nil
+
+	return
+}
+
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
 func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
+
+	// Ignore if Voice is nil
+	if s.Voice == nil {
+		return
+	}
 
 	// Need to have this happen at login and store it in the Session
 	// TODO : This should be done upon connecting to Discord, or
@@ -434,12 +412,20 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
 // This event tells us the information needed to open a voice websocket
 // connection and should happen after the VOICE_STATE event.
+//
+// This is also fired if the Guild's voice region changes while connected
+// to a voice channel.  In that case, need to re-establish connection to
+// the new region endpoint.
 func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// Store values for later use
 	s.Voice.token = st.Token
 	s.Voice.endpoint = st.Endpoint
 	s.Voice.guildID = st.GuildID
+
+	// If currently connected to voice ws/udp, then disconnect.
+	// Has no effect if not connected.
+	s.Voice.Close()
 
 	// We now have enough information to open a voice websocket conenction
 	// so, that's what the next call does.
