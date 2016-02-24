@@ -372,13 +372,43 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
 // name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildEdit(guildID, name string) (st *Guild, err error) {
+func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error) {
+
+	// Bounds checking for VerificationLevel, interval: [0, 3]
+	if g.VerificationLevel != nil {
+		val := *g.VerificationLevel
+		if val < 0 || val > 3 {
+			err = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
+			return
+		}
+	}
+
+	//Bounds checking for regions
+	if g.Region != "" {
+		isValid := false
+		regions, _ := s.VoiceRegions()
+		for _, r := range regions {
+			if g.Region == r.ID {
+				isValid = true
+			}
+		}
+		if !isValid {
+			var valid []string
+			for _, r := range regions {
+				valid = append(valid, r.ID)
+			}
+			err = errors.New(fmt.Sprintf("Region not a valid region (%q)", valid))
+			return
+		}
+	}
 
 	data := struct {
-		Name string `json:"name"`
-	}{name}
+		Name              string `json:"name,omitempty"`
+		Region            string `json:"region,omitempty"`
+		VerificationLevel *int   `json:"verification_level,omitempty"`
+	}{g.Name, g.Region, g.VerificationLevel}
 
-	body, err := s.Request("POST", GUILD(guildID), data)
+	body, err := s.Request("PATCH", GUILD(guildID), data)
 	if err != nil {
 		return
 	}
