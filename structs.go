@@ -215,23 +215,13 @@ type Member struct {
 
 // A User stores all data for an individual Discord user.
 type User struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Avatar   string `json:"Avatar"`
-	Verified bool   `json:"verified"`
-	//Discriminator int    `json:"discriminator,string"` // TODO: See below
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	Username      string `json:"username"`
+	Avatar        string `json:"Avatar"`
+	Verified      bool   `json:"verified"`
+	Discriminator string `json:"discriminator"`
 }
-
-// TODO: Research issue.
-// Discriminator sometimes comes as a string
-// and sometimes it comes as a int.  Weird.
-// to avoid errors I've just commented it out
-// but it doesn't seem to just kill the whole
-// program.  Heartbeat is taken on READY even
-// with error and the system continues to read
-// it just doesn't seem able to handle this one
-// field correctly.  Need to research this more.
 
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
@@ -274,7 +264,7 @@ type RateLimit struct {
 
 // A ReadState stores data on the read state of channels.
 type ReadState struct {
-	MentionCount  int
+	MentionCount  int    `json:"mention_count"`
 	LastMessageID string `json:"last_message_id"`
 	ID            string `json:"id"`
 }
@@ -329,6 +319,23 @@ type GuildBan struct {
 type GuildEmojisUpdate struct {
 	GuildID string   `json:"guild_id"`
 	Emojis  []*Emoji `json:"emojis"`
+}
+
+// A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
+type UserGuildSettingsChannelOverride struct {
+	Muted                bool   `json:"muted"`
+	MessageNotifications int    `json:"message_notifications"`
+	ChannelID            string `json:"channel_id"`
+}
+
+// A UserGuildSettings stores data for a users guild settings.
+type UserGuildSettings struct {
+	SupressEveryone      bool                                `json:"suppress_everyone"`
+	Muted                bool                                `json:"muted"`
+	MobilePush           bool                                `json:"mobile_push"`
+	MessageNotifications int                                 `json:"message_notifications"`
+	GuildID              string                              `json:"guild_id"`
+	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
 // A State contains the current known state.

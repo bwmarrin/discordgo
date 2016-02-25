@@ -13,33 +13,34 @@ package discordgo
 //     Session.AddHandler(func(s *discordgo.Session, m *discordgo.PresenceUpdate) {
 //     })
 var eventToInterface = map[string]interface{}{
-	"CHANNEL_CREATE":            ChannelCreate{},
-	"CHANNEL_UPDATE":            ChannelUpdate{},
-	"CHANNEL_DELETE":            ChannelDelete{},
-	"GUILD_CREATE":              GuildCreate{},
-	"GUILD_UPDATE":              GuildUpdate{},
-	"GUILD_DELETE":              GuildDelete{},
-	"GUILD_BAN_ADD":             GuildBanAdd{},
-	"GUILD_BAN_REMOVE":          GuildBanRemove{},
-	"GUILD_MEMBER_ADD":          GuildMemberAdd{},
-	"GUILD_MEMBER_UPDATE":       GuildMemberUpdate{},
-	"GUILD_MEMBER_REMOVE":       GuildMemberRemove{},
-	"GUILD_ROLE_CREATE":         GuildRoleCreate{},
-	"GUILD_ROLE_UPDATE":         GuildRoleUpdate{},
-	"GUILD_ROLE_DELETE":         GuildRoleDelete{},
-	"GUILD_INTEGRATIONS_UPDATE": GuildIntegrationsUpdate{},
-	"GUILD_EMOJIS_UPDATE":       GuildEmojisUpdate{},
-	"MESSAGE_ACK":               MessageAck{},
-	"MESSAGE_CREATE":            MessageCreate{},
-	"MESSAGE_UPDATE":            MessageUpdate{},
-	"MESSAGE_DELETE":            MessageDelete{},
-	"PRESENCE_UPDATE":           PresenceUpdate{},
-	"READY":                     Ready{},
-	"USER_UPDATE":               UserUpdate{},
-	"USER_SETTINGS_UPDATE":      UserSettingsUpdate{},
-	"TYPING_START":              TypingStart{},
-	"VOICE_SERVER_UPDATE":       VoiceServerUpdate{},
-	"VOICE_STATE_UPDATE":        VoiceStateUpdate{},
+	"CHANNEL_CREATE":             ChannelCreate{},
+	"CHANNEL_UPDATE":             ChannelUpdate{},
+	"CHANNEL_DELETE":             ChannelDelete{},
+	"GUILD_CREATE":               GuildCreate{},
+	"GUILD_UPDATE":               GuildUpdate{},
+	"GUILD_DELETE":               GuildDelete{},
+	"GUILD_BAN_ADD":              GuildBanAdd{},
+	"GUILD_BAN_REMOVE":           GuildBanRemove{},
+	"GUILD_MEMBER_ADD":           GuildMemberAdd{},
+	"GUILD_MEMBER_UPDATE":        GuildMemberUpdate{},
+	"GUILD_MEMBER_REMOVE":        GuildMemberRemove{},
+	"GUILD_ROLE_CREATE":          GuildRoleCreate{},
+	"GUILD_ROLE_UPDATE":          GuildRoleUpdate{},
+	"GUILD_ROLE_DELETE":          GuildRoleDelete{},
+	"GUILD_INTEGRATIONS_UPDATE":  GuildIntegrationsUpdate{},
+	"GUILD_EMOJIS_UPDATE":        GuildEmojisUpdate{},
+	"MESSAGE_ACK":                MessageAck{},
+	"MESSAGE_CREATE":             MessageCreate{},
+	"MESSAGE_UPDATE":             MessageUpdate{},
+	"MESSAGE_DELETE":             MessageDelete{},
+	"PRESENCE_UPDATE":            PresenceUpdate{},
+	"READY":                      Ready{},
+	"USER_UPDATE":                UserUpdate{},
+	"USER_SETTINGS_UPDATE":       UserSettingsUpdate{},
+	"USER_GUILD_SETTINGS_UPDATE": UserGuildSettingsUpdate{},
+	"TYPING_START":               TypingStart{},
+	"VOICE_SERVER_UPDATE":        VoiceServerUpdate{},
+	"VOICE_STATE_UPDATE":         VoiceStateUpdate{},
 }
 
 // Connect is an empty struct for an event.
@@ -140,3 +141,8 @@ type UserUpdate struct {
 
 // UserSettingsUpdate is a map for an event.
 type UserSettingsUpdate map[string]interface{}
+
+// UserGuildSettingsUpdate is a map for an event.
+type UserGuildSettingsUpdate struct {
+	*UserGuildSettings
+}
