@@ -451,7 +451,7 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 // GuildMembers returns a list of members for a guild.
 //  guildID  : The ID of a Guild.
 //  offset   : A number of members to skip
-//  limit    : max number of members to return
+//  limit    : max number of members to return (max 1000)
 func (s *Session) GuildMembers(guildID string, offset, limit int) (st []*Member, err error) {
 
 	uri := GUILD_MEMBERS(guildID)
@@ -769,7 +769,7 @@ func (s *Session) ChannelTyping(channelID string) (err error) {
 // ChannelMessages returns an array of Message structures for messages within
 // a given channel.
 // channelID : The ID of a Channel.
-// limit     : The number messages that can be returned.
+// limit     : The number messages that can be returned. (max 100)
 // beforeID  : If provided all messages returned will be before given ID.
 // afterID   : If provided all messages returned will be after given ID.
 func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID string) (st []*Message, err error) {
