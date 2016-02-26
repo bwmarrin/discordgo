@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"golang.org/x/crypto/nacl/secretbox"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ type Voice struct {
 	guildID   string
 	channelID string
 	userID    string
+	op4       voiceOP4
 
 	// Used to send a close signal to goroutines
 	close chan struct{}
@@ -54,6 +56,13 @@ type Voice struct {
 // ------------------------------------------------------------------------------------------------
 // Code related to the Voice websocket connection
 // ------------------------------------------------------------------------------------------------
+
+// A voiceOP4 stores the data for the voice operation 4 websocket event
+// which provides us with the NaCl SecretBox encryption key
+type voiceOP4 struct {
+	SecretKey [32]byte `json:"secret_key"`
+	Mode      string   `json:"mode"`
+}
 
 // A voiceOP2 stores the data for the voice operation 2 websocket event
 // which is sort of like the voice READY packet
@@ -193,8 +202,14 @@ func (v *Voice) wsEvent(messageType int, message []byte) {
 		// add code to use this to track latency?
 		return
 
-	case 4:
-		// TODO
+	case 4: // udp encryption secret key
+		v.op4 = voiceOP4{}
+		if err := json.Unmarshal(e.RawData, &v.op4); err != nil {
+			fmt.Println("voiceWS.onEvent OP4 Unmarshall error: ", err)
+			printJSON(e.RawData)
+			return
+		}
+		return
 
 	case 5:
 		// SPEAKING TRUE/FALSE NOTIFICATION
@@ -286,7 +301,7 @@ func (v *Voice) Speaking(b bool) (err error) {
 type voiceUDPData struct {
 	Address string `json:"address"` // Public IP of machine running this code
 	Port    uint16 `json:"port"`    // UDP Port of machine running this code
-	Mode    string `json:"mode"`    // plain or ?  (plain or encrypted)
+	Mode    string `json:"mode"`    // always "xsalsa20_poly1305"
 }
 
 type voiceUDPD struct {
@@ -380,7 +395,7 @@ func (v *Voice) udpOpen() (err error) {
 
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
-	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "plain"}}}
+	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "xsalsa20_poly1305"}}}
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
@@ -449,6 +464,7 @@ func (v *Voice) opusSender(UDPConn *net.UDPConn, close <-chan struct{}, opus <-c
 	var recvbuf []byte
 	var ok bool
 	udpHeader := make([]byte, 12)
+	var nonce [24]byte
 
 	// build the parts that don't change in the udpHeader
 	udpHeader[0] = 0x80
@@ -474,8 +490,9 @@ func (v *Voice) opusSender(UDPConn *net.UDPConn, close <-chan struct{}, opus <-c
 		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
-		// Combine the UDP Header and the opus data
-		sendbuf := append(udpHeader, recvbuf...)
+		// encrypt the opus data
+		copy(nonce[:], udpHeader)
+		sendbuf := secretbox.Seal(udpHeader, recvbuf, &nonce, &v.op4.SecretKey)
 
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
@@ -527,6 +544,7 @@ func (v *Voice) opusReceiver(UDPConn *net.UDPConn, close <-chan struct{}, c chan
 
 	p := Packet{}
 	recvbuf := make([]byte, 1024)
+	var nonce [24]byte
 
 	for {
 		rlen, err := UDPConn.Read(recvbuf)
@@ -547,11 +565,14 @@ func (v *Voice) opusReceiver(UDPConn *net.UDPConn, close <-chan struct{}, c chan
 			continue
 		}
 
+		// build a audio packet struct
 		p.Type = recvbuf[0:2]
 		p.Sequence = binary.BigEndian.Uint16(recvbuf[2:4])
 		p.Timestamp = binary.BigEndian.Uint32(recvbuf[4:8])
 		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
-		p.Opus = recvbuf[12:rlen]
+		// decrypt opus data
+		copy(nonce[:], recvbuf[0:12])
+		p.Opus, _ = secretbox.Open(nil, recvbuf[12:rlen], &nonce, &v.op4.SecretKey)
 
 		if c != nil {
 			c <- &p
