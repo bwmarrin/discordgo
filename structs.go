@@ -145,35 +145,46 @@ type Emoji struct {
 	RequireColons bool     `json:"require_colons"`
 }
 
+// Custom VerificationLevel typedef for int
+type VerificationLevel int
+
+// Constants for VerificationLevel levels from 0 to 3 inclusive
+const (
+	VerificationLevelNone   VerificationLevel = iota
+	VerificationLevelLow    VerificationLevel = iota
+	VerificationLevelMedium VerificationLevel = iota
+	VerificationLevelHigh   VerificationLevel = iota
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
-	ID                string        `json:"id"`
-	Name              string        `json:"name"`
-	Icon              string        `json:"icon"`
-	Region            string        `json:"region"`
-	AfkChannelID      string        `json:"afk_channel_id"`
-	EmbedChannelID    string        `json:"embed_channel_id"`
-	OwnerID           string        `json:"owner_id"`
-	JoinedAt          string        `json:"joined_at"` // make this a timestamp
-	Splash            string        `json:"splash"`
-	AfkTimeout        int           `json:"afk_timeout"`
-	VerificationLevel int           `json:"verification_level"`
-	EmbedEnabled      bool          `json:"embed_enabled"`
-	Large             bool          `json:"large"` // ??
-	Roles             []*Role       `json:"roles"`
-	Emojis            []*Emoji      `json:"emojis"`
-	Members           []*Member     `json:"members"`
-	Presences         []*Presence   `json:"presences"`
-	Channels          []*Channel    `json:"channels"`
-	VoiceStates       []*VoiceState `json:"voice_states"`
+	ID                string            `json:"id"`
+	Name              string            `json:"name"`
+	Icon              string            `json:"icon"`
+	Region            string            `json:"region"`
+	AfkChannelID      string            `json:"afk_channel_id"`
+	EmbedChannelID    string            `json:"embed_channel_id"`
+	OwnerID           string            `json:"owner_id"`
+	JoinedAt          string            `json:"joined_at"` // make this a timestamp
+	Splash            string            `json:"splash"`
+	AfkTimeout        int               `json:"afk_timeout"`
+	VerificationLevel VerificationLevel `json:"verification_level"`
+	EmbedEnabled      bool              `json:"embed_enabled"`
+	Large             bool              `json:"large"` // ??
+	Roles             []*Role           `json:"roles"`
+	Emojis            []*Emoji          `json:"emojis"`
+	Members           []*Member         `json:"members"`
+	Presences         []*Presence       `json:"presences"`
+	Channels          []*Channel        `json:"channels"`
+	VoiceStates       []*VoiceState     `json:"voice_states"`
 }
 
 // A GuildParams stores all the data needed to update discord guild settings
 type GuildParams struct {
-	Name              string `json:"name"`
-	Region            string `json:"region"`
-	VerificationLevel *int   `json:"verification_level"`
+	Name              string             `json:"name"`
+	Region            string             `json:"region"`
+	VerificationLevel *VerificationLevel `json:"verification_level"`
 }
 
 // A Role stores information about Discord guild member roles.
