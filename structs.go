@@ -150,10 +150,10 @@ type VerificationLevel int
 
 // Constants for VerificationLevel levels from 0 to 3 inclusive
 const (
-	VerificationLevelNone   VerificationLevel = iota
-	VerificationLevelLow    VerificationLevel = iota
-	VerificationLevelMedium VerificationLevel = iota
-	VerificationLevelHigh   VerificationLevel = iota
+	VerificationLevelNone VerificationLevel = iota
+	VerificationLevelLow
+	VerificationLevelMedium
+	VerificationLevelHigh
 )
 
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
