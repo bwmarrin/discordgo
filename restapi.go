@@ -403,9 +403,9 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 	}
 
 	data := struct {
-		Name              string `json:"name,omitempty"`
-		Region            string `json:"region,omitempty"`
-		VerificationLevel *int   `json:"verification_level,omitempty"`
+		Name              string             `json:"name,omitempty"`
+		Region            string             `json:"region,omitempty"`
+		VerificationLevel *VerificationLevel `json:"verification_level,omitempty"`
 	}{g.Name, g.Region, g.VerificationLevel}
 
 	body, err := s.Request("PATCH", GUILD(guildID), data)
