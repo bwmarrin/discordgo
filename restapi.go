@@ -104,15 +104,14 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		fmt.Printf("API RESPONSE    BODY :: [%s]\n", response)
 	}
 
-	// See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 	switch resp.StatusCode {
 
-	case 200: // OK
-	case 204: // No Content
+	case http.StatusOK:
+	case http.StatusNoContent:
 
 		// TODO check for 401 response, invalidate token if we get one.
 
-	case 429: // TOO MANY REQUESTS - Rate limiting
+	case http.StatusTooManyRequests: // Rate limiting
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
