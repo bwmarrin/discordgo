@@ -111,7 +111,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 		// TODO check for 401 response, invalidate token if we get one.
 
-	case http.StatusTooManyRequests: // Rate limiting
+	case 429: // TOO MANY REQUESTS - Rate limiting
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
