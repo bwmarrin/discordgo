@@ -366,19 +366,6 @@ type State struct {
 	MaxMessageCount int
 }
 
-// Constants for the different bit offsets of general permissions
-const (
-	PermissionCreateInstantInvite = 1 << iota
-	PermissionKickMembers
-	PermissionBanMembers
-	PermissionManageRoles
-	PermissionManageChannels
-	PermissionManageServer
-
-	PermissionAll        = 66321471
-	PermissionAllChannel = 66321433
-)
-
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
@@ -399,4 +386,17 @@ const (
 	PermissionVoiceDeafenMembers
 	PermissionVoiceMoveMembers
 	PermissionVoiceUseVAD
+)
+
+// Constants for the different bit offsets of general permissions
+const (
+	PermissionCreateInstantInvite = 1 << iota
+	PermissionKickMembers
+	PermissionBanMembers
+	PermissionManageRoles
+	PermissionManageChannels
+	PermissionManageServer
+
+	PermissionAllChannel = PermissionReadMessages | PermissionSendMessages | PermissionSendTTSMessages | PermissionManageMessages | PermissionEmbedLinks | PermissionAttachFiles | PermissionReadMessageHistory | PermissionMentionEveryone | PermissionVoiceConnect | PermissionVoiceSpeak | PermissionVoiceMuteMembers | PermissionVoiceDeafenMembers | PermissionVoiceMoveMembers | PermissionVoiceUseVAD | PermissionCreateInstantInvite | PermissionManageRoles | PermissionManageChannels
+	PermissionAll        = PermissionAllChannel | PermissionKickMembers | PermissionBanMembers | PermissionManageServer
 )

@@ -352,27 +352,25 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		return
 	}
 
-	apermissions = 0
-
 	for _, role := range guild.Roles {
 		for _, roleID := range member.Roles {
 			if role.ID == roleID {
-				apermissions = apermissions | role.Permissions
+				apermissions |= role.Permissions
 				break
 			}
 		}
 	}
 
-	if apermissions & (PermissionManageRoles) > 0 {
-		apermissions = PermissionAll
+	if apermissions & PermissionManageRoles > 0 {
+		apermissions |= PermissionAll
 	}
 
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
 		for _, roleID := range member.Roles {
 			if overwrite.Type == "role" && roleID == overwrite.ID {
-				apermissions = apermissions & ^overwrite.Deny
-				apermissions = apermissions | overwrite.Allow
+				apermissions &= ^overwrite.Deny
+				apermissions |= overwrite.Allow
 				break
 			}
 		}
@@ -380,8 +378,8 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 
 	for _, overwrite := range channel.PermissionOverwrites {
 		if overwrite.Type == "member" && overwrite.ID == userID {
-			apermissions = apermissions & ^overwrite.Deny
-			apermissions = apermissions | overwrite.Allow
+			apermissions &= ^overwrite.Deny
+			apermissions |= overwrite.Allow
 			break
 		}
 	}
