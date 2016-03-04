@@ -365,3 +365,59 @@ type State struct {
 	Ready
 	MaxMessageCount int
 }
+
+// Constants for the different bit offsets of text channel permissions
+const (
+	PermissionReadMessages = 1 << (iota + 10)
+	PermissionSendMessages
+	PermissionSendTTSMessages
+	PermissionManageMessages
+	PermissionEmbedLinks
+	PermissionAttachFiles
+	PermissionReadMessageHistory
+	PermissionMentionEveryone
+)
+
+// Constants for the different bit offsets of voice permissions
+const (
+	PermissionVoiceConnect = 1 << (iota + 20)
+	PermissionVoiceSpeak
+	PermissionVoiceMuteMembers
+	PermissionVoiceDeafenMembers
+	PermissionVoiceMoveMembers
+	PermissionVoiceUseVAD
+)
+
+// Constants for the different bit offsets of general permissions
+const (
+	PermissionCreateInstantInvite = 1 << iota
+	PermissionKickMembers
+	PermissionBanMembers
+	PermissionManageRoles
+	PermissionManageChannels
+	PermissionManageServer
+
+	PermissionAllText    = PermissionReadMessages |
+	                       PermissionSendMessages |
+	                       PermissionSendTTSMessages |
+	                       PermissionManageMessages |
+	                       PermissionEmbedLinks |
+	                       PermissionAttachFiles |
+	                       PermissionReadMessageHistory |
+	                       PermissionMentionEveryone
+	PermissionAllVoice   = PermissionVoiceConnect |
+	                       PermissionVoiceSpeak |
+	                       PermissionVoiceMuteMembers |
+	                       PermissionVoiceDeafenMembers |
+	                       PermissionVoiceMoveMembers |
+	                       PermissionVoiceUseVAD
+	PermissionAllChannel = PermissionAllText |
+	                       PermissionAllVoice |
+	                       PermissionCreateInstantInvite |
+	                       PermissionManageRoles |
+	                       PermissionManageChannels
+	PermissionAll        = PermissionAllChannel |
+	                       PermissionKickMembers |
+	                       PermissionBanMembers |
+	                       PermissionManageServer
+)
