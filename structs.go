@@ -397,6 +397,27 @@ const (
 	PermissionManageChannels
 	PermissionManageServer
 
-	PermissionAllChannel = PermissionReadMessages | PermissionSendMessages | PermissionSendTTSMessages | PermissionManageMessages | PermissionEmbedLinks | PermissionAttachFiles | PermissionReadMessageHistory | PermissionMentionEveryone | PermissionVoiceConnect | PermissionVoiceSpeak | PermissionVoiceMuteMembers | PermissionVoiceDeafenMembers | PermissionVoiceMoveMembers | PermissionVoiceUseVAD | PermissionCreateInstantInvite | PermissionManageRoles | PermissionManageChannels
-	PermissionAll        = PermissionAllChannel | PermissionKickMembers | PermissionBanMembers | PermissionManageServer
+	PermissionAllText    = PermissionReadMessages |
+	                       PermissionSendMessages |
+	                       PermissionSendTTSMessages |
+	                       PermissionManageMessages |
+	                       PermissionEmbedLinks |
+	                       PermissionAttachFiles |
+	                       PermissionReadMessageHistory |
+	                       PermissionMentionEveryone
+	PermissionAllVoice   = PermissionVoiceConnect |
+	                       PermissionVoiceSpeak |
+	                       PermissionVoiceMuteMembers |
+	                       PermissionVoiceDeafenMembers |
+	                       PermissionVoiceMoveMembers |
+	                       PermissionVoiceUseVAD
+	PermissionAllChannel = PermissionAllText |
+	                       PermissionAllVoice |
+	                       PermissionCreateInstantInvite |
+	                       PermissionManageRoles |
+	                       PermissionManageChannels
+	PermissionAll        = PermissionAllChannel |
+	                       PermissionKickMembers |
+	                       PermissionBanMembers |
+	                       PermissionManageServer
 )
