@@ -36,6 +36,9 @@ type VoiceConnection struct {
 	OP2        *voiceOP2    // exported for dgvoice, may change.
 	OpusSend   chan []byte  // Chan for sending opus audio
 	OpusRecv   chan *Packet // Chan for receiving opus audio
+	GuildID    string
+	ChannelID  string
+	UserID     string
 	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
@@ -46,9 +49,6 @@ type VoiceConnection struct {
 	sessionID string
 	token     string
 	endpoint  string
-	guildID   string
-	channelID string
-	userID    string
 	op4       voiceOP4
 
 	// Used to send a close signal to goroutines
@@ -114,7 +114,7 @@ func (v *VoiceConnection) Open() (err error) {
 		return
 	}
 
-	data := voiceHandshakeOp{0, voiceHandshakeData{v.guildID, v.userID, v.sessionID, v.token}}
+	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token}}
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
@@ -604,7 +604,7 @@ func (v *VoiceConnection) Close() {
 	defer v.Unlock()
 
 	if v.Ready {
-		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.guildID, nil, true, true}}
+		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
 		v.session.wsConn.WriteJSON(data)
 	}
 
@@ -630,4 +630,17 @@ func (v *VoiceConnection) Close() {
 		}
 		v.wsConn = nil
 	}
+}
+
+// Change channels
+func (v *VoiceConnection) ChangeChannel(channelID string) (err error) {
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, true, true}}
+
+	err = v.session.wsConn.WriteJSON(data)
+
+	if err == nil {
+		v.ChannelID = channelID
+	}
+
+	return err
 }

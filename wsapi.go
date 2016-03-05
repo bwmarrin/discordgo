@@ -356,8 +356,8 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	s.VoiceConnections[gID] = voice
 
 	// Store gID and cID for later use
-	voice.guildID = gID
-	voice.channelID = cID
+	voice.GuildID = gID
+	voice.ChannelID = cID
 
 	return voice, err
 }
@@ -371,13 +371,8 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 		return
 	}
 
-	channel, err := s.Channel(st.ChannelID)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	voice, exists := s.VoiceConnections[channel.GuildID]
+	// Check if we have a voice connection to update
+	voice, exists := s.VoiceConnections[st.GuildID]
 	if !exists {
 		return
 	}
@@ -391,15 +386,13 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 		return
 	}
 
-	// This event comes for all users, if it's not for the session
-	// user just ignore it.
-	// TODO Move this IF to the event() func
+	// We only care about events that are about us
 	if st.UserID != self.ID {
 		return
 	}
 
 	// Store the SessionID for later use.
-	voice.userID = self.ID // TODO: Review
+	voice.UserID = self.ID // TODO: Review
 	voice.sessionRecv <- st.SessionID
 }
 
@@ -421,7 +414,7 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	// Store values for later use
 	voice.token = st.Token
 	voice.endpoint = st.Endpoint
-	voice.guildID = st.GuildID
+	voice.GuildID = st.GuildID
 
 	// If currently connected to voice ws/udp, then disconnect.
 	// Has no effect if not connected.
