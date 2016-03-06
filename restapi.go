@@ -104,11 +104,10 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		fmt.Printf("API RESPONSE    BODY :: [%s]\n", response)
 	}
 
-	// See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 	switch resp.StatusCode {
 
-	case 200: // OK
-	case 204: // No Content
+	case http.StatusOK:
+	case http.StatusNoContent:
 
 		// TODO check for 401 response, invalidate token if we get one.
 
@@ -328,6 +327,70 @@ func (s *Session) UserGuilds() (st []*Guild, err error) {
 	return
 }
 
+// UserChannelPermissions returns the permission of a user in a channel.
+// userID    : The ID of the user to calculate permissions for.
+// channelID : The ID of the channel to calculate permission for.
+func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+
+	channel, err := s.Channel(channelID)
+	if err != nil {
+		return
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return
+	}
+
+	if userID == guild.OwnerID {
+		apermissions = PermissionAll
+		return
+	}
+
+	member, err := s.GuildMember(guild.ID, userID)
+	if err != nil {
+		return
+	}
+
+	for _, role := range guild.Roles {
+		for _, roleID := range member.Roles {
+			if role.ID == roleID {
+				apermissions |= role.Permissions
+				break
+			}
+		}
+	}
+
+	if apermissions & PermissionManageRoles > 0 {
+		apermissions |= PermissionAll
+	}
+
+	// Member overwrites can override role overrides, so do two passes
+	for _, overwrite := range channel.PermissionOverwrites {
+		for _, roleID := range member.Roles {
+			if overwrite.Type == "role" && roleID == overwrite.ID {
+				apermissions &= ^overwrite.Deny
+				apermissions |= overwrite.Allow
+				break
+			}
+		}
+	}
+
+	for _, overwrite := range channel.PermissionOverwrites {
+		if overwrite.Type == "member" && overwrite.ID == userID {
+			apermissions &= ^overwrite.Deny
+			apermissions |= overwrite.Allow
+			break
+		}
+	}
+
+	if apermissions & PermissionManageRoles > 0 {
+		apermissions |= PermissionAllChannel
+	}
+
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Guilds
 // ------------------------------------------------------------------------------------------------
@@ -371,14 +434,44 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
-// name      : A name for the Guild (2-100 characters)
-func (s *Session) GuildEdit(guildID, name string) (st *Guild, err error) {
+// g 		 : A GuildParams struct with the values Name, Region and VerificationLevel defined.
+func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error) {
+
+	// Bounds checking for VerificationLevel, interval: [0, 3]
+	if g.VerificationLevel != nil {
+		val := *g.VerificationLevel
+		if val < 0 || val > 3 {
+			err = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
+			return
+		}
+	}
+
+	//Bounds checking for regions
+	if g.Region != "" {
+		isValid := false
+		regions, _ := s.VoiceRegions()
+		for _, r := range regions {
+			if g.Region == r.ID {
+				isValid = true
+			}
+		}
+		if !isValid {
+			var valid []string
+			for _, r := range regions {
+				valid = append(valid, r.ID)
+			}
+			err = errors.New(fmt.Sprintf("Region not a valid region (%q)", valid))
+			return
+		}
+	}
 
 	data := struct {
-		Name string `json:"name"`
-	}{name}
+		Name              string             `json:"name,omitempty"`
+		Region            string             `json:"region,omitempty"`
+		VerificationLevel *VerificationLevel `json:"verification_level,omitempty"`
+	}{g.Name, g.Region, g.VerificationLevel}
 
-	body, err := s.Request("POST", GUILD(guildID), data)
+	body, err := s.Request("PATCH", GUILD(guildID), data)
 	if err != nil {
 		return
 	}

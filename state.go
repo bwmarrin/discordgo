@@ -40,6 +40,13 @@ func (s *State) OnReady(r *Ready) error {
 	defer s.Unlock()
 
 	s.Ready = *r
+
+	for _, g := range s.Guilds {
+		for _, c := range g.Channels {
+			c.GuildID = g.ID
+		}
+	}
+
 	return nil
 }
 
