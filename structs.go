@@ -145,27 +145,46 @@ type Emoji struct {
 	RequireColons bool     `json:"require_colons"`
 }
 
+// Custom VerificationLevel typedef for int
+type VerificationLevel int
+
+// Constants for VerificationLevel levels from 0 to 3 inclusive
+const (
+	VerificationLevelNone VerificationLevel = iota
+	VerificationLevelLow
+	VerificationLevelMedium
+	VerificationLevelHigh
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
-	ID             string        `json:"id"`
-	Name           string        `json:"name"`
-	Icon           string        `json:"icon"`
-	Region         string        `json:"region"`
-	AfkChannelID   string        `json:"afk_channel_id"`
-	EmbedChannelID string        `json:"embed_channel_id"`
-	OwnerID        string        `json:"owner_id"`
-	JoinedAt       string        `json:"joined_at"` // make this a timestamp
-	Splash         string        `json:"splash"`
-	AfkTimeout     int           `json:"afk_timeout"`
-	EmbedEnabled   bool          `json:"embed_enabled"`
-	Large          bool          `json:"large"` // ??
-	Roles          []*Role       `json:"roles"`
-	Emojis         []*Emoji      `json:"emojis"`
-	Members        []*Member     `json:"members"`
-	Presences      []*Presence   `json:"presences"`
-	Channels       []*Channel    `json:"channels"`
-	VoiceStates    []*VoiceState `json:"voice_states"`
+	ID                string            `json:"id"`
+	Name              string            `json:"name"`
+	Icon              string            `json:"icon"`
+	Region            string            `json:"region"`
+	AfkChannelID      string            `json:"afk_channel_id"`
+	EmbedChannelID    string            `json:"embed_channel_id"`
+	OwnerID           string            `json:"owner_id"`
+	JoinedAt          string            `json:"joined_at"` // make this a timestamp
+	Splash            string            `json:"splash"`
+	AfkTimeout        int               `json:"afk_timeout"`
+	VerificationLevel VerificationLevel `json:"verification_level"`
+	EmbedEnabled      bool              `json:"embed_enabled"`
+	Large             bool              `json:"large"` // ??
+	Roles             []*Role           `json:"roles"`
+	Emojis            []*Emoji          `json:"emojis"`
+	Members           []*Member         `json:"members"`
+	Presences         []*Presence       `json:"presences"`
+	Channels          []*Channel        `json:"channels"`
+	VoiceStates       []*VoiceState     `json:"voice_states"`
+}
+
+// A GuildParams stores all the data needed to update discord guild settings
+type GuildParams struct {
+	Name              string             `json:"name"`
+	Region            string             `json:"region"`
+	VerificationLevel *VerificationLevel `json:"verification_level"`
 }
 
 // A Role stores information about Discord guild member roles.
@@ -346,3 +365,59 @@ type State struct {
 	Ready
 	MaxMessageCount int
 }
+
+// Constants for the different bit offsets of text channel permissions
+const (
+	PermissionReadMessages = 1 << (iota + 10)
+	PermissionSendMessages
+	PermissionSendTTSMessages
+	PermissionManageMessages
+	PermissionEmbedLinks
+	PermissionAttachFiles
+	PermissionReadMessageHistory
+	PermissionMentionEveryone
+)
+
+// Constants for the different bit offsets of voice permissions
+const (
+	PermissionVoiceConnect = 1 << (iota + 20)
+	PermissionVoiceSpeak
+	PermissionVoiceMuteMembers
+	PermissionVoiceDeafenMembers
+	PermissionVoiceMoveMembers
+	PermissionVoiceUseVAD
+)
+
+// Constants for the different bit offsets of general permissions
+const (
+	PermissionCreateInstantInvite = 1 << iota
+	PermissionKickMembers
+	PermissionBanMembers
+	PermissionManageRoles
+	PermissionManageChannels
+	PermissionManageServer
+
+	PermissionAllText    = PermissionReadMessages |
+	                       PermissionSendMessages |
+	                       PermissionSendTTSMessages |
+	                       PermissionManageMessages |
+	                       PermissionEmbedLinks |
+	                       PermissionAttachFiles |
+	                       PermissionReadMessageHistory |
+	                       PermissionMentionEveryone
+	PermissionAllVoice   = PermissionVoiceConnect |
+	                       PermissionVoiceSpeak |
+	                       PermissionVoiceMuteMembers |
+	                       PermissionVoiceDeafenMembers |
+	                       PermissionVoiceMoveMembers |
+	                       PermissionVoiceUseVAD
+	PermissionAllChannel = PermissionAllText |
+	                       PermissionAllVoice |
+	                       PermissionCreateInstantInvite |
+	                       PermissionManageRoles |
+	                       PermissionManageChannels
+	PermissionAll        = PermissionAllChannel |
+	                       PermissionKickMembers |
+	                       PermissionBanMembers |
+	                       PermissionManageServer
+)
