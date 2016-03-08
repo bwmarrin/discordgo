@@ -12,6 +12,7 @@ package discordgo
 import (
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"runtime"
@@ -97,7 +98,6 @@ type voiceHandshakeOp struct {
 // after VoiceConnectionChannelJoin is used and the data VOICE websocket events
 // are captured.
 func (v *VoiceConnection) Open() (err error) {
-
 	v.Lock()
 	defer v.Unlock()
 
@@ -131,8 +131,19 @@ func (v *VoiceConnection) Open() (err error) {
 	return
 }
 
-func (v *VoiceConnection) WaitUntilConnected() {
-	<-v.connected
+func (v *VoiceConnection) WaitUntilConnected() error {
+	if v.Ready {
+		return nil
+	}
+
+	value, ok := <-v.connected
+
+	if (!value && !v.Ready) || !ok {
+		delete(v.session.VoiceConnections, v.GuildID)
+		return errors.New("Timed out connecting to voice")
+	}
+
+	return nil
 }
 
 // wsListen listens on the voice websocket for messages and passes them
@@ -603,9 +614,11 @@ func (v *VoiceConnection) Close() {
 	v.Lock()
 	defer v.Unlock()
 
-	if v.Ready {
+	// Send a OP4 with a nil channel to disconnect
+	if v.sessionID != "" {
 		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
 		v.session.wsConn.WriteJSON(data)
+		v.sessionID = ""
 	}
 
 	v.Ready = false
@@ -632,15 +645,10 @@ func (v *VoiceConnection) Close() {
 	}
 }
 
-// Change channels
+// Request to change channels
 func (v *VoiceConnection) ChangeChannel(channelID string) (err error) {
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, true, true}}
-
 	err = v.session.wsConn.WriteJSON(data)
-
-	if err == nil {
-		v.ChannelID = channelID
-	}
 
 	return err
 }

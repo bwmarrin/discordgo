@@ -54,7 +54,7 @@ type Session struct {
 	// Whether the UDP Connection is ready
 	UDPReady bool
 
-	// Stores a mapping of channel id's to VoiceConnections
+	// Stores a mapping of guild id's to VoiceConnections
 	VoiceConnections map[string]*VoiceConnection
 
 	// Managed state object, updated internally with events when

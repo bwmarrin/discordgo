@@ -332,11 +332,17 @@ type voiceChannelJoinOp struct {
 // this func please monitor the Session.Voice.Ready bool to determine when
 // it is ready and able to send/receive audio, that should happen quickly.
 //
-//    gID   : Guild ID of the channel to join.
-//    cID   : Channel ID of the channel to join.
-//    mute  : If true, you will be set to muted upon joining.
-//    deaf  : If true, you will be set to deafened upon joining.
-func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
+//    gID     : Guild ID of the channel to join.
+//    cID     : Channel ID of the channel to join.
+//    mute    : If true, you will be set to muted upon joining.
+//    deaf    : If true, you will be set to deafened upon joining.
+//    timeout : If greater than zero, the timeout in milliseconds after which connecting will fail
+func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool, timeout int) (voice *VoiceConnection, err error) {
+	// If a voice connection for the guild exists, return that
+	if _, exists := s.VoiceConnections[gID]; exists {
+		return s.VoiceConnections[gID], err
+	}
+
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
 	err = s.wsConn.WriteJSON(data)
@@ -358,6 +364,16 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	// Store gID and cID for later use
 	voice.GuildID = gID
 	voice.ChannelID = cID
+
+	// Queue the timeout in case we fail to connect
+	if timeout > 0 {
+		go func() {
+			time.Sleep(time.Millisecond * time.Duration(timeout))
+			if !voice.Ready {
+				voice.connected <- false
+			}
+		}()
+	}
 
 	return voice, err
 }
