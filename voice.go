@@ -643,6 +643,8 @@ func (v *VoiceConnection) Close() {
 		}
 		v.wsConn = nil
 	}
+
+	delete(v.session.VoiceConnections, v.GuildID)
 }
 
 // Request to change channels
