@@ -54,8 +54,8 @@ type Session struct {
 	// Whether the UDP Connection is ready
 	UDPReady bool
 
-	// Stores all details related to voice connections
-	Voice *Voice
+	// Stores a mapping of guild id's to VoiceConnections
+	VoiceConnections map[string]*VoiceConnection
 
 	// Managed state object, updated internally with events when
 	// StateEnabled is true.
@@ -203,6 +203,7 @@ type VoiceState struct {
 	UserID    string `json:"user_id"`
 	SessionID string `json:"session_id"`
 	ChannelID string `json:"channel_id"`
+	GuildID   string `json:"guild_id"`
 	Suppress  bool   `json:"suppress"`
 	SelfMute  bool   `json:"self_mute"`
 	SelfDeaf  bool   `json:"self_deaf"`

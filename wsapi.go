@@ -55,6 +55,8 @@ func (s *Session) Open() (err error) {
 		}
 	}()
 
+	s.VoiceConnections = make(map[string]*VoiceConnection)
+
 	if s.wsConn != nil {
 		err = errors.New("Web socket already opened.")
 		return
@@ -248,6 +250,7 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 func (s *Session) event(messageType int, message []byte) {
 	var err error
 	var reader io.Reader
+
 	reader = bytes.NewBuffer(message)
 
 	if messageType == 2 {
@@ -329,62 +332,64 @@ type voiceChannelJoinOp struct {
 // this func please monitor the Session.Voice.Ready bool to determine when
 // it is ready and able to send/receive audio, that should happen quickly.
 //
-//    gID   : Guild ID of the channel to join.
-//    cID   : Channel ID of the channel to join.
-//    mute  : If true, you will be set to muted upon joining.
-//    deaf  : If true, you will be set to deafened upon joining.
-func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (err error) {
-
-	// Create new voice{} struct if one does not exist.
-	// If you create this prior to calling this func then you can manually
-	// set some variables if needed, such as to enable debugging.
-	if s.Voice == nil {
-		s.Voice = &Voice{}
+//    gID     : Guild ID of the channel to join.
+//    cID     : Channel ID of the channel to join.
+//    mute    : If true, you will be set to muted upon joining.
+//    deaf    : If true, you will be set to deafened upon joining.
+//    timeout : If greater than zero, the timeout in milliseconds after which connecting will fail
+func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool, timeout int) (voice *VoiceConnection, err error) {
+	// If a voice connection for the guild exists, return that
+	if _, exists := s.VoiceConnections[gID]; exists {
+		return s.VoiceConnections[gID], err
 	}
 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
 	err = s.wsConn.WriteJSON(data)
 	if err != nil {
-		return
+		return nil, err
 	}
+
+	// Create a new voice session
+	voice = &VoiceConnection{
+		Receive:     true,
+		session:     s,
+		connected:   make(chan bool),
+		sessionRecv: make(chan string),
+	}
+
+	// Store this in the waiting map so it can get a session/token
+	s.VoiceConnections[gID] = voice
 
 	// Store gID and cID for later use
-	s.Voice.guildID = gID
-	s.Voice.channelID = cID
+	voice.GuildID = gID
+	voice.ChannelID = cID
 
-	return
-}
-
-// ChannelVoiceLeave disconnects from the currently connected
-// voice channel.
-func (s *Session) ChannelVoiceLeave() (err error) {
-
-	if s.Voice == nil {
-		return
+	// Queue the timeout in case we fail to connect
+	if timeout > 0 {
+		go func() {
+			time.Sleep(time.Millisecond * time.Duration(timeout))
+			if !voice.Ready {
+				voice.connected <- false
+			}
+		}()
 	}
 
-	// Send the request to Discord that we want to leave voice
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{nil, nil, true, true}}
-	err = s.wsConn.WriteJSON(data)
-	if err != nil {
-		return
-	}
-
-	// Close voice and nil data struct
-	s.Voice.Close()
-	s.Voice = nil
-
-	return
+	return voice, err
 }
 
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
 func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
+	// If we don't have a connection for the channel, don't bother
+	if st.ChannelID == "" {
+		return
+	}
 
-	// Ignore if Voice is nil
-	if s.Voice == nil {
+	// Check if we have a voice connection to update
+	voice, exists := s.VoiceConnections[st.GuildID]
+	if !exists {
 		return
 	}
 
@@ -397,16 +402,14 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 		return
 	}
 
-	// This event comes for all users, if it's not for the session
-	// user just ignore it.
-	// TODO Move this IF to the event() func
+	// We only care about events that are about us
 	if st.UserID != self.ID {
 		return
 	}
 
 	// Store the SessionID for later use.
-	s.Voice.userID = self.ID // TODO: Review
-	s.Voice.sessionID = st.SessionID
+	voice.UserID = self.ID // TODO: Review
+	voice.sessionRecv <- st.SessionID
 }
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
@@ -417,19 +420,28 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // to a voice channel.  In that case, need to re-establish connection to
 // the new region endpoint.
 func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
+	voice, exists := s.VoiceConnections[st.GuildID]
+
+	// If no VoiceConnection exists, just skip this
+	if !exists {
+		return
+	}
 
 	// Store values for later use
-	s.Voice.token = st.Token
-	s.Voice.endpoint = st.Endpoint
-	s.Voice.guildID = st.GuildID
+	voice.token = st.Token
+	voice.endpoint = st.Endpoint
+	voice.GuildID = st.GuildID
 
 	// If currently connected to voice ws/udp, then disconnect.
 	// Has no effect if not connected.
-	s.Voice.Close()
+	voice.Close()
+
+	// Wait for the sessionID from onVoiceStateUpdate
+	voice.sessionID = <-voice.sessionRecv
 
 	// We now have enough information to open a voice websocket conenction
 	// so, that's what the next call does.
-	err := s.Voice.Open()
+	err := voice.Open()
 	if err != nil {
 		fmt.Println("onVoiceServerUpdate Voice.Open error: ", err)
 		// TODO better logging
