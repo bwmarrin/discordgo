@@ -460,40 +460,32 @@ func (s *State) MessageRemove(message *Message) error {
 	return errors.New("Message not found.")
 }
 
-func (s *State) VoiceStateUpdate(update *VoiceStateUpdate) error {
-	var exists bool
-	var guild *Guild
-
-	for _, guild = range s.Guilds {
-		if guild.ID == update.GuildID {
-			exists = true
-			break
-		}
+func (s *State) voiceStateUpdate(update *VoiceStateUpdate) error {
+	guild, err := s.Guild(update.GuildID)
+	if err != nil {
+		return err
 	}
 
-	if !exists {
-		return nil
-	}
+	s.Lock()
+	defer s.Unlock()
 
 	// Handle Leaving Channel
 	if update.ChannelID == "" {
 		for i, state := range guild.VoiceStates {
 			if state.UserID == update.UserID {
 				guild.VoiceStates = append(guild.VoiceStates[:i], guild.VoiceStates[i+1:]...)
+				return nil
 			}
 		}
 	} else {
-		exists := false
-		for _, state := range guild.VoiceStates {
+		for i, state := range guild.VoiceStates {
 			if state.UserID == update.UserID {
-				state.ChannelID = update.ChannelID
-				exists = true
+				guild.VoiceStates[i] = update.VoiceState
+				return nil
 			}
 		}
 
-		if !exists {
-			guild.VoiceStates = append(guild.VoiceStates, update.VoiceState)
-		}
+		guild.VoiceStates = append(guild.VoiceStates, update.VoiceState)
 	}
 
 	return nil
@@ -561,7 +553,7 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 	case *MessageDelete:
 		err = s.MessageRemove(t.Message)
 	case *VoiceStateUpdate:
-		err = s.VoiceStateUpdate(t)
+		err = s.voiceStateUpdate(t)
 	}
 
 	return
