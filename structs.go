@@ -241,6 +241,7 @@ type User struct {
 	Avatar        string `json:"Avatar"`
 	Verified      bool   `json:"verified"`
 	Discriminator string `json:"discriminator"`
+	Bot           bool   `json:"bot"`
 }
 
 // A Settings stores data for a specific users Discord client settings.
