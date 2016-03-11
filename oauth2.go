@@ -5,13 +5,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// This file contains functions related to Discord OAuth2 applications
+// This file contains functions related to Discord OAuth2 endpoints
 
 package discordgo
 
 import (
 	"fmt"
 )
+
+// ------------------------------------------------------------------------------------------------
+// Code specific to Discord OAuth2 Applications
+// ------------------------------------------------------------------------------------------------
 
 // An Application struct stores values for a Discord OAuth2 Application
 type Application struct {
@@ -131,4 +135,31 @@ func (a *Application) Delete() (err error) {
 // pointer to each Application
 func (a *Application) DeleteB(s *Session) (err error) {
 	return s.ApplicationDelete(a.ID)
+}
+
+// ------------------------------------------------------------------------------------------------
+// Code specific to Discord OAuth2 Application Bots
+// ------------------------------------------------------------------------------------------------
+
+// ApplicationBotCreate creates an Application Bot Account
+//
+//   appID : The ID of an Application
+//   token : The authentication Token for a user account to convert into
+//           a bot account.  This is optional, if omited a new account
+//           is created using the name of the application.
+//
+// NOTE: func name may change, if I can think up something better.
+func (s *Session) ApplicationBotCreate(appID, token string) (st *User, err error) {
+
+	data := struct {
+		Token string `json:"token,omitempty"`
+	}{token}
+
+	body, err := s.Request("POST", APPLICATIONS_BOT(appID), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
 }

@@ -86,7 +86,8 @@ var (
 
 	EMOJI = func(eID string) string { return API + "emojis/" + eID + ".png" }
 
-	OAUTH2       = API + "oauth2/"
-	APPLICATIONS = OAUTH2 + "applications"
-	APPLICATION  = func(aID string) string { return APPLICATIONS + "/" + aID }
+	OAUTH2           = API + "oauth2/"
+	APPLICATIONS     = OAUTH2 + "applications"
+	APPLICATION      = func(aID string) string { return APPLICATIONS + "/" + aID }
+	APPLICATIONS_BOT = func(aID string) string { return APPLICATIONS + "/" + aID + "/bot" }
 )
