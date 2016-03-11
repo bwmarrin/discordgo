@@ -107,6 +107,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	switch resp.StatusCode {
 
 	case http.StatusOK:
+	case http.StatusCreated:
 	case http.StatusNoContent:
 
 		// TODO check for 401 response, invalidate token if we get one.
@@ -361,7 +362,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions & PermissionManageRoles > 0 {
+	if apermissions&PermissionManageRoles > 0 {
 		apermissions |= PermissionAll
 	}
 
@@ -384,7 +385,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions & PermissionManageRoles > 0 {
+	if apermissions&PermissionManageRoles > 0 {
 		apermissions |= PermissionAllChannel
 	}
 
