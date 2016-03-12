@@ -239,8 +239,9 @@ type User struct {
 	Email         string `json:"email"`
 	Username      string `json:"username"`
 	Avatar        string `json:"Avatar"`
-	Verified      bool   `json:"verified"`
 	Discriminator string `json:"discriminator"`
+	Token         string `json:"token"`
+	Verified      bool   `json:"verified"`
 	Bot           bool   `json:"bot"`
 }
 
@@ -399,27 +400,27 @@ const (
 	PermissionManageChannels
 	PermissionManageServer
 
-	PermissionAllText    = PermissionReadMessages |
-	                       PermissionSendMessages |
-	                       PermissionSendTTSMessages |
-	                       PermissionManageMessages |
-	                       PermissionEmbedLinks |
-	                       PermissionAttachFiles |
-	                       PermissionReadMessageHistory |
-	                       PermissionMentionEveryone
-	PermissionAllVoice   = PermissionVoiceConnect |
-	                       PermissionVoiceSpeak |
-	                       PermissionVoiceMuteMembers |
-	                       PermissionVoiceDeafenMembers |
-	                       PermissionVoiceMoveMembers |
-	                       PermissionVoiceUseVAD
+	PermissionAllText = PermissionReadMessages |
+		PermissionSendMessages |
+		PermissionSendTTSMessages |
+		PermissionManageMessages |
+		PermissionEmbedLinks |
+		PermissionAttachFiles |
+		PermissionReadMessageHistory |
+		PermissionMentionEveryone
+	PermissionAllVoice = PermissionVoiceConnect |
+		PermissionVoiceSpeak |
+		PermissionVoiceMuteMembers |
+		PermissionVoiceDeafenMembers |
+		PermissionVoiceMoveMembers |
+		PermissionVoiceUseVAD
 	PermissionAllChannel = PermissionAllText |
-	                       PermissionAllVoice |
-	                       PermissionCreateInstantInvite |
-	                       PermissionManageRoles |
-	                       PermissionManageChannels
-	PermissionAll        = PermissionAllChannel |
-	                       PermissionKickMembers |
-	                       PermissionBanMembers |
-	                       PermissionManageServer
+		PermissionAllVoice |
+		PermissionCreateInstantInvite |
+		PermissionManageRoles |
+		PermissionManageChannels
+	PermissionAll = PermissionAllChannel |
+		PermissionKickMembers |
+		PermissionBanMembers |
+		PermissionManageServer
 )
