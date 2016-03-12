@@ -12,7 +12,6 @@ package discordgo
 import (
 	"encoding/binary"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net"
 	"runtime"
@@ -131,16 +130,22 @@ func (v *VoiceConnection) Open() (err error) {
 	return
 }
 
+// WaitUntilConnected is a TEMP FUNCTION
+// And this is going to be removed to changed entirely.
+// I know it looks hacky, but I needed to get it working quickly.
 func (v *VoiceConnection) WaitUntilConnected() error {
-	if v.Ready {
-		return nil
-	}
 
-	value, ok := <-v.connected
+	i := 0
+	for {
+		if i > 10 {
+			return fmt.Errorf("Timeout waiting for voice.")
+		}
 
-	if (!value && !v.Ready) || !ok {
-		delete(v.session.VoiceConnections, v.GuildID)
-		return errors.New("Timed out connecting to voice")
+		if v.Ready {
+			return nil
+		}
+		time.Sleep(1 * time.Second)
+		i++
 	}
 
 	return nil

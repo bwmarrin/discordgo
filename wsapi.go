@@ -336,52 +336,64 @@ type voiceChannelJoinOp struct {
 //    cID     : Channel ID of the channel to join.
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
-//    timeout : If greater than zero, the timeout in milliseconds after which connecting will fail
+//    timeout : If timeout > 0 then func will wait up to timeout for voice
+//              connection to be ready.  If it does not become ready in that
+//              time frame then it will return an error and close out the voice
+//              connection entirely.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool, timeout int) (voice *VoiceConnection, err error) {
-	// If a voice connection for the guild exists, return that
-	if _, exists := s.VoiceConnections[gID]; exists {
-		return s.VoiceConnections[gID], err
-	}
 
-	// Send the request to Discord that we want to join the voice channel
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
-	err = s.wsConn.WriteJSON(data)
-	if err != nil {
-		return nil, err
+	// If a voice connection alreadyy exists for this guild then
+	// return that connection. If the channel differs, also change channels.
+	// TODO: check if the voice connection is really valid or just a shell
+	// because we might want to allow setting variables prior to getting here
+	// like debug, and other things.
+	if voice, ok := s.VoiceConnections[gID]; ok {
+		if voice.ChannelID != cID {
+			err = voice.ChangeChannel(cID)
+		}
+		return voice, err
+		// TODO: ugh, ugly..
 	}
 
 	// Create a new voice session
+	// TODO review what all these things are for....
 	voice = &VoiceConnection{
 		Receive:     true,
 		session:     s,
 		connected:   make(chan bool),
 		sessionRecv: make(chan string),
+		GuildID:     gID,
+		ChannelID:   cID,
 	}
 
-	// Store this in the waiting map so it can get a session/token
+	// Store voice in VoiceConnections map for thils GuildID
 	s.VoiceConnections[gID] = voice
 
-	// Store gID and cID for later use
-	voice.GuildID = gID
-	voice.ChannelID = cID
-
-	// Queue the timeout in case we fail to connect
-	if timeout > 0 {
-		go func() {
-			time.Sleep(time.Millisecond * time.Duration(timeout))
-			if !voice.Ready {
-				voice.connected <- false
-			}
-		}()
+	// Send the request to Discord that we want to join the voice channel
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
+	err = s.wsConn.WriteJSON(data)
+	if err != nil {
+		return
 	}
 
-	return voice, err
+	// doesn't exactly work perfect yet.. TODO
+	if timeout > 0 {
+		err = voice.WaitUntilConnected()
+		if err != nil {
+			voice.Close()
+			delete(s.VoiceConnections, gID)
+			return
+		}
+	}
+
+	return
 }
 
 // onVoiceStateUpdate handles Voice State Update events on the data
 // websocket.  This comes immediately after the call to VoiceChannelJoin
 // for the session user.
 func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
+
 	// If we don't have a connection for the channel, don't bother
 	if st.ChannelID == "" {
 		return
@@ -409,7 +421,10 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 
 	// Store the SessionID for later use.
 	voice.UserID = self.ID // TODO: Review
-	voice.sessionRecv <- st.SessionID
+	voice.sessionID = st.SessionID
+
+	// TODO: Consider this...
+	// voice.sessionRecv <- st.SessionID
 }
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
@@ -420,10 +435,12 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // to a voice channel.  In that case, need to re-establish connection to
 // the new region endpoint.
 func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
+
 	voice, exists := s.VoiceConnections[st.GuildID]
 
 	// If no VoiceConnection exists, just skip this
 	if !exists {
+		fmt.Println("doesn't exist! Oh noooo bail out.. emergency..")
 		return
 	}
 
@@ -434,10 +451,16 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// If currently connected to voice ws/udp, then disconnect.
 	// Has no effect if not connected.
-	voice.Close()
+	// voice.Close()
 
 	// Wait for the sessionID from onVoiceStateUpdate
-	voice.sessionID = <-voice.sessionRecv
+	// voice.sessionID = <-voice.sessionRecv
+	// TODO review above
+	// wouldn't this cause a huge problem, if it's just a guild server
+	// update.. ?
+	// I could add a timeout loop of some sort and also check if the
+	// sessionID doesn't or does exist already...
+	// something.. a bit smarter.
 
 	// We now have enough information to open a voice websocket conenction
 	// so, that's what the next call does.
