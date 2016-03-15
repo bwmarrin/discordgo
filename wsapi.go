@@ -336,23 +336,19 @@ type voiceChannelJoinOp struct {
 //    cID     : Channel ID of the channel to join.
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
-//    timeout : If timeout > 0 then func will wait up to timeout for voice
-//              connection to be ready.  If it does not become ready in that
-//              time frame then it will return an error and close out the voice
-//              connection entirely.
-func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool, timeout int) (voice *VoiceConnection, err error) {
+func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
 	// If a voice connection alreadyy exists for this guild then
 	// return that connection. If the channel differs, also change channels.
 	// TODO: check if the voice connection is really valid or just a shell
 	// because we might want to allow setting variables prior to getting here
 	// like debug, and other things.
-	if voice, ok := s.VoiceConnections[gID]; ok {
+	var ok bool
+	if voice, ok = s.VoiceConnections[gID]; ok {
 		if voice.ChannelID != cID {
 			err = voice.ChangeChannel(cID)
 		}
-		return voice, err
-		// TODO: ugh, ugly..
+		return
 	}
 
 	// Create a new voice session
@@ -366,7 +362,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool, timeout int
 		ChannelID:   cID,
 	}
 
-	// Store voice in VoiceConnections map for thils GuildID
+	// Store voice in VoiceConnections map for this GuildID
 	s.VoiceConnections[gID] = voice
 
 	// Send the request to Discord that we want to join the voice channel
@@ -377,13 +373,11 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool, timeout int
 	}
 
 	// doesn't exactly work perfect yet.. TODO
-	if timeout > 0 {
-		err = voice.WaitUntilConnected()
-		if err != nil {
-			voice.Close()
-			delete(s.VoiceConnections, gID)
-			return
-		}
+	err = voice.WaitUntilConnected()
+	if err != nil {
+		voice.Close()
+		delete(s.VoiceConnections, gID)
+		return
 	}
 
 	return
