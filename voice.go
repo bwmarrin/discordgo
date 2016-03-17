@@ -40,7 +40,6 @@ type VoiceConnection struct {
 	OpusSend chan []byte  // Chan for sending opus audio
 	OpusRecv chan *Packet // Chan for receiving opus audio
 
-	OP2 *voiceOP2 // exported for dgvoice, may change.
 	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
@@ -52,6 +51,7 @@ type VoiceConnection struct {
 	token     string
 	endpoint  string
 	op4       voiceOP4
+	op2       voiceOP2
 
 	// Used to send a close signal to goroutines
 	close chan struct{}
@@ -292,15 +292,14 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 
 	case 2: // READY
 
-		v.OP2 = &voiceOP2{}
-		if err := json.Unmarshal(e.RawData, v.OP2); err != nil {
+		if err := json.Unmarshal(e.RawData, &v.op2); err != nil {
 			fmt.Println("voiceWS.onEvent OP2 Unmarshall error: ", err)
 			printJSON(e.RawData) // TODO: Better error logging
 			return
 		}
 
 		// Start the voice websocket heartbeat to keep the connection alive
-		go v.wsHeartbeat(v.wsConn, v.close, v.OP2.HeartbeatInterval)
+		go v.wsHeartbeat(v.wsConn, v.close, v.op2.HeartbeatInterval)
 		// TODO monitor a chan/bool to verify this was successful
 
 		// Start the UDP connection
@@ -439,7 +438,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return fmt.Errorf("empty endpoint")
 	}
 
-	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.OP2.Port)
+	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.op2.Port)
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
 		fmt.Println("udpOpen resolve addr error: ", err)
@@ -457,7 +456,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	// Create a 70 byte array and put the SSRC code from the Op 2 VoiceConnection event
 	// into it.  Then send that over the UDP connection to Discord
 	sb := make([]byte, 70)
-	binary.BigEndian.PutUint32(sb, v.OP2.SSRC)
+	binary.BigEndian.PutUint32(sb, v.op2.SSRC)
 	_, err = v.udpConn.Write(sb)
 	if err != nil {
 		fmt.Println("udpOpen udp write error : ", err)
@@ -569,7 +568,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	// build the parts that don't change in the udpHeader
 	udpHeader[0] = 0x80
 	udpHeader[1] = 0x78
-	binary.BigEndian.PutUint32(udpHeader[8:], v.OP2.SSRC)
+	binary.BigEndian.PutUint32(udpHeader[8:], v.op2.SSRC)
 
 	// start a send loop that loops until buf chan is closed
 	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
