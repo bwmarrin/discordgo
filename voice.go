@@ -39,8 +39,7 @@ type VoiceConnection struct {
 	OpusSend chan []byte  // Chan for sending opus audio
 	OpusRecv chan *Packet // Chan for receiving opus audio
 
-	Receive bool      // If false, don't try to receive packets
-	OP2     *voiceOP2 // exported for dgvoice, may change.
+	OP2 *voiceOP2 // exported for dgvoice, may change.
 	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
@@ -322,9 +321,7 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 			v.OpusRecv = make(chan *Packet, 2)
 		}
 
-		if v.Receive {
-			go v.opusReceiver(v.UDPConn, v.close, v.OpusRecv)
-		}
+		go v.opusReceiver(v.UDPConn, v.close, v.OpusRecv)
 
 		// Send the ready event
 		v.connected <- true
