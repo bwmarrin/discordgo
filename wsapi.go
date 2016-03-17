@@ -344,7 +344,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 		// to verify if this connection is valid or not.
 
 		if voice.ChannelID != cID {
-			err = voice.ChangeChannel(cID)
+			err = voice.ChangeChannel(cID, mute, deaf)
 		}
 		return
 	}

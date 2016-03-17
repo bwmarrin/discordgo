@@ -615,7 +615,7 @@ func (v *VoiceConnection) opusReceiver(UDPConn *net.UDPConn, close <-chan struct
 }
 
 // Close closes the voice ws and udp connections
-func (v *VoiceConnection) close() {
+func (v *VoiceConnection) Close() {
 
 	v.Lock()
 	defer v.Unlock()
@@ -667,7 +667,7 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	}
 
 	// Close websocket and udp connections
-	v.close()
+	v.Close()
 
 	delete(v.session.VoiceConnections, v.GuildID)
 
