@@ -30,6 +30,7 @@ import (
 // A VoiceConnectionConnection struct holds all the data and functions related to a Discord Voice Connection.
 type VoiceConnection struct {
 	sync.Mutex
+
 	Debug     bool // If true, print extra logging
 	Ready     bool // If true, voice is ready to send/receive audio
 	GuildID   string
@@ -44,7 +45,7 @@ type VoiceConnection struct {
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
 	wsConn  *websocket.Conn
-	UDPConn *net.UDPConn // this will become unexported soon.
+	udpConn *net.UDPConn
 	session *Session
 
 	sessionID string
@@ -227,12 +228,12 @@ func (v *VoiceConnection) Close() {
 		v.close = nil
 	}
 
-	if v.UDPConn != nil {
-		err := v.UDPConn.Close()
+	if v.udpConn != nil {
+		err := v.udpConn.Close()
 		if err != nil {
 			fmt.Println("error closing udp connection: ", err)
 		}
-		v.UDPConn = nil
+		v.udpConn = nil
 	}
 
 	if v.wsConn != nil {
@@ -314,14 +315,14 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 		if v.OpusSend == nil {
 			v.OpusSend = make(chan []byte, 2)
 		}
-		go v.opusSender(v.UDPConn, v.close, v.OpusSend, 48000, 960)
+		go v.opusSender(v.udpConn, v.close, v.OpusSend, 48000, 960)
 
 		// Start the opusReceiver
 		if v.OpusRecv == nil {
 			v.OpusRecv = make(chan *Packet, 2)
 		}
 
-		go v.opusReceiver(v.UDPConn, v.close, v.OpusRecv)
+		go v.opusReceiver(v.udpConn, v.close, v.OpusRecv)
 
 		// Send the ready event
 		v.connected <- true
@@ -426,7 +427,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return fmt.Errorf("nil voice websocket")
 	}
 
-	if v.UDPConn != nil {
+	if v.udpConn != nil {
 		return fmt.Errorf("udp connection already open")
 	}
 
@@ -446,7 +447,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return
 	}
 
-	v.UDPConn, err = net.DialUDP("udp", nil, addr)
+	v.udpConn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
 		fmt.Println("udpOpen dial udp error: ", err)
 		// TODO better logging
@@ -457,7 +458,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	// into it.  Then send that over the UDP connection to Discord
 	sb := make([]byte, 70)
 	binary.BigEndian.PutUint32(sb, v.OP2.SSRC)
-	_, err = v.UDPConn.Write(sb)
+	_, err = v.udpConn.Write(sb)
 	if err != nil {
 		fmt.Println("udpOpen udp write error : ", err)
 		// TODO better logging
@@ -469,7 +470,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	// of the response.  This should be our public IP and PORT as Discord
 	// saw us.
 	rb := make([]byte, 70)
-	rlen, _, err := v.UDPConn.ReadFromUDP(rb)
+	rlen, _, err := v.udpConn.ReadFromUDP(rb)
 	if err != nil {
 		fmt.Println("udpOpen udp read error : ", err)
 		// TODO better logging
@@ -503,7 +504,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	}
 
 	// start udpKeepAlive
-	go v.udpKeepAlive(v.UDPConn, v.close, 5*time.Second)
+	go v.udpKeepAlive(v.udpConn, v.close, 5*time.Second)
 	// TODO: find a way to check that it fired off okay
 
 	return
@@ -511,9 +512,9 @@ func (v *VoiceConnection) udpOpen() (err error) {
 
 // udpKeepAlive sends a udp packet to keep the udp connection open
 // This is still a bit of a "proof of concept"
-func (v *VoiceConnection) udpKeepAlive(UDPConn *net.UDPConn, close <-chan struct{}, i time.Duration) {
+func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct{}, i time.Duration) {
 
-	if UDPConn == nil || close == nil {
+	if udpConn == nil || close == nil {
 		return
 	}
 
@@ -528,7 +529,7 @@ func (v *VoiceConnection) udpKeepAlive(UDPConn *net.UDPConn, close <-chan struct
 		binary.LittleEndian.PutUint64(packet, sequence)
 		sequence++
 
-		_, err = UDPConn.Write(packet)
+		_, err = udpConn.Write(packet)
 		if err != nil {
 			fmt.Println("udpKeepAlive udp write error : ", err)
 			return
@@ -545,9 +546,9 @@ func (v *VoiceConnection) udpKeepAlive(UDPConn *net.UDPConn, close <-chan struct
 
 // opusSender will listen on the given channel and send any
 // pre-encoded opus audio to Discord.  Supposedly.
-func (v *VoiceConnection) opusSender(UDPConn *net.UDPConn, close <-chan struct{}, opus <-chan []byte, rate, size int) {
+func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}, opus <-chan []byte, rate, size int) {
 
-	if UDPConn == nil || close == nil {
+	if udpConn == nil || close == nil {
 		return
 	}
 
@@ -601,7 +602,7 @@ func (v *VoiceConnection) opusSender(UDPConn *net.UDPConn, close <-chan struct{}
 		case <-ticker.C:
 			// continue
 		}
-		_, err := UDPConn.Write(sendbuf)
+		_, err := udpConn.Write(sendbuf)
 
 		if err != nil {
 			fmt.Println("error writing to udp connection: ", err)
@@ -635,9 +636,9 @@ type Packet struct {
 // opusReceiver listens on the UDP socket for incoming packets
 // and sends them across the given channel
 // NOTE :: This function may change names later.
-func (v *VoiceConnection) opusReceiver(UDPConn *net.UDPConn, close <-chan struct{}, c chan *Packet) {
+func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct{}, c chan *Packet) {
 
-	if UDPConn == nil || close == nil {
+	if udpConn == nil || close == nil {
 		return
 	}
 
@@ -646,7 +647,7 @@ func (v *VoiceConnection) opusReceiver(UDPConn *net.UDPConn, close <-chan struct
 	var nonce [24]byte
 
 	for {
-		rlen, err := UDPConn.Read(recvbuf)
+		rlen, err := udpConn.Read(recvbuf)
 		if err != nil {
 			fmt.Println("opusReceiver UDP Read error:", err)
 			return

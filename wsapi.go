@@ -352,7 +352,6 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	// Create a new voice session
 	// TODO review what all these things are for....
 	voice = &VoiceConnection{
-		Receive:     true,
 		session:     s,
 		connected:   make(chan bool),
 		sessionRecv: make(chan string),
