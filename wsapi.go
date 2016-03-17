@@ -338,13 +338,13 @@ type voiceChannelJoinOp struct {
 //    deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
-	// If a voice connection alreadyy exists for this guild then
+	// If a voice connection already exists for this guild then
 	// return that connection. If the channel differs, also change channels.
-	// TODO: check if the voice connection is really valid or just a shell
-	// because we might want to allow setting variables prior to getting here
-	// like debug, and other things.
 	var ok bool
-	if voice, ok = s.VoiceConnections[gID]; ok {
+	if voice, ok = s.VoiceConnections[gID]; ok && voice.GuildID != "" {
+		//TODO: consider a better variable than GuildID in the above check
+		// to verify if this connection is valid or not.
+
 		if voice.ChannelID != cID {
 			err = voice.ChangeChannel(cID)
 		}
