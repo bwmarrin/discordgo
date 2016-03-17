@@ -91,27 +91,6 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	return
 }
 
-// WaitUntilConnected waits for the Voice Connection to
-// become ready, if it does not become ready it retuns an err
-func (v *VoiceConnection) waitUntilConnected() error {
-
-	i := 0
-	for {
-		if v.Ready {
-			return nil
-		}
-
-		if i > 10 {
-			return fmt.Errorf("Timeout waiting for voice.")
-		}
-
-		time.Sleep(1 * time.Second)
-		i++
-	}
-
-	return nil
-}
-
 // ChangeChannel sends Discord a request to change channels within a Guild
 // !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
 func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
@@ -190,6 +169,27 @@ type voiceOP2 struct {
 	Port              int           `json:"port"`
 	Modes             []string      `json:"modes"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
+}
+
+// WaitUntilConnected waits for the Voice Connection to
+// become ready, if it does not become ready it retuns an err
+func (v *VoiceConnection) waitUntilConnected() error {
+
+	i := 0
+	for {
+		if v.Ready {
+			return nil
+		}
+
+		if i > 10 {
+			return fmt.Errorf("Timeout waiting for voice.")
+		}
+
+		time.Sleep(1 * time.Second)
+		i++
+	}
+
+	return nil
 }
 
 // Open opens a voice connection.  This should be called
