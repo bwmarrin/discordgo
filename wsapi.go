@@ -328,9 +328,7 @@ type voiceChannelJoinOp struct {
 	Data voiceChannelJoinData `json:"d"`
 }
 
-// ChannelVoiceJoin joins the session user to a voice channel. After calling
-// this func please monitor the Session.Voice.Ready bool to determine when
-// it is ready and able to send/receive audio, that should happen quickly.
+// ChannelVoiceJoin joins the session user to a voice channel.
 //
 //    gID     : Guild ID of the channel to join.
 //    cID     : Channel ID of the channel to join.
@@ -384,9 +382,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	return
 }
 
-// onVoiceStateUpdate handles Voice State Update events on the data
-// websocket.  This comes immediately after the call to VoiceChannelJoin
-// for the session user.
+// onVoiceStateUpdate handles Voice State Update events on the data websocket.
 func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 
 	// If we don't have a connection for the channel, don't bother
@@ -423,8 +419,6 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 }
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
-// This event tells us the information needed to open a voice websocket
-// connection and should happen after the VOICE_STATE event.
 //
 // This is also fired if the Guild's voice region changes while connected
 // to a voice channel.  In that case, need to re-establish connection to
@@ -435,7 +429,6 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// If no VoiceConnection exists, just skip this
 	if !exists {
-		fmt.Println("doesn't exist! Oh noooo bail out.. emergency..")
 		return
 	}
 
