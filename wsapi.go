@@ -369,6 +369,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
 	err = s.wsConn.WriteJSON(data)
 	if err != nil {
+		delete(s.VoiceConnections, gID)
 		return
 	}
 
