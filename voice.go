@@ -29,16 +29,18 @@ import (
 
 // A VoiceConnectionConnection struct holds all the data and functions related to a Discord Voice Connection.
 type VoiceConnection struct {
-	sync.Mutex              // future use
-	Ready      bool         // If true, voice is ready to send/receive audio
-	Debug      bool         // If true, print extra logging
-	Receive    bool         // If false, don't try to receive packets
-	OP2        *voiceOP2    // exported for dgvoice, may change.
-	OpusSend   chan []byte  // Chan for sending opus audio
-	OpusRecv   chan *Packet // Chan for receiving opus audio
-	GuildID    string
-	ChannelID  string
-	UserID     string
+	sync.Mutex
+	Debug     bool // If true, print extra logging
+	Ready     bool // If true, voice is ready to send/receive audio
+	GuildID   string
+	ChannelID string
+	UserID    string
+
+	OpusSend chan []byte  // Chan for sending opus audio
+	OpusRecv chan *Packet // Chan for receiving opus audio
+
+	Receive bool      // If false, don't try to receive packets
+	OP2     *voiceOP2 // exported for dgvoice, may change.
 	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
 	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
 
@@ -94,9 +96,10 @@ type voiceHandshakeOp struct {
 }
 
 // Open opens a voice connection.  This should be called
-// after VoiceConnectionChannelJoin is used and the data VOICE websocket events
+// after VoiceChannelJoin is used and the data VOICE websocket events
 // are captured.
 func (v *VoiceConnection) Open() (err error) {
+
 	v.Lock()
 	defer v.Unlock()
 
@@ -131,25 +134,120 @@ func (v *VoiceConnection) Open() (err error) {
 }
 
 // WaitUntilConnected is a TEMP FUNCTION
-// And this is going to be removed to changed entirely.
+// And this is going to be removed or changed entirely.
 // I know it looks hacky, but I needed to get it working quickly.
 func (v *VoiceConnection) WaitUntilConnected() error {
 
 	i := 0
 	for {
+		if v.Ready {
+			return nil
+		}
+
 		if i > 10 {
 			return fmt.Errorf("Timeout waiting for voice.")
 		}
 
-		if v.Ready {
-			return nil
-		}
 		time.Sleep(1 * time.Second)
 		i++
 	}
 
 	return nil
 }
+
+type voiceSpeakingData struct {
+	Speaking bool `json:"speaking"`
+	Delay    int  `json:"delay"`
+}
+
+type voiceSpeakingOp struct {
+	Op   int               `json:"op"` // Always 5
+	Data voiceSpeakingData `json:"d"`
+}
+
+// Speaking sends a speaking notification to Discord over the voice websocket.
+// This must be sent as true prior to sending audio and should be set to false
+// once finished sending audio.
+//  b  : Send true if speaking, false if not.
+func (v *VoiceConnection) Speaking(b bool) (err error) {
+
+	if v.wsConn == nil {
+		return fmt.Errorf("No VoiceConnection websocket.")
+	}
+
+	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
+	err = v.wsConn.WriteJSON(data)
+	if err != nil {
+		fmt.Println("Speaking() write json error:", err)
+		return
+	}
+
+	return
+}
+
+// ChangeChannel sends Discord a request to change channels within a Guild
+// !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
+func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
+
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
+	err = v.session.wsConn.WriteJSON(data)
+
+	return
+}
+
+// Disconnect disconnects from this voice channel and closes the websocket
+// and udp connections to Discord.
+// !!! NOTE !!! this function may be removed in favour of ChannelVoiceLeave
+func (v *VoiceConnection) Disconnect() (err error) {
+
+	// Send a OP4 with a nil channel to disconnect
+	if v.sessionID != "" {
+		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
+		err = v.session.wsConn.WriteJSON(data)
+		v.sessionID = ""
+	}
+
+	// Close websocket and udp connections
+	v.Close()
+
+	delete(v.session.VoiceConnections, v.GuildID)
+
+	return
+}
+
+// Close closes the voice ws and udp connections
+func (v *VoiceConnection) Close() {
+
+	v.Lock()
+	defer v.Unlock()
+
+	v.Ready = false
+
+	if v.close != nil {
+		close(v.close)
+		v.close = nil
+	}
+
+	if v.UDPConn != nil {
+		err := v.UDPConn.Close()
+		if err != nil {
+			fmt.Println("error closing udp connection: ", err)
+		}
+		v.UDPConn = nil
+	}
+
+	if v.wsConn != nil {
+		err := v.wsConn.Close()
+		if err != nil {
+			fmt.Println("error closing websocket connection: ", err)
+		}
+		v.wsConn = nil
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+// Unexported Internal Functions Below.
+// ------------------------------------------------------------------------------------------------
 
 // wsListen listens on the voice websocket for messages and passes them
 // to the voice event handler.  This is automatically called by the Open func
@@ -296,36 +394,6 @@ func (v *VoiceConnection) wsHeartbeat(wsConn *websocket.Conn, close <-chan struc
 			return
 		}
 	}
-}
-
-type voiceSpeakingData struct {
-	Speaking bool `json:"speaking"`
-	Delay    int  `json:"delay"`
-}
-
-type voiceSpeakingOp struct {
-	Op   int               `json:"op"` // Always 5
-	Data voiceSpeakingData `json:"d"`
-}
-
-// Speaking sends a speaking notification to Discord over the voice websocket.
-// This must be sent as true prior to sending audio and should be set to false
-// once finished sending audio.
-//  b  : Send true if speaking, false if not.
-func (v *VoiceConnection) Speaking(b bool) (err error) {
-
-	if v.wsConn == nil {
-		return fmt.Errorf("No VoiceConnection websocket.")
-	}
-
-	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
-	err = v.wsConn.WriteJSON(data)
-	if err != nil {
-		fmt.Println("Speaking() write json error:", err)
-		return
-	}
-
-	return
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -612,64 +680,4 @@ func (v *VoiceConnection) opusReceiver(UDPConn *net.UDPConn, close <-chan struct
 			c <- &p
 		}
 	}
-}
-
-// Close closes the voice ws and udp connections
-func (v *VoiceConnection) Close() {
-
-	v.Lock()
-	defer v.Unlock()
-
-	v.Ready = false
-
-	if v.close != nil {
-		close(v.close)
-		v.close = nil
-	}
-
-	if v.UDPConn != nil {
-		err := v.UDPConn.Close()
-		if err != nil {
-			fmt.Println("error closing udp connection: ", err)
-		}
-		v.UDPConn = nil
-	}
-
-	if v.wsConn != nil {
-		err := v.wsConn.Close()
-		if err != nil {
-			fmt.Println("error closing websocket connection: ", err)
-		}
-		v.wsConn = nil
-	}
-}
-
-// ChangeChannel sends Discord a request to change channels within a Guild
-// !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
-func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
-
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
-	err = v.session.wsConn.WriteJSON(data)
-
-	return
-}
-
-// Disconnect disconnects from this voice channel and closes the websocket
-// and udp connections to Discord.
-// !!! NOTE !!! this function may be removed in favour of ChannelVoiceLeave
-func (v *VoiceConnection) Disconnect() (err error) {
-
-	// Send a OP4 with a nil channel to disconnect
-	if v.sessionID != "" {
-		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
-		err = v.session.wsConn.WriteJSON(data)
-		v.sessionID = ""
-	}
-
-	// Close websocket and udp connections
-	v.Close()
-
-	delete(v.session.VoiceConnections, v.GuildID)
-
-	return
 }
