@@ -40,9 +40,6 @@ type VoiceConnection struct {
 	OpusSend chan []byte  // Chan for sending opus audio
 	OpusRecv chan *Packet // Chan for receiving opus audio
 
-	//	FrameRate  int         // This can be used to set the FrameRate of Opus data
-	//	FrameSize  int         // This can be used to set the FrameSize of Opus data
-
 	wsConn  *websocket.Conn
 	udpConn *net.UDPConn
 	session *Session
@@ -50,8 +47,6 @@ type VoiceConnection struct {
 	sessionID string
 	token     string
 	endpoint  string
-	op4       voiceOP4
-	op2       voiceOP2
 
 	// Used to send a close signal to goroutines
 	close chan struct{}
@@ -61,81 +56,43 @@ type VoiceConnection struct {
 
 	// Used to pass the sessionid from onVoiceStateUpdate
 	sessionRecv chan string
+
+	op4 voiceOP4
+	op2 voiceOP2
 }
 
-// ------------------------------------------------------------------------------------------------
-// Code related to the VoiceConnection websocket connection
-// ------------------------------------------------------------------------------------------------
+// Speaking sends a speaking notification to Discord over the voice websocket.
+// This must be sent as true prior to sending audio and should be set to false
+// once finished sending audio.
+//  b  : Send true if speaking, false if not.
+func (v *VoiceConnection) Speaking(b bool) (err error) {
 
-// A voiceOP4 stores the data for the voice operation 4 websocket event
-// which provides us with the NaCl SecretBox encryption key
-type voiceOP4 struct {
-	SecretKey [32]byte `json:"secret_key"`
-	Mode      string   `json:"mode"`
-}
-
-// A voiceOP2 stores the data for the voice operation 2 websocket event
-// which is sort of like the voice READY packet
-type voiceOP2 struct {
-	SSRC              uint32        `json:"ssrc"`
-	Port              int           `json:"port"`
-	Modes             []string      `json:"modes"`
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-}
-
-type voiceHandshakeData struct {
-	ServerID  string `json:"server_id"`
-	UserID    string `json:"user_id"`
-	SessionID string `json:"session_id"`
-	Token     string `json:"token"`
-}
-
-type voiceHandshakeOp struct {
-	Op   int                `json:"op"` // Always 0
-	Data voiceHandshakeData `json:"d"`
-}
-
-// Open opens a voice connection.  This should be called
-// after VoiceChannelJoin is used and the data VOICE websocket events
-// are captured.
-func (v *VoiceConnection) Open() (err error) {
-
-	v.Lock()
-	defer v.Unlock()
-
-	// Don't open a websocket if one is already open
-	if v.wsConn != nil {
-		return
+	type voiceSpeakingData struct {
+		Speaking bool `json:"speaking"`
+		Delay    int  `json:"delay"`
 	}
 
-	// Connect to VoiceConnection Websocket
-	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
-	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
-	if err != nil {
-		fmt.Println("VOICE error opening websocket:", err)
-		return
+	type voiceSpeakingOp struct {
+		Op   int               `json:"op"` // Always 5
+		Data voiceSpeakingData `json:"d"`
 	}
 
-	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token}}
+	if v.wsConn == nil {
+		return fmt.Errorf("No VoiceConnection websocket.")
+	}
 
+	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("VOICE error sending init packet:", err)
+		fmt.Println("Speaking() write json error:", err)
 		return
 	}
-
-	// Start a listening for voice websocket events
-	// TODO add a check here to make sure Listen worked by monitoring
-	// a chan or bool?
-	v.close = make(chan struct{})
-	go v.wsListen(v.wsConn, v.close)
 
 	return
 }
 
-// WaitUntilConnected is a TEMP FUNCTION
-// And this is going to be removed or changed entirely.
-// I know it looks hacky, but I needed to get it working quickly.
+// WaitUntilConnected waits for the Voice Connection to
+// become ready, if it does not become ready it retuns an err
 func (v *VoiceConnection) WaitUntilConnected() error {
 
 	i := 0
@@ -153,36 +110,6 @@ func (v *VoiceConnection) WaitUntilConnected() error {
 	}
 
 	return nil
-}
-
-type voiceSpeakingData struct {
-	Speaking bool `json:"speaking"`
-	Delay    int  `json:"delay"`
-}
-
-type voiceSpeakingOp struct {
-	Op   int               `json:"op"` // Always 5
-	Data voiceSpeakingData `json:"d"`
-}
-
-// Speaking sends a speaking notification to Discord over the voice websocket.
-// This must be sent as true prior to sending audio and should be set to false
-// once finished sending audio.
-//  b  : Send true if speaking, false if not.
-func (v *VoiceConnection) Speaking(b bool) (err error) {
-
-	if v.wsConn == nil {
-		return fmt.Errorf("No VoiceConnection websocket.")
-	}
-
-	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
-	err = v.wsConn.WriteJSON(data)
-	if err != nil {
-		fmt.Println("Speaking() write json error:", err)
-		return
-	}
-
-	return
 }
 
 // ChangeChannel sends Discord a request to change channels within a Guild
@@ -248,6 +175,70 @@ func (v *VoiceConnection) Close() {
 // ------------------------------------------------------------------------------------------------
 // Unexported Internal Functions Below.
 // ------------------------------------------------------------------------------------------------
+
+// A voiceOP4 stores the data for the voice operation 4 websocket event
+// which provides us with the NaCl SecretBox encryption key
+type voiceOP4 struct {
+	SecretKey [32]byte `json:"secret_key"`
+	Mode      string   `json:"mode"`
+}
+
+// A voiceOP2 stores the data for the voice operation 2 websocket event
+// which is sort of like the voice READY packet
+type voiceOP2 struct {
+	SSRC              uint32        `json:"ssrc"`
+	Port              int           `json:"port"`
+	Modes             []string      `json:"modes"`
+	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
+}
+
+// Open opens a voice connection.  This should be called
+// after VoiceChannelJoin is used and the data VOICE websocket events
+// are captured.
+func (v *VoiceConnection) open() (err error) {
+
+	v.Lock()
+	defer v.Unlock()
+
+	// Don't open a websocket if one is already open
+	if v.wsConn != nil {
+		return
+	}
+
+	// Connect to VoiceConnection Websocket
+	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
+	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
+	if err != nil {
+		fmt.Println("VOICE error opening websocket:", err)
+		return
+	}
+
+	type voiceHandshakeData struct {
+		ServerID  string `json:"server_id"`
+		UserID    string `json:"user_id"`
+		SessionID string `json:"session_id"`
+		Token     string `json:"token"`
+	}
+	type voiceHandshakeOp struct {
+		Op   int                `json:"op"` // Always 0
+		Data voiceHandshakeData `json:"d"`
+	}
+	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token}}
+
+	err = v.wsConn.WriteJSON(data)
+	if err != nil {
+		fmt.Println("VOICE error sending init packet:", err)
+		return
+	}
+
+	// Start a listening for voice websocket events
+	// TODO add a check here to make sure Listen worked by monitoring
+	// a chan or bool?
+	v.close = make(chan struct{})
+	go v.wsListen(v.wsConn, v.close)
+
+	return
+}
 
 // wsListen listens on the voice websocket for messages and passes them
 // to the voice event handler.  This is automatically called by the Open func

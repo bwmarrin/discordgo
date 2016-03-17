@@ -352,11 +352,11 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	// Create a new voice session
 	// TODO review what all these things are for....
 	voice = &VoiceConnection{
+		GuildID:     gID,
+		ChannelID:   cID,
 		session:     s,
 		connected:   make(chan bool),
 		sessionRecv: make(chan string),
-		GuildID:     gID,
-		ChannelID:   cID,
 	}
 
 	// Store voice in VoiceConnections map for this GuildID
@@ -451,7 +451,7 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 
 	// We now have enough information to open a voice websocket conenction
 	// so, that's what the next call does.
-	err := voice.Open()
+	err := voice.open()
 	if err != nil {
 		fmt.Println("onVoiceServerUpdate Voice.Open error: ", err)
 		// TODO better logging
