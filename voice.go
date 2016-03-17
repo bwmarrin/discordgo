@@ -615,16 +615,10 @@ func (v *VoiceConnection) opusReceiver(UDPConn *net.UDPConn, close <-chan struct
 }
 
 // Close closes the voice ws and udp connections
-func (v *VoiceConnection) Close() {
+func (v *VoiceConnection) close() {
+
 	v.Lock()
 	defer v.Unlock()
-
-	// Send a OP4 with a nil channel to disconnect
-	if v.sessionID != "" {
-		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
-		v.session.wsConn.WriteJSON(data)
-		v.sessionID = ""
-	}
 
 	v.Ready = false
 
@@ -648,14 +642,34 @@ func (v *VoiceConnection) Close() {
 		}
 		v.wsConn = nil
 	}
-
-	delete(v.session.VoiceConnections, v.GuildID)
 }
 
-// Request to change channels
-func (v *VoiceConnection) ChangeChannel(channelID string) (err error) {
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, true, true}}
+// ChangeChannel sends Discord a request to change channels within a Guild
+// !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
+func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
+
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
 	err = v.session.wsConn.WriteJSON(data)
 
-	return err
+	return
+}
+
+// Disconnect disconnects from this voice channel and closes the websocket
+// and udp connections to Discord.
+// !!! NOTE !!! this function may be removed in favour of ChannelVoiceLeave
+func (v *VoiceConnection) Disconnect() (err error) {
+
+	// Send a OP4 with a nil channel to disconnect
+	if v.sessionID != "" {
+		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
+		err = v.session.wsConn.WriteJSON(data)
+		v.sessionID = ""
+	}
+
+	// Close websocket and udp connections
+	v.close()
+
+	delete(v.session.VoiceConnections, v.GuildID)
+
+	return
 }
