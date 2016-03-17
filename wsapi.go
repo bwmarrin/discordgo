@@ -371,7 +371,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	}
 
 	// doesn't exactly work perfect yet.. TODO
-	err = voice.WaitUntilConnected()
+	err = voice.waitUntilConnected()
 	if err != nil {
 		voice.Close()
 		delete(s.VoiceConnections, gID)

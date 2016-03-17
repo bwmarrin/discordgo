@@ -93,7 +93,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 
 // WaitUntilConnected waits for the Voice Connection to
 // become ready, if it does not become ready it retuns an err
-func (v *VoiceConnection) WaitUntilConnected() error {
+func (v *VoiceConnection) waitUntilConnected() error {
 
 	i := 0
 	for {
