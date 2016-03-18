@@ -170,11 +170,7 @@ func (s *Session) AddHandler(handler interface{}) func() {
 
 	h := reflect.ValueOf(handler)
 
-	handlers := s.handlers[eventType]
-	if handlers == nil {
-		handlers = []reflect.Value{}
-	}
-	s.handlers[eventType] = append(handlers, h)
+	s.handlers[eventType] = append(s.handlers[eventType], h)
 
 	// This must be done as we need a consistent reference to the
 	// reflected value, otherwise a RemoveHandler method would have
