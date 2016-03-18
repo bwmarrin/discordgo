@@ -59,7 +59,11 @@ type VoiceConnection struct {
 
 	op4 voiceOP4
 	op2 voiceOP2
+
+	voiceSpeakingUpdateHandlers []VoiceSpeakingUpdateHandler
 }
+
+type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdate)
 
 // Speaking sends a speaking notification to Discord over the voice websocket.
 // This must be sent as true prior to sending audio and should be set to false
@@ -149,6 +153,21 @@ func (v *VoiceConnection) Close() {
 		}
 		v.wsConn = nil
 	}
+}
+
+// Adds a Handler for VoiceSpeakingUpdate events.
+func (v *VoiceConnection) AddHandler(h VoiceSpeakingUpdateHandler) {
+	v.Lock()
+	defer v.Unlock()
+
+	v.voiceSpeakingUpdateHandlers = append(v.voiceSpeakingUpdateHandlers, h)
+}
+
+// VoiceSpeakingUpdate is a struct for a VoiceSpeakingUpdate event.
+type VoiceSpeakingUpdate struct {
+	UserID   string `json:"user_id"`
+	SSRC     int    `json:"ssrc"`
+	Speaking bool   `json:"speaking"`
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -345,14 +364,20 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 		return
 
 	case 5:
-		// SPEAKING TRUE/FALSE NOTIFICATION
-		/*
-			{
-				"user_id": "1238921738912",
-				"ssrc": 2,
-				"speaking": false
-			}
-		*/
+		if len(v.voiceSpeakingUpdateHandlers) == 0 {
+			return
+		}
+
+		voiceSpeakingUpdate := &VoiceSpeakingUpdate{}
+		if err := json.Unmarshal(e.RawData, voiceSpeakingUpdate); err != nil {
+			fmt.Println("voiceWS.onEvent VoiceSpeakingUpdate Unmarshal error: ", err)
+			printJSON(e.RawData)
+			return
+		}
+
+		for _, h := range v.voiceSpeakingUpdateHandlers {
+			h(v, voiceSpeakingUpdate)
+		}
 
 	default:
 		fmt.Println("UNKNOWN VOICE OP: ", e.Operation)
