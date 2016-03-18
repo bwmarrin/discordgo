@@ -205,6 +205,19 @@ func (v *VoiceConnection) open() (err error) {
 		return
 	}
 
+	// TODO temp? loop to wait for the SessionID
+	i := 0
+	for {
+		if v.sessionID != "" {
+			break
+		}
+		if i > 20 { // only loop for up to 1 second total
+			return fmt.Errorf("Did not receive voice Session ID in time.")
+		}
+		time.Sleep(50 * time.Millisecond)
+		i++
+	}
+
 	// Connect to VoiceConnection Websocket
 	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
 	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
