@@ -298,7 +298,7 @@ type TypingStart struct {
 	Timestamp int    `json:"timestamp"`
 }
 
-// A PresenceUpdate stores data for the pressence update websocket event.
+// A PresenceUpdate stores data for the presence update websocket event.
 type PresenceUpdate struct {
 	User    *User    `json:"user"`
 	Status  string   `json:"status"`

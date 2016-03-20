@@ -73,6 +73,11 @@ func (s *State) GuildAdd(guild *Guild) error {
 		}
 	}
 
+	// Otherwise, update the channels to point to the right guild
+	for _, c := range guild.Channels {
+		c.GuildID = guild.ID
+	}
+
 	s.Guilds = append(s.Guilds, guild)
 	return nil
 }
