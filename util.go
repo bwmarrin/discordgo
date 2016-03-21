@@ -15,11 +15,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 // printEvent prints out a WSAPI event.
 func printEvent(e *Event) {
-	fmt.Println(fmt.Sprintf("Event. Type: %s, State: %d Operation: %d Direction: %d", e.Type, e.State, e.Operation, e.Direction))
+	log.Println(fmt.Sprintf("Event. Type: %s, State: %d Operation: %d Direction: %d", e.Type, e.State, e.Operation, e.Direction))
 	printJSON(e.RawData)
 }
 
@@ -28,7 +29,7 @@ func printJSON(body []byte) {
 	var prettyJSON bytes.Buffer
 	error := json.Indent(&prettyJSON, body, "", "\t")
 	if error != nil {
-		fmt.Print("JSON parse error: ", error)
+		log.Print("JSON parse error: ", error)
 	}
-	fmt.Println(string(prettyJSON.Bytes()))
+	log.Println(string(prettyJSON.Bytes()))
 }

@@ -14,7 +14,7 @@ package discordgo
 
 import (
 	"errors"
-	"fmt"
+	"log"
 )
 
 // ErrNilState is returned when the state is nil.
@@ -433,7 +433,7 @@ func (s *State) MessageAdd(message *Message) error {
 		for len(c.Messages) > s.MaxMessageCount {
 			err := s.MessageRemove(c.Messages[0])
 			if err != nil {
-				fmt.Println("message remove error: ", err)
+				log.Println("message remove error: ", err)
 			}
 		}
 		s.Lock()

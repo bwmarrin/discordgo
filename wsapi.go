@@ -15,8 +15,8 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -137,7 +137,7 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 				// OnDisconnect is fired.
 				err := s.Close()
 				if err != nil {
-					fmt.Println("error closing session connection: ", err)
+					log.Println("error closing session connection: ", err)
 				}
 
 				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
@@ -190,7 +190,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	for {
 		err = wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
 		if err != nil {
-			fmt.Println("Error sending heartbeat:", err)
+			log.Println("Error sending heartbeat:", err)
 			return
 		}
 
@@ -256,13 +256,13 @@ func (s *Session) event(messageType int, message []byte) {
 	if messageType == 2 {
 		z, err1 := zlib.NewReader(reader)
 		if err1 != nil {
-			fmt.Println(err1)
+			log.Println(err1)
 			return
 		}
 		defer func() {
 			err := z.Close()
 			if err != nil {
-				fmt.Println("error closing zlib:", err)
+				log.Println("error closing zlib:", err)
 			}
 		}()
 		reader = z
@@ -271,7 +271,7 @@ func (s *Session) event(messageType int, message []byte) {
 	var e *Event
 	decoder := json.NewDecoder(reader)
 	if err = decoder.Decode(&e); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -287,14 +287,14 @@ func (s *Session) event(messageType int, message []byte) {
 		// Attempt to unmarshal our event.
 		// If there is an error we should handle the event itself.
 		if err = unmarshal(e.RawData, i); err != nil {
-			fmt.Println("Unable to unmarshal event data.", err)
+			log.Println("Unable to unmarshal event data.", err)
 			// Ready events must fire, even if they are empty.
 			if e.Type != "READY" {
 				i = e
 			}
 		}
 	} else {
-		fmt.Println("Unknown event.")
+		log.Println("Unknown event.")
 		i = e
 	}
 
@@ -400,7 +400,7 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 	// be moved to a small helper function
 	self, err := s.User("@me") // TODO: move to Login/New
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -453,7 +453,7 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	// so, that's what the next call does.
 	err := voice.open()
 	if err != nil {
-		fmt.Println("onVoiceServerUpdate Voice.Open error: ", err)
+		log.Println("onVoiceServerUpdate Voice.Open error: ", err)
 		// TODO better logging
 	}
 }

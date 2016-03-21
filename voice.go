@@ -13,6 +13,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"runtime"
 	"strings"
@@ -88,7 +89,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("Speaking() write json error:", err)
+		log.Println("Speaking() write json error:", err)
 		return
 	}
 
@@ -141,7 +142,7 @@ func (v *VoiceConnection) Close() {
 	if v.udpConn != nil {
 		err := v.udpConn.Close()
 		if err != nil {
-			fmt.Println("error closing udp connection: ", err)
+			log.Println("error closing udp connection: ", err)
 		}
 		v.udpConn = nil
 	}
@@ -149,7 +150,7 @@ func (v *VoiceConnection) Close() {
 	if v.wsConn != nil {
 		err := v.wsConn.Close()
 		if err != nil {
-			fmt.Println("error closing websocket connection: ", err)
+			log.Println("error closing websocket connection: ", err)
 		}
 		v.wsConn = nil
 	}
@@ -241,7 +242,7 @@ func (v *VoiceConnection) open() (err error) {
 	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
 	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
 	if err != nil {
-		fmt.Println("VOICE error opening websocket:", err)
+		log.Println("VOICE error opening websocket:", err)
 		return
 	}
 
@@ -259,7 +260,7 @@ func (v *VoiceConnection) open() (err error) {
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("VOICE error sending init packet:", err)
+		log.Println("VOICE error sending init packet:", err)
 		return
 	}
 
@@ -282,7 +283,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			// TODO: add reconnect, matching wsapi.go:listen()
 			// TODO: Handle this problem better.
 			// TODO: needs proper logging
-			fmt.Println("VoiceConnection Listen Error:", err)
+			log.Println("VoiceConnection Listen Error:", err)
 			return
 		}
 
@@ -301,13 +302,13 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 
 	if v.Debug {
-		fmt.Println("wsEvent received: ", messageType)
+		log.Println("wsEvent received: ", messageType)
 		printJSON(message)
 	}
 
 	var e Event
 	if err := json.Unmarshal(message, &e); err != nil {
-		fmt.Println("wsEvent Unmarshall error: ", err)
+		log.Println("wsEvent Unmarshall error: ", err)
 		return
 	}
 
@@ -316,7 +317,7 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 	case 2: // READY
 
 		if err := json.Unmarshal(e.RawData, &v.op2); err != nil {
-			fmt.Println("voiceWS.onEvent OP2 Unmarshall error: ", err)
+			log.Println("voiceWS.onEvent OP2 Unmarshall error: ", err)
 			printJSON(e.RawData) // TODO: Better error logging
 			return
 		}
@@ -328,7 +329,7 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 		// Start the UDP connection
 		err := v.udpOpen()
 		if err != nil {
-			fmt.Println("Error opening udp connection: ", err)
+			log.Println("Error opening udp connection: ", err)
 			return
 		}
 
@@ -357,7 +358,7 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 	case 4: // udp encryption secret key
 		v.op4 = voiceOP4{}
 		if err := json.Unmarshal(e.RawData, &v.op4); err != nil {
-			fmt.Println("voiceWS.onEvent OP4 Unmarshall error: ", err)
+			log.Println("voiceWS.onEvent OP4 Unmarshall error: ", err)
 			printJSON(e.RawData)
 			return
 		}
@@ -370,7 +371,7 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 
 		voiceSpeakingUpdate := &VoiceSpeakingUpdate{}
 		if err := json.Unmarshal(e.RawData, voiceSpeakingUpdate); err != nil {
-			fmt.Println("voiceWS.onEvent VoiceSpeakingUpdate Unmarshal error: ", err)
+			log.Println("voiceWS.onEvent VoiceSpeakingUpdate Unmarshal error: ", err)
 			printJSON(e.RawData)
 			return
 		}
@@ -380,7 +381,7 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 		}
 
 	default:
-		fmt.Println("UNKNOWN VOICE OP: ", e.Operation)
+		log.Println("UNKNOWN VOICE OP: ", e.Operation)
 		printJSON(e.RawData)
 	}
 
@@ -409,7 +410,7 @@ func (v *VoiceConnection) wsHeartbeat(wsConn *websocket.Conn, close <-chan struc
 	for {
 		err = wsConn.WriteJSON(voiceHeartbeatOp{3, int(time.Now().Unix())})
 		if err != nil {
-			fmt.Println("wsHeartbeat send error: ", err)
+			log.Println("wsHeartbeat send error: ", err)
 			return
 		}
 
@@ -470,14 +471,14 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.op2.Port)
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
-		fmt.Println("udpOpen resolve addr error: ", err)
+		log.Println("udpOpen resolve addr error: ", err)
 		// TODO better logging
 		return
 	}
 
 	v.udpConn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
-		fmt.Println("udpOpen dial udp error: ", err)
+		log.Println("udpOpen dial udp error: ", err)
 		// TODO better logging
 		return
 	}
@@ -488,7 +489,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	binary.BigEndian.PutUint32(sb, v.op2.SSRC)
 	_, err = v.udpConn.Write(sb)
 	if err != nil {
-		fmt.Println("udpOpen udp write error : ", err)
+		log.Println("udpOpen udp write error : ", err)
 		// TODO better logging
 		return
 	}
@@ -500,12 +501,12 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	rb := make([]byte, 70)
 	rlen, _, err := v.udpConn.ReadFromUDP(rb)
 	if err != nil {
-		fmt.Println("udpOpen udp read error : ", err)
+		log.Println("udpOpen udp read error : ", err)
 		// TODO better logging
 		return
 	}
 	if rlen < 70 {
-		fmt.Println("VoiceConnection RLEN should be 70 but isn't")
+		log.Println("VoiceConnection RLEN should be 70 but isn't")
 	}
 
 	// Loop over position 4 though 20 to grab the IP address
@@ -527,7 +528,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		fmt.Println("udpOpen write json error:", err)
+		log.Println("udpOpen write json error:", err)
 		return
 	}
 
@@ -559,7 +560,7 @@ func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct
 
 		_, err = udpConn.Write(packet)
 		if err != nil {
-			fmt.Println("udpKeepAlive udp write error : ", err)
+			log.Println("udpKeepAlive udp write error : ", err)
 			return
 		}
 
@@ -633,7 +634,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		_, err := udpConn.Write(sendbuf)
 
 		if err != nil {
-			fmt.Println("error writing to udp connection: ", err)
+			log.Println("error writing to udp connection: ", err)
 			return
 		}
 
@@ -677,7 +678,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 	for {
 		rlen, err := udpConn.Read(recvbuf)
 		if err != nil {
-			fmt.Println("opusReceiver UDP Read error:", err)
+			log.Println("opusReceiver UDP Read error:", err)
 			return
 		}
 
