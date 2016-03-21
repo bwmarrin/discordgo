@@ -225,6 +225,7 @@ func (s *Session) initialize() {
 	s.handlers = map[interface{}][]reflect.Value{}
 	s.handlersMu.Unlock()
 
+	s.AddHandler(s.onEvent)
 	s.AddHandler(s.onReady)
 	s.AddHandler(s.onVoiceServerUpdate)
 	s.AddHandler(s.onVoiceStateUpdate)
@@ -234,4 +235,9 @@ func (s *Session) initialize() {
 // onEvent handles events that are unhandled or errored while unmarshalling
 func (s *Session) onEvent(se *Session, e *Event) {
 	printEvent(e)
+}
+
+// onReady handles the ready event.
+func (s *Session) onReady(se *Session, r *Ready) {
+	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }
