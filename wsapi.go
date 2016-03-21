@@ -290,15 +290,18 @@ func (s *Session) event(messageType int, message []byte) {
 			log.Println("Unable to unmarshal event data.", err)
 			// Ready events must fire, even if they are empty.
 			if e.Type != "READY" {
-				i = e
+				i = nil
 			}
 		}
 	} else {
 		log.Println("Unknown event.")
-		i = e
+		i = nil
 	}
 
-	s.handle(i)
+	if i != nil {
+		s.handle(i)
+	}
+	s.handle(e)
 
 	return
 }
