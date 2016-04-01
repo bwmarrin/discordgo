@@ -140,7 +140,7 @@ type VoiceStateUpdate struct {
 
 // UserUpdate is a wrapper struct for an event.
 type UserUpdate struct {
-	*UserUpdate
+	*User
 }
 
 // UserSettingsUpdate is a map for an event.
