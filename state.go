@@ -12,10 +12,7 @@
 
 package discordgo
 
-import (
-	"errors"
-	"log"
-)
+import "errors"
 
 // ErrNilState is returned when the state is nil.
 var ErrNilState = errors.New("State not instantiated, please use discordgo.New() or assign Session.State.")
@@ -429,14 +426,7 @@ func (s *State) MessageAdd(message *Message) error {
 	c.Messages = append(c.Messages, message)
 
 	if len(c.Messages) > s.MaxMessageCount {
-		s.Unlock()
-		for len(c.Messages) > s.MaxMessageCount {
-			err := s.MessageRemove(c.Messages[0])
-			if err != nil {
-				log.Println("message remove error: ", err)
-			}
-		}
-		s.Lock()
+		c.Messages = c.Messages[len(c.Messages)-s.MaxMessageCount:]
 	}
 	return nil
 }
