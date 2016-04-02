@@ -12,10 +12,7 @@
 
 package discordgo
 
-import (
-	"errors"
-	"fmt"
-)
+import "errors"
 
 // ErrNilState is returned when the state is nil.
 var ErrNilState = errors.New("State not instantiated, please use discordgo.New() or assign Session.State.")
@@ -71,6 +68,11 @@ func (s *State) GuildAdd(guild *Guild) error {
 			s.Guilds[i] = guild
 			return nil
 		}
+	}
+
+	// Otherwise, update the channels to point to the right guild
+	for _, c := range guild.Channels {
+		c.GuildID = guild.ID
 	}
 
 	s.Guilds = append(s.Guilds, guild)
@@ -424,14 +426,7 @@ func (s *State) MessageAdd(message *Message) error {
 	c.Messages = append(c.Messages, message)
 
 	if len(c.Messages) > s.MaxMessageCount {
-		s.Unlock()
-		for len(c.Messages) > s.MaxMessageCount {
-			err := s.MessageRemove(c.Messages[0])
-			if err != nil {
-				fmt.Println("message remove error: ", err)
-			}
-		}
-		s.Lock()
+		c.Messages = c.Messages[len(c.Messages)-s.MaxMessageCount:]
 	}
 	return nil
 }
@@ -458,6 +453,37 @@ func (s *State) MessageRemove(message *Message) error {
 	}
 
 	return errors.New("Message not found.")
+}
+
+func (s *State) voiceStateUpdate(update *VoiceStateUpdate) error {
+	guild, err := s.Guild(update.GuildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// Handle Leaving Channel
+	if update.ChannelID == "" {
+		for i, state := range guild.VoiceStates {
+			if state.UserID == update.UserID {
+				guild.VoiceStates = append(guild.VoiceStates[:i], guild.VoiceStates[i+1:]...)
+				return nil
+			}
+		}
+	} else {
+		for i, state := range guild.VoiceStates {
+			if state.UserID == update.UserID {
+				guild.VoiceStates[i] = update.VoiceState
+				return nil
+			}
+		}
+
+		guild.VoiceStates = append(guild.VoiceStates, update.VoiceState)
+	}
+
+	return nil
 }
 
 // Message gets a message by channel and message ID.
@@ -521,6 +547,8 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 		err = s.MessageAdd(t.Message)
 	case *MessageDelete:
 		err = s.MessageRemove(t.Message)
+	case *VoiceStateUpdate:
+		err = s.voiceStateUpdate(t)
 	}
 
 	return

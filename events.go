@@ -34,6 +34,7 @@ var eventToInterface = map[string]interface{}{
 	"MESSAGE_UPDATE":             MessageUpdate{},
 	"MESSAGE_DELETE":             MessageDelete{},
 	"PRESENCE_UPDATE":            PresenceUpdate{},
+	"PRESENCES_REPLACE":          PresencesReplace{},
 	"READY":                      Ready{},
 	"USER_UPDATE":                UserUpdate{},
 	"USER_SETTINGS_UPDATE":       UserSettingsUpdate{},
@@ -129,6 +130,9 @@ type GuildRoleUpdate struct {
 	*GuildRole
 }
 
+// PresencesReplace is an array of Presences for an event.
+type PresencesReplace []*Presence
+
 // VoiceStateUpdate is a wrapper struct for an event.
 type VoiceStateUpdate struct {
 	*VoiceState
@@ -136,7 +140,7 @@ type VoiceStateUpdate struct {
 
 // UserUpdate is a wrapper struct for an event.
 type UserUpdate struct {
-	*UserUpdate
+	*User
 }
 
 // UserSettingsUpdate is a map for an event.

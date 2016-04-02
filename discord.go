@@ -170,11 +170,7 @@ func (s *Session) AddHandler(handler interface{}) func() {
 
 	h := reflect.ValueOf(handler)
 
-	handlers := s.handlers[eventType]
-	if handlers == nil {
-		handlers = []reflect.Value{}
-	}
-	s.handlers[eventType] = append(handlers, h)
+	s.handlers[eventType] = append(s.handlers[eventType], h)
 
 	// This must be done as we need a consistent reference to the
 	// reflected value, otherwise a RemoveHandler method would have
@@ -229,16 +225,10 @@ func (s *Session) initialize() {
 	s.handlers = map[interface{}][]reflect.Value{}
 	s.handlersMu.Unlock()
 
-	s.AddHandler(s.onEvent)
 	s.AddHandler(s.onReady)
 	s.AddHandler(s.onVoiceServerUpdate)
 	s.AddHandler(s.onVoiceStateUpdate)
 	s.AddHandler(s.State.onInterface)
-}
-
-// onEvent handles events that are unhandled or errored while unmarshalling
-func (s *Session) onEvent(se *Session, e *Event) {
-	printEvent(e)
 }
 
 // onReady handles the ready event.

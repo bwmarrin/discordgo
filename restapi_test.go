@@ -42,6 +42,7 @@ func TestUserAvatar(t *testing.T) {
 	}
 }
 
+/* Running this causes an error due to 2/hour rate limit on username changes
 func TestUserUpdate(t *testing.T) {
 	if dg == nil {
 		t.Skip("Cannot test logout, dg not set.")
@@ -67,6 +68,7 @@ func TestUserUpdate(t *testing.T) {
 		t.Error("Username != " + u.Username)
 	}
 }
+*/
 
 //func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
 

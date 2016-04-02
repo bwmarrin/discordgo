@@ -20,6 +20,7 @@ import (
 	_ "image/png"  // For PNG decoding
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -35,7 +36,7 @@ var ErrJSONUnmarshal = errors.New("json unmarshal")
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 
 	if s.Debug {
-		fmt.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
+		log.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
 	}
 
 	var body []byte
@@ -53,7 +54,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 func (s *Session) request(method, urlStr, contentType string, b []byte) (response []byte, err error) {
 
 	if s.Debug {
-		fmt.Printf("API REQUEST %8s :: %s\n", method, urlStr)
+		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 	}
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
@@ -73,7 +74,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	if s.Debug {
 		for k, v := range req.Header {
-			fmt.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
+			log.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
 		}
 	}
 
@@ -86,7 +87,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			fmt.Println("error closing resp body")
+			log.Println("error closing resp body")
 		}
 	}()
 
@@ -97,16 +98,17 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	if s.Debug {
 
-		fmt.Printf("API RESPONSE  STATUS :: %s\n", resp.Status)
+		log.Printf("API RESPONSE  STATUS :: %s\n", resp.Status)
 		for k, v := range resp.Header {
-			fmt.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
+			log.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
 		}
-		fmt.Printf("API RESPONSE    BODY :: [%s]\n", response)
+		log.Printf("API RESPONSE    BODY :: [%s]\n", response)
 	}
 
 	switch resp.StatusCode {
 
 	case http.StatusOK:
+	case http.StatusCreated:
 	case http.StatusNoContent:
 
 		// TODO check for 401 response, invalidate token if we get one.
@@ -361,7 +363,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions & PermissionManageRoles > 0 {
+	if apermissions&PermissionManageRoles > 0 {
 		apermissions |= PermissionAll
 	}
 
@@ -384,7 +386,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions & PermissionManageRoles > 0 {
+	if apermissions&PermissionManageRoles > 0 {
 		apermissions |= PermissionAllChannel
 	}
 
