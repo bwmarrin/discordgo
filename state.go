@@ -407,6 +407,10 @@ func (s *State) MessageAdd(message *Message) error {
 		return ErrNilState
 	}
 
+	if s.MaxMessageCount == 0 {
+		return nil
+	}
+
 	c, err := s.Channel(message.ChannelID)
 	if err != nil {
 		return err
@@ -435,6 +439,10 @@ func (s *State) MessageAdd(message *Message) error {
 func (s *State) MessageRemove(message *Message) error {
 	if s == nil {
 		return ErrNilState
+	}
+
+	if s.MaxMessageCount == 0 {
+		return nil
 	}
 
 	c, err := s.Channel(message.ChannelID)
