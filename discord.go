@@ -201,13 +201,13 @@ func (s *Session) handle(event interface{}) {
 
 	handlerParameters := []reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)}
 
-	if handlers, ok := s.handlers[reflect.TypeOf(event)]; ok {
+	if handlers, ok := s.handlers[nil]; ok {
 		for _, handler := range handlers {
 			handler.Call(handlerParameters)
 		}
 	}
 
-	if handlers, ok := s.handlers[nil]; ok {
+	if handlers, ok := s.handlers[reflect.TypeOf(event)]; ok {
 		for _, handler := range handlers {
 			handler.Call(handlerParameters)
 		}
