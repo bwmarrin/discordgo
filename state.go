@@ -57,22 +57,24 @@ func (s *State) GuildAdd(guild *Guild) error {
 	s.Lock()
 	defer s.Unlock()
 
-	// If the guild exists, replace it.
-	for i, g := range s.Guilds {
-		if g.ID == guild.ID {
-			// Don't stomp on properties that don't come in updates.
-			guild.Members = g.Members
-			guild.Presences = g.Presences
-			guild.Channels = g.Channels
-			guild.VoiceStates = g.VoiceStates
-			s.Guilds[i] = guild
-			return nil
-		}
-	}
-
 	// Otherwise, update the channels to point to the right guild
 	for _, c := range guild.Channels {
 		c.GuildID = guild.ID
+	}
+
+	// If the guild exists, replace it.
+	for i, g := range s.Guilds {
+		if g.ID == guild.ID {
+			// If this guild already exists with data, don't stomp on props
+			if !g.Unavailable {
+				guild.Members = g.Members
+				guild.Presences = g.Presences
+				guild.Channels = g.Channels
+				guild.VoiceStates = g.VoiceStates
+			}
+			s.Guilds[i] = guild
+			return nil
+		}
 	}
 
 	s.Guilds = append(s.Guilds, guild)

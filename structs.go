@@ -178,6 +178,7 @@ type Guild struct {
 	Presences         []*Presence       `json:"presences"`
 	Channels          []*Channel        `json:"channels"`
 	VoiceStates       []*VoiceState     `json:"voice_states"`
+	Unavailable       bool              `json:"unavailable"`
 }
 
 // A GuildParams stores all the data needed to update discord guild settings
