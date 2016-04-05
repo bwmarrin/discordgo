@@ -1,7 +1,6 @@
 package discordgo_test
 
 import (
-	"fmt"
 	"log"
 	"os"
 
