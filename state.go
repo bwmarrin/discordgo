@@ -66,7 +66,7 @@ func (s *State) GuildAdd(guild *Guild) error {
 	for i, g := range s.Guilds {
 		if g.ID == guild.ID {
 			// If this guild already exists with data, don't stomp on props
-			if !g.Unavailable {
+			if g.Unavailable != nil && !*g.Unavailable {
 				guild.Members = g.Members
 				guild.Presences = g.Presences
 				guild.Channels = g.Channels
