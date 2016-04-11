@@ -265,6 +265,7 @@ type Event struct {
 	Operation int             `json:"op"`
 	Direction int             `json:"dir"`
 	RawData   json.RawMessage `json:"d"`
+	Struct    interface{}     `json:"-"`
 }
 
 // A Ready stores all data for the websocket READY event.

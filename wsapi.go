@@ -301,6 +301,8 @@ func (s *Session) event(messageType int, message []byte) {
 	if i != nil {
 		s.handle(i)
 	}
+
+	e.Struct = i
 	s.handle(e)
 
 	return
