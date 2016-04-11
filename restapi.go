@@ -462,7 +462,7 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 			for _, r := range regions {
 				valid = append(valid, r.ID)
 			}
-			err = errors.New(fmt.Sprintf("Region not a valid region (%q)", valid))
+			err = fmt.Errorf("Region not a valid region (%q)", valid)
 			return
 		}
 	}

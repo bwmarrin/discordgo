@@ -50,7 +50,7 @@ func ExampleApplication() {
 	}
 
 	// Delete the application we created.
-	err = ap.Delete()
+	err = dg.ApplicationDelete(ap.ID)
 	log.Printf("Delete: err: %+v\n", err)
 
 	return

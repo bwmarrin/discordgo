@@ -118,14 +118,14 @@ type Channel struct {
 	GuildID              string                 `json:"guild_id"`
 	Name                 string                 `json:"name"`
 	Topic                string                 `json:"topic"`
+	Type                 string                 `json:"type"`
+	LastMessageID        string                 `json:"last_message_id"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate"`
-	Type                 string                 `json:"type"`
-	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 	IsPrivate            bool                   `json:"is_private"`
-	LastMessageID        string                 `json:"last_message_id"`
 	Recipient            *User                  `json:"recipient"`
 	Messages             []*Message             `json:"-"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
@@ -145,7 +145,7 @@ type Emoji struct {
 	RequireColons bool     `json:"require_colons"`
 }
 
-// Custom VerificationLevel typedef for int
+// VerificationLevel type defination
 type VerificationLevel int
 
 // Constants for VerificationLevel levels from 0 to 3 inclusive
@@ -302,10 +302,10 @@ type TypingStart struct {
 
 // A PresenceUpdate stores data for the presence update websocket event.
 type PresenceUpdate struct {
-	User    *User    `json:"user"`
 	Status  string   `json:"status"`
-	Roles   []string `json:"roles"`
 	GuildID string   `json:"guild_id"`
+	Roles   []string `json:"roles"`
+	User    *User    `json:"user"`
 	Game    *Game    `json:"game"`
 }
 

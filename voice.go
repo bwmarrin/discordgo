@@ -28,7 +28,7 @@ import (
 // Code related to both VoiceConnection Websocket and UDP connections.
 // ------------------------------------------------------------------------------------------------
 
-// A VoiceConnectionConnection struct holds all the data and functions related to a Discord Voice Connection.
+// A VoiceConnection struct holds all the data and functions related to a Discord Voice Connection.
 type VoiceConnection struct {
 	sync.Mutex
 
@@ -64,6 +64,8 @@ type VoiceConnection struct {
 	voiceSpeakingUpdateHandlers []VoiceSpeakingUpdateHandler
 }
 
+// VoiceSpeakingUpdateHandler type provides a function defination for the
+// VoiceSpeakingUpdate event
 type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdate)
 
 // Speaking sends a speaking notification to Discord over the voice websocket.
@@ -156,7 +158,7 @@ func (v *VoiceConnection) Close() {
 	}
 }
 
-// Adds a Handler for VoiceSpeakingUpdate events.
+// AddHandler adds a Handler for VoiceSpeakingUpdate events.
 func (v *VoiceConnection) AddHandler(h VoiceSpeakingUpdateHandler) {
 	v.Lock()
 	defer v.Unlock()
@@ -208,8 +210,6 @@ func (v *VoiceConnection) waitUntilConnected() error {
 		time.Sleep(1 * time.Second)
 		i++
 	}
-
-	return nil
 }
 
 // Open opens a voice connection.  This should be called
