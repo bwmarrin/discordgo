@@ -68,7 +68,8 @@ func (s *State) GuildAdd(guild *Guild) error {
 		s.Lock()
 		defer s.Unlock()
 
-		if !g.Unavailable {
+		// If this guild already exists with data, don't stomp on props.
+		if g.Unavailable != nil && !*g.Unavailable {
 			guild.Members = g.Members
 			guild.Presences = g.Presences
 			guild.Channels = g.Channels
