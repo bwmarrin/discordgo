@@ -105,6 +105,12 @@ an issue if you would like your project added or removed from this list
 - [GoGerard](https://github.com/GoGerard/GoGerard) A modern bot for Discord
 - [Digo](https://github.com/sethdmoore/digo) A pluggable bot for your Discord server
 
+## Troubleshooting
+For help with common problems please reference the 
+[Troubleshooting](https://github.com/bwmarrin/discordgo/wiki/Troubleshooting) 
+section of the project wiki.
+
+
 ## Contributing
 Contributions are very welcomed, however please follow the below guidelines.
 

@@ -9,10 +9,6 @@
 
 package discordgo
 
-import (
-	"fmt"
-)
-
 // ------------------------------------------------------------------------------------------------
 // Code specific to Discord OAuth2 Applications
 // ------------------------------------------------------------------------------------------------
@@ -25,10 +21,6 @@ type Application struct {
 	Icon         string    `json:"icon,omitempty"`
 	Secret       string    `json:"secret,omitempty"`
 	RedirectURIs *[]string `json:"redirect_uris,omitempty"`
-
-	// Concept.. almost guarenteed to be removed.
-	// Imagine that it's just not even here at all.
-	ses *Session
 }
 
 // Application returns an Application structure of a specific Application
@@ -41,7 +33,6 @@ func (s *Session) Application(appID string) (st *Application, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	st.ses = s
 	return
 }
 
@@ -54,11 +45,7 @@ func (s *Session) Applications() (st []*Application, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	for k, _ := range st {
-		st[k].ses = s
-	}
 	return
-	// TODO ..
 }
 
 // ApplicationCreate creates a new Application
@@ -78,11 +65,10 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 	}
 
 	err = unmarshal(body, &st)
-	st.ses = s
 	return
 }
 
-// ApplicationEdit edits an existing Application
+// ApplicationUpdate updates an existing Application
 //   var : desc
 func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Application, err error) {
 
@@ -98,7 +84,6 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 	}
 
 	err = unmarshal(body, &st)
-	st.ses = s
 	return
 }
 
@@ -112,29 +97,6 @@ func (s *Session) ApplicationDelete(appID string) (err error) {
 	}
 
 	return
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Below two functions are experimental ideas, they will absolutely change
-// one way or another and may be deleted entirely.
-
-// Delete is a concept helper function, may be removed.
-// this func depends on the Application.ses pointer
-// pointing to the Discord session that the application
-// came from.  This "magic" makes some very very nice helper
-// functions possible.
-func (a *Application) Delete() (err error) {
-	if a.ses == nil {
-		return fmt.Errorf("ses is nil.")
-	}
-	return a.ses.ApplicationDelete(a.ID)
-}
-
-// Delete is a concept helper function, may be removed.
-// this one doesn't depend on the "magic" of adding the ses
-// pointer to each Application
-func (a *Application) DeleteB(s *Session) (err error) {
-	return s.ApplicationDelete(a.ID)
 }
 
 // ------------------------------------------------------------------------------------------------

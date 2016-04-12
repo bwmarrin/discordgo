@@ -74,6 +74,7 @@ func (s *State) GuildAdd(guild *Guild) error {
 			guild.Channels = g.Channels
 			guild.VoiceStates = g.VoiceStates
 		}
+
 		*g = *guild
 		return nil
 	}
@@ -225,7 +226,6 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		channel.PermissionOverwrites = c.PermissionOverwrites
 
 		*c = *channel
-
 		return nil
 	}
 
