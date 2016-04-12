@@ -41,11 +41,17 @@ func (s *State) OnReady(r *Ready) error {
 	s.Ready = *r
 
 	for _, g := range s.Guilds {
+		s.guildMap[g.ID] = g
+
 		for _, c := range g.Channels {
 			c.GuildID = g.ID
-		}
 
-		s.guildMap[g.ID] = g
+			s.channelMap[c.ID] = c
+		}
+	}
+
+	for _, c := range s.PrivateChannels {
+		s.channelMap[c.ID] = c
 	}
 
 	return nil
