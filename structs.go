@@ -369,6 +369,9 @@ type State struct {
 	sync.RWMutex
 	Ready
 	MaxMessageCount int
+
+	guildMap   map[string]*Guild
+	channelMap map[string]*Channel
 }
 
 // Constants for the different bit offsets of text channel permissions
