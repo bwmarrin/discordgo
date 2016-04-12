@@ -43,7 +43,6 @@ func New(args ...interface{}) (s *Session, err error) {
 	}
 
 	// If no arguments are passed return the empty Session interface.
-	// Later I will add default values, if appropriate.
 	if args == nil {
 		return
 	}
@@ -94,7 +93,7 @@ func New(args ...interface{}) (s *Session, err error) {
 			}
 
 			//		case Config:
-			// TODO: Parse configuration
+			// TODO: Parse configuration struct
 
 		default:
 			err = fmt.Errorf("Unsupported parameter type provided.")
@@ -127,6 +126,7 @@ func New(args ...interface{}) (s *Session, err error) {
 //     Session.validateHandler(func (s *discordgo.Session, m *discordgo.MessageCreate))
 //     will return the reflect.Type of *discordgo.MessageCreate
 func (s *Session) validateHandler(handler interface{}) reflect.Type {
+
 	handlerType := reflect.TypeOf(handler)
 
 	if handlerType.NumIn() != 2 {
@@ -161,6 +161,7 @@ func (s *Session) validateHandler(handler interface{}) reflect.Type {
 // The return value of this method is a function, that when called will remove the
 // event handler.
 func (s *Session) AddHandler(handler interface{}) func() {
+
 	s.initialize()
 
 	eventType := s.validateHandler(handler)
@@ -192,6 +193,7 @@ func (s *Session) AddHandler(handler interface{}) func() {
 // handle calls any handlers that match the event type and any handlers of
 // interface{}.
 func (s *Session) handle(event interface{}) {
+
 	s.handlersMu.RLock()
 	defer s.handlersMu.RUnlock()
 
@@ -216,6 +218,7 @@ func (s *Session) handle(event interface{}) {
 
 // initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
+
 	s.handlersMu.Lock()
 	if s.handlers != nil {
 		s.handlersMu.Unlock()
@@ -233,5 +236,6 @@ func (s *Session) initialize() {
 
 // onReady handles the ready event.
 func (s *Session) onReady(se *Session, r *Ready) {
+
 	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }

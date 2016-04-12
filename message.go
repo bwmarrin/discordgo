@@ -34,9 +34,9 @@ type Attachment struct {
 	ID       string `json:"id"`
 	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url"`
+	Filename string `json:"filename"`
 	Width    int    `json:"width"`
 	Height   int    `json:"height"`
-	Filename string `json:"filename"`
 	Size     int    `json:"size"`
 }
 

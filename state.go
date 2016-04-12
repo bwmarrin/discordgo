@@ -58,21 +58,24 @@ func (s *State) GuildAdd(guild *Guild) error {
 		return ErrNilState
 	}
 
-	// Otherwise, update the channels to point to the right guild
+	// Update the channels to point to the right guild
 	for _, c := range guild.Channels {
 		c.GuildID = guild.ID
 	}
 
+	// If the guild exists, replace it.
 	if g, err := s.Guild(guild.ID); err == nil {
 		s.Lock()
 		defer s.Unlock()
 
-		if !g.Unavailable {
+		// If this guild already exists with data, don't stomp on props.
+		if g.Unavailable != nil && !*g.Unavailable {
 			guild.Members = g.Members
 			guild.Presences = g.Presences
 			guild.Channels = g.Channels
 			guild.VoiceStates = g.VoiceStates
 		}
+
 		*g = *guild
 		return nil
 	}
@@ -215,6 +218,7 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		return ErrNilState
 	}
 
+	// If the channel exists, replace it.
 	if c, err := s.Channel(channel.ID); err == nil {
 		s.Lock()
 		defer s.Unlock()
@@ -223,7 +227,6 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		channel.PermissionOverwrites = c.PermissionOverwrites
 
 		*c = *channel
-
 		return nil
 	}
 
