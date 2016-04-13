@@ -45,7 +45,6 @@ func (s *State) OnReady(r *Ready) error {
 
 		for _, c := range g.Channels {
 			c.GuildID = g.ID
-
 			s.channelMap[c.ID] = c
 		}
 	}
@@ -64,16 +63,17 @@ func (s *State) GuildAdd(guild *Guild) error {
 		return ErrNilState
 	}
 
-	// Update the channels to point to the right guild
+	s.Lock()
+	defer s.Unlock()
+
+	// Update the channels to point to the right guild, adding them to the channelMap as we go
 	for _, c := range guild.Channels {
 		c.GuildID = guild.ID
+		s.channelMap[c.ID] = c
 	}
 
 	// If the guild exists, replace it.
-	if g, err := s.Guild(guild.ID); err == nil {
-		s.Lock()
-		defer s.Unlock()
-
+	if g, ok := s.guildMap[guild.ID]; ok {
 		// If this guild already exists with data, don't stomp on props.
 		if g.Unavailable != nil && !*g.Unavailable {
 			guild.Members = g.Members
@@ -85,9 +85,6 @@ func (s *State) GuildAdd(guild *Guild) error {
 		*g = *guild
 		return nil
 	}
-
-	s.Lock()
-	defer s.Unlock()
 
 	s.Guilds = append(s.Guilds, guild)
 	s.guildMap[guild.ID] = guild
@@ -224,11 +221,11 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		return ErrNilState
 	}
 
-	// If the channel exists, replace it.
-	if c, err := s.Channel(channel.ID); err == nil {
-		s.Lock()
-		defer s.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
+	// If the channel exists, replace it
+	if c, ok := s.channelMap[channel.ID]; ok {
 		channel.Messages = c.Messages
 		channel.PermissionOverwrites = c.PermissionOverwrites
 
@@ -236,15 +233,12 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		return nil
 	}
 
-	s.Lock()
-	defer s.Unlock()
-
 	if channel.IsPrivate {
 		s.PrivateChannels = append(s.PrivateChannels, channel)
 	} else {
-		guild, err := s.Guild(channel.GuildID)
-		if err != nil {
-			return err
+		guild, ok := s.guildMap[channel.GuildID]
+		if !ok {
+			return errors.New("Guild for channel not found.")
 		}
 
 		guild.Channels = append(guild.Channels, channel)
