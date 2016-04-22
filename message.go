@@ -16,21 +16,21 @@ import (
 
 // A Message stores all data related to a specific Discord message.
 type Message struct {
-	ID              string        `json:"id"`
-	ChannelID       string        `json:"channel_id"`
-	Content         string        `json:"content"`
-	Timestamp       string        `json:"timestamp"`
-	EditedTimestamp string        `json:"edited_timestamp"`
-	Tts             bool          `json:"tts"`
-	MentionEveryone bool          `json:"mention_everyone"`
-	Author          *User         `json:"author"`
-	Attachments     []*Attachment `json:"attachments"`
-	Embeds          []*Embed      `json:"embeds"`
-	Mentions        []*User       `json:"mentions"`
+	ID              string               `json:"id"`
+	ChannelID       string               `json:"channel_id"`
+	Content         string               `json:"content"`
+	Timestamp       string               `json:"timestamp"`
+	EditedTimestamp string               `json:"edited_timestamp"`
+	Tts             bool                 `json:"tts"`
+	MentionEveryone bool                 `json:"mention_everyone"`
+	Author          *User                `json:"author"`
+	Attachments     []*MessageAttachment `json:"attachments"`
+	Embeds          []*MessageEmbed      `json:"embeds"`
+	Mentions        []*User              `json:"mentions"`
 }
 
-// An Attachment stores data for message attachments.
-type Attachment struct {
+// A MessageAttachment stores data for message attachments.
+type MessageAttachment struct {
 	ID       string `json:"id"`
 	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url"`
@@ -40,8 +40,8 @@ type Attachment struct {
 	Size     int    `json:"size"`
 }
 
-// An Embed stores data for message embeds.
-type Embed struct {
+// An MessageEmbed stores data for message embeds.
+type MessageEmbed struct {
 	URL         string `json:"url"`
 	Type        string `json:"type"`
 	Title       string `json:"title"`

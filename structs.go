@@ -345,6 +345,33 @@ type GuildEmojisUpdate struct {
 	Emojis  []*Emoji `json:"emojis"`
 }
 
+// A GuildIntegration stores data for a guild integration.
+type GuildIntegration struct {
+	ID                string                   `json:"id"`
+	Name              string                   `json:"name"`
+	Type              string                   `json:"type"`
+	Enabled           bool                     `json:"enabled"`
+	Syncing           bool                     `json:"syncing"`
+	RoleID            string                   `json:"role_id"`
+	ExpireBehavior    int                      `json:"expire_behavior"`
+	ExpireGracePeriod int                      `json:"expire_grace_period"`
+	User              *User                    `json:"user"`
+	Account           *GuildIntegrationAccount `json:"account"`
+	SyncedAt          int                      `json:"synced_at"`
+}
+
+// A GuildIntegrationAccount stores data for a guild integration account.
+type GuildIntegrationAccount struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// A GuildEmbed stores data for a guild embed.
+type GuildEmbed struct {
+	Enabled   bool   `json:"enabled"`
+	ChannelID string `json:"channel_id"`
+}
+
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
 type UserGuildSettingsChannelOverride struct {
 	Muted                bool   `json:"muted"`
