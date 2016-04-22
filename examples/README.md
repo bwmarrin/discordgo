@@ -2,6 +2,6 @@
 DiscordGo Examples
 ====
 
-These examples demonstrates how to utilize DiscordGo.
+These examples demonstrate how to utilize DiscordGo.
 
 Please explore the individual folders and give them a try!
