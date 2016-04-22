@@ -2,7 +2,6 @@
 DiscordGo Examples
 ====
 
-All sub-folders of this path contain various examples that demonstrate 
-how to use DiscordGo for various tasks.  
+These examples demonstrates how to utilize DiscordGo.
 
 Please explore the individual folders and give them a try!
