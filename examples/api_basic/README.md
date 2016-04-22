@@ -24,7 +24,7 @@ authenticating via Token.
 
 ```
 ./api_basic --help
-Usage of ./pingpong:
+Usage of ./api_basic:
   -e string
         Account Email
   -p string
