@@ -761,6 +761,72 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 	return
 }
 
+// GuildIntegrations returns an array of Integrations for a guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildIntegrations(guildID string) (st []*GuildIntegration, err error) {
+
+	body, err := s.Request("GET", GUILD_INTEGRATIONS(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// GuildIntegrationCreate creates a Guild Integration.
+// guildID          : The ID of a Guild.
+// integrationType  : The Integration type.
+// integrationID    : The ID of an integration.
+func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID string) (err error) {
+
+	data := struct {
+		Type string `json:"type"`
+		Id   string `json:"id"`
+	}{integrationType, integrationID}
+
+	_, err = s.Request("POST", GUILD_INTEGRATIONS(guildID), data)
+	return
+}
+
+// GuildIntegrationEdit edits a Guild Integration.
+// guildID              : The ID of a Guild.
+// integrationType      : The Integration type.
+// integrationID        : The ID of an integration.
+// expireBehavior	      : The behavior when an integration subscription lapses (see the integration object documentation).
+// expireGracePeriod    : Period (in seconds) where the integration will ignore lapsed subscriptions.
+// enableEmoticons	    : Whether emoticons should be synced for this integration (twitch only currently).
+func (s *Session) GuildIntegrationEdit(guildID, integrationID string, expireBehavior, expireGracePeriod int, enableEmoticons bool) (err error) {
+
+	data := struct {
+		ExpireBehavior    int  `json:"expire_behavior"`
+		ExpireGracePeriod int  `json:"expire_grace_period"`
+		EnableEmoticons   bool `json:"enable_emoticons"`
+	}{expireBehavior, expireGracePeriod, enableEmoticons}
+
+	_, err = s.Request("PATCH", GUILD_INTEGRATION(guildID, integrationID), data)
+	return
+}
+
+// GuildIntegrationDelete removes the given integration from the Guild.
+// guildID          : The ID of a Guild.
+// integrationID    : The ID of an integration.
+func (s *Session) GuildIntegrationDelete(guildID, integrationID string) (err error) {
+
+	_, err = s.Request("DELETE", GUILD_INTEGRATION(guildID, integrationID), nil)
+	return
+}
+
+// GuildIntegrationSync syncs an integration.
+// guildID          : The ID of a Guild.
+// integrationID    : The ID of an integration.
+func (s *Session) GuildIntegrationSync(guildID, integrationID string) (err error) {
+
+	_, err = s.Request("POST", GUILD_INTEGRATION_SYNC(guildID, integrationID), nil)
+	return
+}
+
 // GuildIcon returns an image.Image of a guild icon.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildIcon(guildID string) (img image.Image, err error) {
@@ -802,6 +868,29 @@ func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
 	}
 
 	img, _, err = image.Decode(bytes.NewReader(body))
+	return
+}
+
+// GuildEmbed returns the embed for a Guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildEmbed(guildID string) (st *GuildEmbed, err error) {
+
+	body, err := s.Request("GET", GUILD_EMBED(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildEmbedEdit returns the embed for a Guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string) (err error) {
+
+	data := GuildEmbed{enabled, channelID}
+
+	_, err = s.Request("PATCH", GUILD_EMBED(guildID), data)
 	return
 }
 
