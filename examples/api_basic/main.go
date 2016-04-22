@@ -3,52 +3,60 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
 
+var (
+	Email    string
+	Password string
+	Token    string
+	BotID    string
+)
+
+func init() {
+
+	flag.StringVar(&Email, "e", "", "Account Email")
+	flag.StringVar(&Password, "p", "", "Account Password")
+	flag.StringVar(&Token, "t", "", "Account Token")
+	flag.Parse()
+}
+
 func main() {
 
-	var err error
-
-	// Check for Username and Password CLI arguments.
-	if len(os.Args) != 3 {
-		fmt.Println("You must provide username and password as arguments. See below example.")
-		fmt.Println(os.Args[0], " [username] [password]")
-		return
-	}
-
-	// Create a new Discord Session interface and set a handler for the
-	// OnMessageCreate event that happens for every new message on any channel
+	// Create a new Discord Session struct and set a handler for the
 	dg := discordgo.Session{}
 
 	// Register messageCreate as a callback for the messageCreate events.
 	dg.AddHandler(messageCreate)
 
-	// Login to the Discord server and store the authentication token
-	err = dg.Login(os.Args[1], os.Args[2])
-	if err != nil {
-		fmt.Println(err)
-		return
+	// If no Authentication Token was provided login using the
+	// provided Email and Password.
+	if Token == "" {
+		err := dg.Login(Email, Password)
+		if err != nil {
+			fmt.Println("error logging into Discord,", err)
+			return
+		}
 	}
 
-	// Open websocket connection
-	err = dg.Open()
+	// Open websocket connection to Discord
+	err := dg.Open()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// Simple way to keep program running until any key press.
-	var input string
-	fmt.Scanln(&input)
+	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	// Simple way to keep program running until CTRL-C is pressed.
+	<-make(chan struct{})
 	return
 }
 
 // This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated user has access to.
+// message is created on any channel that the autenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Print message to stdout.
