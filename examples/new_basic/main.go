@@ -1,30 +1,34 @@
-// This file provides a basic "quick start" example of using the Discordgo
-// package to connect to Discord using the New() helper function.
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
 
+var (
+	Email    string
+	Password string
+	Token    string
+	BotID    string
+)
+
+func init() {
+
+	flag.StringVar(&Email, "e", "", "Account Email")
+	flag.StringVar(&Password, "p", "", "Account Password")
+	flag.StringVar(&Token, "t", "", "Account Token")
+	flag.Parse()
+}
+
 func main() {
 
-	// Check for Username and Password CLI arguments.
-	if len(os.Args) != 3 {
-		fmt.Println("You must provide username and password as arguments. See below example.")
-		fmt.Println(os.Args[0], " [username] [password]")
-		return
-	}
-
-	// Call the helper function New() passing username and password command
-	// line arguments. This returns a new Discord session, authenticates,
-	// connects to the Discord data websocket, and listens for events.
-	dg, err := discordgo.New(os.Args[1], os.Args[2])
+	// Create a new Discord session using the provided login information.
+	dg, err := discordgo.New(Email, Password, Token)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("error creating Discord session,", err)
 		return
 	}
 
@@ -34,14 +38,14 @@ func main() {
 	// Open the websocket and begin listening.
 	dg.Open()
 
-	// Simple way to keep program running until any key press.
-	var input string
-	fmt.Scanln(&input)
+	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	// Simple way to keep program running until CTRL-C is pressed.
+	<-make(chan struct{})
 	return
 }
 
 // This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated user has access to.
+// message is created on any channel that the autenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Print message to stdout.
