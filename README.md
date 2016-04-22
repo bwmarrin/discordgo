@@ -1,19 +1,19 @@
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
-Discordgo 
+DiscordGo 
 ====
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo)
 
-Discordgo is a [Go](https://golang.org/) package that provides low level 
-bindings to the [Discord](https://discordapp.com/) chat client API. Discordgo 
+DiscordGo is a [Go](https://golang.org/) package that provides low level 
+bindings to the [Discord](https://discordapp.com/) chat client API. DiscordGo 
 has nearly complete support for all of the Discord JSON-API endpoints, websocket
 interface, and voice interface.
 
-* See [dgVoice](https://github.com/bwmarrin/dgvoice) package to extend Discordgo
+* See [dgVoice](https://github.com/bwmarrin/dgvoice) package to extend DiscordGo
 with additional voice helper functions and features.
 
 * See [dca](https://github.com/bwmarrin/dca) for an **experimental** stand alone
 tool that wraps `ffmpeg` to create opus encoded audio appropriate for use with
-Discord (and Discordgo)
+Discord (and DiscordGo)
 
 Join [#go_discordgo](https://discord.gg/0SBTUU1wZTWT6sqd) Discord chat channel 
 for support.
@@ -21,7 +21,7 @@ for support.
 ## Getting Started
 
 ### master vs develop Branch
-* The master branch represents the latest released version of Discordgo.  This
+* The master branch represents the latest released version of DiscordGo.  This
 branch will always have a stable and tested version of the library. Each release
 is tagged and you can easily download a specific release and view release notes
 on the github [releases](https://github.com/bwmarrin/discordgo/releases) page.
@@ -39,7 +39,7 @@ slightly and have a more stable package with documented releases then use *maste
 
 ### Installing
 
-Discordgo has been tested to compile on Debian 8 (Go 1.3.3), 
+DiscordGo has been tested to compile on Debian 8 (Go 1.3.3), 
 FreeBSD 10 (Go 1.5.1), and Windows 7 (Go 1.5.2).
 
 This assumes you already have a working Go environment, if not please see
@@ -84,7 +84,7 @@ See Documentation and Examples below for more detailed information.
 Because of that there may be major changes to library functions, constants,
 and structures.
 
-The Discordgo code is fairly well documented at this point and is currently
+The DiscordGo code is fairly well documented at this point and is currently
 the only documentation available.  Both GoDoc and GoWalker (below) present
 that information in a nice format.
 
@@ -96,12 +96,11 @@ that information in a nice format.
 
 ## Examples
 
-Below is a list of examples and other projects using Discordgo.  Please submit 
+Below is a list of examples and other projects using DiscordGo.  Please submit 
 an issue if you would like your project added or removed from this list 
 
-- [Basic - New](https://github.com/bwmarrin/discordgo/tree/develop/examples/new_basic) A basic example using the easy New() helper function
-- [Basic - API](https:/Contributing/github.com/bwmarrin/discordgo/tree/develop/examples/api_basic) A basic example using the low level API functions.
-- [Awesome Discordgo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) A curated list of high quality projects using DiscordGo
+- [DiscordGo Examples](https://github.com/bwmarrin/discordgo/tree/master/examples) A collection of example programs written with DiscordGo
+- [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) A curated list of high quality projects using DiscordGo
 
 ## Troubleshooting
 For help with common problems please reference the 
