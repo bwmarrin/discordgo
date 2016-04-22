@@ -105,6 +105,8 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 	s.Lock()
 	defer s.Unlock()
+	
+	delete(s.guildMap, guild.ID)
 
 	for i, g := range s.Guilds {
 		if g.ID == guild.ID {
@@ -112,8 +114,6 @@ func (s *State) GuildRemove(guild *Guild) error {
 			return nil
 		}
 	}
-
-	delete(s.guildMap, guild.ID)
 
 	return nil
 }
@@ -267,7 +267,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 		for i, c := range s.PrivateChannels {
 			if c.ID == channel.ID {
 				s.PrivateChannels = append(s.PrivateChannels[:i], s.PrivateChannels[i+1:]...)
-				return nil
+				break
 			}
 		}
 	} else {
@@ -282,11 +282,11 @@ func (s *State) ChannelRemove(channel *Channel) error {
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
 				guild.Channels = append(guild.Channels[:i], guild.Channels[i+1:]...)
-				return nil
+				break
 			}
 		}
 	}
-
+	
 	delete(s.channelMap, channel.ID)
 
 	return nil
