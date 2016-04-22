@@ -1,28 +1,30 @@
-// This is an example of using DiscordGo to obtain the
-// authentication token for a given user account.
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 
 	"github.com/bwmarrin/discordgo"
 )
 
+var (
+	Email    string
+	Password string
+)
+
+func init() {
+
+	flag.StringVar(&Email, "e", "", "Account Email")
+	flag.StringVar(&Password, "p", "", "Account Password")
+	flag.Parse()
+}
+
 func main() {
 
-	// Check for Username and Password CLI arguments.
-	if len(os.Args) != 3 {
-		fmt.Println("You must provide username and password as arguments. See below example.")
-		fmt.Println(os.Args[0], " [email] [password]")
-		return
-	}
-
-	// Create a New Discord session and login with the provided
-	// email and password.
-	dg, err := discordgo.New(os.Args[1], os.Args[2])
+	// Create a new Discord session using the provided login information.
+	dg, err := discordgo.New(Email, Password)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("error creating Discord session,", err)
 		return
 	}
 
