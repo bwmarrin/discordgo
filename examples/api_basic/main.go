@@ -41,6 +41,8 @@ func main() {
 			fmt.Println("error logging into Discord,", err)
 			return
 		}
+	} else {
+		dg.Token = Token
 	}
 
 	// Open websocket connection to Discord
