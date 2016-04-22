@@ -393,18 +393,6 @@ type UserGuildSettings struct {
 	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
-// A State contains the current known state.
-// As discord sends this in a READY blob, it seems reasonable to simply
-// use that struct as the data store.
-type State struct {
-	sync.RWMutex
-	Ready
-	MaxMessageCount int
-
-	guildMap   map[string]*Guild
-	channelMap map[string]*Channel
-}
-
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)

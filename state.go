@@ -17,6 +17,18 @@ import "errors"
 // ErrNilState is returned when the state is nil.
 var ErrNilState = errors.New("State not instantiated, please use discordgo.New() or assign Session.State.")
 
+// A State contains the current known state.
+// As discord sends this in a READY blob, it seems reasonable to simply
+// use that struct as the data store.
+type State struct {
+	sync.RWMutex
+	Ready
+	MaxMessageCount int
+
+	guildMap   map[string]*Guild
+	channelMap map[string]*Channel
+}
+
 // NewState creates an empty state.
 func NewState() *State {
 	return &State{
@@ -105,7 +117,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 	s.Lock()
 	defer s.Unlock()
-	
+
 	delete(s.guildMap, guild.ID)
 
 	for i, g := range s.Guilds {
@@ -286,7 +298,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 			}
 		}
 	}
-	
+
 	delete(s.channelMap, channel.ID)
 
 	return nil
