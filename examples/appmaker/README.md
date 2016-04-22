@@ -2,7 +2,7 @@
 AppMaker Example
 ====
 
-This example demonstrates how to utilize DiscordGo to create Bot Applications
+This example demonstrates how to utilize DiscordGo to create Bot Applications.
 
 You can create a new bot account or convert an existing normal user account into
 a bot account with this tool.  You can also view the list of applications you 
@@ -40,10 +40,10 @@ Usage of ./appmaker:
 these fields will be the "owner" of any bot applications created.
 
 * If you provide the **-l** flag than appmaker will only display a list of 
-applications on provided account.
+applications on the provided account.
 
 * If you provide a **-d** flag with a valid application ID then that application
-will be delted.
+will be deleted.
 
 * If you provide a **-c** flag with a valid user token then than user account
 will be converted into a Bot account instead of creating a new Bot account for
