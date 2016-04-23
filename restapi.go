@@ -1108,10 +1108,10 @@ func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, err error) {
 
 	data := struct {
-		MaxAge    int  `json:"max_age"`
-		MaxUses   int  `json:"max_uses"`
-		Temporary bool `json:"temporary"`
-		XKCDPass  bool `json:"xkcdpass"`
+		MaxAge    int    `json:"max_age"`
+		MaxUses   int    `json:"max_uses"`
+		Temporary bool   `json:"temporary"`
+		XKCDPass  string `json:"xkcdpass"`
 	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
 
 	body, err := s.Request("POST", CHANNEL_INVITES(channelID), data)
