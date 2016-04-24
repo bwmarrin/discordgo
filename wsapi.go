@@ -15,6 +15,7 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -270,7 +271,7 @@ func (s *Session) event(messageType int, message []byte) {
 	if messageType == 2 {
 		z, err1 := zlib.NewReader(reader)
 		if err1 != nil {
-			log.Println(err1)
+			log.Println(fmt.Sprintf("Error uncompressing message type %d: %s", messageType, err1))
 			return
 		}
 		defer func() {
@@ -285,7 +286,7 @@ func (s *Session) event(messageType int, message []byte) {
 	var e *Event
 	decoder := json.NewDecoder(reader)
 	if err = decoder.Decode(&e); err != nil {
-		log.Println(err)
+		log.Println(fmt.Sprintf("Error decoding message type %d: %s", messageType, err))
 		return
 	}
 
@@ -300,8 +301,8 @@ func (s *Session) event(messageType int, message []byte) {
 
 		// Attempt to unmarshal our event.
 		// If there is an error we should handle the event itself.
-		if err = unmarshal(e.RawData, i); err != nil {
-			log.Println("Unable to unmarshal event data.", err)
+		if err = json.Unmarshal(e.RawData, i); err != nil {
+			log.Println(fmt.Sprintf("Unable to unmarshal event %s data: %s", e.Type, err))
 			// Ready events must fire, even if they are empty.
 			if e.Type != "READY" {
 				i = nil
