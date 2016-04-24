@@ -12,7 +12,10 @@
 
 package discordgo
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 // ErrNilState is returned when the state is nil.
 var ErrNilState = errors.New("State not instantiated, please use discordgo.New() or assign Session.State.")
