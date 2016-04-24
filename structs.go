@@ -285,11 +285,11 @@ type Ready struct {
 	Presences         []*Presence          `json:"presences"`
 }
 
-// A Relationship between the current user and this user
+// A Relationship between the logged in user and Relationship.User
 type Relationship struct {
 	User *User  `json:"user"`
-	Type int    `json:"type"` // ?
-	Id   string `json:"id"`   // Seems to be same as the User.ID?
+	Type int    `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
+	Id   string `json:"id"`
 }
 
 // A RateLimit struct holds information related to a specific rate limit.
