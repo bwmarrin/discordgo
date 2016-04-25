@@ -35,10 +35,6 @@ var ErrJSONUnmarshal = errors.New("json unmarshal")
 // All the other Discord REST Calls in this file use this function.
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 
-	if s.Debug {
-		log.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
-	}
-
 	var body []byte
 	if data != nil {
 		body, err = json.Marshal(data)
@@ -55,6 +51,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
+		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
 	}
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
