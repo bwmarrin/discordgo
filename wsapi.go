@@ -288,11 +288,12 @@ func (s *Session) event(messageType int, message []byte) {
 		// Attempt to unmarshal our event.
 		// If there is an error we should handle the event itself.
 		if err = json.Unmarshal(e.RawData, i); err != nil {
-			log.Println(fmt.Sprintf("Unable to unmarshal event %s data: %s", e.Type, err))
+			log.Printf("error unmarshalling %s event, %s\n", e.Type, err)
 			// Ready events must fire, even if they are empty.
 			if e.Type != "READY" {
 				i = nil
 			}
+
 		}
 	} else {
 		log.Println("Unknown event.")
