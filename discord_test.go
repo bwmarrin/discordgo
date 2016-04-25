@@ -199,7 +199,6 @@ func TestOpenClose(t *testing.T) {
 		t.Fatalf("TestClose, New(envToken) returned error: %+v", err)
 	}
 
-	d.Debug = true
 	if err = d.Open(); err != nil {
 		t.Fatalf("TestClose, d.Open failed: %+v", err)
 	}
