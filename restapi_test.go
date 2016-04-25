@@ -135,6 +135,42 @@ func TestLogout(t *testing.T) {
 	}
 }
 
+func TestGateway(t *testing.T) {
+
+	_, err := dg.Gateway()
+	if err != nil {
+		t.Errorf("Gateway() returned error: %+v", err)
+	}
+}
+
+func TestVoiceICE(t *testing.T) {
+
+	_, err := dg.VoiceICE()
+	if err != nil {
+		t.Errorf("VoiceICE() returned error: %+v", err)
+	}
+}
+
+func TestVoiceRegions(t *testing.T) {
+
+	_, err := dg.VoiceRegions()
+	if err != nil {
+		t.Errorf("VoiceRegions() returned error: %+v", err)
+	}
+}
+func TestGuildRoles(t *testing.T) {
+
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	_, err := dg.GuildRoles(envGuild)
+	if err != nil {
+		t.Errorf("GuildRoles(envGuild) returned error: %+v", err)
+	}
+
+}
+
 // TestChannelMessageSend2 tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend2(t *testing.T) {
 
