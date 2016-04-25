@@ -102,7 +102,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		for k, v := range resp.Header {
 			log.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
 		}
-		log.Printf("API RESPONSE    BODY :: [%s]\n", response)
+		log.Printf("API RESPONSE    BODY :: [%s]\n\n\n", response)
 	}
 
 	switch resp.StatusCode {
