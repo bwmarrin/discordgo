@@ -40,7 +40,6 @@ type handshakeData struct {
 	Properties     handshakeProperties `json:"properties"`
 	LargeThreshold int                 `json:"large_threshold"`
 	Compress       bool                `json:"compress"`
-	Shard          [2]int              `json:"shard"`
 }
 
 type handshakeOp struct {
@@ -80,20 +79,7 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
-	handshake := handshakeData{
-		Version:        4,
-		Token:          s.Token,
-		Properties:     handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""},
-		LargeThreshold: 250,
-		Compress:       s.Compress,
-	}
-
-	// If we've set NumShards, add the shard information to the handshake
-	if s.NumShards > 0 {
-		handshake.Shard = [2]int{s.ShardID, s.NumShards}
-	}
-
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshake})
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
 	if err != nil {
 		return
 	}
