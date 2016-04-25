@@ -145,6 +145,10 @@ func TestGateway(t *testing.T) {
 
 func TestVoiceICE(t *testing.T) {
 
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
 	_, err := dg.VoiceICE()
 	if err != nil {
 		t.Errorf("VoiceICE() returned error: %+v", err)
@@ -152,6 +156,10 @@ func TestVoiceICE(t *testing.T) {
 }
 
 func TestVoiceRegions(t *testing.T) {
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
 
 	_, err := dg.VoiceRegions()
 	if err != nil {
@@ -162,6 +170,10 @@ func TestGuildRoles(t *testing.T) {
 
 	if envGuild == "" {
 		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
 	}
 
 	_, err := dg.GuildRoles(envGuild)
