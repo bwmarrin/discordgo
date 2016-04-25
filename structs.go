@@ -252,14 +252,25 @@ type User struct {
 
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
-	RenderEmbeds          bool     `json:"render_embeds"`
-	InlineEmbedMedia      bool     `json:"inline_embed_media"`
-	EnableTtsCommand      bool     `json:"enable_tts_command"`
-	MessageDisplayCompact bool     `json:"message_display_compact"`
-	ShowCurrentGame       bool     `json:"show_current_game"`
-	Locale                string   `json:"locale"`
-	Theme                 string   `json:"theme"`
-	MutedChannels         []string `json:"muted_channels"`
+	RenderEmbeds          bool   `json:"render_embeds"`
+	InlineEmbedMedia      bool   `json:"inline_embed_media"`
+	InlineAttachmentMedia bool   `json:"inline_attachment_media"`
+	EnableTtsCommand      bool   `json:"enable_tts_command"`
+	MessageDisplayCompact bool   `json:"message_display_compact"`
+	ShowCurrentGame       bool   `json:"show_current_game"`
+	Locale                string `json:"locale"`
+	Theme                 string `json:"theme"`
+
+	RestrictedGuilds        []string           `json:"restricted_guilds"`
+	AllowEmailFriendRequest bool               `json:"allow_email_friend_request"`
+	ConvertEmoticons        bool               `json:"convert_emoticons"`
+	FriendSourceFlags       *FriendSourceFlags `json:"friend_source_flags"`
+}
+
+type FriendSourceFlags struct {
+	All           bool `json:"all"`
+	MutualGuilds  bool `json:"mutual_guilds"`
+	MutualFriends bool `json:"mutual_friends"`
 }
 
 // An Event provides a basic initial struct for all websocket event.
