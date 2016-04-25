@@ -716,6 +716,11 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // perm      : The permissions for the role.
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st *Role, err error) {
 
+	// Prevent sending a color int that is too big.
+	if color > 0xFFFFFF {
+		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
+	}
+
 	data := struct {
 		Name        string `json:"name"`        // The color the role should have (as a decimal, not hex)
 		Color       int    `json:"color"`       // Whether to display the role's users separately
