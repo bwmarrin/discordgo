@@ -26,6 +26,7 @@ func init() {
 func main() {
 
 	// Create a new Discord session using the provided login information.
+	// Use discordgo.New(Token) to just use a token for login.
 	dg, err := discordgo.New(Email, Password, Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
