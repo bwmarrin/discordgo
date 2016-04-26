@@ -157,7 +157,7 @@ func loadSound() error {
 // playSound plays the current buffer to the provided channel.
 func playSound(s *discordgo.Session, guildID, channelID string) (err error) {
 	// Join the provided voice channel.
-	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, false)
+	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
 	if err != nil {
 		return err
 	}
