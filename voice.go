@@ -30,7 +30,7 @@ import (
 
 // A VoiceConnection struct holds all the data and functions related to a Discord Voice Connection.
 type VoiceConnection struct {
-	sync.Mutex
+	sync.RWMutex
 
 	Debug     bool // If true, print extra logging
 	Ready     bool // If true, voice is ready to send/receive audio
@@ -280,10 +280,25 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 	for {
 		messageType, message, err := v.wsConn.ReadMessage()
 		if err != nil {
-			// TODO: add reconnect, matching wsapi.go:listen()
-			// TODO: Handle this problem better.
-			// TODO: needs proper logging
-			log.Println("VoiceConnection Listen Error:", err)
+			// Detect if we have been closed manually. If a Close() has already
+			// happened, the websocket we are listening on will be different to the
+			// current session.
+			v.RLock()
+			sameConnection := v.wsConn == wsConn
+			v.RUnlock()
+			if sameConnection {
+
+				log.Println("voice websocket closed unexpectantly,", err)
+
+				// There has been an error reading, Close() the websocket so that
+				// OnDisconnect is fired.
+				// TODO add Voice OnDisconnect event :)
+				v.Close()
+				// TODO: close should return errs like data websocket Close
+
+				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
+				// TODO add reconnect code
+			}
 			return
 		}
 
@@ -678,7 +693,25 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 	for {
 		rlen, err := udpConn.Read(recvbuf)
 		if err != nil {
-			log.Println("opusReceiver UDP Read error:", err)
+			// Detect if we have been closed manually. If a Close() has already
+			// happened, the udp connection we are listening on will be different
+			// to the current session.
+			v.RLock()
+			sameConnection := v.udpConn == udpConn
+			v.RUnlock()
+			if sameConnection {
+
+				log.Println("voice udp connection closed unexpectantly,", err)
+
+				// There has been an error reading, Close() the websocket so that
+				// OnDisconnect is fired.
+				// TODO add Voice OnDisconnect event :)
+				v.Close()
+				// TODO: close should return errs like data websocket Close
+
+				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
+				// TODO add reconnect code
+			}
 			return
 		}
 
