@@ -1,7 +1,8 @@
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 DiscordGo 
 ====
-[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)][https://discord.gg/0f1SbxBZjYoCtNPP] [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)][https://discord.gg/0SBTUU1wZTWT6sqd] 
+[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) 
+[![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discord.gg/0SBTUU1wZTWT6sqd)
 
 DiscordGo is a [Go](https://golang.org/) package that provides low level 
 bindings to the [Discord](https://discordapp.com/) chat client API. DiscordGo 
@@ -15,7 +16,7 @@ with additional voice helper functions and features.
 tool that wraps `ffmpeg` to create opus encoded audio appropriate for use with
 Discord (and DiscordGo)
 
-Join [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)][https://discord.gg/0f1SbxBZjYoCtNPP]
+Join [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP)
 Discord chat channel for support.
 
 ## Getting Started
