@@ -1,0 +1,13 @@
+site_name: DiscordGo
+site_description: Documentation for DiscordGo, A Discord API Library for Golang.
+site_author: Bruce Marriner
+site_url: http://bwmarrin.github.io/discordgo/
+repo_url: https://github.com/bwmarrin/discordgo
+
+extra_javascript: []
+extra_css: []
+
+theme: readthedocs
+
+pages:
+    - ['index.md', 'Home']
