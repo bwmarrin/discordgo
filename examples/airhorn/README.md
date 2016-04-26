@@ -35,8 +35,8 @@ The below example shows how to start the bot.
 Airhorn bot uses DCA files that are pre-computed files that are easy to send to Discord.
 
 If you would like to create your own DCA files, please use either:
-* [https://github.com/nstafie/dca-rs](dca-rs)
-* [https://github.com/bwmarrin/dca/tree/master/cmd/dca](dca).
+* [dca-rs](https://github.com/nstafie/dca-rs)
+* [dca](https://github.com/bwmarrin/dca/tree/master/cmd/dca)
 
 ```sh
 ./dca-rs -i <input wav file> --raw > <output file>
