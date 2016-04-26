@@ -137,6 +137,9 @@ func TestLogout(t *testing.T) {
 
 func TestGateway(t *testing.T) {
 
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
 	_, err := dg.Gateway()
 	if err != nil {
 		t.Errorf("Gateway() returned error: %+v", err)
