@@ -361,6 +361,8 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	voice = &VoiceConnection{
 		GuildID:     gID,
 		ChannelID:   cID,
+		deaf:        deaf,
+		mute:        mute,
 		session:     s,
 		connected:   make(chan bool),
 		sessionRecv: make(chan string),

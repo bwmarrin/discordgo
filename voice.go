@@ -34,9 +34,11 @@ type VoiceConnection struct {
 
 	Debug     bool // If true, print extra logging
 	Ready     bool // If true, voice is ready to send/receive audio
+	UserID    string
 	GuildID   string
 	ChannelID string
-	UserID    string
+	deaf      bool
+	mute      bool
 
 	OpusSend chan []byte  // Chan for sending opus audio
 	OpusRecv chan *Packet // Chan for receiving opus audio
@@ -356,11 +358,13 @@ func (v *VoiceConnection) wsEvent(messageType int, message []byte) {
 		go v.opusSender(v.udpConn, v.close, v.OpusSend, 48000, 960)
 
 		// Start the opusReceiver
-		if v.OpusRecv == nil {
-			v.OpusRecv = make(chan *Packet, 2)
-		}
+		if !v.deaf {
+			if v.OpusRecv == nil {
+				v.OpusRecv = make(chan *Packet, 2)
+			}
 
-		go v.opusReceiver(v.udpConn, v.close, v.OpusRecv)
+			go v.opusReceiver(v.udpConn, v.close, v.OpusRecv)
+		}
 
 		// Send the ready event
 		v.connected <- true
