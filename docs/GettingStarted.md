@@ -63,7 +63,7 @@ To create a new user account (if you have not done so already) visit the
 new account.
 
 
-### Bot Application
+#### Bot Application
 A bot application is a special program that interacts with the Discord servers
 to perform some form of automation or provide some type of service.  Examples 
 are things like number trivia games, music streaming, channel moderation, 
@@ -81,6 +81,8 @@ Discord then visit the [My Applications](https://discordapp.com/developers/appli
 page and click on the **New Application** box.  Follow the prompts from there
 to finish creating your account.
 
+
+**More information about Bots vs Client accounts can be found [here](https://discordapp.com/developers/docs/topics/oauth2#bot-vs-user-accounts)**
 
 # Requirements
 
@@ -108,7 +110,7 @@ Like any other Go package the fist step is to `go get` the package.  This will
 always pull the latest released version from the master branch. Then run 
 `go install` to compile and install the libraries on your system.
 
-### Linux/BSD
+#### Linux/BSD
 
 Run go get to download the package to your GOPATH/src folder.
 
@@ -132,7 +134,7 @@ cd $GOPATH/src/github.com/bwmarrin/discordgo
 go install
 ```
 
-### Windows
+#### Windows
 Placeholder.
 
 
