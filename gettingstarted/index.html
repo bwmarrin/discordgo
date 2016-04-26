@@ -6,15 +6,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <meta name="author" content="Bruce Marriner">
-        <link rel="canonical" href="http://bwmarrin.github.io/discordgo/">
-        <link rel="shortcut icon" href="./img/favicon.ico">
+        <link rel="canonical" href="http://bwmarrin.github.io/discordgo/gettingstarted/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
 
-	<title>DiscordGo</title>
+	<title>Getting Started - DiscordGo</title>
 
-        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
-        <link rel="stylesheet" href="./css/highlight.css">
-        <link href="./css/base.css" rel="stylesheet">
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/base.css" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -41,7 +41,7 @@
             </button>
 
             <!-- Main title -->
-            <a class="navbar-brand" href=".">DiscordGo</a>
+            <a class="navbar-brand" href="..">DiscordGo</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -50,14 +50,20 @@
             <ul class="nav navbar-nav">
             
             
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
                 <li class="active">
-                    <a href=".">Home</a>
+                    <a href="./">Getting Started</a>
                 </li>
             
             
             
                 <li >
-                    <a href="GettingStarted/">Getting Started</a>
+                    <a href="../cousins/">Cousins</a>
                 </li>
             
             
@@ -70,13 +76,13 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
-                <li class="disabled">
-                    <a rel="next" >
+                <li >
+                    <a rel="next" href="..">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="GettingStarted/">
+                    <a rel="prev" href="../cousins/">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -99,51 +105,58 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#discordgo">DiscordGo</a></li>
+        <li class="main active"><a href="#master-vs-develop">Master vs Develop</a></li>
         
-            <li><a href="#why-discordgo">Why DiscordGo?</a></li>
+    
+        <li class="main "><a href="#client-vs-bot">Client vs Bot.</a></li>
         
-            <li><a href="#learn-more">Learn More</a></li>
+            <li><a href="#client">Client</a></li>
         
-            <li><a href="#join-us">Join Us!</a></li>
+            <li><a href="#bot">Bot</a></li>
+        
+    
+        <li class="main "><a href="#hello-world">Hello World</a></li>
+        
+    
+        <li class="main "><a href="#whats-next">What's Next?</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h2 id="discordgo">DiscordGo<a class="headerlink" href="#discordgo" title="Permanent link">&para;</a></h2>
-<p><hr>
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png"></p>
-<p><a href="https://golang.org/">Go</a> (golang) interface for the <a href="https://discordapp.com/">Discord</a> 
-chat service.  Provides both low-level direct bindings to the 
-Discord API and helper functions that allow you to make custom clients and chat 
-bot applications easily.</p>
-<p><a href="https://discordapp.com/">Discord</a> is an all-in-one voice and text chat for 
-gamers that&rsquo;s free, secure, and works on both your desktop and phone. </p>
-<h3 id="why-discordgo">Why DiscordGo?<a class="headerlink" href="#why-discordgo" title="Permanent link">&para;</a></h3>
+<p>If you're new to DiscordGo please review the below information which should
+help get you started off with a very basic but functional program.</p>
+<h1 id="master-vs-develop">Master vs Develop</h1>
+<p>Placeholder</p>
+<h1 id="client-vs-bot">Client vs Bot.</h1>
+<p>You probably already know the answer to this but now is a good time to decide
+if your goal is to write a client application or a bot.  DiscordGo aims to fully
+support both client applications and bots but there are some differences 
+between the two.</p>
+<h2 id="client">Client</h2>
+<h2 id="bot">Bot</h2>
+<p>Placeholder</p>
+<h1 id="hello-world">Hello World</h1>
+<p>Now, lets build our first DiscordGo application.  This simple example 
+application will demonstrate how to connect to the Discord API, print out 
+received messages, and respond to special commands.</p>
+<pre><code class="go">import fmt
+
+func main() {
+
+fmt.Println(&quot;Placeholder&quot;)
+
+}
+</code></pre>
+
+<p>Placeholder</p>
+<h1 id="whats-next">What's Next?</h1>
 <ul>
-<li>High Performance</li>
-<li>Minimal Memory &amp; CPU Load</li>
-<li>Low-level bindings to Discord REST API Endpoints</li>
-<li>Support for the data websocket interface</li>
-<li>Multi-Server voice connections (send and receive)</li>
-<li>State tracking and caching</li>
-</ul>
-<h3 id="learn-more">Learn More<a class="headerlink" href="#learn-more" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Check out the <a href="./GettingStarted">Getting Started</a> section</li>
-<li>Read the reference docs on <a href="https://godoc.org/github.com/bwmarrin/discordgo">Godoc</a> or <a href="https://gowalker.org/github.com/bwmarrin/discordgo">GoWalker</a></li>
-<li>Try the <a href="https://github.com/bwmarrin/discordgo/tree/master/examples">examples</a></li>
-<li>Explore <a href="https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo">Awesome DiscordGo</a></li>
-</ul>
-<h3 id="join-us">Join Us!<a class="headerlink" href="#join-us" title="Permanent link">&para;</a></h3>
-<p>Both of the below links take you to chat channels where you can get more 
-information and support for DiscordGo.  There&rsquo;s also a chance to make some 
-friends :)</p>
-<ul>
-<li>Join the <a href="https://discord.gg/0f1SbxBZjYoCtNPP">Discord Gophers</a> chat server dedicated to Go programming.</li>
-<li>Join the <a href="https://discord.gg/0SBTUU1wZTWT6sqd">Discord API</a> chat server dedicated to the Discord API.</li>
+<li>Read the rest of the docs.</li>
+<li>Look at the examples <link></li>
+<li>Look at the Discordgo Awesome list <link></li>
+<li>Join the Discord Gophers chat server <link></li>
 </ul></div>
         </div>
 
@@ -153,12 +166,12 @@ friends :)</p>
             <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
         </footer>
 
-        <script src="./js/jquery-1.10.2.min.js"></script>
-        <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/highlight.pack.js"></script>
-        <script>var base_url = '.';</script>
-        <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
-        <script src="./js/base.js"></script>
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
             <div class="modal-dialog">

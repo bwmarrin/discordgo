@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="Bruce Marriner">
+        <link rel="canonical" href="http://bwmarrin.github.io/discordgo/GettingStarted/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+	<title>Getting Started - DiscordGo</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">DiscordGo</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="active">
+                    <a href="./">Getting Started</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="..">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/bwmarrin/discordgo">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#getting-started">Getting Started</a></li>
+        
+            <li><a href="#master-vs-develop">Master vs Develop</a></li>
+        
+            <li><a href="#client-vs-bot">Client vs Bot</a></li>
+        
+            <li><a href="#bot-application">Bot Application</a></li>
+        
+    
+        <li class="main "><a href="#requirements">Requirements</a></li>
+        
+    
+        <li class="main "><a href="#install-discordgo">Install DiscordGo</a></li>
+        
+            <li><a href="#linuxbsd">Linux/BSD</a></li>
+        
+            <li><a href="#windows">Windows</a></li>
+        
+    
+        <li class="main "><a href="#next">Next...</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
+<p>This page is dedicated to helping you get started on your way to making the
+next great Discord bot or client with DiscordGo. Once you&rsquo;ve done that please
+don&rsquo;t forget to submit it to the 
+<a href="https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo">Awesome DiscordGo</a> list :).</p>
+<p><strong>First, lets cover a few topics so you can make the best choices on how to 
+move forward from here.</strong></p>
+<h3 id="master-vs-develop">Master vs Develop<a class="headerlink" href="#master-vs-develop" title="Permanent link">&para;</a></h3>
+<p><strong>When installing DiscordGo you will need to decide if you want to use the current
+master branch or the bleeding edge development branch.</strong></p>
+<ul>
+<li>
+<p>The <strong>master</strong> branch represents the latest released version of DiscordGo. This
+branch will always have a stable and tested version of the library. Each 
+release is tagged and you can easily download a specific release and view the 
+release notes on the github <a href="https://github.com/bwmarrin/discordgo/releases">releases</a> 
+page.</p>
+</li>
+<li>
+<p>The <strong>develop</strong> branch is where all development happens and almost always has
+new features over the master branch.  However breaking changes are frequently
+added the develop branch and sometimes bugs are introduced.  Bugs get fixed
+and the breaking changes get documented before pushing to master.  </p>
+</li>
+</ul>
+<p><em>So, what should you use?</em></p>
+<p>Due to the how frequently the Discord API is changing there is a high chance
+that the <em>master</em> branch may be lacking important features.  Because of that, if
+you can accept the constant changing nature of the <em>develop</em> branch and the 
+chance that it may occasionally contain bugs then it is the recommended branch 
+to use.  Otherwise, if you want to tail behind development slightly and have a 
+more stable package with documented releases then please use the <em>master</em> 
+branch instead.</p>
+<h3 id="client-vs-bot">Client vs Bot<a class="headerlink" href="#client-vs-bot" title="Permanent link">&para;</a></h3>
+<p>You probably already know the answer to this but now is a good time to decide
+if your goal is to write a client application or a bot.  DiscordGo aims to fully
+support both client applications and bots but there are some differences 
+between the two that you should understand.</p>
+<h4 id="client-application">Client Application<a class="headerlink" href="#client-application" title="Permanent link">&para;</a></h4>
+<p>A client application is a program that is intended to be used by a normal user 
+as a replacement for the official clients that Discord provides. An example of
+this would be a terminal client used to read and send messages with your normal
+user account or possibly a new desktop client that provides a different set of
+features than the official desktop client that Discord already provides.</p>
+<p>Client applications work with normal user accounts and you can login with an
+email address and password or a special authentication token.  However, normal
+user accounts are not allowed to perform any type of automation and doing so can
+cause the account to be banned from Discord. Also normal user accounts do not 
+support multi-server voice connections and some other features that are 
+exclusive to Bot accounts only.</p>
+<p>To create a new user account (if you have not done so already) visit the 
+<a href="https://discordapp.com/">Discord</a> website and click on the 
+<strong>Try Discord Now, It&rsquo;s Free</strong> button then follow the steps to setup your
+new account.</p>
+<h3 id="bot-application">Bot Application<a class="headerlink" href="#bot-application" title="Permanent link">&para;</a></h3>
+<p>A bot application is a special program that interacts with the Discord servers
+to perform some form of automation or provide some type of service.  Examples 
+are things like number trivia games, music streaming, channel moderation, 
+sending reminders, playing loud airhorn sounds, comic generators, YouTube 
+integration, Twitch integration.. You&rsquo;re <em>almost</em> only limited by your imagination.</p>
+<p>Bot applications require the use of a special Bot account.  These accounts are
+tied to your personal user account. Bot accounts cannot login with the normal
+user clients and they cannot join servers the same way a user does. They do not 
+have access to some user client specific features however they gain access to
+many Bot specific features.</p>
+<p>To create a new bot account first create yourself a normal user account on 
+Discord then visit the <a href="https://discordapp.com/developers/applications/me">My Applications</a>
+page and click on the <strong>New Application</strong> box.  Follow the prompts from there
+to finish creating your account.</p>
+<h1 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h1>
+<p>DiscordGo requires Go version 1.4 or higher.  It has been tested to compile and
+run successfully on Debian Linux 8, FreeBSD 10, and Windows 7.  It is expected 
+that it should work anywhere Go 1.4 or higher works. If you run into problems
+please let us know :)</p>
+<p>You must already have a working Go environment setup to use DiscordGo.  If you 
+are new to Go and have not yet installed and tested it on your computer then 
+please visit <a href="https://golang.org/doc/install">this page</a> first then I highly
+recommend you walk though <a href="https://tour.golang.org/welcome/1">A Tour of Go</a> to
+help get your familiar with the Go language.  Also checkout the relevent Go plugin 
+for your editor - they are hugely helpful when developing Go code.</p>
+<ul>
+<li>Vim - <a href="https://github.com/fatih/vim-go">vim-go</a></li>
+<li>Sublime - <a href="https://github.com/DisposaBoy/GoSublime">GoSublime</a></li>
+<li>Atom - <a href="https://atom.io/packages/go-plus">go-plus</a></li>
+<li>Visual Studio - <a href="https://github.com/Microsoft/vscode-go">vscode-go</a></li>
+</ul>
+<h1 id="install-discordgo">Install DiscordGo<a class="headerlink" href="#install-discordgo" title="Permanent link">&para;</a></h1>
+<p>Like any other Go package the fist step is to <code>go get</code> the package.  This will
+always pull the latest released version from the master branch. Then run 
+<code>go install</code> to compile and install the libraries on your system.</p>
+<h3 id="linuxbsd">Linux/BSD<a class="headerlink" href="#linuxbsd" title="Permanent link">&para;</a></h3>
+<p>Run go get to download the package to your GOPATH/src folder.</p>
+<pre><code class="sh">go get github.com/bwmarrin/discordgo
+</code></pre>
+
+<p>If you want to use the develop branch, follow these steps next.</p>
+<pre><code class="sh">cd $GOPATH/src/github.com/bwmarrin/discordgo
+git checkout develop
+</code></pre>
+
+<p>Finally, compile and install the package into the GOPATH/pkg folder. This isn&rsquo;t
+absolutely required but doing this will allow the Go plugin for your editor to
+provide autocomplete for all DiscordGo functions.</p>
+<pre><code class="sh">cd $GOPATH/src/github.com/bwmarrin/discordgo
+go install
+</code></pre>
+
+<h3 id="windows">Windows<a class="headerlink" href="#windows" title="Permanent link">&para;</a></h3>
+<p>Placeholder.</p>
+<h1 id="next">Next&hellip;<a class="headerlink" href="#next" title="Permanent link">&para;</a></h1>
+<p>More coming soon.</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script>var base_url = '..';</script>
+        <script data-main="../mkdocs/js/search.js" src="../mkdocs/js/require.js"></script>
+        <script src="../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
