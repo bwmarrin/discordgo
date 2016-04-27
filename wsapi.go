@@ -26,6 +26,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var GATEWAY_VERSION int = 4
+
 type handshakeProperties struct {
 	OS              string `json:"$os"`
 	Browser         string `json:"$browser"`
@@ -35,7 +37,6 @@ type handshakeProperties struct {
 }
 
 type handshakeData struct {
-	Version        int                 `json:"v"`
 	Token          string              `json:"token"`
 	Properties     handshakeProperties `json:"properties"`
 	LargeThreshold int                 `json:"large_threshold"`
@@ -69,6 +70,9 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
+	// Add the version and encoding to the URL
+	g = g + fmt.Sprintf("?v=%v&encoding=json", GATEWAY_VERSION)
+
 	header := http.Header{}
 	header.Add("accept-encoding", "zlib")
 
@@ -79,7 +83,7 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{3, s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
 	if err != nil {
 		return
 	}
