@@ -21,12 +21,15 @@ import (
 const (
 
 	// Logs critical errors that can lead to data loss or panic
+	// also, only logs errors that would never be returned to
+	// a calling function.  Such as errors within goroutines.
 	LogError int = iota
 
-	// Logs very abnormal events
+	// Logs very abnormal events even if they're also returend as
+	// an error to the calling code.
 	LogWarning
 
-	// Logs normal basic activity like connect/disconnects
+	// Logs normal non-error activity like connect/disconnects
 	LogInformational
 
 	// Logs detailed activity including all HTTP/Websocket packets.
