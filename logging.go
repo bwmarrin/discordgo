@@ -25,9 +25,7 @@ const (
 	LogDebug
 )
 
-// TODO: Merge util.go code into here
-
-// dumps debug information to stdout
+// logs messages to stderr
 func msglog(cfgL, msgL int, format string, a ...interface{}) {
 
 	if msgL > cfgL {
@@ -48,6 +46,7 @@ func msglog(cfgL, msgL int, format string, a ...interface{}) {
 	log.Printf("%s:%d:%s %s\n", file, line, name, msg)
 }
 
+// helper function that wraps msglog for the Session struct
 func (s *Session) log(msgL int, format string, a ...interface{}) {
 
 	if s.Debug { // Deprecated
@@ -56,6 +55,7 @@ func (s *Session) log(msgL int, format string, a ...interface{}) {
 	msglog(s.LogLevel, msgL, format, a...)
 }
 
+// helper function that wraps msglog for the VoiceConnection struct
 func (v *VoiceConnection) log(msgL int, format string, a ...interface{}) {
 
 	if v.Debug { // Deprecated
