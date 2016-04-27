@@ -325,7 +325,7 @@ func (s *State) Channel(channelID string) (*Channel, error) {
 		return nil, ErrNilState
 	}
 	
-	s.Rlock()
+	s.RLock()
 	defer s.RUnlock()
 
 	if c, ok := s.channelMap[channelID]; ok {
