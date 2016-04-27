@@ -19,9 +19,17 @@ import (
 )
 
 const (
+
+	// Logs critical errors that can lead to data loss or panic
 	LogError int = iota
+
+	// Logs very abnormal events
 	LogWarning
-	LogNotice
+
+	// Logs normal basic activity like connect/disconnects
+	LogInformational
+
+	// Logs detailed activity including all HTTP/Websocket packets.
 	LogDebug
 )
 
