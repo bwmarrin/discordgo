@@ -32,7 +32,8 @@ import (
 type VoiceConnection struct {
 	sync.RWMutex
 
-	Debug     bool // If true, print extra logging
+	Debug     bool // If true, print extra logging -- DEPRECATED
+	LogLevel  int
 	Ready     bool // If true, voice is ready to send/receive audio
 	UserID    string
 	GuildID   string

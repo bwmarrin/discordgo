@@ -30,7 +30,8 @@ type Session struct {
 	Token string
 
 	// Debug for printing JSON request/responses
-	Debug bool
+	Debug    bool // Deprecated, will be removed.
+	LogLevel int
 
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
