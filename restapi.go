@@ -143,7 +143,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
-		s.handle(RateLimited{TooManyRequests: &rl, URL: urlStr})
+		s.handle(RateLimit{TooManyRequests: &rl, URL: urlStr})
 
 		mu.Lock()
 		time.Sleep(rl.RetryAfter)
