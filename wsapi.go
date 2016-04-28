@@ -363,13 +363,11 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	// Create a new voice session
 	// TODO review what all these things are for....
 	voice = &VoiceConnection{
-		GuildID:     gID,
-		ChannelID:   cID,
-		deaf:        deaf,
-		mute:        mute,
-		session:     s,
-		connected:   make(chan bool),
-		sessionRecv: make(chan string),
+		GuildID:   gID,
+		ChannelID: cID,
+		deaf:      deaf,
+		mute:      mute,
+		session:   s,
 	}
 
 	// Store voice in VoiceConnections map for this GuildID
@@ -425,9 +423,6 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 	// Store the SessionID for later use.
 	voice.UserID = self.ID // TODO: Review
 	voice.sessionID = st.SessionID
-
-	// TODO: Consider this...
-	// voice.sessionRecv <- st.SessionID
 }
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
@@ -444,29 +439,18 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 		return
 	}
 
+	// If currently connected to voice ws/udp, then disconnect.
+	// Has no effect if not connected.
+	voice.Close()
+
 	// Store values for later use
 	voice.token = st.Token
 	voice.endpoint = st.Endpoint
 	voice.GuildID = st.GuildID
 
-	// If currently connected to voice ws/udp, then disconnect.
-	// Has no effect if not connected.
-	// voice.Close()
-
-	// Wait for the sessionID from onVoiceStateUpdate
-	// voice.sessionID = <-voice.sessionRecv
-	// TODO review above
-	// wouldn't this cause a huge problem, if it's just a guild server
-	// update.. ?
-	// I could add a timeout loop of some sort and also check if the
-	// sessionID doesn't or does exist already...
-	// something.. a bit smarter.
-
-	// We now have enough information to open a voice websocket conenction
-	// so, that's what the next call does.
+	// Open a conenction to the voice server
 	err := voice.open()
 	if err != nil {
-		log.Println("onVoiceServerUpdate Voice.Open error: ", err)
-		// TODO better logging
+		s.log(LogError, "onVoiceServerUpdate voice.open, ", err)
 	}
 }
