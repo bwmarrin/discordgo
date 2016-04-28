@@ -80,6 +80,9 @@ type Session struct {
 	// may switch to slices later
 	// TODO: performance test map vs slices
 	rateLimit rateLimitMutex
+
+	// sequence tracks the current gateway api websocket sequence number
+	sequence int
 }
 
 type rateLimitMutex struct {
@@ -284,10 +287,9 @@ type FriendSourceFlags struct {
 
 // An Event provides a basic initial struct for all websocket event.
 type Event struct {
-	Type      string          `json:"t"`
-	State     int             `json:"s"`
 	Operation int             `json:"op"`
-	Direction int             `json:"dir"`
+	Sequence  int             `json:"s"`
+	Type      string          `json:"t"`
 	RawData   json.RawMessage `json:"d"`
 	Struct    interface{}     `json:"-"`
 }

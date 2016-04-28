@@ -196,7 +196,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
-		err = wsConn.WriteJSON(heartbeatOp{1, int(time.Now().Unix())})
+		err = wsConn.WriteJSON(heartbeatOp{1, s.sequence})
 		if err != nil {
 			log.Println("Error sending heartbeat:", err)
 			return
@@ -291,9 +291,18 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		return
 	}
 
-	if s.Debug { // TODO: refactor using s.log()
-		printEvent(e)
+	if s.Debug {
+		s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s\n", e.Operation, e.Sequence, e.Type, string(e.RawData))
 	}
+
+	// Do not try to Dispatch a non-Dispatch Message
+	if e.Operation != 0 {
+		// But we probably should be doing something with them.
+		return
+	}
+
+	// Store the message sequence
+	s.sequence = e.Sequence
 
 	// Map event to registered event handlers and pass it along
 	// to any registered functions
@@ -318,8 +327,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		s.handle(i)
 
 	} else {
-		s.log(LogWarning, "unknown event type %s", e.Type)
-		printEvent(e)
+		s.log(LogWarning, "unknown event, %#v", e)
 	}
 
 	// Emit event to the OnEvent handler
