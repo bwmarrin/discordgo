@@ -126,6 +126,7 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	// Close websocket and udp connections
 	v.Close()
 
+	v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
 	delete(v.session.VoiceConnections, v.GuildID)
 
 	return
@@ -428,6 +429,7 @@ func (v *VoiceConnection) wsHeartbeat(wsConn *websocket.Conn, close <-chan struc
 	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
 	for {
+		v.log(LogDebug, "Sending heartbeat packet")
 		err = wsConn.WriteJSON(voiceHeartbeatOp{3, int(time.Now().Unix())})
 		if err != nil {
 			log.Println("wsHeartbeat send error: ", err)
