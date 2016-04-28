@@ -75,6 +75,17 @@ type Session struct {
 
 	// When nil, the session is not listening.
 	listening chan interface{}
+
+	// used to deal with rate limits
+	// may switch to slices later
+	// TODO: performance test map vs slices
+	rateLimit rateLimitMutex
+}
+
+type rateLimitMutex struct {
+	sync.Mutex
+	url    map[string]*sync.Mutex
+	bucket map[string]*sync.Mutex // TODO :)
 }
 
 // A VoiceRegion stores data for a specific voice region server.

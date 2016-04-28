@@ -25,6 +25,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -48,6 +50,26 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 
 // request makes a (GET/POST/...) Requests to Discord REST API.
 func (s *Session) request(method, urlStr, contentType string, b []byte) (response []byte, err error) {
+
+	// rate limit mutex for this url
+	// TODO: review for performance improvements
+	// ideally we just ignore endpoints that we've never
+	// received a 429 on. But this simple method works and
+	// is a lot less complex :) It also might even be more
+	// performat due to less checks and maps.
+	var mu *sync.Mutex
+	s.rateLimit.Lock()
+	if s.rateLimit.url == nil {
+		s.rateLimit.url = make(map[string]*sync.Mutex)
+	}
+
+	bu := strings.Split(urlStr, "?")
+	mu, _ = s.rateLimit.url[bu[0]]
+	if mu == nil {
+		mu = new(sync.Mutex)
+		s.rateLimit.url[urlStr] = mu
+	}
+	s.rateLimit.Unlock()
 
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
@@ -77,7 +99,9 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	client := &http.Client{Timeout: (20 * time.Second)}
 
+	mu.Lock()
 	resp, err := client.Do(req)
+	mu.Unlock()
 	if err != nil {
 		return
 	}
@@ -111,13 +135,20 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		// TODO check for 401 response, invalidate token if we get one.
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
+
 		rl := RateLimit{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
-			err = fmt.Errorf("Request unmarshal rate limit error : %+v", err)
+			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
 		}
+		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
+		mu.Lock()
 		time.Sleep(rl.RetryAfter)
+		mu.Unlock()
+		// we can make the above smarter
+		// this method can cause longer delays then required
+
 		response, err = s.request(method, urlStr, contentType, b)
 
 	default: // Error condition
