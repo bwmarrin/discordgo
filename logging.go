@@ -32,7 +32,7 @@ const (
 	// Generally, not overly spammy events
 	LogInformational
 
-	// Detailed activity
+	// Very detailed non-error activity
 	// All HTTP/Websocket packets.
 	// Very spammy and will impact performance
 	LogDebug
