@@ -20,30 +20,33 @@ import (
 
 const (
 
-	// Logs critical errors that can lead to data loss or panic
-	// also, only logs errors that would never be returned to
-	// a calling function.  Such as errors within goroutines.
+	// Critical Errors that could lead to data loss or panic
+	// Only errors that would not be returned to a calling function
 	LogError int = iota
 
-	// Logs very abnormal events even if they're also returend as
-	// an error to the calling code.
+	// Very abnormal events.
+	// Errors that are also returend to a calling function.
 	LogWarning
 
-	// Logs normal non-error activity like connect/disconnects
+	// Normal non-error activity
+	// Generally, not overly spammy events
 	LogInformational
 
-	// Logs detailed activity including all HTTP/Websocket packets.
+	// Detailed activity
+	// All HTTP/Websocket packets.
+	// Very spammy and will impact performance
 	LogDebug
 )
 
-// logs messages to stderr
-func msglog(cfgL, msgL int, format string, a ...interface{}) {
+// msglog provides package wide logging consistancy for discordgo
+// the format, a...  portion this command follows that of fmt.Printf
+//   msgL   : LogLevel of the message
+//   caller : 1 + the number of callers away from the message source
+//   format : Printf style message format
+//   a ...  : comma seperated list of values to pass
+func msglog(msgL, caller int, format string, a ...interface{}) {
 
-	if msgL > cfgL {
-		return
-	}
-
-	pc, file, line, _ := runtime.Caller(1)
+	pc, file, line, _ := runtime.Caller(caller)
 
 	files := strings.Split(file, "/")
 	file = files[len(files)-1]
@@ -54,26 +57,41 @@ func msglog(cfgL, msgL int, format string, a ...interface{}) {
 
 	msg := fmt.Sprintf(format, a...)
 
-	log.Printf("%s:%d:%s %s\n", file, line, name, msg)
+	log.Printf("[DG%d] %s:%d %s %s\n", msgL, file, line, name, msg)
 }
 
 // helper function that wraps msglog for the Session struct
+// This adds a check to insure the message is only logged
+// if the session log level is equal or higher than the
+// message log level
 func (s *Session) log(msgL int, format string, a ...interface{}) {
 
 	if s.Debug { // Deprecated
 		s.LogLevel = LogDebug
 	}
-	msglog(s.LogLevel, msgL, format, a...)
+
+	if msgL > s.LogLevel {
+		return
+	}
+
+	msglog(msgL, 2, format, a...)
 }
 
 // helper function that wraps msglog for the VoiceConnection struct
+// This adds a check to insure the message is only logged
+// if the voice connection log level is equal or higher than the
+// message log level
 func (v *VoiceConnection) log(msgL int, format string, a ...interface{}) {
 
 	if v.Debug { // Deprecated
 		v.LogLevel = LogDebug
 	}
 
-	msglog(v.LogLevel, msgL, format, a...)
+	if msgL > v.LogLevel {
+		return
+	}
+
+	msglog(msgL, 2, format, a...)
 }
 
 // printEvent prints out a WSAPI event.
