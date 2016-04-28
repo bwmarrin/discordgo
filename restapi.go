@@ -1021,7 +1021,7 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 // messageID : the ID of a Message
 func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
 
-	_, err = s.Request("POST", CHANNEL_MESSAGE_ACK(channelID, messageID), nil)
+	_, err = s.request("POST", CHANNEL_MESSAGE_ACK(channelID, messageID), "", nil)
 	return
 }
 
