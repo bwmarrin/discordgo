@@ -167,7 +167,10 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 		case <-listening:
 			return
 		default:
-			go s.event(messageType, message)
+			// TODO make s.event a variable that points to a function
+			// this way it will be possible for an end-user to write
+			// a completely custom event handler if needed.
+			go s.onEvent(messageType, message)
 		}
 	}
 }
@@ -245,73 +248,83 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return
 }
 
-// Front line handler for all Websocket Events.  Determines the
-// event type and passes the message along to the next handler.
+// onEvent is the "event handler" for all messages received on the
+// Discord Gateway API websocket connection.
+//
+// If you use the AddHandler() function to register a handler for a
+// specific event this function will pass the event along to that handler.
+//
+// If you use the AddHandler() function to register a handler for the
+// "OnEvent" event then all events will be passed to that handler.
+//
+// TODO: You may also register a custom event handler entirely using...
+func (s *Session) onEvent(messageType int, message []byte) {
 
-// event is the front line handler for all events.  This needs to be
-// broken up into smaller functions to be more idiomatic Go.
-// Events will be handled by any implemented handler in Session.
-// All unhandled events will then be handled by OnEvent.
-func (s *Session) event(messageType int, message []byte) {
 	var err error
 	var reader io.Reader
-
 	reader = bytes.NewBuffer(message)
 
+	// If this is a compressed message, uncompress it.
 	if messageType == 2 {
-		z, err1 := zlib.NewReader(reader)
-		if err1 != nil {
-			log.Println(fmt.Sprintf("Error uncompressing message type %d: %s", messageType, err1))
+
+		z, err := zlib.NewReader(reader)
+		if err != nil {
+			s.log(LogError, "error uncompressing websocket message, %s", err)
 			return
 		}
+
 		defer func() {
 			err := z.Close()
 			if err != nil {
-				log.Println("error closing zlib:", err)
+				s.log(LogWarning, "error closing zlib, %s", err)
 			}
 		}()
+
 		reader = z
 	}
 
+	// Decode the event into an Event struct.
 	var e *Event
 	decoder := json.NewDecoder(reader)
 	if err = decoder.Decode(&e); err != nil {
-		log.Println(fmt.Sprintf("Error decoding message type %d: %s", messageType, err))
+		s.log(LogError, "error decoding websocket message, %s", err)
 		return
 	}
 
-	if s.Debug {
+	if s.Debug { // TODO: refactor using s.log()
 		printEvent(e)
 	}
 
+	// Map event to registered event handlers and pass it along
+	// to any registered functions
 	i := eventToInterface[e.Type]
 	if i != nil {
+
 		// Create a new instance of the event type.
 		i = reflect.New(reflect.TypeOf(i)).Interface()
 
 		// Attempt to unmarshal our event.
-		// If there is an error we should handle the event itself.
 		if err = json.Unmarshal(e.RawData, i); err != nil {
-			log.Printf("error unmarshalling %s event, %s\n", e.Type, err)
-			// Ready events must fire, even if they are empty.
-			if e.Type != "READY" {
-				i = nil
-			}
-
+			s.log(LogError, "error unmarshalling %s event, %s", e.Type, err)
 		}
-	} else {
-		log.Println("Unknown event.")
-		i = nil
-	}
 
-	if i != nil {
+		// Send event to any registered event handlers for it's type.
+		// Because the above doesn't cancel this, in case of an error
+		// the struct could be partially populated or at default values.
+		// However, most errors are due to a single field and I feel
+		// it's better to pass along what we received than nothing at all.
+		// TODO: Think about that decision :)
+		// Either way, READY events must fire, even with errors.
 		s.handle(i)
+
+	} else {
+		s.log(LogWarning, "unknown event type %s", e.Type)
+		printEvent(e)
 	}
 
+	// Emit event to the OnEvent handler
 	e.Struct = i
 	s.handle(e)
-
-	return
 }
 
 // ------------------------------------------------------------------------------------------------
