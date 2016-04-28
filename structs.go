@@ -318,8 +318,9 @@ type Relationship struct {
 	ID   string `json:"id"`
 }
 
-// A RateLimit struct holds information related to a specific rate limit.
-type RateLimit struct {
+// A TooManyRequests struct holds information received from Discord
+// when receiving a HTTP 429 response.
+type TooManyRequests struct {
 	Bucket     string        `json:"bucket"`
 	Message    string        `json:"message"`
 	RetryAfter time.Duration `json:"retry_after"`

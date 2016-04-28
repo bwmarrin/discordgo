@@ -136,13 +136,15 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
 
-		rl := RateLimit{}
+		rl := TooManyRequests{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
 			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
+		s.handle(RateLimited{TooManyRequests: &rl, URL: urlStr})
+
 		mu.Lock()
 		time.Sleep(rl.RetryAfter)
 		mu.Unlock()
