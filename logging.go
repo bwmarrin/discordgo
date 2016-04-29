@@ -57,7 +57,7 @@ func msglog(msgL, caller int, format string, a ...interface{}) {
 
 	msg := fmt.Sprintf(format, a...)
 
-	log.Printf("[DG%d] %s:%d %s %s\n", msgL, file, line, name, msg)
+	log.Printf("[DG%d] %s:%d:%s() %s\n", msgL, file, line, name, msg)
 }
 
 // helper function that wraps msglog for the Session struct

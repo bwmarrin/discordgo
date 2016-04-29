@@ -50,6 +50,9 @@ type handshakeOp struct {
 
 // Open opens a websocket connection to Discord.
 func (s *Session) Open() (err error) {
+
+	s.log(LogInformational, "called")
+
 	s.Lock()
 	defer func() {
 		if err != nil {
@@ -57,7 +60,10 @@ func (s *Session) Open() (err error) {
 		}
 	}()
 
-	s.VoiceConnections = make(map[string]*VoiceConnection)
+	if s.VoiceConnections == nil {
+		s.log(LogInformational, "creating new VoiceConnections map")
+		s.VoiceConnections = make(map[string]*VoiceConnection)
+	}
 
 	if s.wsConn != nil {
 		err = errors.New("Web socket already opened.")
@@ -65,27 +71,41 @@ func (s *Session) Open() (err error) {
 	}
 
 	// Get the gateway to use for the Websocket connection
-	g, err := s.Gateway()
-	if err != nil {
-		return
-	}
+	if s.gateway == "" {
+		s.gateway, err = s.Gateway()
+		if err != nil {
+			return
+		}
 
-	// Add the version and encoding to the URL
-	g = g + fmt.Sprintf("?v=%v&encoding=json", GATEWAY_VERSION)
+		// Add the version and encoding to the URL
+		s.gateway = fmt.Sprintf("%s?v=%v&encoding=json", s.gateway, GATEWAY_VERSION)
+	}
 
 	header := http.Header{}
 	header.Add("accept-encoding", "zlib")
 
-	// TODO: See if there's a use for the http response.
-	// conn, response, err := websocket.DefaultDialer.Dial(session.Gateway, nil)
-	s.wsConn, _, err = websocket.DefaultDialer.Dial(g, header)
+	s.log(LogInformational, "connecting to gateway %s", s.gateway)
+	s.wsConn, _, err = websocket.DefaultDialer.Dial(s.gateway, header)
 	if err != nil {
+		s.log(LogWarning, "error connecting to gateway %s, %s", s.gateway, err)
+		s.gateway = "" // clear cached gateway
+		// TODO: should we add a retry block here?
 		return
 	}
 
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
-	if err != nil {
-		return
+	if s.sessionID != "" && s.sequence > 0 {
+
+		s.log(LogInformational, "sending resume packet to gateway")
+		// TODO: RESUME
+
+	} else {
+
+		s.log(LogInformational, "sending identify packet to gateway")
+		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+		if err != nil {
+			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
+			return
+		}
 	}
 
 	// Create listening outside of listen, as it needs to happen inside the mutex
@@ -292,12 +312,14 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	}
 
 	if s.Debug {
-		s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s\n", e.Operation, e.Sequence, e.Type, string(e.RawData))
+		s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
 	}
 
 	// Do not try to Dispatch a non-Dispatch Message
 	if e.Operation != 0 {
 		// But we probably should be doing something with them.
+		// TEMP
+		s.log(LogWarning, "Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
 		return
 	}
 

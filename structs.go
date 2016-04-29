@@ -83,6 +83,12 @@ type Session struct {
 
 	// sequence tracks the current gateway api websocket sequence number
 	sequence int
+
+	// stores sessions current Discord Gateway
+	gateway string
+
+	// stores session ID of current Gateway connection
+	sessionID string
 }
 
 type rateLimitMutex struct {
