@@ -97,16 +97,16 @@ func (s *Session) Open() (err error) {
 
 		s.log(LogInformational, "sending resume packet to gateway")
 		// TODO: RESUME
-
-	} else {
-
-		s.log(LogInformational, "sending identify packet to gateway")
-		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
-		if err != nil {
-			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
-			return
-		}
 	}
+	//else {
+
+	s.log(LogInformational, "sending identify packet to gateway")
+	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+	if err != nil {
+		s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
+		return
+	}
+	//}
 
 	// Create listening outside of listen, as it needs to happen inside the mutex
 	// lock.
