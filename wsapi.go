@@ -315,11 +315,22 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
 	}
 
+	// Ping request.
+	// Must respond with a heartbeat packet within 5 seconds
+	if e.Operation == 1 {
+		s.log(LogInformational, "sending heartbeat in response to Op1")
+		err = s.wsConn.WriteJSON(heartbeatOp{1, s.sequence})
+		if err != nil {
+			s.log(LogError, "error sending heartbeat in response to Op1")
+			return
+		}
+	}
+
 	// Do not try to Dispatch a non-Dispatch Message
 	if e.Operation != 0 {
 		// But we probably should be doing something with them.
 		// TEMP
-		s.log(LogWarning, "Op: %d, Seq: %d, Type: %s, Data: %s, message: %s", e.Operation, e.Sequence, e.Type, string(e.RawData), string(message))
+		s.log(LogWarning, "unknown Op: %d, Seq: %d, Type: %s, Data: %s, message: %s", e.Operation, e.Sequence, e.Type, string(e.RawData), string(message))
 		return
 	}
 
