@@ -237,5 +237,9 @@ func (s *Session) initialize() {
 // onReady handles the ready event.
 func (s *Session) onReady(se *Session, r *Ready) {
 
+	// Store the SessionID within the Session struct.
+	s.sessionID = r.SessionID
+
+	// Start the heartbeat to keep the connection alive.
 	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }

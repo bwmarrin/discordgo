@@ -50,6 +50,12 @@ type Connect struct{}
 // Disconnect is an empty struct for an event.
 type Disconnect struct{}
 
+// RateLimit is a struct for the RateLimited event
+type RateLimit struct {
+	*TooManyRequests
+	URL string
+}
+
 // MessageCreate is a wrapper struct for an event.
 type MessageCreate struct {
 	*Message

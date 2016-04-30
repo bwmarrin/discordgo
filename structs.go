@@ -30,7 +30,8 @@ type Session struct {
 	Token string
 
 	// Debug for printing JSON request/responses
-	Debug bool
+	Debug    bool // Deprecated, will be removed.
+	LogLevel int
 
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
@@ -74,6 +75,26 @@ type Session struct {
 
 	// When nil, the session is not listening.
 	listening chan interface{}
+
+	// used to deal with rate limits
+	// may switch to slices later
+	// TODO: performance test map vs slices
+	rateLimit rateLimitMutex
+
+	// sequence tracks the current gateway api websocket sequence number
+	sequence int
+
+	// stores sessions current Discord Gateway
+	gateway string
+
+	// stores session ID of current Gateway connection
+	sessionID string
+}
+
+type rateLimitMutex struct {
+	sync.Mutex
+	url    map[string]*sync.Mutex
+	bucket map[string]*sync.Mutex // TODO :)
 }
 
 // A VoiceRegion stores data for a specific voice region server.
@@ -272,10 +293,9 @@ type FriendSourceFlags struct {
 
 // An Event provides a basic initial struct for all websocket event.
 type Event struct {
-	Type      string          `json:"t"`
-	State     int             `json:"s"`
 	Operation int             `json:"op"`
-	Direction int             `json:"dir"`
+	Sequence  int             `json:"s"`
+	Type      string          `json:"t"`
 	RawData   json.RawMessage `json:"d"`
 	Struct    interface{}     `json:"-"`
 }
@@ -304,8 +324,9 @@ type Relationship struct {
 	ID   string `json:"id"`
 }
 
-// A RateLimit struct holds information related to a specific rate limit.
-type RateLimit struct {
+// A TooManyRequests struct holds information received from Discord
+// when receiving a HTTP 429 response.
+type TooManyRequests struct {
 	Bucket     string        `json:"bucket"`
 	Message    string        `json:"message"`
 	RetryAfter time.Duration `json:"retry_after"`
