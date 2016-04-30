@@ -48,6 +48,15 @@ type handshakeOp struct {
 	Data handshakeData `json:"d"`
 }
 
+type ResumePacket struct {
+	Op   int `json:"ip"`
+	Data struct {
+		Token     string `json:"token"`
+		SessionID string `json:"session_id"`
+		Sequence  int    `json:"seq"`
+	} `json:"d"`
+}
+
 // Open opens a websocket connection to Discord.
 func (s *Session) Open() (err error) {
 
@@ -95,18 +104,30 @@ func (s *Session) Open() (err error) {
 
 	if s.sessionID != "" && s.sequence > 0 {
 
-		s.log(LogInformational, "sending resume packet to gateway")
-		// TODO: RESUME
-	}
-	//else {
+		p := ResumePacket{}
+		p.Op = 6
+		p.Data.Token = s.Token
+		p.Data.SessionID = s.sessionID
+		p.Data.Sequence = s.sequence
 
-	s.log(LogInformational, "sending identify packet to gateway")
-	err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
-	if err != nil {
-		s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
-		return
+		s.log(LogInformational, "sending resume packet to gateway")
+		temp, _ := json.Marshal(p)
+		printJSON(temp)
+		err = s.wsConn.WriteJSON(p)
+		if err != nil {
+			s.log(LogWarning, "error sending gateway resume packet, %s, %s", s.gateway, err)
+			return
+		}
+
+	} else {
+
+		s.log(LogInformational, "sending identify packet to gateway")
+		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+		if err != nil {
+			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
+			return
+		}
 	}
-	//}
 
 	// Create listening outside of listen, as it needs to happen inside the mutex
 	// lock.
@@ -322,6 +343,24 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		err = s.wsConn.WriteJSON(heartbeatOp{1, s.sequence})
 		if err != nil {
 			s.log(LogError, "error sending heartbeat in response to Op1")
+			return
+		}
+	}
+
+	// Reconnect
+	// Must immediately disconnect from gateway and reconnect to new gateway.
+	if e.Operation == 7 {
+		// TODO
+	}
+
+	// Invalid Session
+	// Must respond with a Identify packet.
+	if e.Operation == 9 {
+
+		s.log(LogInformational, "sending identify packet to gateway in response to Op9")
+		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+		if err != nil {
+			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
 		}
 	}
