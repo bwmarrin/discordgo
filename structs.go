@@ -250,6 +250,7 @@ type Game struct {
 type Member struct {
 	GuildID  string   `json:"guild_id"`
 	JoinedAt string   `json:"joined_at"`
+	Nick     string   `json:"nick"`
 	Deaf     bool     `json:"deaf"`
 	Mute     bool     `json:"mute"`
 	User     *User    `json:"user"`
