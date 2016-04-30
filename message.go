@@ -21,6 +21,7 @@ type Message struct {
 	Content         string               `json:"content"`
 	Timestamp       string               `json:"timestamp"`
 	EditedTimestamp string               `json:"edited_timestamp"`
+	MentionRoles    []string             `json:"mention_roles"`
 	Tts             bool                 `json:"tts"`
 	MentionEveryone bool                 `json:"mention_everyone"`
 	Author          *User                `json:"author"`
@@ -76,6 +77,8 @@ func (m *Message) ContentWithMentionsReplaced() string {
 	content := m.Content
 	for _, user := range m.Mentions {
 		content = strings.Replace(content, fmt.Sprintf("<@%s>", user.ID),
+			fmt.Sprintf("@%s", user.Username), -1)
+		content = strings.Replace(content, fmt.Sprintf("<@!%s>", user.ID),
 			fmt.Sprintf("@%s", user.Username), -1)
 	}
 	return content
