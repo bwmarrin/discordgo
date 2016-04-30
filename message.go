@@ -77,6 +77,8 @@ func (m *Message) ContentWithMentionsReplaced() string {
 	for _, user := range m.Mentions {
 		content = strings.Replace(content, fmt.Sprintf("<@%s>", user.ID),
 			fmt.Sprintf("@%s", user.Username), -1)
+		content = strings.Replace(content, fmt.Sprintf("<@!%s>", user.ID),
+			fmt.Sprintf("@%s", user.Username), -1)
 	}
 	return content
 }
