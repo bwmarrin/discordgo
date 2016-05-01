@@ -186,6 +186,22 @@ func TestGuildRoles(t *testing.T) {
 
 }
 
+func TestGuildMemberNickname(t *testing.T) {
+
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	err := dg.GuildMemberNickname(envGuild, "@me/nick", "testnickname")
+	if err != nil {
+		t.Errorf("GuildNickname returned error: %+v", err)
+	}
+}
+
 // TestChannelMessageSend2 tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend2(t *testing.T) {
 

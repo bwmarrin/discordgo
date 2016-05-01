@@ -665,6 +665,19 @@ func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error)
 	return
 }
 
+// GuildMemberNickname updates the nickname of a guild member
+// guildID   : The ID of a guild
+// userID    : The ID of a user
+func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err error) {
+
+	data := struct {
+		Nick string `json:"nick"`
+	}{nickname}
+
+	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
+	return
+}
+
 // GuildChannels returns an array of Channel structures for all channels of a
 // given guild.
 // guildID   : The ID of a Guild.
