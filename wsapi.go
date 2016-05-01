@@ -49,7 +49,7 @@ type handshakeOp struct {
 }
 
 type ResumePacket struct {
-	Op   int `json:"ip"`
+	Op   int `json:"op"`
 	Data struct {
 		Token     string `json:"token"`
 		SessionID string `json:"session_id"`
