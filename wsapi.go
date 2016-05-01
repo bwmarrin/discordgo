@@ -69,14 +69,14 @@ func (s *Session) Open() (err error) {
 		}
 	}()
 
-	if s.VoiceConnections == nil {
-		s.log(LogInformational, "creating new VoiceConnections map")
-		s.VoiceConnections = make(map[string]*VoiceConnection)
-	}
-
 	if s.wsConn != nil {
 		err = errors.New("Web socket already opened.")
 		return
+	}
+
+	if s.VoiceConnections == nil {
+		s.log(LogInformational, "creating new VoiceConnections map")
+		s.VoiceConnections = make(map[string]*VoiceConnection)
 	}
 
 	// Get the gateway to use for the Websocket connection
@@ -121,8 +121,23 @@ func (s *Session) Open() (err error) {
 
 	} else {
 
+		data := handshakeOp{
+			2,
+			handshakeData{
+				s.Token,
+				handshakeProperties{
+					runtime.GOOS,
+					"Discordgo v" + VERSION,
+					"",
+					"",
+					"",
+				},
+				250,
+				s.Compress,
+			},
+		}
 		s.log(LogInformational, "sending identify packet to gateway")
-		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+		err = s.wsConn.WriteJSON(data)
 		if err != nil {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
@@ -145,6 +160,7 @@ func (s *Session) Open() (err error) {
 // Close closes a websocket and stops all listening/heartbeat goroutines.
 // TODO: Add support for Voice WS/UDP connections
 func (s *Session) Close() (err error) {
+
 	s.Lock()
 
 	s.DataReady = false
@@ -166,33 +182,45 @@ func (s *Session) Close() (err error) {
 	return
 }
 
-// listen polls the websocket connection for events, it will stop when
-// the listening channel is closed, or an error occurs.
+// listen polls the websocket connection for events, it will stop when the
+// listening channel is closed, or an error occurs.
 func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
+
 	for {
+
 		messageType, message, err := wsConn.ReadMessage()
+
 		if err != nil {
+
 			// Detect if we have been closed manually. If a Close() has already
-			// happened, the websocket we are listening on will be different to the
-			// current session.
+			// happened, the websocket we are listening on will be different to
+			// the current session.
 			s.RLock()
 			sameConnection := s.wsConn == wsConn
 			s.RUnlock()
+
 			if sameConnection {
-				// There has been an error reading, Close() the websocket so that
-				// OnDisconnect is fired.
+
+				s.log(LogWarning, "error reading from websocket, %s", err)
+				// There has been an error reading, close the websocket so that
+				// OnDisconnect event is emitted.
 				err := s.Close()
 				if err != nil {
-					log.Println("error closing session connection: ", err)
+					s.log(LogWarning, "error closing session connection, %s", err)
 				}
 
-				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
+				// Attempt to reconnect, with expenonential backoff up to
+				// 10 minutes.
 				if s.ShouldReconnectOnError {
+
 					wait := time.Duration(1)
+
 					for {
+
 						if s.Open() == nil {
 							return
 						}
+
 						<-time.After(wait * time.Second)
 						wait *= 2
 						if wait > 600 {
@@ -201,17 +229,18 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 					}
 				}
 			}
+
 			return
 		}
 
 		select {
+
 		case <-listening:
 			return
+
 		default:
-			// TODO make s.event a variable that points to a function
-			// this way it will be possible for an end-user to write
-			// a completely custom event handler if needed.
 			go s.onEvent(messageType, message)
+
 		}
 	}
 }
@@ -236,8 +265,10 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 
 	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
+
 	for {
 
+		s.log(LogDebug, "sending gateway websocket heartbeat seq %d", s.sequence)
 		s.wsMutex.Lock()
 		err = wsConn.WriteJSON(heartbeatOp{1, s.sequence})
 		s.wsMutex.Unlock()
@@ -273,16 +304,18 @@ type updateStatusOp struct {
 // If idle>0 then set status to idle.  If game>0 then set game.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStatus(idle int, game string) (err error) {
+
 	s.RLock()
 	defer s.RUnlock()
 	if s.wsConn == nil {
-		return errors.New("No websocket connection exists.")
+		return errors.New("no websocket connection exists")
 	}
 
 	var usd updateStatusData
 	if idle > 0 {
 		usd.IdleSince = &idle
 	}
+
 	if game != "" {
 		usd.Game = &updateStatusGame{game}
 	}
