@@ -229,6 +229,7 @@ func (s *Session) initialize() {
 	s.handlersMu.Unlock()
 
 	s.AddHandler(s.onReady)
+	s.AddHandler(s.onResumed)
 	s.AddHandler(s.onVoiceServerUpdate)
 	s.AddHandler(s.onVoiceStateUpdate)
 	s.AddHandler(s.State.onInterface)
@@ -239,6 +240,13 @@ func (s *Session) onReady(se *Session, r *Ready) {
 
 	// Store the SessionID within the Session struct.
 	s.sessionID = r.SessionID
+
+	// Start the heartbeat to keep the connection alive.
+	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
+}
+
+// onResumed handles the resumed event.
+func (s *Session) onResumed(se *Session, r *Resumed) {
 
 	// Start the heartbeat to keep the connection alive.
 	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)

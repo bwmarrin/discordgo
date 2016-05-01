@@ -111,8 +111,6 @@ func (s *Session) Open() (err error) {
 		p.Data.Sequence = s.sequence
 
 		s.log(LogInformational, "sending resume packet to gateway")
-		temp, _ := json.Marshal(p)
-		printJSON(temp)
 		err = s.wsConn.WriteJSON(p)
 		if err != nil {
 			s.log(LogWarning, "error sending gateway resume packet, %s, %s", s.gateway, err)
@@ -161,16 +159,19 @@ func (s *Session) Open() (err error) {
 // TODO: Add support for Voice WS/UDP connections
 func (s *Session) Close() (err error) {
 
+	s.log(LogInformational, "called")
 	s.Lock()
 
 	s.DataReady = false
 
 	if s.listening != nil {
+		s.log(LogInformational, "closing listening channel")
 		close(s.listening)
 		s.listening = nil
 	}
 
 	if s.wsConn != nil {
+		s.log(LogInformational, "closing gateway websocket")
 		err = s.wsConn.Close()
 		s.wsConn = nil
 	}
@@ -185,6 +186,8 @@ func (s *Session) Close() (err error) {
 // listen polls the websocket connection for events, it will stop when the
 // listening channel is closed, or an error occurs.
 func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
+
+	s.log(LogInformational, "called")
 
 	for {
 
@@ -216,8 +219,10 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 					wait := time.Duration(1)
 
 					for {
+						s.log(LogInformational, "trying to reconnect to gateway")
 
 						if s.Open() == nil {
+							s.log(LogInformational, "successfully reconnected to gateway")
 							return
 						}
 
@@ -254,6 +259,8 @@ type heartbeatOp struct {
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
 func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, i time.Duration) {
+
+	s.log(LogInformational, "called")
 
 	if listening == nil || wsConn == nil {
 		return
@@ -304,6 +311,8 @@ type updateStatusOp struct {
 // If idle>0 then set status to idle.  If game>0 then set game.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStatus(idle int, game string) (err error) {
+
+	s.log(LogInformational, "called")
 
 	s.RLock()
 	defer s.RUnlock()
@@ -370,9 +379,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		return
 	}
 
-	if s.Debug {
-		s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
-	}
+	s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s\n\n", e.Operation, e.Sequence, e.Type, string(e.RawData))
 
 	// Ping request.
 	// Must respond with a heartbeat packet within 5 seconds
@@ -385,6 +392,8 @@ func (s *Session) onEvent(messageType int, message []byte) {
 			s.log(LogError, "error sending heartbeat in response to Op1")
 			return
 		}
+
+		return
 	}
 
 	// Reconnect
@@ -405,6 +414,8 @@ func (s *Session) onEvent(messageType int, message []byte) {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
 		}
+
+		return
 	}
 
 	// Do not try to Dispatch a non-Dispatch Message
@@ -441,7 +452,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		s.handle(i)
 
 	} else {
-		s.log(LogWarning, "unknown event, %#v", e)
+		s.log(LogWarning, "unknown event: Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
 	}
 
 	// Emit event to the OnEvent handler

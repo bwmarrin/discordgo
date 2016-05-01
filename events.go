@@ -42,6 +42,7 @@ var eventToInterface = map[string]interface{}{
 	"TYPING_START":               TypingStart{},
 	"VOICE_SERVER_UPDATE":        VoiceServerUpdate{},
 	"VOICE_STATE_UPDATE":         VoiceStateUpdate{},
+	"RESUMED":                    Resumed{},
 }
 
 // Connect is an empty struct for an event.

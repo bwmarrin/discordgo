@@ -100,6 +100,12 @@ type rateLimitMutex struct {
 	bucket map[string]*sync.Mutex // TODO :)
 }
 
+// A Resumed struct holds the data received in a RESUMED event
+type Resumed struct {
+	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
+	Trace             []string      `json:"_trace"`
+}
+
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
 	ID       string `json:"id"`
