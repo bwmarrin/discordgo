@@ -9,6 +9,11 @@ bindings to the [Discord](https://discordapp.com/) chat client API. DiscordGo
 has nearly complete support for all of the Discord JSON-API endpoints, websocket
 interface, and voice interface.
 
+If you would like to help the discordgo package please use 
+[this link](https://discordapp.com/oauth2/authorize?client_id=173113690092994561&scope=bot)
+to add the official discordgo test bot **dgo** to your server. This provides 
+indispensable help to this project.
+
 * See [dgVoice](https://github.com/bwmarrin/dgvoice) package to extend DiscordGo
 with additional voice helper functions and features.
 
