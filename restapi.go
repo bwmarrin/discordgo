@@ -58,6 +58,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	// is a lot less complex :) It also might even be more
 	// performat due to less checks and maps.
 	var mu *sync.Mutex
+
 	s.rateLimit.Lock()
 	if s.rateLimit.url == nil {
 		s.rateLimit.url = make(map[string]*sync.Mutex)
@@ -71,6 +72,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	}
 	s.rateLimit.Unlock()
 
+	mu.Lock() // lock this URL for ratelimiting
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -99,9 +101,8 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	client := &http.Client{Timeout: (20 * time.Second)}
 
-	mu.Lock()
 	resp, err := client.Do(req)
-	mu.Unlock()
+	mu.Unlock() // unlock ratelimit mutex
 	if err != nil {
 		return
 	}
@@ -136,21 +137,23 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
 
+		mu.Lock() // lock URL ratelimit mutex
+
 		rl := TooManyRequests{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
 			s.log(LogError, "rate limit unmarshal error, %s", err)
+			mu.Unlock()
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
 		s.handle(RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		mu.Lock()
 		time.Sleep(rl.RetryAfter)
-		mu.Unlock()
 		// we can make the above smarter
 		// this method can cause longer delays then required
 
+		mu.Unlock() // we have to unlock here
 		response, err = s.request(method, urlStr, contentType, b)
 
 	default: // Error condition
