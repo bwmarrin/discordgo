@@ -204,6 +204,18 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 
 			if sameConnection {
 
+				neterr, ok := err.(net.Error)
+				if ok {
+					if neterr.Timeout() {
+						v.log(LogDebug, "neterr udp timeout error")
+					}
+
+					if neterr.Temporary() {
+						v.log(LogDebug, "neterr udp tempoary error")
+					}
+					v.log(LogDebug, "neterr udp error %s", neterr.Error())
+				}
+
 				s.log(LogWarning, "error reading from gateway %s websocket, %s", s.gateway, err)
 				// There has been an error reading, close the websocket so that
 				// OnDisconnect event is emitted.
