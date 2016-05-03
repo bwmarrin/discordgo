@@ -255,6 +255,7 @@ func (v *VoiceConnection) open() (err error) {
 	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
 	if err != nil {
 		v.log(LogWarning, "error connecting to voice endpoint %s, %s", vg, err)
+		v.log(LogDebug, "voice struct: %#v\n", v)
 		return
 	}
 
@@ -673,6 +674,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 		if err != nil {
 			v.log(LogError, "udp write error, %s", err)
+			v.log(LogDebug, "voice struct: %#v\n", v)
 			neterr, ok := err.(net.Error)
 			if ok {
 				if neterr.Timeout() {
@@ -736,6 +738,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 			if sameConnection {
 
 				v.log(LogError, "udp read error, %s, %s", v.endpoint, err)
+				v.log(LogDebug, "voice struct: %#v\n", v)
 
 				// temp code.
 				neterr, ok := err.(net.Error)
