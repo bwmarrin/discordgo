@@ -11,7 +11,7 @@ package discordgo
 
 import (
 	"fmt"
-	"strings"
+	"regexp"
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -76,10 +76,7 @@ func (m *Message) ContentWithMentionsReplaced() string {
 	}
 	content := m.Content
 	for _, user := range m.Mentions {
-		content = strings.Replace(content, fmt.Sprintf("<@%s>", user.ID),
-			fmt.Sprintf("@%s", user.Username), -1)
-		content = strings.Replace(content, fmt.Sprintf("<@!%s>", user.ID),
-			fmt.Sprintf("@%s", user.Username), -1)
+		content = regexp.MustCompile(fmt.Sprintf("<@!?(%s)>", user.ID)).ReplaceAllString(content, "@"+user.Username)
 	}
 	return content
 }
