@@ -253,6 +253,8 @@ type Presence struct {
 // A Game struct holds the name of the "playing .." game for a user
 type Game struct {
 	Name string `json:"name"`
+	Type int    `json:"type"`
+	URL  string `json:"url"`
 }
 
 // A Member stores user information for Guild members.
