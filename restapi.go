@@ -25,6 +25,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -34,10 +36,6 @@ var ErrJSONUnmarshal = errors.New("json unmarshal")
 // Request makes a (GET/POST/...) Requests to Discord REST API with JSON data.
 // All the other Discord REST Calls in this file use this function.
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
-
-	if s.Debug {
-		log.Println("API REQUEST  PAYLOAD :: [" + fmt.Sprintf("%+v", data) + "]")
-	}
 
 	var body []byte
 	if data != nil {
@@ -53,8 +51,31 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 // request makes a (GET/POST/...) Requests to Discord REST API.
 func (s *Session) request(method, urlStr, contentType string, b []byte) (response []byte, err error) {
 
+	// rate limit mutex for this url
+	// TODO: review for performance improvements
+	// ideally we just ignore endpoints that we've never
+	// received a 429 on. But this simple method works and
+	// is a lot less complex :) It also might even be more
+	// performat due to less checks and maps.
+	var mu *sync.Mutex
+
+	s.rateLimit.Lock()
+	if s.rateLimit.url == nil {
+		s.rateLimit.url = make(map[string]*sync.Mutex)
+	}
+
+	bu := strings.Split(urlStr, "?")
+	mu, _ = s.rateLimit.url[bu[0]]
+	if mu == nil {
+		mu = new(sync.Mutex)
+		s.rateLimit.url[urlStr] = mu
+	}
+	s.rateLimit.Unlock()
+
+	mu.Lock() // lock this URL for ratelimiting
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
+		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
 	}
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
@@ -81,6 +102,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
+	mu.Unlock() // unlock ratelimit mutex
 	if err != nil {
 		return
 	}
@@ -102,7 +124,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		for k, v := range resp.Header {
 			log.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
 		}
-		log.Printf("API RESPONSE    BODY :: [%s]\n", response)
+		log.Printf("API RESPONSE    BODY :: [%s]\n\n\n", response)
 	}
 
 	switch resp.StatusCode {
@@ -114,13 +136,24 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		// TODO check for 401 response, invalidate token if we get one.
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
-		rl := RateLimit{}
+
+		mu.Lock() // lock URL ratelimit mutex
+
+		rl := TooManyRequests{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
-			err = fmt.Errorf("Request unmarshal rate limit error : %+v", err)
+			s.log(LogError, "rate limit unmarshal error, %s", err)
+			mu.Unlock()
 			return
 		}
+		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
+		s.handle(RateLimit{TooManyRequests: &rl, URL: urlStr})
+
 		time.Sleep(rl.RetryAfter)
+		// we can make the above smarter
+		// this method can cause longer delays then required
+
+		mu.Unlock() // we have to unlock here
 		response, err = s.request(method, urlStr, contentType, b)
 
 	default: // Error condition
@@ -635,6 +668,19 @@ func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error)
 	return
 }
 
+// GuildMemberNickname updates the nickname of a guild member
+// guildID   : The ID of a guild
+// userID    : The ID of a user
+func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err error) {
+
+	data := struct {
+		Nick string `json:"nick"`
+	}{nickname}
+
+	_, err = s.Request("PATCH", GUILD_MEMBER(guildID, userID), data)
+	return
+}
+
 // GuildChannels returns an array of Channel structures for all channels of a
 // given guild.
 // guildID   : The ID of a Guild.
@@ -719,6 +765,11 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // perm      : The permissions for the role.
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st *Role, err error) {
 
+	// Prevent sending a color int that is too big.
+	if color > 0xFFFFFF {
+		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
+	}
+
 	data := struct {
 		Name        string `json:"name"`        // The color the role should have (as a decimal, not hex)
 		Color       int    `json:"color"`       // Whether to display the role's users separately
@@ -758,6 +809,72 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 
 	_, err = s.Request("DELETE", GUILD_ROLE(guildID, roleID), nil)
 
+	return
+}
+
+// GuildIntegrations returns an array of Integrations for a guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildIntegrations(guildID string) (st []*GuildIntegration, err error) {
+
+	body, err := s.Request("GET", GUILD_INTEGRATIONS(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// GuildIntegrationCreate creates a Guild Integration.
+// guildID          : The ID of a Guild.
+// integrationType  : The Integration type.
+// integrationID    : The ID of an integration.
+func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID string) (err error) {
+
+	data := struct {
+		Type string `json:"type"`
+		Id   string `json:"id"`
+	}{integrationType, integrationID}
+
+	_, err = s.Request("POST", GUILD_INTEGRATIONS(guildID), data)
+	return
+}
+
+// GuildIntegrationEdit edits a Guild Integration.
+// guildID              : The ID of a Guild.
+// integrationType      : The Integration type.
+// integrationID        : The ID of an integration.
+// expireBehavior	      : The behavior when an integration subscription lapses (see the integration object documentation).
+// expireGracePeriod    : Period (in seconds) where the integration will ignore lapsed subscriptions.
+// enableEmoticons	    : Whether emoticons should be synced for this integration (twitch only currently).
+func (s *Session) GuildIntegrationEdit(guildID, integrationID string, expireBehavior, expireGracePeriod int, enableEmoticons bool) (err error) {
+
+	data := struct {
+		ExpireBehavior    int  `json:"expire_behavior"`
+		ExpireGracePeriod int  `json:"expire_grace_period"`
+		EnableEmoticons   bool `json:"enable_emoticons"`
+	}{expireBehavior, expireGracePeriod, enableEmoticons}
+
+	_, err = s.Request("PATCH", GUILD_INTEGRATION(guildID, integrationID), data)
+	return
+}
+
+// GuildIntegrationDelete removes the given integration from the Guild.
+// guildID          : The ID of a Guild.
+// integrationID    : The ID of an integration.
+func (s *Session) GuildIntegrationDelete(guildID, integrationID string) (err error) {
+
+	_, err = s.Request("DELETE", GUILD_INTEGRATION(guildID, integrationID), nil)
+	return
+}
+
+// GuildIntegrationSync syncs an integration.
+// guildID          : The ID of a Guild.
+// integrationID    : The ID of an integration.
+func (s *Session) GuildIntegrationSync(guildID, integrationID string) (err error) {
+
+	_, err = s.Request("POST", GUILD_INTEGRATION_SYNC(guildID, integrationID), nil)
 	return
 }
 
@@ -802,6 +919,29 @@ func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
 	}
 
 	img, _, err = image.Decode(bytes.NewReader(body))
+	return
+}
+
+// GuildEmbed returns the embed for a Guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildEmbed(guildID string) (st *GuildEmbed, err error) {
+
+	body, err := s.Request("GET", GUILD_EMBED(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildEmbedEdit returns the embed for a Guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string) (err error) {
+
+	data := GuildEmbed{enabled, channelID}
+
+	_, err = s.Request("PATCH", GUILD_EMBED(guildID), data)
 	return
 }
 
@@ -899,7 +1039,7 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 // messageID : the ID of a Message
 func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
 
-	_, err = s.Request("POST", CHANNEL_MESSAGE_ACK(channelID, messageID), nil)
+	_, err = s.request("POST", CHANNEL_MESSAGE_ACK(channelID, messageID), "", nil)
 	return
 }
 
@@ -1019,10 +1159,10 @@ func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, err error) {
 
 	data := struct {
-		MaxAge    int  `json:"max_age"`
-		MaxUses   int  `json:"max_uses"`
-		Temporary bool `json:"temporary"`
-		XKCDPass  bool `json:"xkcdpass"`
+		MaxAge    int    `json:"max_age"`
+		MaxUses   int    `json:"max_uses"`
+		Temporary bool   `json:"temporary"`
+		XKCDPass  string `json:"xkcdpass"`
 	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
 
 	body, err := s.Request("POST", CHANNEL_INVITES(channelID), data)

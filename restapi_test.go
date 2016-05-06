@@ -31,7 +31,7 @@ func TestUserAvatar(t *testing.T) {
 
 	a, err := dg.UserAvatar("@me")
 	if err != nil {
-		if err.Error() == `HTTP 404 NOT FOUND, {"message": ""}` {
+		if err.Error() == `HTTP 404 NOT FOUND, {"message": "404: Not Found"}` {
 			t.Skip("Skipped, @me doesn't have an Avatar")
 		}
 		t.Errorf(err.Error())
@@ -132,6 +132,73 @@ func TestLogout(t *testing.T) {
 	err := dg.Logout()
 	if err != nil {
 		t.Errorf("Logout() returned error: %+v", err)
+	}
+}
+
+func TestGateway(t *testing.T) {
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+	_, err := dg.Gateway()
+	if err != nil {
+		t.Errorf("Gateway() returned error: %+v", err)
+	}
+}
+
+func TestVoiceICE(t *testing.T) {
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.VoiceICE()
+	if err != nil {
+		t.Errorf("VoiceICE() returned error: %+v", err)
+	}
+}
+
+func TestVoiceRegions(t *testing.T) {
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.VoiceRegions()
+	if err != nil {
+		t.Errorf("VoiceRegions() returned error: %+v", err)
+	}
+}
+func TestGuildRoles(t *testing.T) {
+
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.GuildRoles(envGuild)
+	if err != nil {
+		t.Errorf("GuildRoles(envGuild) returned error: %+v", err)
+	}
+
+}
+
+func TestGuildMemberNickname(t *testing.T) {
+
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	err := dg.GuildMemberNickname(envGuild, "@me/nick", "testnickname")
+	if err != nil {
+		t.Errorf("GuildNickname returned error: %+v", err)
 	}
 }
 
