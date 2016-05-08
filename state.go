@@ -324,7 +324,7 @@ func (s *State) Channel(channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, ErrNilState
 	}
-	
+
 	s.RLock()
 	defer s.RUnlock()
 
@@ -413,10 +413,25 @@ func (s *State) MessageAdd(message *Message) error {
 	s.Lock()
 	defer s.Unlock()
 
-	// If the message exists, replace it.
-	for i, m := range c.Messages {
+	// If the message exists, merge in the new message contents.
+	for _, m := range c.Messages {
 		if m.ID == message.ID {
-			c.Messages[i] = message
+			if message.Content != "" {
+				m.Content = message.Content
+			}
+			if message.EditedTimestamp != "" {
+				m.EditedTimestamp = message.EditedTimestamp
+			}
+			if message.Mentions != nil {
+				m.Mentions = message.Mentions
+			}
+			if message.Embeds != nil {
+				m.Embeds = message.Embeds
+			}
+			if message.Attachments != nil {
+				m.Attachments = message.Attachments
+			}
+
 			return nil
 		}
 	}
