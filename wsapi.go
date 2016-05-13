@@ -519,18 +519,16 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 		return
 	}
 
-	// Create a new voice session
-	// TODO review what all these things are for....
-	voice = &VoiceConnection{
-		GuildID:   gID,
-		ChannelID: cID,
-		deaf:      deaf,
-		mute:      mute,
-		session:   s,
+	if voice == nil {
+		voice = &VoiceConnection{}
+		s.VoiceConnections[gID] = voice
 	}
 
-	// Store voice in VoiceConnections map for this GuildID
-	s.VoiceConnections[gID] = voice
+	voice.GuildID = gID
+	voice.ChannelID = cID
+	voice.deaf = deaf
+	voice.mute = mute
+	voice.session = s
 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
