@@ -1111,7 +1111,7 @@ func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) 
 // If only one messageID is in the slice call channelMessageDelete funciton.
 // If the slice is empty do nothing.
 // channelID : The ID of the channel for the messages to delete.
-// messages  : The IDs of the messages to be deleted. A slice of string IDs.
+// messages  : The IDs of the messages to be deleted. A slice of string IDs. A maximum of 100 messages.
 func (s *Session) ChannelMessagesBulkDelete(channelID string, messages []string) (err error) {
 
 	if len(messages) == 0 {
@@ -1121,6 +1121,10 @@ func (s *Session) ChannelMessagesBulkDelete(channelID string, messages []string)
 	if len(messages) == 1 {
 		err = s.ChannelMessageDelete(channelID, messages[0])
 		return
+	}
+
+	if len(messages) > 100 {
+		messages = messages[:100]
 	}
 
 	data := struct {
