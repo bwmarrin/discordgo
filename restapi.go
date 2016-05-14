@@ -686,7 +686,7 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 // guildID   : The ID of a Guild.
 func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 
-	body, err := s.Request("GET", GUILD_CHANNELS(guildID), nil)
+	body, err := s.request("GET", GUILD_CHANNELS(guildID), "", nil)
 	if err != nil {
 		return
 	}
