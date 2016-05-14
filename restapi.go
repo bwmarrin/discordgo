@@ -1107,6 +1107,34 @@ func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) 
 	return
 }
 
+// ChannelMessagesBulkDelete bulk deletes the messages from the channel for the provided messageIDs.
+// If only one messageID is in the slice call channelMessageDelete funciton.
+// If the slice is empty do nothing.
+// channelID : The ID of the channel for the messages to delete.
+// messages  : The IDs of the messages to be deleted. A slice of string IDs. A maximum of 100 messages.
+func (s *Session) ChannelMessagesBulkDelete(channelID string, messages []string) (err error) {
+
+	if len(messages) == 0 {
+		return
+	}
+
+	if len(messages) == 1 {
+		err = s.ChannelMessageDelete(channelID, messages[0])
+		return
+	}
+
+	if len(messages) > 100 {
+		messages = messages[:100]
+	}
+
+	data := struct {
+		Messages []string `json:"messages"`
+	}{messages}
+
+	_, err = s.Request("POST", CHANNEL_MESSAGES_BULK_DELETE(channelID), data)
+	return
+}
+
 // ChannelFileSend sends a file to the given channel.
 // channelID : The ID of a Channel.
 // io.Reader : A reader for the file contents.
