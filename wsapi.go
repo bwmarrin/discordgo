@@ -306,13 +306,9 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 }
 
-type updateStatusGame struct {
-	Name string `json:"name"`
-}
-
 type updateStatusData struct {
-	IdleSince *int              `json:"idle_since"`
-	Game      *updateStatusGame `json:"game"`
+	IdleSince *int  `json:"idle_since"`
+	Game      *Game `json:"game"`
 }
 
 type updateStatusOp struct {
@@ -320,10 +316,12 @@ type updateStatusOp struct {
 	Data updateStatusData `json:"d"`
 }
 
-// UpdateStatus is used to update the authenticated user's status.
-// If idle>0 then set status to idle.  If game>0 then set game.
+// UpdateStreamingStatus is used to update the user's streaming status.
+// If idle>0 then set status to idle.
+// If game!="" then set game.
+// If game!="" and url!="" then set the status type to streaming with the URL set.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStatus(idle int, game string) (err error) {
+func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err error) {
 
 	s.log(LogInformational, "called")
 
@@ -339,7 +337,15 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	}
 
 	if game != "" {
-		usd.Game = &updateStatusGame{game}
+		gameType := 0
+		if url != "" {
+			gameType = 1
+		}
+		usd.Game = &Game{
+			Name: game,
+			Type: gameType,
+			URL:  url,
+		}
 	}
 
 	s.wsMutex.Lock()
@@ -347,6 +353,14 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	s.wsMutex.Unlock()
 
 	return
+}
+
+// UpdateStatus is used to update the user's status.
+// If idle>0 then set status to idle.
+// If game!="" then set game.
+// if otherwise, set status to active, and no game.
+func (s *Session) UpdateStatus(idle int, game string) (err error) {
+	return s.UpdateStreamingStatus(idle, game, "")
 }
 
 // onEvent is the "event handler" for all messages received on the
