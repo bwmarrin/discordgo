@@ -2,7 +2,7 @@
 Avatar Examples
 ====
 
-These example demonstrates how to utilize DiscordGo to change the account avatar using local files and urls as well as with use of commands.
+These example demonstrates how to utilize DiscordGo to change the account avatar using local files and urls.
 
 ### Build
 
@@ -14,9 +14,6 @@ cd $GOPATH/src/github.com/bwmarrin/discordgo/examples/avatar/localfile
 ```
 ```sh
 cd $GOPATH/src/github.com/bwmarrin/discordgo/examples/avatar/url
-```
-```sh
-cd $GOPATH/src/github.com/bwmarrin/discordgo/examples/avatar/command
 ```
 
 ```sh
