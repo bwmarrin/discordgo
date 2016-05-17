@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -38,12 +37,6 @@ func main() {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
-
-	// Register messageCreate as a callback for the messageCreate events.
-	dg.AddHandler(messageCreate)
-
-	// Open the websocket and begin listening.
-	dg.Open()
 
 	bot, err := dg.User("@me")
 	if err != nil {
@@ -87,12 +80,4 @@ func changeAvatar(s *discordgo.Session) {
 		fmt.Println("Error setting the avatar, ", err)
 	}
 
-}
-
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated bot has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	// Print message to stdout.
-	fmt.Printf("%-20s %-20s\n %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
 }

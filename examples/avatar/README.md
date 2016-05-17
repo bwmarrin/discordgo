@@ -23,3 +23,7 @@ go build
 ### Usage
 
 Please refer to the README.md inside the example folder for usage of that particular example.
+
+### Note
+
+Please be aware that you will need to login with the account you just changed avatar of to visually see the change. Alternatively you could query the avatar from dicord servers to make sure the change has indeed occured.
