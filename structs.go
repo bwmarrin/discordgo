@@ -291,6 +291,7 @@ type Settings struct {
 	Locale                string `json:"locale"`
 	Theme                 string `json:"theme"`
 
+	GuildPositions          []string           `json:"guild_positions"`
 	RestrictedGuilds        []string           `json:"restricted_guilds"`
 	AllowEmailFriendRequest bool               `json:"allow_email_friend_request"`
 	ConvertEmoticons        bool               `json:"convert_emoticons"`
