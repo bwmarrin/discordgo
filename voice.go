@@ -116,6 +116,8 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 		return
 	}
 	v.ChannelID = channelID
+	v.deaf = deaf
+	v.mute = mute
 
 	return
 }
