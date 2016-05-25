@@ -112,6 +112,10 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 	v.wsMutex.Lock()
 	err = v.session.wsConn.WriteJSON(data)
 	v.wsMutex.Unlock()
+	if err != nil {
+		return
+	}
+	v.ChannelID = channelID
 
 	return
 }
