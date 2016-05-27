@@ -73,14 +73,15 @@ var (
 	GUILD_ICON             = func(gID, hash string) string { return GUILDS + gID + "/icons/" + hash + ".jpg" }
 	GUILD_SPLASH           = func(gID, hash string) string { return GUILDS + gID + "/splashes/" + hash + ".jpg" }
 
-	CHANNEL             = func(cID string) string { return CHANNELS + cID }
-	CHANNEL_PERMISSIONS = func(cID string) string { return CHANNELS + cID + "/permissions" }
-	CHANNEL_PERMISSION  = func(cID, tID string) string { return CHANNELS + cID + "/permissions/" + tID }
-	CHANNEL_INVITES     = func(cID string) string { return CHANNELS + cID + "/invites" }
-	CHANNEL_TYPING      = func(cID string) string { return CHANNELS + cID + "/typing" }
-	CHANNEL_MESSAGES    = func(cID string) string { return CHANNELS + cID + "/messages" }
-	CHANNEL_MESSAGE     = func(cID, mID string) string { return CHANNELS + cID + "/messages/" + mID }
-	CHANNEL_MESSAGE_ACK = func(cID, mID string) string { return CHANNELS + cID + "/messages/" + mID + "/ack" }
+	CHANNEL                      = func(cID string) string { return CHANNELS + cID }
+	CHANNEL_PERMISSIONS          = func(cID string) string { return CHANNELS + cID + "/permissions" }
+	CHANNEL_PERMISSION           = func(cID, tID string) string { return CHANNELS + cID + "/permissions/" + tID }
+	CHANNEL_INVITES              = func(cID string) string { return CHANNELS + cID + "/invites" }
+	CHANNEL_TYPING               = func(cID string) string { return CHANNELS + cID + "/typing" }
+	CHANNEL_MESSAGES             = func(cID string) string { return CHANNELS + cID + "/messages" }
+	CHANNEL_MESSAGE              = func(cID, mID string) string { return CHANNELS + cID + "/messages/" + mID }
+	CHANNEL_MESSAGE_ACK          = func(cID, mID string) string { return CHANNELS + cID + "/messages/" + mID + "/ack" }
+	CHANNEL_MESSAGES_BULK_DELETE = func(cID string) string { return CHANNEL(cID) + "/messages/bulk_delete" }
 
 	INVITE = func(iID string) string { return API + "invite/" + iID }
 

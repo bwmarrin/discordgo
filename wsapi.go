@@ -236,6 +236,11 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 
 						if s.Open() == nil {
 							s.log(LogInformational, "successfully reconnected to gateway")
+
+							// Now, if we have any VoiceConnections, reconnect all of them.
+							for _, v := range s.VoiceConnections {
+								go v.reconnect()
+							}
 							return
 						}
 
@@ -533,18 +538,16 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 		return
 	}
 
-	// Create a new voice session
-	// TODO review what all these things are for....
-	voice = &VoiceConnection{
-		GuildID:   gID,
-		ChannelID: cID,
-		deaf:      deaf,
-		mute:      mute,
-		session:   s,
+	if voice == nil {
+		voice = &VoiceConnection{}
+		s.VoiceConnections[gID] = voice
 	}
 
-	// Store voice in VoiceConnections map for this GuildID
-	s.VoiceConnections[gID] = voice
+	voice.GuildID = gID
+	voice.ChannelID = cID
+	voice.deaf = deaf
+	voice.mute = mute
+	voice.session = s
 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
@@ -608,6 +611,8 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // to a voice channel.  In that case, need to re-establish connection to
 // the new region endpoint.
 func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
+
+	s.log(LogInformational, "called")
 
 	voice, exists := s.VoiceConnections[st.GuildID]
 
