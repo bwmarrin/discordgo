@@ -236,6 +236,11 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 
 						if s.Open() == nil {
 							s.log(LogInformational, "successfully reconnected to gateway")
+
+							// Now, if we have any VoiceConnections, reconnect all of them.
+							for _, v := range s.VoiceConnections {
+								go v.reconnect()
+							}
 							return
 						}
 
@@ -606,6 +611,8 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // to a voice channel.  In that case, need to re-establish connection to
 // the new region endpoint.
 func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
+
+	s.log(LogInformational, "called")
 
 	voice, exists := s.VoiceConnections[st.GuildID]
 
