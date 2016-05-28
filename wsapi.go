@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -151,36 +150,10 @@ func (s *Session) Open() (err error) {
 	s.Unlock()
 
 	s.initialize()
+	s.log(LogInformational, "emit connect event")
 	s.handle(&Connect{})
 
-	return
-}
-
-// Close closes a websocket and stops all listening/heartbeat goroutines.
-// TODO: Add support for Voice WS/UDP connections
-func (s *Session) Close() (err error) {
-
-	s.log(LogInformational, "called")
-	s.Lock()
-
-	s.DataReady = false
-
-	if s.listening != nil {
-		s.log(LogInformational, "closing listening channel")
-		close(s.listening)
-		s.listening = nil
-	}
-
-	if s.wsConn != nil {
-		s.log(LogInformational, "closing gateway websocket")
-		err = s.wsConn.Close()
-		s.wsConn = nil
-	}
-
-	s.Unlock()
-
-	s.handle(&Disconnect{})
-
+	s.log(LogInformational, "exiting")
 	return
 }
 
@@ -205,18 +178,6 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 
 			if sameConnection {
 
-				neterr, ok := err.(net.Error)
-				if ok {
-					if neterr.Timeout() {
-						s.log(LogDebug, "neterr udp timeout error")
-					}
-
-					if neterr.Temporary() {
-						s.log(LogDebug, "neterr udp tempoary error")
-					}
-					s.log(LogDebug, "neterr udp error %s", neterr.Error())
-				}
-
 				s.log(LogWarning, "error reading from gateway %s websocket, %s", s.gateway, err)
 				// There has been an error reading, close the websocket so that
 				// OnDisconnect event is emitted.
@@ -225,32 +186,8 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 					s.log(LogWarning, "error closing session connection, %s", err)
 				}
 
-				// Attempt to reconnect, with expenonential backoff up to
-				// 10 minutes.
-				if s.ShouldReconnectOnError {
-
-					wait := time.Duration(1)
-
-					for {
-						s.log(LogInformational, "trying to reconnect to gateway")
-
-						if s.Open() == nil {
-							s.log(LogInformational, "successfully reconnected to gateway")
-
-							// Now, if we have any VoiceConnections, reconnect all of them.
-							for _, v := range s.VoiceConnections {
-								go v.reconnect()
-							}
-							return
-						}
-
-						<-time.After(wait * time.Second)
-						wait *= 2
-						if wait > 600 {
-							wait = 600
-						}
-					}
-				}
+				s.log(LogInformational, "calling reconnect() now")
+				s.reconnect()
 			}
 
 			return
@@ -284,23 +221,21 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 		return
 	}
 
-	s.Lock()
-	s.DataReady = true
-	s.Unlock()
-
 	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
 
 	for {
 
-		s.log(LogDebug, "sending gateway websocket heartbeat seq %d", s.sequence)
+		s.log(LogInformational, "sending gateway websocket heartbeat seq %d", s.sequence)
 		s.wsMutex.Lock()
 		err = wsConn.WriteJSON(heartbeatOp{1, s.sequence})
 		s.wsMutex.Unlock()
 		if err != nil {
-			log.Println("Error sending heartbeat:", err)
+			s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
+			s.DataReady = false
 			return
 		}
+		s.DataReady = true
 
 		select {
 		case <-ticker.C:
@@ -635,4 +570,72 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	if err != nil {
 		s.log(LogError, "onVoiceServerUpdate voice.open, ", err)
 	}
+}
+
+func (s *Session) reconnect() {
+
+	s.log(LogInformational, "called")
+
+	var err error
+
+	if s.ShouldReconnectOnError {
+
+		wait := time.Duration(1)
+
+		for {
+			s.log(LogInformational, "trying to reconnect to gateway")
+
+			err = s.Open()
+			if err == nil {
+				s.log(LogInformational, "successfully reconnected to gateway")
+
+				/*
+					// I'm not sure if this is actually needed.
+					// if the gw reconnect works properly, voice should stay alive
+					for _, v := range s.VoiceConnections {
+						s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
+						go v.reconnect()
+					}
+				*/
+				return
+			}
+
+			s.log(LogError, "error reconnecting to gateway, %s", err)
+
+			<-time.After(wait * time.Second)
+			wait *= 2
+			if wait > 600 {
+				wait = 600
+			}
+		}
+	}
+}
+
+// Close closes a websocket and stops all listening/heartbeat goroutines.
+// TODO: Add support for Voice WS/UDP connections
+func (s *Session) Close() (err error) {
+
+	s.log(LogInformational, "called")
+	s.Lock()
+
+	s.DataReady = false
+
+	if s.listening != nil {
+		s.log(LogInformational, "closing listening channel")
+		close(s.listening)
+		s.listening = nil
+	}
+
+	if s.wsConn != nil {
+		s.log(LogInformational, "closing gateway websocket")
+		err = s.wsConn.Close()
+		s.wsConn = nil
+	}
+
+	s.Unlock()
+
+	s.log(LogInformational, "emit disconnect event")
+	s.handle(&Disconnect{})
+
+	return
 }
