@@ -460,6 +460,8 @@ type voiceChannelJoinOp struct {
 //    deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
+	s.log(LogInformational, "called")
+
 	// If a voice connection already exists for this guild then
 	// return that connection. If the channel differs, also change channels.
 	var ok bool
