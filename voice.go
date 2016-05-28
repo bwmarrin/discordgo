@@ -320,20 +320,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			v.RUnlock()
 			if sameConnection {
 
-				log.Println("voice endpoint %s websocket closed unexpectantly,", v.endpoint, err)
-
-				// temp code.
-				neterr, ok := err.(net.Error)
-				if ok {
-					if neterr.Timeout() {
-						v.log(LogDebug, "neterr udp timeout error")
-					}
-
-					if neterr.Temporary() {
-						v.log(LogDebug, "neterr udp tempoary error")
-					}
-					v.log(LogDebug, "neterr udp error %s", neterr.Error())
-				}
+				v.log(LogError, "voice endpoint %s websocket closed unexpectantly,i %s", v.endpoint, err)
 
 				// Start reconnect goroutine then exit.
 				go v.reconnect()
@@ -820,6 +807,7 @@ func (v *VoiceConnection) reconnect() {
 
 	v.Lock()
 	if v.reconnecting {
+		v.log(LogInformational, "Already reconnecting...")
 		return
 	}
 	v.reconnecting = true
@@ -848,15 +836,15 @@ func (v *VoiceConnection) reconnect() {
 
 		if v.session.DataReady == false {
 			v.log(LogInformational, "cannot reconenct with unready session")
-			continue
-		}
+		} else {
 
-		v.log(LogInformational, "trying to reconnect to voice")
+			v.log(LogInformational, "trying to reconnect to voice")
 
-		_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
-		if err == nil {
-			v.log(LogInformational, "successfully reconnected to voice")
-			return
+			_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
+			if err == nil {
+				v.log(LogInformational, "successfully reconnected to voice")
+				return
+			}
 		}
 
 		<-time.After(wait * time.Second)
