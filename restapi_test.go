@@ -31,7 +31,7 @@ func TestUserAvatar(t *testing.T) {
 
 	a, err := dg.UserAvatar("@me")
 	if err != nil {
-		if err.Error() == `HTTP 404 NOT FOUND, {"message": "404: Not Found"}` {
+		if err.Error() == `HTTP 404 NOT FOUND, {"code": 0, "message": "404: Not Found"}` {
 			t.Skip("Skipped, @me doesn't have an Avatar")
 		}
 		t.Errorf(err.Error())
