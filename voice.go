@@ -320,7 +320,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			v.RUnlock()
 			if sameConnection {
 
-				v.log(LogError, "voice endpoint %s websocket closed unexpectantly,i %s", v.endpoint, err)
+				v.log(LogError, "voice endpoint %s websocket closed unexpectantly, %s", v.endpoint, err)
 
 				// Start reconnect goroutine then exit.
 				go v.reconnect()
@@ -835,16 +835,29 @@ func (v *VoiceConnection) reconnect() {
 		}
 
 		if v.session.DataReady == false {
+
 			v.log(LogInformational, "cannot reconenct with unready session")
+
 		} else {
 
 			v.log(LogInformational, "trying to reconnect to voice")
 
-			_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
+			/*
+				// TODO: Move this to a 2nd stage
+				_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
+				if err == nil {
+					v.log(LogInformational, "successfully reconnected to voice")
+					return
+				}
+			*/
+
+			err := v.open()
 			if err == nil {
 				v.log(LogInformational, "successfully reconnected to voice")
 				return
 			}
+
+			v.log(LogError, "error reconnecting to voice, %s", err)
 		}
 
 		<-time.After(wait * time.Second)

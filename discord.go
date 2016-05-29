@@ -205,19 +205,21 @@ func (s *Session) handle(event interface{}) {
 
 	if handlers, ok := s.handlers[nil]; ok {
 		for _, handler := range handlers {
-			handler.Call(handlerParameters)
+			go handler.Call(handlerParameters)
 		}
 	}
 
 	if handlers, ok := s.handlers[reflect.TypeOf(event)]; ok {
 		for _, handler := range handlers {
-			handler.Call(handlerParameters)
+			go handler.Call(handlerParameters)
 		}
 	}
 }
 
 // initialize adds all internal handlers and state tracking handlers.
 func (s *Session) initialize() {
+
+	s.log(LogInformational, "called")
 
 	s.handlersMu.Lock()
 	if s.handlers != nil {
