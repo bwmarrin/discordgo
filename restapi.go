@@ -716,6 +716,15 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 	return
 }
 
+// GuildChannelsUpdate updates the given channels of a guild
+// guildID   : The ID of a Guild.
+// channels  : Updated channels.
+func (s *Session) GuildChannelsUpdate(guildID string, channels []*Channel) (err error) {
+
+	_, err = s.Request("PATCH", GUILD_CHANNELS(guildID), channels)
+	return
+}
+
 // GuildInvites returns an array of Invite structures for the given guild
 // guildID   : The ID of a Guild.
 func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
