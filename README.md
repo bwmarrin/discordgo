@@ -131,3 +131,7 @@ discussing it.
 
 See [this chart](https://abal.moe/Discord/Libraries.html) for a feature 
 comparison and list of other Discord API libraries.
+
+## Special Thanks
+
+[Chris Rhodes](https://github.com/iopred) - For the DiscordGo logo and tons of PRs
