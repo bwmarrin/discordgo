@@ -27,7 +27,7 @@ type Application struct {
 //   appID : The ID of an Application
 func (s *Session) Application(appID string) (st *Application, err error) {
 
-	body, err := s.Request("GET", APPLICATION(appID), nil)
+	body, err := s.Request("GET", EndpointApplication(appID), nil)
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ func (s *Session) Application(appID string) (st *Application, err error) {
 // Applications returns all applications for the authenticated user
 func (s *Session) Applications() (st []*Application, err error) {
 
-	body, err := s.Request("GET", APPLICATIONS, nil)
+	body, err := s.Request("GET", EndpointApplications, nil)
 	if err != nil {
 		return
 	}
@@ -59,7 +59,7 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
 	}{ap.Name, ap.Description, ap.RedirectURIs}
 
-	body, err := s.Request("POST", APPLICATIONS, data)
+	body, err := s.Request("POST", EndpointApplications, data)
 	if err != nil {
 		return
 	}
@@ -78,7 +78,7 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
 	}{ap.Name, ap.Description, ap.RedirectURIs}
 
-	body, err := s.Request("PUT", APPLICATION(appID), data)
+	body, err := s.Request("PUT", EndpointApplication(appID), data)
 	if err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 //   appID : The ID of an Application
 func (s *Session) ApplicationDelete(appID string) (err error) {
 
-	_, err = s.Request("DELETE", APPLICATION(appID), nil)
+	_, err = s.Request("DELETE", EndpointApplication(appID), nil)
 	if err != nil {
 		return
 	}
@@ -117,7 +117,7 @@ func (s *Session) ApplicationBotCreate(appID, token string) (st *User, err error
 		Token string `json:"token,omitempty"`
 	}{token}
 
-	body, err := s.Request("POST", APPLICATIONS_BOT(appID), data)
+	body, err := s.Request("POST", EndpointApplicationsBot(appID), data)
 	if err != nil {
 		return
 	}
