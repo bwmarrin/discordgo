@@ -716,10 +716,10 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 	return
 }
 
-// GuildChannelsUpdate updates the given channels of a guild
+// GuildChannelsReorder updates the order of channels in a guild
 // guildID   : The ID of a Guild.
 // channels  : Updated channels.
-func (s *Session) GuildChannelsUpdate(guildID string, channels []*Channel) (err error) {
+func (s *Session) GuildChannelsReorder(guildID string, channels []*Channel) (err error) {
 
 	_, err = s.Request("PATCH", GUILD_CHANNELS(guildID), channels)
 	return
