@@ -3,6 +3,7 @@ package discordgo
 import (
 	"os"
 	"runtime"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -226,14 +227,14 @@ func TestOpenClose(t *testing.T) {
 }
 
 func TestAddHandler(t *testing.T) {
-	testHandlerCalled := 0
+	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
-		testHandlerCalled++
+		atomic.AddInt32(&testHandlerCalled, 1)
 	}
 
-	interfaceHandlerCalled := 0
+	interfaceHandlerCalled := int32(0)
 	interfaceHandler := func(s *Session, i interface{}) {
-		interfaceHandlerCalled++
+		atomic.AddInt32(&interfaceHandlerCalled, 1)
 	}
 
 	bogusHandlerCalled := false
@@ -251,6 +252,8 @@ func TestAddHandler(t *testing.T) {
 	d.handle(&MessageCreate{})
 	d.handle(&MessageDelete{})
 
+	<-time.After(100 * time.Millisecond)
+
 	// testHandler will be called twice because it was added twice.
 	if testHandlerCalled != 2 {
 		t.Fatalf("testHandler was not called twice.")
@@ -267,9 +270,9 @@ func TestAddHandler(t *testing.T) {
 }
 
 func TestRemoveHandler(t *testing.T) {
-	testHandlerCalled := 0
+	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
-		testHandlerCalled++
+		atomic.AddInt32(&testHandlerCalled, 1)
 	}
 
 	d := Session{}
@@ -280,6 +283,8 @@ func TestRemoveHandler(t *testing.T) {
 	r()
 
 	d.handle(&MessageCreate{})
+
+	<-time.After(100 * time.Millisecond)
 
 	// testHandler will be called once, as it was removed in between calls.
 	if testHandlerCalled != 1 {
