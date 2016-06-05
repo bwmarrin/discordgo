@@ -721,7 +721,7 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 // channels  : Updated channels.
 func (s *Session) GuildChannelsReorder(guildID string, channels []*Channel) (err error) {
 
-	_, err = s.Request("PATCH", GUILD_CHANNELS(guildID), channels)
+	_, err = s.Request("PATCH", EndpointGuildChannels(guildID), channels)
 	return
 }
 
