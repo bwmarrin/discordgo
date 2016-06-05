@@ -296,7 +296,7 @@ func (v *VoiceConnection) open() (err error) {
 		return
 	}
 
-	// Start a listening for voice websocket events
+	// Start listening for voice websocket events
 	// TODO add a check here to make sure Listen worked by monitoring
 	// a chan or bool?
 	v.close = make(chan struct{})
@@ -324,7 +324,6 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 
 				// Start reconnect goroutine then exit.
 				go v.reconnect()
-
 			}
 			return
 		}
@@ -684,17 +683,6 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		if err != nil {
 			v.log(LogError, "udp write error, %s", err)
 			v.log(LogDebug, "voice struct: %#v\n", v)
-			neterr, ok := err.(net.Error)
-			if ok {
-				if neterr.Timeout() {
-					v.log(LogDebug, "neterr udp timeout error")
-				}
-
-				if neterr.Temporary() {
-					v.log(LogDebug, "neterr udp tempoary error")
-				}
-				v.log(LogDebug, "neterr udp error %s", neterr.Error())
-			}
 			return
 		}
 
@@ -749,27 +737,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 				v.log(LogError, "udp read error, %s, %s", v.endpoint, err)
 				v.log(LogDebug, "voice struct: %#v\n", v)
 
-				// temp code.
-				neterr, ok := err.(net.Error)
-				if ok {
-					if neterr.Timeout() {
-						v.log(LogDebug, "neterr udp timeout error")
-					}
-
-					if neterr.Temporary() {
-						v.log(LogDebug, "neterr udp tempoary error")
-					}
-					v.log(LogDebug, "neterr udp error %s", neterr.Error())
-				}
-
-				// There has been an error reading, Close() the websocket so that
-				// OnDisconnect is fired.
-				// TODO add Voice OnDisconnect event :)
-				v.Close()
-				// TODO: close should return errs like data websocket Close
-
-				// Attempt to reconnect, with expenonential backoff up to 10 minutes.
-				// TODO add reconnect code
+				go v.reconnect()
 			}
 			return
 		}
