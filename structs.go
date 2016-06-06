@@ -361,11 +361,9 @@ type TypingStart struct {
 
 // A PresenceUpdate stores data for the presence update websocket event.
 type PresenceUpdate struct {
-	Status  string   `json:"status"`
+	Presence
 	GuildID string   `json:"guild_id"`
 	Roles   []string `json:"roles"`
-	User    *User    `json:"user"`
-	Game    *Game    `json:"game"`
 }
 
 // A MessageAck stores data for the message ack websocket event.
