@@ -25,7 +25,6 @@ func init() {
 	flag.StringVar(&DeleteID, "d", "", "Application ID to delete")
 	flag.BoolVar(&ListOnly, "l", false, "List Applications Only")
 	flag.StringVar(&AppName, "a", "", "App/Bot Name")
-	flag.StringVar(&ConvToken, "c", "", "Token of account to convert.")
 	flag.Parse()
 }
 
@@ -81,9 +80,7 @@ func main() {
 	fmt.Printf("Secret: %s\n\n", ap.Secret)
 
 	// Create the bot account under the application we just created
-	// If ConvToken is set, then this will convert an existing account
-	// into a bot account under the application we just created.
-	bot, err := dg.ApplicationBotCreate(ap.ID, ConvToken)
+	bot, err := dg.ApplicationBotCreate(ap.ID)
 	if err != nil {
 		fmt.Println("error creating bot account,", err)
 		return
