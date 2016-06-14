@@ -62,7 +62,7 @@ type VoiceConnection struct {
 	connected chan bool
 
 	// Used to pass the sessionid from onVoiceStateUpdate
-	sessionRecv chan string
+	// sessionRecv chan string UNUSED ATM
 
 	op4 voiceOP4
 	op2 voiceOP2
@@ -296,11 +296,12 @@ func (v *VoiceConnection) open() (err error) {
 		return
 	}
 
-	// Start listening for voice websocket events
-	// TODO add a check here to make sure Listen worked by monitoring
-	// a chan or bool?
 	v.close = make(chan struct{})
 	go v.wsListen(v.wsConn, v.close)
+
+	// add loop/check for Ready bool here?
+	// then return false if not ready?
+	// but then wsListen will also err.
 
 	return
 }
@@ -346,7 +347,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 	var e Event
 	if err := json.Unmarshal(message, &e); err != nil {
-		log.Println("unmarshall error, %s", err)
+		v.log(LogError, "unmarshall error, %s", err)
 		return
 	}
 
@@ -771,11 +772,16 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 
 // Reconnect will close down a voice connection then immediately try to
 // reconnect to that session.
+// NOTE : This func is messy and a WIP while I find what works.
+// It will be cleaned up once a proven stable option is flushed out.
+// aka: this is ugly shit code, please don't judge too harshly.
 func (v *VoiceConnection) reconnect() {
+
+	v.log(LogInformational, "called")
 
 	v.Lock()
 	if v.reconnecting {
-		v.log(LogInformational, "Already reconnecting...")
+		v.log(LogInformational, "already reconnecting, exiting.")
 		return
 	}
 	v.reconnecting = true
@@ -783,49 +789,73 @@ func (v *VoiceConnection) reconnect() {
 
 	defer func() { v.reconnecting = false }()
 
-	v.log(LogInformational, "called")
+	if v.session == nil {
+		v.log(LogInformational, "cannot reconnect with nil session")
+		v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
+		delete(v.session.VoiceConnections, v.GuildID)
+		return
+	}
 
+	// Send a OP4 with a nil channel to disconnect
+	if v.sessionID != "" {
+		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
+		v.wsMutex.Lock()
+		err := v.session.wsConn.WriteJSON(data)
+		if err != nil {
+			v.log(LogError, "error sending disconnect packet, %s", err)
+		}
+
+		v.wsMutex.Unlock()
+		v.sessionID = ""
+	}
+
+	// Close websocket and udp connections
 	v.Close()
 
 	// Take a short nap to allow everything to close.
+	// may not be needed but just extra protection for now.
 	time.Sleep(1 * time.Second)
 
 	wait := time.Duration(1)
 
-	// TODO After X attempts abort.
-	// Right now this code has the potential to create abandoned goroutines
-
+	i := 0
 	for {
 
 		if v.session == nil {
 			v.log(LogInformational, "cannot reconnect with nil session")
+			v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
+			delete(v.session.VoiceConnections, v.GuildID)
 			return
 		}
 
 		if v.session.DataReady == false {
-
 			v.log(LogInformational, "cannot reconenct with unready session")
+			continue
+		}
 
-		} else {
+		v.log(LogInformational, "trying to reconnect to voice")
 
-			v.log(LogInformational, "trying to reconnect to voice")
+		// Below is required because ChannelVoiceJoin checks the GuildID
+		// to decide if we should change channels or open a new connection.
+		// TODO: Maybe find a better method.
+		gID := v.GuildID
+		v.GuildID = ""
 
-			/*
-				// TODO: Move this to a 2nd stage
-				_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
-				if err == nil {
-					v.log(LogInformational, "successfully reconnected to voice")
-					return
-				}
-			*/
+		_, err := v.session.ChannelVoiceJoin(gID, v.ChannelID, v.mute, v.deaf)
+		if err == nil {
+			v.log(LogInformational, "successfully reconnected to voice")
+			return
+		}
 
-			err := v.open()
-			if err == nil {
-				v.log(LogInformational, "successfully reconnected to voice")
-				return
-			}
+		v.log(LogInformational, "error reconnecting to voice, %s", err)
 
-			v.log(LogError, "error reconnecting to voice, %s", err)
+		if i >= 10 {
+			// NOTE: this will probably change but it's a safety net
+			// here to prevent this goroutine from becomming abandoned.
+			v.log(LogInformational, "timeout reconnecting, I give up.")
+			v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
+			delete(v.session.VoiceConnections, v.GuildID)
+			return
 		}
 
 		<-time.After(wait * time.Second)
@@ -833,5 +863,6 @@ func (v *VoiceConnection) reconnect() {
 		if wait > 600 {
 			wait = 600
 		}
+		i++
 	}
 }
