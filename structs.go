@@ -96,8 +96,8 @@ type Session struct {
 
 type rateLimitMutex struct {
 	sync.Mutex
-	url    map[string]*sync.Mutex
-	bucket map[string]*sync.Mutex // TODO :)
+	url map[string]*sync.Mutex
+	// bucket map[string]*sync.Mutex // TODO :)
 }
 
 // A Resumed struct holds the data received in a RESUMED event
@@ -282,22 +282,22 @@ type User struct {
 
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
-	RenderEmbeds          bool   `json:"render_embeds"`
-	InlineEmbedMedia      bool   `json:"inline_embed_media"`
-	InlineAttachmentMedia bool   `json:"inline_attachment_media"`
-	EnableTtsCommand      bool   `json:"enable_tts_command"`
-	MessageDisplayCompact bool   `json:"message_display_compact"`
-	ShowCurrentGame       bool   `json:"show_current_game"`
-	Locale                string `json:"locale"`
-	Theme                 string `json:"theme"`
-
-	GuildPositions          []string           `json:"guild_positions"`
-	RestrictedGuilds        []string           `json:"restricted_guilds"`
+	RenderEmbeds            bool               `json:"render_embeds"`
+	InlineEmbedMedia        bool               `json:"inline_embed_media"`
+	InlineAttachmentMedia   bool               `json:"inline_attachment_media"`
+	EnableTtsCommand        bool               `json:"enable_tts_command"`
+	MessageDisplayCompact   bool               `json:"message_display_compact"`
+	ShowCurrentGame         bool               `json:"show_current_game"`
 	AllowEmailFriendRequest bool               `json:"allow_email_friend_request"`
 	ConvertEmoticons        bool               `json:"convert_emoticons"`
+	Locale                  string             `json:"locale"`
+	Theme                   string             `json:"theme"`
+	GuildPositions          []string           `json:"guild_positions"`
+	RestrictedGuilds        []string           `json:"restricted_guilds"`
 	FriendSourceFlags       *FriendSourceFlags `json:"friend_source_flags"`
 }
 
+// FriendSourceFlags stores ... TODO :)
 type FriendSourceFlags struct {
 	All           bool `json:"all"`
 	MutualGuilds  bool `json:"mutual_guilds"`
