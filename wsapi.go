@@ -26,26 +26,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type handshakeProperties struct {
-	OS              string `json:"$os"`
-	Browser         string `json:"$browser"`
-	Device          string `json:"$device"`
-	Referer         string `json:"$referer"`
-	ReferringDomain string `json:"$referring_domain"`
-}
-
-type handshakeData struct {
-	Token          string              `json:"token"`
-	Properties     handshakeProperties `json:"properties"`
-	LargeThreshold int                 `json:"large_threshold"`
-	Compress       bool                `json:"compress"`
-}
-
-type handshakeOp struct {
-	Op   int           `json:"op"`
-	Data handshakeData `json:"d"`
-}
-
 type resumePacket struct {
 	Op   int `json:"op"`
 	Data struct {
@@ -117,23 +97,7 @@ func (s *Session) Open() (err error) {
 
 	} else {
 
-		data := handshakeOp{
-			2,
-			handshakeData{
-				s.Token,
-				handshakeProperties{
-					runtime.GOOS,
-					"Discordgo v" + VERSION,
-					"",
-					"",
-					"",
-				},
-				250,
-				s.Compress,
-			},
-		}
-		s.log(LogInformational, "sending identify packet to gateway")
-		err = s.wsConn.WriteJSON(data)
+		err = s.identify()
 		if err != nil {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
@@ -372,9 +336,8 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	if e.Operation == 9 {
 
 		s.log(LogInformational, "sending identify packet to gateway in response to Op9")
-		s.wsMutex.Lock()
-		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
-		s.wsMutex.Unlock()
+
+		err = s.identify()
 		if err != nil {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
@@ -570,6 +533,65 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	if err != nil {
 		s.log(LogError, "onVoiceServerUpdate voice.open, ", err)
 	}
+}
+
+type identifyProperties struct {
+	OS              string `json:"$os"`
+	Browser         string `json:"$browser"`
+	Device          string `json:"$device"`
+	Referer         string `json:"$referer"`
+	ReferringDomain string `json:"$referring_domain"`
+}
+
+type identifyData struct {
+	Token          string             `json:"token"`
+	Properties     identifyProperties `json:"properties"`
+	LargeThreshold int                `json:"large_threshold"`
+	Compress       bool               `json:"compress"`
+	Shard          *[2]int            `json:"shard,omitempty"`
+}
+
+type identifyOp struct {
+	Op   int          `json:"op"`
+	Data identifyData `json:"d"`
+}
+
+// identify sends the identify packet to the gateway
+func (s *Session) identify() error {
+
+	properties := identifyProperties{runtime.GOOS,
+		"Discordgo v" + VERSION,
+		"",
+		"",
+		"",
+	}
+
+	data := identifyData{s.Token,
+		properties,
+		250,
+		s.Compress,
+		nil,
+	}
+
+	if s.ShardCount > 1 {
+
+		if s.ShardID >= s.ShardCount {
+			return errors.New("ShardID must be less than ShardCount")
+		}
+
+		data.Shard = &[2]int{s.ShardID, s.ShardCount}
+	}
+
+	op := identifyOp{2, data}
+
+	s.wsMutex.Lock()
+	err := s.wsConn.WriteJSON(op)
+	s.wsMutex.Unlock()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Session) reconnect() {

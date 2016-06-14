@@ -39,6 +39,10 @@ type Session struct {
 	// Should the session request compressed websocket data.
 	Compress bool
 
+	// Sharding
+	ShardID    int
+	ShardCount int
+
 	// Should state tracking be enabled.
 	// State tracking is the best way for getting the the users
 	// active guilds and the members of the guilds.
