@@ -26,8 +26,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var GATEWAY_VERSION int = 4
-
 type handshakeProperties struct {
 	OS              string `json:"$os"`
 	Browser         string `json:"$browser"`
@@ -48,7 +46,7 @@ type handshakeOp struct {
 	Data handshakeData `json:"d"`
 }
 
-type ResumePacket struct {
+type resumePacket struct {
 	Op   int `json:"op"`
 	Data struct {
 		Token     string `json:"token"`
@@ -87,7 +85,7 @@ func (s *Session) Open() (err error) {
 		}
 
 		// Add the version and encoding to the URL
-		s.gateway = fmt.Sprintf("%s?v=%v&encoding=json", s.gateway, GATEWAY_VERSION)
+		s.gateway = fmt.Sprintf("%s?v=4&encoding=json", s.gateway)
 	}
 
 	header := http.Header{}
@@ -104,7 +102,7 @@ func (s *Session) Open() (err error) {
 
 	if s.sessionID != "" && s.sequence > 0 {
 
-		p := ResumePacket{}
+		p := resumePacket{}
 		p.Op = 6
 		p.Data.Token = s.Token
 		p.Data.SessionID = s.sessionID
@@ -320,7 +318,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	reader = bytes.NewBuffer(message)
 
 	// If this is a compressed message, uncompress it.
-	if messageType == 2 {
+	if messageType == websocket.BinaryMessage {
 
 		z, err := zlib.NewReader(reader)
 		if err != nil {
@@ -591,14 +589,21 @@ func (s *Session) reconnect() {
 			if err == nil {
 				s.log(LogInformational, "successfully reconnected to gateway")
 
-				/*
-					// I'm not sure if this is actually needed.
-					// if the gw reconnect works properly, voice should stay alive
-					for _, v := range s.VoiceConnections {
-						s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
-						go v.reconnect()
-					}
-				*/
+				// I'm not sure if this is actually needed.
+				// if the gw reconnect works properly, voice should stay alive
+				// However, there seems to be cases where something "weird"
+				// happens.  So we're doing this for now just to improve
+				// stability in those edge cases.
+				for _, v := range s.VoiceConnections {
+
+					s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
+					go v.reconnect()
+
+					// This is here just to prevent violently spamming the
+					// voice reconnects
+					time.Sleep(1 * time.Second)
+
+				}
 				return
 			}
 
