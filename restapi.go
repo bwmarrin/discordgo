@@ -843,7 +843,7 @@ func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID
 
 	data := struct {
 		Type string `json:"type"`
-		Id   string `json:"id"`
+		ID   string `json:"id"`
 	}{integrationType, integrationID}
 
 	_, err = s.Request("POST", EndpointGuildIntegrations(guildID), data)
