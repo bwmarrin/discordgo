@@ -40,6 +40,8 @@ func New(args ...interface{}) (s *Session, err error) {
 		StateEnabled:           true,
 		Compress:               true,
 		ShouldReconnectOnError: true,
+		ShardID:                0,
+		NumShards:              1,
 	}
 
 	// If no arguments are passed return the empty Session interface.

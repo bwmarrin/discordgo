@@ -39,6 +39,7 @@ type handshakeData struct {
 	Properties     handshakeProperties `json:"properties"`
 	LargeThreshold int                 `json:"large_threshold"`
 	Compress       bool                `json:"compress"`
+	Shard          [2]int              `json:"shard"`
 }
 
 type handshakeOp struct {
@@ -69,6 +70,16 @@ func (s *Session) Open() (err error) {
 
 	if s.wsConn != nil {
 		err = errors.New("Web socket already opened.")
+		return
+	}
+
+	if s.NumShards <= 0 {
+		err = errors.New("NumShards must be greater or equal to 1")
+		return
+	}
+
+	if s.ShardID >= s.NumShards {
+		err = errors.New("ShardID must be less than NumShards")
 		return
 	}
 
@@ -130,6 +141,7 @@ func (s *Session) Open() (err error) {
 				},
 				250,
 				s.Compress,
+				[2]int{s.ShardID, s.NumShards},
 			},
 		}
 		s.log(LogInformational, "sending identify packet to gateway")
@@ -373,7 +385,15 @@ func (s *Session) onEvent(messageType int, message []byte) {
 
 		s.log(LogInformational, "sending identify packet to gateway in response to Op9")
 		s.wsMutex.Lock()
-		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
+		err = s.wsConn.WriteJSON(handshakeOp{
+			2,
+			handshakeData{
+				s.Token,
+				handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""},
+				250,
+				s.Compress,
+				[2]int{s.ShardID, s.NumShards},
+			}})
 		s.wsMutex.Unlock()
 		if err != nil {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
