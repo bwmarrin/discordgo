@@ -40,8 +40,8 @@ type Session struct {
 	Compress bool
 
 	// Sharding
-	ShardID   int
-	NumShards int
+	ShardID    int
+	ShardCount int
 
 	// Should state tracking be enabled.
 	// State tracking is the best way for getting the the users
