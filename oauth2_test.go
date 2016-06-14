@@ -39,7 +39,7 @@ func ExampleApplication() {
 	log.Printf("ApplicationUpdate: err: %+v, app: %+v\n", err, ap)
 
 	// create a new bot account for this application
-	bot, err := dg.ApplicationBotCreate(ap.ID, "")
+	bot, err := dg.ApplicationBotCreate(ap.ID)
 	log.Printf("BotCreate: err: %+v, bot: %+v\n", err, bot)
 
 	// Get a list of all applications for the authenticated user
