@@ -362,6 +362,20 @@ func (s *Session) UserGuilds() (st []*Guild, err error) {
 	return
 }
 
+// UserGuildSettingsEdit Edits the users notification settings for a guild
+// guildID   : The ID of the guild to edit the settings on
+// settings  : The settings to update
+func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSettingsEdit) (st *UserGuildSettings, err error) {
+
+	body, err := s.Request("PATCH", EndpointUserGuildSettings("@me", guildID), settings)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // UserChannelPermissions returns the permission of a user in a channel.
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
