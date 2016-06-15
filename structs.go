@@ -450,6 +450,15 @@ type UserGuildSettings struct {
 	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
+// A UserGuildSettingsEdit stores data for editing UserGuildSettings
+type UserGuildSettingsEdit struct {
+	SupressEveryone      bool                                         `json:"suppress_everyone"`
+	Muted                bool                                         `json:"muted"`
+	MobilePush           bool                                         `json:"mobile_push"`
+	MessageNotifications int                                          `json:"message_notifications"`
+	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
