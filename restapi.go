@@ -1043,6 +1043,20 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 	return
 }
 
+// ChannelMessage gets a single message by ID from a given channel.
+// channeld  : The ID of a Channel
+// messageID : the ID of a Message
+func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err error) {
+
+	response, err := s.Request("GET", EndpointChannelMessage(channelID, messageID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
+}
+
 // ChannelMessageAck acknowledges and marks the given message as read
 // channeld  : The ID of a Channel
 // messageID : the ID of a Message
