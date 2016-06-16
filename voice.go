@@ -812,10 +812,6 @@ func (v *VoiceConnection) reconnect() {
 	// Close websocket and udp connections
 	v.Close()
 
-	// Take a short nap to allow everything to close.
-	// may not be needed but just extra protection for now.
-	time.Sleep(1 * time.Second)
-
 	wait := time.Duration(1)
 
 	i := 0
@@ -827,6 +823,14 @@ func (v *VoiceConnection) reconnect() {
 			delete(v.session.VoiceConnections, v.GuildID)
 			return
 		}
+
+		<-time.After(wait * time.Second)
+		wait *= 2
+		if wait > 600 {
+			wait = 600
+		}
+
+		i++
 
 		if v.session.DataReady == false {
 			v.log(LogInformational, "cannot reconenct with unready session")
@@ -858,11 +862,5 @@ func (v *VoiceConnection) reconnect() {
 			return
 		}
 
-		<-time.After(wait * time.Second)
-		wait *= 2
-		if wait > 600 {
-			wait = 600
-		}
-		i++
 	}
 }
