@@ -227,6 +227,7 @@ func TestOpenClose(t *testing.T) {
 }
 
 func TestAddHandler(t *testing.T) {
+
 	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
@@ -237,9 +238,9 @@ func TestAddHandler(t *testing.T) {
 		atomic.AddInt32(&interfaceHandlerCalled, 1)
 	}
 
-	bogusHandlerCalled := false
+	bogusHandlerCalled := int32(0)
 	bogusHandler := func(s *Session, se *Session) {
-		bogusHandlerCalled = true
+		atomic.AddInt32(&bogusHandlerCalled, 1)
 	}
 
 	d := Session{}
@@ -252,24 +253,25 @@ func TestAddHandler(t *testing.T) {
 	d.handle(&MessageCreate{})
 	d.handle(&MessageDelete{})
 
-	<-time.After(100 * time.Millisecond)
+	<-time.After(500 * time.Millisecond)
 
 	// testHandler will be called twice because it was added twice.
-	if testHandlerCalled != 2 {
+	if atomic.LoadInt32(&testHandlerCalled) != 2 {
 		t.Fatalf("testHandler was not called twice.")
 	}
 
 	// interfaceHandler will be called twice, once for each event.
-	if interfaceHandlerCalled != 2 {
+	if atomic.LoadInt32(&interfaceHandlerCalled) != 2 {
 		t.Fatalf("interfaceHandler was not called twice.")
 	}
 
-	if bogusHandlerCalled {
+	if atomic.LoadInt32(&bogusHandlerCalled) != 0 {
 		t.Fatalf("bogusHandler was called.")
 	}
 }
 
 func TestRemoveHandler(t *testing.T) {
+
 	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
@@ -284,10 +286,10 @@ func TestRemoveHandler(t *testing.T) {
 
 	d.handle(&MessageCreate{})
 
-	<-time.After(100 * time.Millisecond)
+	<-time.After(500 * time.Millisecond)
 
 	// testHandler will be called once, as it was removed in between calls.
-	if testHandlerCalled != 1 {
+	if atomic.LoadInt32(&testHandlerCalled) != 1 {
 		t.Fatalf("testHandler was not called once.")
 	}
 }
