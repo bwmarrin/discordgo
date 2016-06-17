@@ -62,10 +62,6 @@ func msglog(msgL, caller int, format string, a ...interface{}) {
 // message log level
 func (s *Session) log(msgL int, format string, a ...interface{}) {
 
-	if s.Debug { // Deprecated
-		s.LogLevel = LogDebug
-	}
-
 	if msgL > s.LogLevel {
 		return
 	}
