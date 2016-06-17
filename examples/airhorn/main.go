@@ -1,7 +1,7 @@
 package main
 
 import (
-"encoding/binary"
+	"encoding/binary"
 	"flag"
 	"fmt"
 	"io"
