@@ -10,6 +10,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Variables used for command line parameters
 var (
 	Email       string
 	Password    string
@@ -63,7 +64,7 @@ func changeAvatar(s *discordgo.Session) {
 
 	base64 := base64.StdEncoding.EncodeToString(img)
 
-	avatar := fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(img), string(base64))
+	avatar := fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(img), base64)
 
 	_, err = s.UserUpdate("", "", BotUsername, avatar, "")
 	if err != nil {

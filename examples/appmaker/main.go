@@ -7,14 +7,14 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Variables used for command line options
 var (
-	Email     string
-	Password  string
-	Token     string
-	AppName   string
-	ConvToken string
-	DeleteID  string
-	ListOnly  bool
+	Email    string
+	Password string
+	Token    string
+	AppName  string
+	DeleteID string
+	ListOnly bool
 )
 
 func init() {
@@ -30,6 +30,7 @@ func init() {
 
 func main() {
 
+	var err error
 	// Create a new Discord session using the provided login information.
 	dg, err := discordgo.New(Email, Password, Token)
 	if err != nil {
@@ -40,8 +41,8 @@ func main() {
 	// If -l set, only display a list of existing applications
 	// for the given account.
 	if ListOnly {
-		aps, err := dg.Applications()
-		if err != nil {
+		aps, err2 := dg.Applications()
+		if err2 != nil {
 			fmt.Println("error fetching applications,", err)
 			return
 		}
@@ -58,7 +59,7 @@ func main() {
 
 	// if -d set, delete the given Application
 	if DeleteID != "" {
-		err := dg.ApplicationDelete(DeleteID)
+		err = dg.ApplicationDelete(DeleteID)
 		if err != nil {
 			fmt.Println("error deleting application,", err)
 		}

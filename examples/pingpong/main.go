@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Variables used for command line parameters
 var (
 	Email    string
 	Password string
@@ -44,7 +45,11 @@ func main() {
 	dg.AddHandler(messageCreate)
 
 	// Open the websocket and begin listening.
-	dg.Open()
+	err = dg.Open()
+	if err != nil {
+		fmt.Println("error opening connection,", err)
+		return
+	}
 
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	// Simple way to keep program running until CTRL-C is pressed.
@@ -63,11 +68,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+		_, _ = s.ChannelMessageSend(m.ChannelID, "Pong!")
 	}
 
 	// If the message is "pong" reply with "Ping!"
 	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
+		_, _ = s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
 }

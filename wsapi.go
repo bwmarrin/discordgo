@@ -288,15 +288,15 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	// If this is a compressed message, uncompress it.
 	if messageType == websocket.BinaryMessage {
 
-		z, err := zlib.NewReader(reader)
-		if err != nil {
+		z, err2 := zlib.NewReader(reader)
+		if err2 != nil {
 			s.log(LogError, "error uncompressing websocket message, %s", err)
 			return
 		}
 
 		defer func() {
-			err := z.Close()
-			if err != nil {
+			err3 := z.Close()
+			if err3 != nil {
 				s.log(LogWarning, "error closing zlib, %s", err)
 			}
 		}()

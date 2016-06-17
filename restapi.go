@@ -107,8 +107,8 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		return
 	}
 	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
+		err2 := resp.Body.Close()
+		if err2 != nil {
 			log.Println("error closing resp body")
 		}
 	}()
