@@ -52,26 +52,6 @@ func waitBoolEqual(timeout time.Duration, check *bool, want bool) bool {
 	}
 }
 
-// Checks if we're connected to Discord
-func isConnected() bool {
-
-	if dg == nil {
-		return false
-	}
-
-	if dg.Token == "" {
-		return false
-	}
-
-	// Need a way to see if the ws connection is nil
-
-	if !waitBoolEqual(10*time.Second, &dg.DataReady, true) {
-		return false
-	}
-
-	return true
-}
-
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
