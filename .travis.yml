@@ -3,10 +3,11 @@ go:
     - 1.4
     - 1.5
     - 1.6
-before_script:
-    - go vet ./..
-gobuild_args:
-    - -race
 install:
     - go get github.com/bwmarrin/discordgo
     - go get -v .
+    - go get -v github.com/golang/lint/golint
+script:
+    - go vet -x ./...
+    - golint ./...
+    - go test -v -race ./...
