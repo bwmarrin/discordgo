@@ -114,6 +114,8 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 // !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
 func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
 
+	v.log(LogInformational, "called")
+
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
 	v.wsMutex.Lock()
 	err = v.session.wsConn.WriteJSON(data)
@@ -224,6 +226,8 @@ type voiceOP2 struct {
 // become ready, if it does not become ready it retuns an err
 func (v *VoiceConnection) waitUntilConnected() error {
 
+	v.log(LogInformational, "called")
+
 	i := 0
 	for {
 		if v.Ready {
@@ -292,7 +296,7 @@ func (v *VoiceConnection) open() (err error) {
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		log.Println("VOICE error sending init packet:", err)
+		v.log(LogWarning, "error sending init packet, %s", err)
 		return
 	}
 
@@ -309,6 +313,8 @@ func (v *VoiceConnection) open() (err error) {
 // wsListen listens on the voice websocket for messages and passes them
 // to the voice event handler.  This is automatically called by the Open func
 func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}) {
+
+	v.log(LogInformational, "called")
 
 	for {
 		_, message, err := v.wsConn.ReadMessage()
@@ -844,6 +850,7 @@ func (v *VoiceConnection) reconnect() {
 		// TODO: Maybe find a better method.
 		gID := v.GuildID
 		v.GuildID = ""
+		v.sessionID = ""
 
 		_, err := v.session.ChannelVoiceJoin(gID, v.ChannelID, v.mute, v.deaf)
 		if err == nil {
