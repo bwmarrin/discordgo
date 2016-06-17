@@ -33,26 +33,6 @@ func init() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////// HELPER FUNCTIONS USED FOR TESTING
-
-// This waits x time for the check bool to be the want bool
-func waitBoolEqual(timeout time.Duration, check *bool, want bool) bool {
-
-	start := time.Now()
-	for {
-		if *check == want {
-			return true
-		}
-
-		if time.Since(start) > timeout {
-			return false
-		}
-
-		runtime.Gosched()
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
 // TestNew tests the New() function without any arguments.  This should return
@@ -184,8 +164,21 @@ func TestOpenClose(t *testing.T) {
 		t.Fatalf("TestClose, d.Open failed: %+v", err)
 	}
 
-	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
-		t.Fatal("DataReady never became true.")
+	// We need a better way to know the session is ready for use,
+	// this is totally gross.
+	start := time.Now()
+	for {
+		d.RLock()
+		if d.DataReady {
+			d.RUnlock()
+			break
+		}
+		d.RUnlock()
+
+		if time.Since(start) > 10*time.Second {
+			t.Fatal("DataReady never became true.yy")
+		}
+		runtime.Gosched()
 	}
 
 	// TODO find a better way
