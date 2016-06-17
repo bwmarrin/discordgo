@@ -161,7 +161,7 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			return
 
 		default:
-			go s.onEvent(messageType, message)
+			s.onEvent(messageType, message)
 
 		}
 	}
@@ -377,7 +377,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		// it's better to pass along what we received than nothing at all.
 		// TODO: Think about that decision :)
 		// Either way, READY events must fire, even with errors.
-		s.handle(i)
+		go s.handle(i)
 
 	} else {
 		s.log(LogWarning, "unknown event: Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
@@ -385,7 +385,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 
 	// Emit event to the OnEvent handler
 	e.Struct = i
-	s.handle(e)
+	go s.handle(e)
 }
 
 // ------------------------------------------------------------------------------------------------
