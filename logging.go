@@ -79,10 +79,6 @@ func (s *Session) log(msgL int, format string, a ...interface{}) {
 // message log level
 func (v *VoiceConnection) log(msgL int, format string, a ...interface{}) {
 
-	if v.Debug { // Deprecated
-		v.LogLevel = LogDebug
-	}
-
 	if msgL > v.LogLevel {
 		return
 	}
