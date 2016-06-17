@@ -194,10 +194,14 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 		s.wsMutex.Unlock()
 		if err != nil {
 			s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
+			s.Lock()
 			s.DataReady = false
+			s.Unlock()
 			return
 		}
+		s.Lock()
 		s.DataReady = true
+		s.Unlock()
 
 		select {
 		case <-ticker.C:
