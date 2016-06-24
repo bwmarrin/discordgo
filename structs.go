@@ -281,6 +281,7 @@ type User struct {
 	Discriminator string `json:"discriminator"`
 	Token         string `json:"token"`
 	Verified      bool   `json:"verified"`
+	MFAEnabled    bool   `json:"mfa_enabled"`
 	Bot           bool   `json:"bot"`
 }
 
