@@ -795,6 +795,7 @@ func (v *VoiceConnection) reconnect() {
 	v.Lock()
 	if v.reconnecting {
 		v.log(LogInformational, "already reconnecting, exiting.")
+		v.Unlock()
 		return
 	}
 	v.reconnecting = true
