@@ -51,13 +51,17 @@ type Session struct {
 	// Exposed but should not be modified by User.
 
 	// Whether the Data Websocket is ready
-	DataReady bool
+	DataReady bool // NOTE: Maye be deprecated soon
+
+	// Status stores the currect status of the websocket connection
+	// this is being tested, may stay, may go away.
+	status int32
 
 	// Whether the Voice Websocket is ready
-	VoiceReady bool
+	VoiceReady bool // NOTE: Deprecated.
 
 	// Whether the UDP Connection is ready
-	UDPReady bool
+	UDPReady bool // NOTE: Deprecated
 
 	// Stores a mapping of guild id's to VoiceConnections
 	VoiceConnections map[string]*VoiceConnection
