@@ -380,15 +380,20 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
 func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
-
-	channel, err := s.Channel(channelID)
-	if err != nil {
-		return
+	channel, err := s.State.Channel(channelID)
+	if err != nil || channel == nil {
+		channel, err = s.Channel(channelID)
+		if err != nil {
+			return
+		}
 	}
 
-	guild, err := s.Guild(channel.GuildID)
-	if err != nil {
-		return
+	guild, err := s.State.Guild(channel.GuildID)
+	if err != nil || guild == nil {
+		guild, err = s.Guild(channel.GuildID)
+		if err != nil {
+			return
+		}
 	}
 
 	if userID == guild.OwnerID {
@@ -396,9 +401,12 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		return
 	}
 
-	member, err := s.GuildMember(guild.ID, userID)
-	if err != nil {
-		return
+	member, err := s.State.Member(guild.ID, userID)
+	if err != nil || member == nil {
+		member, err = s.GuildMember(guild.ID, userID)
+		if err != nil {
+			return
+		}
 	}
 
 	for _, role := range guild.Roles {
