@@ -810,16 +810,33 @@ func (v *VoiceConnection) reconnect() {
 		return
 	}
 
+	// check that the gateway session is Ready
+	// this needs more smarts - but the issue is that well the session
+	// could be not ready and in that case the disconnect below will panic
+	// one cause for that is if the gw disconnects and starts the reconnect
+	// processes right before the voice disconnects.
+	// NOTE: this will probably change but it's a safety net for now
+	i := 0
+	for v.session.DataReady == false || v.session.wsConn == nil {
+		if i > 20 {
+			v.log(LogInformational, "timeout waiting for ready session, I give up.")
+			return
+		}
+		time.Sleep(1 * time.Second)
+		i++
+	}
+
 	// Send a OP4 with a nil channel to disconnect
+	// this may not be required, but is here as a safety for now.
 	if v.sessionID != "" {
 		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
-		v.wsMutex.Lock()
+		v.session.wsMutex.Lock()
 		err := v.session.wsConn.WriteJSON(data)
 		if err != nil {
 			v.log(LogError, "error sending disconnect packet, %s", err)
 		}
 
-		v.wsMutex.Unlock()
+		v.session.wsMutex.Unlock()
 		v.sessionID = ""
 	}
 
@@ -828,7 +845,7 @@ func (v *VoiceConnection) reconnect() {
 
 	wait := time.Duration(1)
 
-	i := 0
+	i = 0
 	for {
 
 		if v.session == nil {
@@ -846,7 +863,7 @@ func (v *VoiceConnection) reconnect() {
 
 		i++
 
-		if v.session.DataReady == false {
+		if v.session.DataReady == false || v.session.wsConn == nil {
 			v.log(LogInformational, "cannot reconenct with unready session")
 			continue
 		}
