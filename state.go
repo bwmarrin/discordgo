@@ -105,7 +105,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 	s.Lock()
 	defer s.Unlock()
-	
+
 	delete(s.guildMap, guild.ID)
 
 	for i, g := range s.Guilds {
@@ -286,7 +286,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 			}
 		}
 	}
-	
+
 	delete(s.channelMap, channel.ID)
 
 	return nil
