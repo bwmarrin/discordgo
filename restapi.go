@@ -1180,6 +1180,39 @@ func (s *Session) ChannelMessagesBulkDelete(channelID string, messages []string)
 	return
 }
 
+// ChannelMessagePin pins a message within a given channel.
+// channelID: The ID of a channel.
+// messageID: The ID of a message.
+func (s *Session) ChannelMessagePin(channelID, messageID string) (err error) {
+
+	_, err = s.Request("PUT", EndpointChannelMessagePin(channelID, messageID), nil)
+	return
+}
+
+// ChannelMessageUnpin unpins a message within a given channel.
+// channelID: The ID of a channel.
+// messageID: The ID of a message.
+func (s *Session) ChannelMessageUnpin(channelID, messageID string) (err error) {
+
+	_, err = s.Request("DELETE", EndpointChannelMessagePin(channelID, messageID), nil)
+	return
+}
+
+// ChannelMessagesPinned returns an array of Message structures for pinned messages
+// within a given channel
+// channelID : The ID of a Channel.
+func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err error) {
+
+	body, err := s.Request("GET", EndpointChannelMessagesPins(channelID), nil)
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // ChannelFileSend sends a file to the given channel.
 // channelID : The ID of a Channel.
 // io.Reader : A reader for the file contents.
