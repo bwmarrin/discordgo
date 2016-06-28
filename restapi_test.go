@@ -24,6 +24,8 @@ func TestChannelMessageSend(t *testing.T) {
 	}
 }
 
+/*
+// removed for now, only works on BOT accounts now
 func TestUserAvatar(t *testing.T) {
 
 	if dg == nil {
@@ -47,6 +49,7 @@ func TestUserAvatar(t *testing.T) {
 		t.Errorf("a == nil, should be image.Image")
 	}
 }
+*/
 
 /* Running this causes an error due to 2/hour rate limit on username changes
 func TestUserUpdate(t *testing.T) {
