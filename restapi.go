@@ -839,6 +839,24 @@ func (s *Session) ChannelEdit(channelID, name string) (st *Channel, err error) {
 	return
 }
 
+// ChannelEditTopic edits the given channel's topic
+// channelID  : The ID of a Channel
+// topic      : The new topic to assign the channel.
+func (s *Session) ChannelEditTopic(channelID, topic string) (st *Channel, err error) {
+
+	data := struct {
+		Topic string `json:"topic"`
+	}{topic}
+
+	body, err := s.Request("PATCH", CHANNEL(channelID), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // ChannelDelete deletes the given channel
 // channelID  : The ID of a Channel
 func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
