@@ -614,7 +614,7 @@ func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct
 
 		_, err = udpConn.Write(packet)
 		if err != nil {
-			v.log(LogError, "write error, %s")
+			v.log(LogError, "write error, %s", err)
 			return
 		}
 
