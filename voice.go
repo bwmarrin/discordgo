@@ -165,14 +165,12 @@ func (v *VoiceConnection) Close() {
 	v.Ready = false
 	v.speaking = false
 
-	v.log(LogInformational, "past lock")
 	if v.close != nil {
 		v.log(LogInformational, "closing v.close")
 		close(v.close)
 		v.close = nil
 	}
 
-	v.log(LogInformational, "past closing v.close")
 	if v.udpConn != nil {
 		v.log(LogInformational, "closing udp")
 		err := v.udpConn.Close()
@@ -182,7 +180,6 @@ func (v *VoiceConnection) Close() {
 		v.udpConn = nil
 	}
 
-	v.log(LogInformational, "past closing udp")
 	if v.wsConn != nil {
 		v.log(LogInformational, "closing wsConn")
 		err := v.wsConn.Close()
@@ -191,7 +188,6 @@ func (v *VoiceConnection) Close() {
 		}
 		v.wsConn = nil
 	}
-	v.log(LogInformational, "all done, returning")
 }
 
 // AddHandler adds a Handler for VoiceSpeakingUpdate events.
