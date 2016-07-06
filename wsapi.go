@@ -440,6 +440,23 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 		return
 	}
 
+	// Send the request to Discord that we want to join the voice channel
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(data)
+	s.wsMutex.Unlock()
+	if err != nil {
+		return
+	}
+
+	// doesn't exactly work perfect yet.. TODO
+	err = voice.waitUntilConnected()
+	if err != nil {
+		s.log(LogWarning, "error waiting for voice to connect, %s", err)
+		voice.Close()
+		return
+	}
+
 	if voice == nil {
 		voice = &VoiceConnection{}
 		s.VoiceConnections[gID] = voice
@@ -450,27 +467,6 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	voice.deaf = deaf
 	voice.mute = mute
 	voice.session = s
-
-	// Send the request to Discord that we want to join the voice channel
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
-	s.wsMutex.Lock()
-	err = s.wsConn.WriteJSON(data)
-	s.wsMutex.Unlock()
-	if err != nil {
-		s.log(LogInformational, "Deleting VoiceConnection %s", gID)
-		delete(s.VoiceConnections, gID)
-		return
-	}
-
-	// doesn't exactly work perfect yet.. TODO
-	err = voice.waitUntilConnected()
-	if err != nil {
-		s.log(LogWarning, "error waiting for voice connecting, %s", err)
-		voice.Close()
-		s.log(LogInformational, "Deleting VoiceConnection %s", gID)
-		delete(s.VoiceConnections, gID)
-		return
-	}
 
 	return
 }
@@ -536,7 +532,7 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	// Open a conenction to the voice server
 	err := voice.open()
 	if err != nil {
-		s.log(LogError, "onVoiceServerUpdate voice.open, ", err)
+		s.log(LogError, "onVoiceServerUpdate voice.open, %s", err)
 	}
 }
 
