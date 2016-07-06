@@ -842,6 +842,7 @@ func (v *VoiceConnection) reconnect() {
 	// Close any currently open connections
 	v.Close()
 
+	wait := time.Duration(1)
 	for {
 
 		<-time.After(wait * time.Second)
