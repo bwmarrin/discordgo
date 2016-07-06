@@ -794,7 +794,7 @@ func (v *VoiceConnection) reconnect() {
 
 	v.Lock()
 	if v.reconnecting {
-		v.log(LogInformational, "already reconnecting, exiting.")
+		v.log(LogInformational, "already reconnecting to channel %s, exiting", v.ChannelID)
 		v.Unlock()
 		return
 	}
@@ -803,57 +803,46 @@ func (v *VoiceConnection) reconnect() {
 
 	defer func() { v.reconnecting = false }()
 
-	if v.session == nil {
-		v.log(LogInformational, "cannot reconnect with nil session")
-		v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
-		delete(v.session.VoiceConnections, v.GuildID)
-		return
-	}
-
-	// check that the gateway session is Ready
-	// this needs more smarts - but the issue is that well the session
-	// could be not ready and in that case the disconnect below will panic
-	// one cause for that is if the gw disconnects and starts the reconnect
-	// processes right before the voice disconnects.
-	// NOTE: this will probably change but it's a safety net for now
-	i := 0
-	for v.session.DataReady == false || v.session.wsConn == nil {
-		if i > 20 {
-			v.log(LogInformational, "timeout waiting for ready session, I give up.")
-			return
-		}
-		time.Sleep(1 * time.Second)
-		i++
-	}
-
-	// Send a OP4 with a nil channel to disconnect
-	// this may not be required, but is here as a safety for now.
-	if v.sessionID != "" {
-		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
-		v.session.wsMutex.Lock()
-		err := v.session.wsConn.WriteJSON(data)
-		if err != nil {
-			v.log(LogError, "error sending disconnect packet, %s", err)
-		}
-
-		v.session.wsMutex.Unlock()
-		v.sessionID = ""
-	}
-
-	// Close websocket and udp connections
-	v.Close()
-
-	wait := time.Duration(1)
-
-	i = 0
-	for {
-
+	/*
 		if v.session == nil {
 			v.log(LogInformational, "cannot reconnect with nil session")
-			v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
-			delete(v.session.VoiceConnections, v.GuildID)
 			return
 		}
+
+			// check that the gateway session is Ready
+			// this needs more smarts - but the issue is that well the session
+			// could be not ready and in that case the disconnect below will panic
+			// one cause for that is if the gw disconnects and starts the reconnect
+			// processes right before the voice disconnects.
+			// NOTE: this will probably change but it's a safety net for now
+			i := 0
+			for v.session.DataReady == false || v.session.wsConn == nil {
+				if i > 20 {
+					v.log(LogInformational, "timeout waiting for ready session, I give up.")
+					return
+				}
+				time.Sleep(1 * time.Second)
+				i++
+			}
+
+			// Send a OP4 with a nil channel to disconnect
+			// this may not be required, but is here as a safety for now.
+			if v.sessionID != "" {
+				data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
+				v.session.wsMutex.Lock()
+				err := v.session.wsConn.WriteJSON(data)
+				v.session.wsMutex.Unlock()
+				if err != nil {
+					v.log(LogError, "error sending disconnect packet, %s", err)
+				}
+				v.sessionID = ""
+			}
+	*/
+
+	// Close any currently open connections
+	v.Close()
+
+	for {
 
 		<-time.After(wait * time.Second)
 		wait *= 2
@@ -861,14 +850,12 @@ func (v *VoiceConnection) reconnect() {
 			wait = 600
 		}
 
-		i++
-
 		if v.session.DataReady == false || v.session.wsConn == nil {
-			v.log(LogInformational, "cannot reconenct with unready session")
+			v.log(LogInformational, "cannot reconenct to channel %s with unready session", v.ChannelID)
 			continue
 		}
 
-		v.log(LogInformational, "trying to reconnect to voice")
+		v.log(LogInformational, "trying to reconnect to channel %s", v.ChannelID)
 
 		// Below is required because ChannelVoiceJoin checks the GuildID
 		// to decide if we should change channels or open a new connection.
@@ -879,20 +866,10 @@ func (v *VoiceConnection) reconnect() {
 
 		_, err := v.session.ChannelVoiceJoin(gID, v.ChannelID, v.mute, v.deaf)
 		if err == nil {
-			v.log(LogInformational, "successfully reconnected to voice")
+			v.log(LogInformational, "successfully reconnected to channel %s", v.ChannelID)
 			return
 		}
 
-		v.log(LogInformational, "error reconnecting to voice, %s", err)
-
-		if i >= 10 {
-			// NOTE: this will probably change but it's a safety net
-			// here to prevent this goroutine from becomming abandoned.
-			v.log(LogInformational, "timeout reconnecting, I give up.")
-			v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
-			delete(v.session.VoiceConnections, v.GuildID)
-			return
-		}
-
+		v.log(LogInformational, "error reconnecting to channel %s, %s", v.ChannelID, err)
 	}
 }
