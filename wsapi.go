@@ -427,18 +427,18 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 
 	s.log(LogInformational, "called")
 
-	// If a voice connection already exists for this guild then
-	// return that connection. If the channel differs, also change channels.
-	var ok bool
-	if voice, ok = s.VoiceConnections[gID]; ok && voice.GuildID != "" {
-		//TODO: consider a better variable than GuildID in the above check
-		// to verify if this connection is valid or not.
+	voice, _ = s.VoiceConnections[gID]
 
-		if voice.ChannelID != cID {
-			err = voice.ChangeChannel(cID, mute, deaf)
-		}
-		return
+	if voice == nil {
+		voice = &VoiceConnection{}
+		s.VoiceConnections[gID] = voice
 	}
+
+	voice.GuildID = gID
+	voice.ChannelID = cID
+	voice.deaf = deaf
+	voice.mute = mute
+	voice.session = s
 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
@@ -456,17 +456,6 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 		voice.Close()
 		return
 	}
-
-	if voice == nil {
-		voice = &VoiceConnection{}
-		s.VoiceConnections[gID] = voice
-	}
-
-	voice.GuildID = gID
-	voice.ChannelID = cID
-	voice.deaf = deaf
-	voice.mute = mute
-	voice.session = s
 
 	return
 }
@@ -656,9 +645,28 @@ func (s *Session) Close() (err error) {
 		s.listening = nil
 	}
 
+	// TODO: Close all active Voice Connections too
+	// this should force stop any reconnecting voice channels too
+
 	if s.wsConn != nil {
+
+		s.log(LogInformational, "sending close frame")
+		// To cleanly close a connection, a client should send a close
+		// frame and wait for the server to close the connection.
+		err := s.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		if err != nil {
+			s.log(LogError, "error closing websocket, %s", err)
+		}
+
+		// TODO: Wait for Discord to actually close the connection.
+		time.Sleep(1 * time.Second)
+
 		s.log(LogInformational, "closing gateway websocket")
 		err = s.wsConn.Close()
+		if err != nil {
+			s.log(LogError, "error closing websocket, %s", err)
+		}
+
 		s.wsConn = nil
 	}
 
