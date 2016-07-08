@@ -831,20 +831,13 @@ func (v *VoiceConnection) reconnect() {
 
 		v.log(LogInformational, "trying to reconnect to channel %s", v.ChannelID)
 
-		// Below is required because ChannelVoiceJoin checks the GuildID
-		// to decide if we should change channels or open a new connection.
-		// TODO: Maybe find a better method.
-		gID := v.GuildID
-		v.GuildID = ""
-		v.sessionID = ""
-
 		_, err := v.session.ChannelVoiceJoin(gID, v.ChannelID, v.mute, v.deaf)
 		if err == nil {
 			v.log(LogInformational, "successfully reconnected to channel %s", v.ChannelID)
 			return
 		}
 
-		// if the quick reconnect above didn't work lets just send a disconnect
+		// if the reconnect above didn't work lets just send a disconnect
 		// packet to reset things.
 		// Send a OP4 with a nil channel to disconnect
 		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
