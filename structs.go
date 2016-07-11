@@ -53,6 +53,9 @@ type Session struct {
 	// Whether the Data Websocket is ready
 	DataReady bool // NOTE: Maye be deprecated soon
 
+	// Max number of REST API retries
+	MaxRestRetries int
+
 	// Status stores the currect status of the websocket connection
 	// this is being tested, may stay, may go away.
 	status int32
