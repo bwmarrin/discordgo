@@ -149,7 +149,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
 		s.handle(RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		time.Sleep(rl.RetryAfter)
+		time.Sleep(rl.RetryAfter * time.Millisecond)
 		// we can make the above smarter
 		// this method can cause longer delays then required
 
