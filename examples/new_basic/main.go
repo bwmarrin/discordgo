@@ -8,11 +8,11 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Variables used for command line parameters
 var (
 	Email    string
 	Password string
 	Token    string
-	BotID    string
 )
 
 func init() {
@@ -37,7 +37,11 @@ func main() {
 	dg.AddHandler(messageCreate)
 
 	// Open the websocket and begin listening.
-	dg.Open()
+	err = dg.Open()
+	if err != nil {
+		fmt.Println("error opening connection,", err)
+		return
+	}
 
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	// Simple way to keep program running until CTRL-C is pressed.

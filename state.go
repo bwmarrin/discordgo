@@ -680,3 +680,67 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 
 	return
 }
+
+// UserChannelPermissions returns the permission of a user in a channel.
+// userID    : The ID of the user to calculate permissions for.
+// channelID : The ID of the channel to calculate permission for.
+func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+
+	channel, err := s.Channel(channelID)
+	if err != nil {
+		return
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return
+	}
+
+	if userID == guild.OwnerID {
+		apermissions = PermissionAll
+		return
+	}
+
+	member, err := s.Member(guild.ID, userID)
+	if err != nil {
+		return
+	}
+
+	for _, role := range guild.Roles {
+		for _, roleID := range member.Roles {
+			if role.ID == roleID {
+				apermissions |= role.Permissions
+				break
+			}
+		}
+	}
+
+	if apermissions&PermissionManageRoles > 0 {
+		apermissions |= PermissionAll
+	}
+
+	// Member overwrites can override role overrides, so do two passes
+	for _, overwrite := range channel.PermissionOverwrites {
+		for _, roleID := range member.Roles {
+			if overwrite.Type == "role" && roleID == overwrite.ID {
+				apermissions &= ^overwrite.Deny
+				apermissions |= overwrite.Allow
+				break
+			}
+		}
+	}
+
+	for _, overwrite := range channel.PermissionOverwrites {
+		if overwrite.Type == "member" && overwrite.ID == userID {
+			apermissions &= ^overwrite.Deny
+			apermissions |= overwrite.Allow
+			break
+		}
+	}
+
+	if apermissions&PermissionManageRoles > 0 {
+		apermissions |= PermissionAllChannel
+	}
+
+	return
+}

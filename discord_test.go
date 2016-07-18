@@ -33,46 +33,6 @@ func init() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////// HELPER FUNCTIONS USED FOR TESTING
-
-// This waits x time for the check bool to be the want bool
-func waitBoolEqual(timeout time.Duration, check *bool, want bool) bool {
-
-	start := time.Now()
-	for {
-		if *check == want {
-			return true
-		}
-
-		if time.Since(start) > timeout {
-			return false
-		}
-
-		runtime.Gosched()
-	}
-}
-
-// Checks if we're connected to Discord
-func isConnected() bool {
-
-	if dg == nil {
-		return false
-	}
-
-	if dg.Token == "" {
-		return false
-	}
-
-	// Need a way to see if the ws connection is nil
-
-	if !waitBoolEqual(10*time.Second, &dg.DataReady, true) {
-		return false
-	}
-
-	return true
-}
-
-//////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
 // TestNew tests the New() function without any arguments.  This should return
@@ -204,8 +164,21 @@ func TestOpenClose(t *testing.T) {
 		t.Fatalf("TestClose, d.Open failed: %+v", err)
 	}
 
-	if !waitBoolEqual(10*time.Second, &d.DataReady, true) {
-		t.Fatal("DataReady never became true.")
+	// We need a better way to know the session is ready for use,
+	// this is totally gross.
+	start := time.Now()
+	for {
+		d.RLock()
+		if d.DataReady {
+			d.RUnlock()
+			break
+		}
+		d.RUnlock()
+
+		if time.Since(start) > 10*time.Second {
+			t.Fatal("DataReady never became true.yy")
+		}
+		runtime.Gosched()
 	}
 
 	// TODO find a better way
@@ -227,6 +200,7 @@ func TestOpenClose(t *testing.T) {
 }
 
 func TestAddHandler(t *testing.T) {
+
 	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
@@ -237,9 +211,9 @@ func TestAddHandler(t *testing.T) {
 		atomic.AddInt32(&interfaceHandlerCalled, 1)
 	}
 
-	bogusHandlerCalled := false
+	bogusHandlerCalled := int32(0)
 	bogusHandler := func(s *Session, se *Session) {
-		bogusHandlerCalled = true
+		atomic.AddInt32(&bogusHandlerCalled, 1)
 	}
 
 	d := Session{}
@@ -252,24 +226,25 @@ func TestAddHandler(t *testing.T) {
 	d.handle(&MessageCreate{})
 	d.handle(&MessageDelete{})
 
-	<-time.After(100 * time.Millisecond)
+	<-time.After(500 * time.Millisecond)
 
 	// testHandler will be called twice because it was added twice.
-	if testHandlerCalled != 2 {
+	if atomic.LoadInt32(&testHandlerCalled) != 2 {
 		t.Fatalf("testHandler was not called twice.")
 	}
 
 	// interfaceHandler will be called twice, once for each event.
-	if interfaceHandlerCalled != 2 {
+	if atomic.LoadInt32(&interfaceHandlerCalled) != 2 {
 		t.Fatalf("interfaceHandler was not called twice.")
 	}
 
-	if bogusHandlerCalled {
+	if atomic.LoadInt32(&bogusHandlerCalled) != 0 {
 		t.Fatalf("bogusHandler was called.")
 	}
 }
 
 func TestRemoveHandler(t *testing.T) {
+
 	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
@@ -284,10 +259,10 @@ func TestRemoveHandler(t *testing.T) {
 
 	d.handle(&MessageCreate{})
 
-	<-time.After(100 * time.Millisecond)
+	<-time.After(500 * time.Millisecond)
 
 	// testHandler will be called once, as it was removed in between calls.
-	if testHandlerCalled != 1 {
+	if atomic.LoadInt32(&testHandlerCalled) != 1 {
 		t.Fatalf("testHandler was not called once.")
 	}
 }

@@ -10,8 +10,6 @@
 package discordgo
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"log"
 	"runtime"
@@ -20,21 +18,19 @@ import (
 
 const (
 
-	// Critical Errors that could lead to data loss or panic
-	// Only errors that would not be returned to a calling function
+	// LogError level is used for critical errors that could lead to data loss
+	// or panic that would not be returned to a calling function.
 	LogError int = iota
 
-	// Very abnormal events.
-	// Errors that are also returend to a calling function.
+	// LogWarning level is used for very abnormal events and errors that are
+	// also returend to a calling function.
 	LogWarning
 
-	// Normal non-error activity
-	// Generally, not overly spammy events
+	// LogInformational level is used for normal non-error activity
 	LogInformational
 
-	// Very detailed non-error activity
-	// All HTTP/Websocket packets.
-	// Very spammy and will impact performance
+	// LogDebug level is for very detailed non-error activity.  This is
+	// very spammy and will impact performance.
 	LogDebug
 )
 
@@ -66,10 +62,6 @@ func msglog(msgL, caller int, format string, a ...interface{}) {
 // message log level
 func (s *Session) log(msgL int, format string, a ...interface{}) {
 
-	if s.Debug { // Deprecated
-		s.LogLevel = LogDebug
-	}
-
 	if msgL > s.LogLevel {
 		return
 	}
@@ -83,10 +75,6 @@ func (s *Session) log(msgL int, format string, a ...interface{}) {
 // message log level
 func (v *VoiceConnection) log(msgL int, format string, a ...interface{}) {
 
-	if v.Debug { // Deprecated
-		v.LogLevel = LogDebug
-	}
-
 	if msgL > v.LogLevel {
 		return
 	}
@@ -95,6 +83,7 @@ func (v *VoiceConnection) log(msgL int, format string, a ...interface{}) {
 }
 
 // printJSON is a helper function to display JSON data in a easy to read format.
+/* NOT USED ATM
 func printJSON(body []byte) {
 	var prettyJSON bytes.Buffer
 	error := json.Indent(&prettyJSON, body, "", "\t")
@@ -103,3 +92,4 @@ func printJSON(body []byte) {
 	}
 	log.Println(string(prettyJSON.Bytes()))
 }
+*/

@@ -62,7 +62,7 @@ type VoiceConnection struct {
 	connected chan bool
 
 	// Used to pass the sessionid from onVoiceStateUpdate
-	sessionRecv chan string
+	// sessionRecv chan string UNUSED ATM
 
 	op4 voiceOP4
 	op2 voiceOP2
@@ -114,6 +114,8 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 // !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
 func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
 
+	v.log(LogInformational, "called")
+
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
 	v.wsMutex.Lock()
 	err = v.session.wsConn.WriteJSON(data)
@@ -164,11 +166,13 @@ func (v *VoiceConnection) Close() {
 	v.speaking = false
 
 	if v.close != nil {
+		v.log(LogInformational, "closing v.close")
 		close(v.close)
 		v.close = nil
 	}
 
 	if v.udpConn != nil {
+		v.log(LogInformational, "closing udp")
 		err := v.udpConn.Close()
 		if err != nil {
 			log.Println("error closing udp connection: ", err)
@@ -177,10 +181,24 @@ func (v *VoiceConnection) Close() {
 	}
 
 	if v.wsConn != nil {
-		err := v.wsConn.Close()
+		v.log(LogInformational, "sending close frame")
+
+		// To cleanly close a connection, a client should send a close
+		// frame and wait for the server to close the connection.
+		err := v.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 		if err != nil {
-			log.Println("error closing websocket connection: ", err)
+			v.log(LogError, "error closing websocket, %s", err)
 		}
+
+		// TODO: Wait for Discord to actually close the connection.
+		time.Sleep(1 * time.Second)
+
+		v.log(LogInformational, "closing websocket")
+		err = v.wsConn.Close()
+		if err != nil {
+			v.log(LogError, "error closing websocket, %s", err)
+		}
+
 		v.wsConn = nil
 	}
 }
@@ -223,6 +241,8 @@ type voiceOP2 struct {
 // WaitUntilConnected waits for the Voice Connection to
 // become ready, if it does not become ready it retuns an err
 func (v *VoiceConnection) waitUntilConnected() error {
+
+	v.log(LogInformational, "called")
 
 	i := 0
 	for {
@@ -292,15 +312,16 @@ func (v *VoiceConnection) open() (err error) {
 
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
-		log.Println("VOICE error sending init packet:", err)
+		v.log(LogWarning, "error sending init packet, %s", err)
 		return
 	}
 
-	// Start listening for voice websocket events
-	// TODO add a check here to make sure Listen worked by monitoring
-	// a chan or bool?
 	v.close = make(chan struct{})
 	go v.wsListen(v.wsConn, v.close)
+
+	// add loop/check for Ready bool here?
+	// then return false if not ready?
+	// but then wsListen will also err.
 
 	return
 }
@@ -308,6 +329,8 @@ func (v *VoiceConnection) open() (err error) {
 // wsListen listens on the voice websocket for messages and passes them
 // to the voice event handler.  This is automatically called by the Open func
 func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}) {
+
+	v.log(LogInformational, "called")
 
 	for {
 		_, message, err := v.wsConn.ReadMessage()
@@ -346,7 +369,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 	var e Event
 	if err := json.Unmarshal(message, &e); err != nil {
-		log.Println("unmarshall error, %s", err)
+		v.log(LogError, "unmarshall error, %s", err)
 		return
 	}
 
@@ -600,7 +623,7 @@ func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct
 
 		_, err = udpConn.Write(packet)
 		if err != nil {
-			v.log(LogError, "write error, %s")
+			v.log(LogError, "write error, %s", err)
 			return
 		}
 
@@ -771,11 +794,17 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 
 // Reconnect will close down a voice connection then immediately try to
 // reconnect to that session.
+// NOTE : This func is messy and a WIP while I find what works.
+// It will be cleaned up once a proven stable option is flushed out.
+// aka: this is ugly shit code, please don't judge too harshly.
 func (v *VoiceConnection) reconnect() {
+
+	v.log(LogInformational, "called")
 
 	v.Lock()
 	if v.reconnecting {
-		v.log(LogInformational, "Already reconnecting...")
+		v.log(LogInformational, "already reconnecting to channel %s, exiting", v.ChannelID)
+		v.Unlock()
 		return
 	}
 	v.reconnecting = true
@@ -783,55 +812,42 @@ func (v *VoiceConnection) reconnect() {
 
 	defer func() { v.reconnecting = false }()
 
-	v.log(LogInformational, "called")
-
+	// Close any currently open connections
 	v.Close()
 
-	// Take a short nap to allow everything to close.
-	time.Sleep(1 * time.Second)
-
 	wait := time.Duration(1)
-
-	// TODO After X attempts abort.
-	// Right now this code has the potential to create abandoned goroutines
-
 	for {
-
-		if v.session == nil {
-			v.log(LogInformational, "cannot reconnect with nil session")
-			return
-		}
-
-		if v.session.DataReady == false {
-
-			v.log(LogInformational, "cannot reconenct with unready session")
-
-		} else {
-
-			v.log(LogInformational, "trying to reconnect to voice")
-
-			/*
-				// TODO: Move this to a 2nd stage
-				_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
-				if err == nil {
-					v.log(LogInformational, "successfully reconnected to voice")
-					return
-				}
-			*/
-
-			err := v.open()
-			if err == nil {
-				v.log(LogInformational, "successfully reconnected to voice")
-				return
-			}
-
-			v.log(LogError, "error reconnecting to voice, %s", err)
-		}
 
 		<-time.After(wait * time.Second)
 		wait *= 2
 		if wait > 600 {
 			wait = 600
 		}
+
+		if v.session.DataReady == false || v.session.wsConn == nil {
+			v.log(LogInformational, "cannot reconenct to channel %s with unready session", v.ChannelID)
+			continue
+		}
+
+		v.log(LogInformational, "trying to reconnect to channel %s", v.ChannelID)
+
+		_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
+		if err == nil {
+			v.log(LogInformational, "successfully reconnected to channel %s", v.ChannelID)
+			return
+		}
+
+		// if the reconnect above didn't work lets just send a disconnect
+		// packet to reset things.
+		// Send a OP4 with a nil channel to disconnect
+		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
+		v.session.wsMutex.Lock()
+		err = v.session.wsConn.WriteJSON(data)
+		v.session.wsMutex.Unlock()
+		if err != nil {
+			v.log(LogError, "error sending disconnect packet, %s", err)
+		}
+
+		v.log(LogInformational, "error reconnecting to channel %s, %s", v.ChannelID, err)
 	}
 }

@@ -10,11 +10,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Variables used for command line parameters
 var (
 	Email       string
 	Password    string
 	Token       string
-	Url         string
+	URL         string
 	BotID       string
 	BotUsername string
 )
@@ -24,7 +25,7 @@ func init() {
 	flag.StringVar(&Email, "e", "", "Account Email")
 	flag.StringVar(&Password, "p", "", "Account Password")
 	flag.StringVar(&Token, "t", "", "Account Token")
-	flag.StringVar(&Url, "l", "http://bwmarrin.github.io/discordgo/img/discordgo.png", "Link to the avatar image")
+	flag.StringVar(&URL, "l", "http://bwmarrin.github.io/discordgo/img/discordgo.png", "Link to the avatar image")
 	flag.Parse()
 }
 
@@ -57,13 +58,15 @@ func main() {
 // Helper function to change the avatar
 func changeAvatar(s *discordgo.Session) {
 
-	resp, err := http.Get(Url)
+	resp, err := http.Get(URL)
 	if err != nil {
 		fmt.Println("Error retrieving the file, ", err)
 		return
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	img, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -73,7 +76,7 @@ func changeAvatar(s *discordgo.Session) {
 
 	base64 := base64.StdEncoding.EncodeToString(img)
 
-	avatar := fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(img), string(base64))
+	avatar := fmt.Sprintf("data:%s;base64,%s", http.DetectContentType(img), base64)
 
 	_, err = s.UserUpdate("", "", BotUsername, avatar, "")
 	if err != nil {

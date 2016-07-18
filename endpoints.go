@@ -46,14 +46,15 @@ var (
 	EndpointReport       = EndpointAPI + "report"
 	EndpointIntegrations = EndpointAPI + "integrations"
 
-	EndpointUser            = func(uID string) string { return EndpointUsers + uID }
-	EndpointUserAvatar      = func(uID, aID string) string { return EndpointUsers + uID + "/avatars/" + aID + ".jpg" }
-	EndpointUserSettings    = func(uID string) string { return EndpointUsers + uID + "/settings" }
-	EndpointUserGuilds      = func(uID string) string { return EndpointUsers + uID + "/guilds" }
-	EndpointUserGuild       = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID }
-	EndpointUserChannels    = func(uID string) string { return EndpointUsers + uID + "/channels" }
-	EndpointUserDevices     = func(uID string) string { return EndpointUsers + uID + "/devices" }
-	EndpointUserConnections = func(uID string) string { return EndpointUsers + uID + "/connections" }
+	EndpointUser              = func(uID string) string { return EndpointUsers + uID }
+	EndpointUserAvatar        = func(uID, aID string) string { return EndpointUsers + uID + "/avatars/" + aID + ".jpg" }
+	EndpointUserSettings      = func(uID string) string { return EndpointUsers + uID + "/settings" }
+	EndpointUserGuilds        = func(uID string) string { return EndpointUsers + uID + "/guilds" }
+	EndpointUserGuild         = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID }
+	EndpointUserGuildSettings = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID + "/settings" }
+	EndpointUserChannels      = func(uID string) string { return EndpointUsers + uID + "/channels" }
+	EndpointUserDevices       = func(uID string) string { return EndpointUsers + uID + "/devices" }
+	EndpointUserConnections   = func(uID string) string { return EndpointUsers + uID + "/connections" }
 
 	EndpointGuild                = func(gID string) string { return EndpointGuilds + gID }
 	EndpointGuildInivtes         = func(gID string) string { return EndpointGuilds + gID + "/invites" }
@@ -82,6 +83,8 @@ var (
 	EndpointChannelMessage            = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID }
 	EndpointChannelMessageAck         = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID + "/ack" }
 	EndpointChannelMessagesBulkDelete = func(cID string) string { return EndpointChannel(cID) + "/messages/bulk_delete" }
+	EndpointChannelMessagesPins       = func(cID string) string { return EndpointChannel(cID) + "/pins" }
+	EndpointChannelMessagePin         = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
 
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invite/" + iID }
 

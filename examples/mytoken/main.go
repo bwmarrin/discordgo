@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Variables used for command line parameters
 var (
 	Email    string
 	Password string

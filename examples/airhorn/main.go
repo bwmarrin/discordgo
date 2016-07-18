@@ -64,7 +64,7 @@ func main() {
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
 	// Set the playing status.
-	s.UpdateStatus(0, "!airhorn")
+	_ = s.UpdateStatus(0, "!airhorn")
 }
 
 // This function will be called (due to AddHandler above) every time a new
@@ -108,7 +108,7 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 
 	for _, channel := range event.Guild.Channels {
 		if channel.ID == event.Guild.ID {
-			s.ChannelMessageSend(channel.ID, "Airhorn is ready! Type !airhorn while in a voice channel to play a sound.")
+			_, _ = s.ChannelMessageSend(channel.ID, "Airhorn is ready! Type !airhorn while in a voice channel to play a sound.")
 			return
 		}
 	}
@@ -166,7 +166,7 @@ func playSound(s *discordgo.Session, guildID, channelID string) (err error) {
 	time.Sleep(250 * time.Millisecond)
 
 	// Start speaking.
-	vc.Speaking(true)
+	_ = vc.Speaking(true)
 
 	// Send the buffer data.
 	for _, buff := range buffer {
@@ -174,13 +174,13 @@ func playSound(s *discordgo.Session, guildID, channelID string) (err error) {
 	}
 
 	// Stop speaking
-	vc.Speaking(false)
+	_ = vc.Speaking(false)
 
 	// Sleep for a specificed amount of time before ending.
 	time.Sleep(250 * time.Millisecond)
 
 	// Disconnect from the provided voice channel.
-	vc.Disconnect()
+	_ = vc.Disconnect()
 
 	return nil
 }

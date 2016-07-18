@@ -107,8 +107,8 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		return
 	}
 	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
+		err2 := resp.Body.Close()
+		if err2 != nil {
 			log.Println("error closing resp body")
 		}
 	}()
@@ -149,7 +149,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
 		s.handle(RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		time.Sleep(rl.RetryAfter)
+		time.Sleep(rl.RetryAfter * time.Millisecond)
 		// we can make the above smarter
 		// this method can cause longer delays then required
 
@@ -362,19 +362,40 @@ func (s *Session) UserGuilds() (st []*Guild, err error) {
 	return
 }
 
-// UserChannelPermissions returns the permission of a user in a channel.
-// userID    : The ID of the user to calculate permissions for.
-// channelID : The ID of the channel to calculate permission for.
-func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+// UserGuildSettingsEdit Edits the users notification settings for a guild
+// guildID   : The ID of the guild to edit the settings on
+// settings  : The settings to update
+func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSettingsEdit) (st *UserGuildSettings, err error) {
 
-	channel, err := s.Channel(channelID)
+	body, err := s.Request("PATCH", EndpointUserGuildSettings("@me", guildID), settings)
 	if err != nil {
 		return
 	}
 
-	guild, err := s.Guild(channel.GuildID)
-	if err != nil {
-		return
+	err = unmarshal(body, &st)
+	return
+}
+
+// NOTE: This function is now deprecated and will be removed in the future.
+// Please see the same function inside state.go
+// UserChannelPermissions returns the permission of a user in a channel.
+// userID    : The ID of the user to calculate permissions for.
+// channelID : The ID of the channel to calculate permission for.
+func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+	channel, err := s.State.Channel(channelID)
+	if err != nil || channel == nil {
+		channel, err = s.Channel(channelID)
+		if err != nil {
+			return
+		}
+	}
+
+	guild, err := s.State.Guild(channel.GuildID)
+	if err != nil || guild == nil {
+		guild, err = s.Guild(channel.GuildID)
+		if err != nil {
+			return
+		}
 	}
 
 	if userID == guild.OwnerID {
@@ -382,9 +403,12 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		return
 	}
 
-	member, err := s.GuildMember(guild.ID, userID)
-	if err != nil {
-		return
+	member, err := s.State.Member(guild.ID, userID)
+	if err != nil || member == nil {
+		member, err = s.GuildMember(guild.ID, userID)
+		if err != nil {
+			return
+		}
 	}
 
 	for _, role := range guild.Roles {
@@ -843,7 +867,7 @@ func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID
 
 	data := struct {
 		Type string `json:"type"`
-		Id   string `json:"id"`
+		ID   string `json:"id"`
 	}{integrationType, integrationID}
 
 	_, err = s.Request("POST", EndpointGuildIntegrations(guildID), data)
@@ -1043,6 +1067,20 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 	return
 }
 
+// ChannelMessage gets a single message by ID from a given channel.
+// channeld  : The ID of a Channel
+// messageID : the ID of a Message
+func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err error) {
+
+	response, err := s.Request("GET", EndpointChannelMessage(channelID, messageID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
+}
+
 // ChannelMessageAck acknowledges and marks the given message as read
 // channeld  : The ID of a Channel
 // messageID : the ID of a Message
@@ -1141,6 +1179,39 @@ func (s *Session) ChannelMessagesBulkDelete(channelID string, messages []string)
 	}{messages}
 
 	_, err = s.Request("POST", EndpointChannelMessagesBulkDelete(channelID), data)
+	return
+}
+
+// ChannelMessagePin pins a message within a given channel.
+// channelID: The ID of a channel.
+// messageID: The ID of a message.
+func (s *Session) ChannelMessagePin(channelID, messageID string) (err error) {
+
+	_, err = s.Request("PUT", EndpointChannelMessagePin(channelID, messageID), nil)
+	return
+}
+
+// ChannelMessageUnpin unpins a message within a given channel.
+// channelID: The ID of a channel.
+// messageID: The ID of a message.
+func (s *Session) ChannelMessageUnpin(channelID, messageID string) (err error) {
+
+	_, err = s.Request("DELETE", EndpointChannelMessagePin(channelID, messageID), nil)
+	return
+}
+
+// ChannelMessagesPinned returns an array of Message structures for pinned messages
+// within a given channel
+// channelID : The ID of a Channel.
+func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err error) {
+
+	body, err := s.Request("GET", EndpointChannelMessagesPins(channelID), nil)
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
 	return
 }
 

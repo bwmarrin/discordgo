@@ -24,12 +24,20 @@ func TestChannelMessageSend(t *testing.T) {
 	}
 }
 
+/*
+// removed for now, only works on BOT accounts now
 func TestUserAvatar(t *testing.T) {
+
 	if dg == nil {
 		t.Skip("Cannot TestUserAvatar, dg not set.")
 	}
 
-	a, err := dg.UserAvatar("@me")
+	u, err := dg.User("@me")
+	if err != nil {
+		t.Error("error fetching @me user,", err)
+	}
+
+	a, err := dg.UserAvatar(u.ID)
 	if err != nil {
 		if err.Error() == `HTTP 404 NOT FOUND, {"code": 0, "message": "404: Not Found"}` {
 			t.Skip("Skipped, @me doesn't have an Avatar")
@@ -41,6 +49,7 @@ func TestUserAvatar(t *testing.T) {
 		t.Errorf("a == nil, should be image.Image")
 	}
 }
+*/
 
 /* Running this causes an error due to 2/hour rate limit on username changes
 func TestUserUpdate(t *testing.T) {

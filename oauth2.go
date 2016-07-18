@@ -106,18 +106,11 @@ func (s *Session) ApplicationDelete(appID string) (err error) {
 // ApplicationBotCreate creates an Application Bot Account
 //
 //   appID : The ID of an Application
-//   token : The authentication Token for a user account to convert into
-//           a bot account.  This is optional, if omited a new account
-//           is created using the name of the application.
 //
 // NOTE: func name may change, if I can think up something better.
-func (s *Session) ApplicationBotCreate(appID, token string) (st *User, err error) {
+func (s *Session) ApplicationBotCreate(appID string) (st *User, err error) {
 
-	data := struct {
-		Token string `json:"token,omitempty"`
-	}{token}
-
-	body, err := s.Request("POST", EndpointApplicationsBot(appID), data)
+	body, err := s.Request("POST", EndpointApplicationsBot(appID), nil)
 	if err != nil {
 		return
 	}

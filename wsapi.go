@@ -26,29 +26,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var GATEWAY_VERSION int = 4
-
-type handshakeProperties struct {
-	OS              string `json:"$os"`
-	Browser         string `json:"$browser"`
-	Device          string `json:"$device"`
-	Referer         string `json:"$referer"`
-	ReferringDomain string `json:"$referring_domain"`
-}
-
-type handshakeData struct {
-	Token          string              `json:"token"`
-	Properties     handshakeProperties `json:"properties"`
-	LargeThreshold int                 `json:"large_threshold"`
-	Compress       bool                `json:"compress"`
-}
-
-type handshakeOp struct {
-	Op   int           `json:"op"`
-	Data handshakeData `json:"d"`
-}
-
-type ResumePacket struct {
+type resumePacket struct {
 	Op   int `json:"op"`
 	Data struct {
 		Token     string `json:"token"`
@@ -87,7 +65,7 @@ func (s *Session) Open() (err error) {
 		}
 
 		// Add the version and encoding to the URL
-		s.gateway = fmt.Sprintf("%s?v=%v&encoding=json", s.gateway, GATEWAY_VERSION)
+		s.gateway = fmt.Sprintf("%s?v=4&encoding=json", s.gateway)
 	}
 
 	header := http.Header{}
@@ -104,7 +82,7 @@ func (s *Session) Open() (err error) {
 
 	if s.sessionID != "" && s.sequence > 0 {
 
-		p := ResumePacket{}
+		p := resumePacket{}
 		p.Op = 6
 		p.Data.Token = s.Token
 		p.Data.SessionID = s.sessionID
@@ -119,23 +97,7 @@ func (s *Session) Open() (err error) {
 
 	} else {
 
-		data := handshakeOp{
-			2,
-			handshakeData{
-				s.Token,
-				handshakeProperties{
-					runtime.GOOS,
-					"Discordgo v" + VERSION,
-					"",
-					"",
-					"",
-				},
-				250,
-				s.Compress,
-			},
-		}
-		s.log(LogInformational, "sending identify packet to gateway")
-		err = s.wsConn.WriteJSON(data)
+		err = s.identify()
 		if err != nil {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
@@ -199,7 +161,7 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			return
 
 		default:
-			go s.onEvent(messageType, message)
+			s.onEvent(messageType, message)
 
 		}
 	}
@@ -232,10 +194,14 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 		s.wsMutex.Unlock()
 		if err != nil {
 			s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
+			s.Lock()
 			s.DataReady = false
+			s.Unlock()
 			return
 		}
+		s.Lock()
 		s.DataReady = true
+		s.Unlock()
 
 		select {
 		case <-ticker.C:
@@ -320,17 +286,17 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	reader = bytes.NewBuffer(message)
 
 	// If this is a compressed message, uncompress it.
-	if messageType == 2 {
+	if messageType == websocket.BinaryMessage {
 
-		z, err := zlib.NewReader(reader)
-		if err != nil {
+		z, err2 := zlib.NewReader(reader)
+		if err2 != nil {
 			s.log(LogError, "error uncompressing websocket message, %s", err)
 			return
 		}
 
 		defer func() {
-			err := z.Close()
-			if err != nil {
+			err3 := z.Close()
+			if err3 != nil {
 				s.log(LogWarning, "error closing zlib, %s", err)
 			}
 		}()
@@ -374,9 +340,8 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	if e.Operation == 9 {
 
 		s.log(LogInformational, "sending identify packet to gateway in response to Op9")
-		s.wsMutex.Lock()
-		err = s.wsConn.WriteJSON(handshakeOp{2, handshakeData{s.Token, handshakeProperties{runtime.GOOS, "Discordgo v" + VERSION, "", "", ""}, 250, s.Compress}})
-		s.wsMutex.Unlock()
+
+		err = s.identify()
 		if err != nil {
 			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
 			return
@@ -416,7 +381,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		// it's better to pass along what we received than nothing at all.
 		// TODO: Think about that decision :)
 		// Either way, READY events must fire, even with errors.
-		s.handle(i)
+		go s.handle(i)
 
 	} else {
 		s.log(LogWarning, "unknown event: Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
@@ -424,7 +389,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 
 	// Emit event to the OnEvent handler
 	e.Struct = i
-	s.handle(e)
+	go s.handle(e)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -462,18 +427,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 
 	s.log(LogInformational, "called")
 
-	// If a voice connection already exists for this guild then
-	// return that connection. If the channel differs, also change channels.
-	var ok bool
-	if voice, ok = s.VoiceConnections[gID]; ok && voice.GuildID != "" {
-		//TODO: consider a better variable than GuildID in the above check
-		// to verify if this connection is valid or not.
-
-		if voice.ChannelID != cID {
-			err = voice.ChangeChannel(cID, mute, deaf)
-		}
-		return
-	}
+	voice, _ = s.VoiceConnections[gID]
 
 	if voice == nil {
 		voice = &VoiceConnection{}
@@ -492,17 +446,14 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	err = s.wsConn.WriteJSON(data)
 	s.wsMutex.Unlock()
 	if err != nil {
-		s.log(LogInformational, "Deleting VoiceConnection %s", gID)
-		delete(s.VoiceConnections, gID)
 		return
 	}
 
 	// doesn't exactly work perfect yet.. TODO
 	err = voice.waitUntilConnected()
 	if err != nil {
+		s.log(LogWarning, "error waiting for voice to connect, %s", err)
 		voice.Close()
-		s.log(LogInformational, "Deleting VoiceConnection %s", gID)
-		delete(s.VoiceConnections, gID)
 		return
 	}
 
@@ -570,8 +521,67 @@ func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
 	// Open a conenction to the voice server
 	err := voice.open()
 	if err != nil {
-		s.log(LogError, "onVoiceServerUpdate voice.open, ", err)
+		s.log(LogError, "onVoiceServerUpdate voice.open, %s", err)
 	}
+}
+
+type identifyProperties struct {
+	OS              string `json:"$os"`
+	Browser         string `json:"$browser"`
+	Device          string `json:"$device"`
+	Referer         string `json:"$referer"`
+	ReferringDomain string `json:"$referring_domain"`
+}
+
+type identifyData struct {
+	Token          string             `json:"token"`
+	Properties     identifyProperties `json:"properties"`
+	LargeThreshold int                `json:"large_threshold"`
+	Compress       bool               `json:"compress"`
+	Shard          *[2]int            `json:"shard,omitempty"`
+}
+
+type identifyOp struct {
+	Op   int          `json:"op"`
+	Data identifyData `json:"d"`
+}
+
+// identify sends the identify packet to the gateway
+func (s *Session) identify() error {
+
+	properties := identifyProperties{runtime.GOOS,
+		"Discordgo v" + VERSION,
+		"",
+		"",
+		"",
+	}
+
+	data := identifyData{s.Token,
+		properties,
+		250,
+		s.Compress,
+		nil,
+	}
+
+	if s.ShardCount > 1 {
+
+		if s.ShardID >= s.ShardCount {
+			return errors.New("ShardID must be less than ShardCount")
+		}
+
+		data.Shard = &[2]int{s.ShardID, s.ShardCount}
+	}
+
+	op := identifyOp{2, data}
+
+	s.wsMutex.Lock()
+	err := s.wsConn.WriteJSON(op)
+	s.wsMutex.Unlock()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Session) reconnect() {
@@ -591,14 +601,21 @@ func (s *Session) reconnect() {
 			if err == nil {
 				s.log(LogInformational, "successfully reconnected to gateway")
 
-				/*
-					// I'm not sure if this is actually needed.
-					// if the gw reconnect works properly, voice should stay alive
-					for _, v := range s.VoiceConnections {
-						s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
-						go v.reconnect()
-					}
-				*/
+				// I'm not sure if this is actually needed.
+				// if the gw reconnect works properly, voice should stay alive
+				// However, there seems to be cases where something "weird"
+				// happens.  So we're doing this for now just to improve
+				// stability in those edge cases.
+				for _, v := range s.VoiceConnections {
+
+					s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
+					go v.reconnect()
+
+					// This is here just to prevent violently spamming the
+					// voice reconnects
+					time.Sleep(1 * time.Second)
+
+				}
 				return
 			}
 
@@ -628,9 +645,28 @@ func (s *Session) Close() (err error) {
 		s.listening = nil
 	}
 
+	// TODO: Close all active Voice Connections too
+	// this should force stop any reconnecting voice channels too
+
 	if s.wsConn != nil {
+
+		s.log(LogInformational, "sending close frame")
+		// To cleanly close a connection, a client should send a close
+		// frame and wait for the server to close the connection.
+		err := s.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		if err != nil {
+			s.log(LogError, "error closing websocket, %s", err)
+		}
+
+		// TODO: Wait for Discord to actually close the connection.
+		time.Sleep(1 * time.Second)
+
 		s.log(LogInformational, "closing gateway websocket")
 		err = s.wsConn.Close()
+		if err != nil {
+			s.log(LogError, "error closing websocket, %s", err)
+		}
+
 		s.wsConn = nil
 	}
 

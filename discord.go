@@ -19,7 +19,7 @@ import (
 )
 
 // VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
-const VERSION = "0.13.0-alpha"
+const VERSION = "0.13.0"
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
@@ -40,6 +40,8 @@ func New(args ...interface{}) (s *Session, err error) {
 		StateEnabled:           true,
 		Compress:               true,
 		ShouldReconnectOnError: true,
+		ShardID:                0,
+		ShardCount:             1,
 	}
 
 	// If no arguments are passed return the empty Session interface.
