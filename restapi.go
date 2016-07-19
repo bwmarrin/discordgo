@@ -68,7 +68,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	mu, _ = s.rateLimit.url[bu[0]]
 	if mu == nil {
 		mu = new(sync.Mutex)
-		s.rateLimit.url[urlStr] = mu
+		s.rateLimit.url[bu[0]] = mu
 	}
 	s.rateLimit.Unlock()
 
