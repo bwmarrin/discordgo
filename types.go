@@ -13,8 +13,11 @@ import (
 	"time"
 )
 
+// A timestamp, in the format YYYY-MM-DDTHH:MM:SS.MSMSMS-TZ:TZ.
 type Timestamp string
 
+// Parse parses a timestamp string into a time.Time object.
+// The only time this can fail is if you're parsing an invalid timestamp.
 func (t Timestamp) Parse() (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05.000000-07:00", string(t))
 }
