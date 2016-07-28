@@ -19,8 +19,8 @@ type Message struct {
 	ID              string               `json:"id"`
 	ChannelID       string               `json:"channel_id"`
 	Content         string               `json:"content"`
-	Timestamp       string               `json:"timestamp"`
-	EditedTimestamp string               `json:"edited_timestamp"`
+	Timestamp       Timestamp            `json:"timestamp"`
+	EditedTimestamp Timestamp            `json:"edited_timestamp"`
 	MentionRoles    []string             `json:"mention_roles"`
 	Tts             bool                 `json:"tts"`
 	MentionEveryone bool                 `json:"mention_everyone"`
