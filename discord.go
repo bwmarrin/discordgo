@@ -19,7 +19,7 @@ import (
 )
 
 // VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
-const VERSION = "0.13.0"
+const VERSION = "0.14.0-dev"
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero

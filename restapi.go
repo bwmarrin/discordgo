@@ -68,7 +68,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte) (respons
 	mu, _ = s.rateLimit.url[bu[0]]
 	if mu == nil {
 		mu = new(sync.Mutex)
-		s.rateLimit.url[urlStr] = mu
+		s.rateLimit.url[bu[0]] = mu
 	}
 	s.rateLimit.Unlock()
 
@@ -376,11 +376,12 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 	return
 }
 
-// NOTE: This function is now deprecated and will be removed in the future.
-// Please see the same function inside state.go
 // UserChannelPermissions returns the permission of a user in a channel.
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
+//
+// NOTE: This function is now deprecated and will be removed in the future.
+// Please see the same function inside state.go
 func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
 	channel, err := s.State.Channel(channelID)
 	if err != nil || channel == nil {
