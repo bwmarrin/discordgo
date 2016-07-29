@@ -16,6 +16,7 @@ var eventToInterface = map[string]interface{}{
 	"CHANNEL_CREATE":             ChannelCreate{},
 	"CHANNEL_UPDATE":             ChannelUpdate{},
 	"CHANNEL_DELETE":             ChannelDelete{},
+	"CHANNEL_PINS_UPDATE":        ChannelPinsUpdate{},
 	"GUILD_CREATE":               GuildCreate{},
 	"GUILD_UPDATE":               GuildUpdate{},
 	"GUILD_DELETE":               GuildDelete{},
