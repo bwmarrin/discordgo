@@ -133,7 +133,7 @@ func loadSound() error {
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
 			err = file.Close()
  			if err != nil {
- 				fmt.Println("Error closing from dca file :",err)
+ 				fmt.Println("Error closing from dca file :", err)
 				return err
  			}
  			return nil
