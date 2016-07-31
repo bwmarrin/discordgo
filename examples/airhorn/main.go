@@ -134,8 +134,9 @@ func loadSound() error {
 			err = file.Close()
  			if err != nil {
  				fmt.Println("Error closing from dca file :",err)
+				return err
  			}
- 			return err
+ 			return nil
 		}
 
 		if err != nil {
