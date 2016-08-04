@@ -603,16 +603,16 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 
 // GuildMembers returns a list of members for a guild.
 //  guildID  : The ID of a Guild.
-//  offset   : A number of members to skip
+//  after    : The id of the member to return members after
 //  limit    : max number of members to return (max 1000)
-func (s *Session) GuildMembers(guildID string, offset, limit int) (st []*Member, err error) {
+func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*Member, err error) {
 
 	uri := EndpointGuildMembers(guildID)
 
 	v := url.Values{}
 
-	if offset > 0 {
-		v.Set("offset", strconv.Itoa(offset))
+	if after != "" {
+		v.Set("after", after)
 	}
 
 	if limit > 0 {
