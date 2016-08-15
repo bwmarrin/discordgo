@@ -603,16 +603,16 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 
 // GuildMembers returns a list of members for a guild.
 //  guildID  : The ID of a Guild.
-//  offset   : A number of members to skip
+//  after    : The id of the member to return members after
 //  limit    : max number of members to return (max 1000)
-func (s *Session) GuildMembers(guildID string, offset, limit int) (st []*Member, err error) {
+func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*Member, err error) {
 
 	uri := EndpointGuildMembers(guildID)
 
 	v := url.Values{}
 
-	if offset > 0 {
-		v.Set("offset", strconv.Itoa(offset))
+	if after != "" {
+		v.Set("after", after)
 	}
 
 	if limit > 0 {
@@ -1218,11 +1218,27 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 
 // ChannelFileSend sends a file to the given channel.
 // channelID : The ID of a Channel.
+// name: The name of the file.
 // io.Reader : A reader for the file contents.
 func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Message, err error) {
+	return s.ChannelFileSendWithMessage(channelID, "", name, r)
+}
+
+// ChannelFileSendWithMessage sends a file to the given channel with an message.
+// channelID : The ID of a Channel.
+// content: Optional Message content.
+// name: The name of the file.
+// io.Reader : A reader for the file contents.
+func (s *Session) ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (st *Message, err error) {
 
 	body := &bytes.Buffer{}
 	bodywriter := multipart.NewWriter(body)
+
+	if len(content) != 0 {
+		if err := bodywriter.WriteField("content", content); err != nil {
+			return nil, err
+		}
+	}
 
 	writer, err := bodywriter.CreateFormFile("file", name)
 	if err != nil {

@@ -464,6 +464,12 @@ type UserGuildSettingsEdit struct {
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
+// ChannelPinsUpdate stores data for the channel pins update event
+type ChannelPinsUpdate struct {
+	LastPinTimestamp string `json:"last_pin_timestamp"`
+	ChannelID        string `json:"channel_id"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
