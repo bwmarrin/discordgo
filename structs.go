@@ -137,17 +137,17 @@ type ICEServer struct {
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild     *Guild   `json:"guild"`
-	Channel   *Channel `json:"channel"`
-	Inviter   *User    `json:"inviter"`
-	Code      string   `json:"code"`
-	CreatedAt string   `json:"created_at"` // TODO make timestamp
-	MaxAge    int      `json:"max_age"`
-	Uses      int      `json:"uses"`
-	MaxUses   int      `json:"max_uses"`
-	XkcdPass  string   `json:"xkcdpass"`
-	Revoked   bool     `json:"revoked"`
-	Temporary bool     `json:"temporary"`
+	Guild     *Guild    `json:"guild"`
+	Channel   *Channel  `json:"channel"`
+	Inviter   *User     `json:"inviter"`
+	Code      string    `json:"code"`
+	CreatedAt Timestamp `json:"created_at"`
+	MaxAge    int       `json:"max_age"`
+	Uses      int       `json:"uses"`
+	MaxUses   int       `json:"max_uses"`
+	XkcdPass  string    `json:"xkcdpass"`
+	Revoked   bool      `json:"revoked"`
+	Temporary bool      `json:"temporary"`
 }
 
 // A Channel holds all data related to an individual Discord channel.
@@ -204,7 +204,7 @@ type Guild struct {
 	AfkChannelID                string            `json:"afk_channel_id"`
 	EmbedChannelID              string            `json:"embed_channel_id"`
 	OwnerID                     string            `json:"owner_id"`
-	JoinedAt                    string            `json:"joined_at"` // make this a timestamp
+	JoinedAt                    Timestamp         `json:"joined_at"`
 	Splash                      string            `json:"splash"`
 	AfkTimeout                  int               `json:"afk_timeout"`
 	VerificationLevel           VerificationLevel `json:"verification_level"`
