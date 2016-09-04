@@ -70,6 +70,9 @@ type Session struct {
 	// StateEnabled is true.
 	State *State
 
+	// used to know if user is a bot
+	Bot bool
+
 	handlersMu sync.RWMutex
 	// This is a mapping of event struct to a reflected value
 	// for event handlers.

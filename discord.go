@@ -27,6 +27,7 @@ const VERSION = "0.14.0-dev"
 // There are 3 ways to call New:
 //     With a single auth token - All requests will use the token blindly,
 //         no verification of the token will be done and requests may fail.
+//				 Please use this way only for bot users.
 //     With an email and password - Discord will sign in with the provided
 //         credentials.
 //     With an email, password and auth token - Discord will verify the auth
@@ -107,9 +108,12 @@ func New(args ...interface{}) (s *Session, err error) {
 	// Otherwise get auth token from Discord, if a token was specified
 	// Discord will verify it for free, or log the user in if it is
 	// invalid.
+	// Assume that Token auth is the bot auth
 	if pass == "" {
 		s.Token = auth
+		s.Bot = true
 	} else {
+		s.Bot = false
 		err = s.Login(auth, pass)
 		if err != nil || s.Token == "" {
 			err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
