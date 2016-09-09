@@ -99,34 +99,27 @@ func (s *State) GuildAdd(guild *Guild) error {
 	}
 
 	if g, ok := s.guildMap[guild.ID]; ok {
-		// The guild already exists in state.
-		if guild.Unavailable {
-			// If the new guild is unavailable, just update the `unavailable` property on the
-			// current guild.
-			g.Unavailable = guild.Unavailable
-		} else {
-			// We are about to replace `g` in the state with `guild`, but first we need to
-			// make sure we preserve any fields that the `guild` doesn't contain from `g`.
-			if guild.Roles == nil {
-				guild.Roles = g.Roles
-			}
-			if guild.Emojis == nil {
-				guild.Emojis = g.Emojis
-			}
-			if guild.Members == nil {
-				guild.Members = g.Members
-			}
-			if guild.Presences == nil {
-				guild.Presences = g.Presences
-			}
-			if guild.Channels == nil {
-				guild.Channels = g.Channels
-			}
-			if guild.VoiceStates == nil {
-				guild.VoiceStates = g.VoiceStates
-			}
-			*g = *guild
+		// We are about to replace `g` in the state with `guild`, but first we need to
+		// make sure we preserve any fields that the `guild` doesn't contain from `g`.
+		if guild.Roles == nil {
+			guild.Roles = g.Roles
 		}
+		if guild.Emojis == nil {
+			guild.Emojis = g.Emojis
+		}
+		if guild.Members == nil {
+			guild.Members = g.Members
+		}
+		if guild.Presences == nil {
+			guild.Presences = g.Presences
+		}
+		if guild.Channels == nil {
+			guild.Channels = g.Channels
+		}
+		if guild.VoiceStates == nil {
+			guild.VoiceStates = g.VoiceStates
+		}
+		*g = *guild
 		return nil
 	}
 
