@@ -232,6 +232,7 @@ type Role struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Managed     bool   `json:"managed"`
+	Mentionable bool   `json:"mentionable"`
 	Hoist       bool   `json:"hoist"`
 	Color       int    `json:"color"`
 	Position    int    `json:"position"`
