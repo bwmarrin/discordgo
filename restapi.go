@@ -413,6 +413,13 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 	}
 
 	for _, role := range guild.Roles {
+		if role.ID == guild.ID {
+			apermissions |= role.Permissions
+			break
+		}
+	}
+
+	for _, role := range guild.Roles {
 		for _, roleID := range member.Roles {
 			if role.ID == roleID {
 				apermissions |= role.Permissions
