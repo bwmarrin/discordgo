@@ -511,6 +511,9 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Attachments != nil {
 				m.Attachments = message.Attachments
 			}
+			if message.Timestamp != "" {
+				m.Timestamp = message.Timestamp
+			}
 
 			return nil
 		}
