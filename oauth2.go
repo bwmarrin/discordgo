@@ -21,6 +21,7 @@ type Application struct {
 	Icon         string    `json:"icon,omitempty"`
 	Secret       string    `json:"secret,omitempty"`
 	RedirectURIs *[]string `json:"redirect_uris,omitempty"`
+	Owner        *User     `json:"owner"`
 }
 
 // Application returns an Application structure of a specific Application
