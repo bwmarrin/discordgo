@@ -412,6 +412,12 @@ type GuildEmojisUpdate struct {
 	Emojis  []*Emoji `json:"emojis"`
 }
 
+// A GuildMembersChunk stores data for the Guild Members Chunk websocket event.
+type GuildMembersChunk struct {
+	GuildID string    `json:"guild_id"`
+	Members []*Member `json:"members"`
+}
+
 // A GuildIntegration stores data for a guild integration.
 type GuildIntegration struct {
 	ID                string                   `json:"id"`

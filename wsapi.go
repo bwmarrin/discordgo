@@ -269,6 +269,44 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return s.UpdateStreamingStatus(idle, game, "")
 }
 
+type requestGuildMembersData struct {
+	GuildID string `json:"guild_id"`
+	Query   string `json:"query"`
+	Limit   int    `json:"limit"`
+}
+
+type requestGuildMembersOp struct {
+	Op   int                     `json:"op"`
+	Data requestGuildMembersData `json:"d"`
+}
+
+// RequestGuildMembers requests guild members from the gateway
+// The gateway responds with GuildMembersChunk events
+// guildID  : the ID of the guild to request members of
+// query    : string hat username sarts with, leave empty to return all members
+// limit    : max number of items to return, or 0 o reques all members matched
+func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
+	s.log(LogInformational, "called")
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return errors.New("no websocket connection exists")
+	}
+
+	data := requestGuildMembersData{
+		GuildID: guildID,
+		Query:   query,
+		Limit:   limit,
+	}
+
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
+	s.wsMutex.Unlock()
+
+	return
+}
+
 // onEvent is the "event handler" for all messages received on the
 // Discord Gateway API websocket connection.
 //

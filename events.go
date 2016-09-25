@@ -30,6 +30,7 @@ var eventToInterface = map[string]interface{}{
 	"GUILD_ROLE_DELETE":          GuildRoleDelete{},
 	"GUILD_INTEGRATIONS_UPDATE":  GuildIntegrationsUpdate{},
 	"GUILD_EMOJIS_UPDATE":        GuildEmojisUpdate{},
+	"GUILD_MEMBERS_CHUNK":        GuildMembersChunk{},
 	"MESSAGE_ACK":                MessageAck{},
 	"MESSAGE_CREATE":             MessageCreate{},
 	"MESSAGE_UPDATE":             MessageUpdate{},
