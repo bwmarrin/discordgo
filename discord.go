@@ -42,6 +42,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		ShouldReconnectOnError: true,
 		ShardID:                0,
 		ShardCount:             1,
+		MaxRestRetries:         3,
 	}
 
 	// If no arguments are passed return the empty Session interface.
