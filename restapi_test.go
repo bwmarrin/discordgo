@@ -136,7 +136,7 @@ func TestUserUpdateStatus(t *testing.T) {
 		t.Skip("Cannot TestUserSettings, dg not set.")
 	}
 
-	_, err := dg.UserUpdateStatus("bnb")
+	_, err := dg.UserUpdateStatus("dnd")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
