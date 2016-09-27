@@ -320,6 +320,23 @@ func (s *Session) UserSettings() (st *Settings, err error) {
 	return
 }
 
+// UserUpdateStatus update the user status
+// status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
+func (s *Session) UserUpdateStatus(status string) (st *Settings, err error) {
+
+	data := struct {
+		Status string `json:"status"`
+	}{status}
+
+	body, err := s.Request("PATCH", EndpointUserSettings("@me"), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // UserChannels returns an array of Channel structures for all private
 // channels.
 func (s *Session) UserChannels() (st []*Channel, err error) {
