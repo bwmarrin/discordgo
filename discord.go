@@ -237,6 +237,7 @@ func (s *Session) initialize() {
 	s.AddHandler(s.onResumed)
 	s.AddHandler(s.onVoiceServerUpdate)
 	s.AddHandler(s.onVoiceStateUpdate)
+	s.AddHandler(s.State.onReady)
 	s.AddHandler(s.State.onInterface)
 }
 
