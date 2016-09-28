@@ -328,7 +328,7 @@ func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 	}
 
 	data := struct {
-		Status string `json:"status"`
+		Status Status `json:"status"`
 	}{status}
 
 	body, err := s.Request("PATCH", EndpointUserSettings("@me"), data)
