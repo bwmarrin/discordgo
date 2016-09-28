@@ -594,9 +594,16 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 
 // OnReady takes a Ready event and updates all internal state.
 func (s *State) onReady(se *Session, r *Ready) (err error) {
-	// We must track at least the current user for Voice, if state is
-	// either nil or disabled, we will set a very simple state item.
-	if s == nil || !se.StateEnabled {
+	if s == nil {
+		return ErrNilState
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// We must track at least the current user for Voice, even
+	// if state is disabled, store the bare essentials.
+	if !se.StateEnabled {
 		ready := Ready{
 			Version:           r.Version,
 			SessionID:         r.SessionID,
@@ -604,28 +611,10 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 			User:              r.User,
 		}
 
-		if s == nil {
-			*s = State{
-				TrackChannels: false,
-				TrackEmojis:   false,
-				TrackMembers:  false,
-				TrackRoles:    false,
-				TrackVoice:    false,
-				guildMap:      make(map[string]*Guild),
-				channelMap:    make(map[string]*Channel),
-			}
-		}
-
-		s.Lock()
-		defer s.Unlock()
-
 		s.Ready = ready
 
 		return nil
 	}
-
-	s.Lock()
-	defer s.Unlock()
 
 	s.Ready = *r
 

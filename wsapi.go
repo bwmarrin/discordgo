@@ -47,6 +47,17 @@ func (s *Session) Open() (err error) {
 		}
 	}()
 
+	// A basic state is a hard requirement for Voice.
+	if s.State == nil {
+		state := NewState()
+		state.TrackChannels = false
+		state.TrackEmojis = false
+		state.TrackMembers = false
+		state.TrackRoles = false
+		state.TrackVoice = false
+		s.State = state
+	}
+
 	if s.wsConn != nil {
 		err = errors.New("Web socket already opened.")
 		return
