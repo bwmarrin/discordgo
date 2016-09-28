@@ -309,10 +309,10 @@ type Settings struct {
 	DeveloperMode          bool               `json:"developer_mode"`
 }
 
-// VerificationLevel type defination
+// Status type defination
 type Status string
 
-// Constants for VerificationLevel levels from 0 to 3 inclusive
+// Constants for Status with the different current available status
 const (
 	StatusOnline       Status = "online"
 	StatusIdle         Status = "idle"
