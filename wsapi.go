@@ -47,6 +47,17 @@ func (s *Session) Open() (err error) {
 		}
 	}()
 
+	// A basic state is a hard requirement for Voice.
+	if s.State == nil {
+		state := NewState()
+		state.TrackChannels = false
+		state.TrackEmojis = false
+		state.TrackMembers = false
+		state.TrackRoles = false
+		state.TrackVoice = false
+		s.State = state
+	}
+
 	if s.wsConn != nil {
 		err = errors.New("Web socket already opened.")
 		return
@@ -267,6 +278,44 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return s.UpdateStreamingStatus(idle, game, "")
+}
+
+type requestGuildMembersData struct {
+	GuildID string `json:"guild_id"`
+	Query   string `json:"query"`
+	Limit   int    `json:"limit"`
+}
+
+type requestGuildMembersOp struct {
+	Op   int                     `json:"op"`
+	Data requestGuildMembersData `json:"d"`
+}
+
+// RequestGuildMembers requests guild members from the gateway
+// The gateway responds with GuildMembersChunk events
+// guildID  : The ID of the guild to request members of
+// query    : String that username starts with, leave empty to return all members
+// limit    : Max number of items to return, or 0 to request all members matched
+func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
+	s.log(LogInformational, "called")
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return errors.New("no websocket connection exists")
+	}
+
+	data := requestGuildMembersData{
+		GuildID: guildID,
+		Query:   query,
+		Limit:   limit,
+	}
+
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
+	s.wsMutex.Unlock()
+
+	return
 }
 
 // onEvent is the "event handler" for all messages received on the

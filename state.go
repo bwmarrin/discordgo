@@ -55,33 +55,6 @@ func NewState() *State {
 	}
 }
 
-// OnReady takes a Ready event and updates all internal state.
-func (s *State) OnReady(r *Ready) error {
-	if s == nil {
-		return ErrNilState
-	}
-
-	s.Lock()
-	defer s.Unlock()
-
-	s.Ready = *r
-
-	for _, g := range s.Guilds {
-		s.guildMap[g.ID] = g
-
-		for _, c := range g.Channels {
-			c.GuildID = g.ID
-			s.channelMap[c.ID] = c
-		}
-	}
-
-	for _, c := range s.PrivateChannels {
-		s.channelMap[c.ID] = c
-	}
-
-	return nil
-}
-
 // GuildAdd adds a guild to the current world state, or
 // updates it if it already exists.
 func (s *State) GuildAdd(guild *Guild) error {
@@ -522,6 +495,12 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Attachments != nil {
 				m.Attachments = message.Attachments
 			}
+			if message.Timestamp != "" {
+				m.Timestamp = message.Timestamp
+			}
+			if message.Author != nil {
+				m.Author = message.Author
+			}
 
 			return nil
 		}
@@ -613,6 +592,48 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 	return nil, errors.New("Message not found.")
 }
 
+// OnReady takes a Ready event and updates all internal state.
+func (s *State) onReady(se *Session, r *Ready) (err error) {
+	if s == nil {
+		return ErrNilState
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// We must track at least the current user for Voice, even
+	// if state is disabled, store the bare essentials.
+	if !se.StateEnabled {
+		ready := Ready{
+			Version:           r.Version,
+			SessionID:         r.SessionID,
+			HeartbeatInterval: r.HeartbeatInterval,
+			User:              r.User,
+		}
+
+		s.Ready = ready
+
+		return nil
+	}
+
+	s.Ready = *r
+
+	for _, g := range s.Guilds {
+		s.guildMap[g.ID] = g
+
+		for _, c := range g.Channels {
+			c.GuildID = g.ID
+			s.channelMap[c.ID] = c
+		}
+	}
+
+	for _, c := range s.PrivateChannels {
+		s.channelMap[c.ID] = c
+	}
+
+	return nil
+}
+
 // onInterface handles all events related to states.
 func (s *State) onInterface(se *Session, i interface{}) (err error) {
 	if s == nil {
@@ -623,8 +644,6 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 	}
 
 	switch t := i.(type) {
-	case *Ready:
-		err = s.OnReady(t)
 	case *GuildCreate:
 		err = s.GuildAdd(t.Guild)
 	case *GuildUpdate:
@@ -696,6 +715,9 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
 func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+	if s == nil {
+		return 0, ErrNilState
+	}
 
 	channel, err := s.Channel(channelID)
 	if err != nil {

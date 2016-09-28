@@ -53,6 +53,9 @@ type Session struct {
 	// Whether the Data Websocket is ready
 	DataReady bool // NOTE: Maye be deprecated soon
 
+	// Max number of REST API retries
+	MaxRestRetries int
+
 	// Status stores the currect status of the websocket connection
 	// this is being tested, may stay, may go away.
 	status int32
@@ -137,17 +140,17 @@ type ICEServer struct {
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild     *Guild   `json:"guild"`
-	Channel   *Channel `json:"channel"`
-	Inviter   *User    `json:"inviter"`
-	Code      string   `json:"code"`
-	CreatedAt string   `json:"created_at"` // TODO make timestamp
-	MaxAge    int      `json:"max_age"`
-	Uses      int      `json:"uses"`
-	MaxUses   int      `json:"max_uses"`
-	XkcdPass  string   `json:"xkcdpass"`
-	Revoked   bool     `json:"revoked"`
-	Temporary bool     `json:"temporary"`
+	Guild     *Guild    `json:"guild"`
+	Channel   *Channel  `json:"channel"`
+	Inviter   *User     `json:"inviter"`
+	Code      string    `json:"code"`
+	CreatedAt Timestamp `json:"created_at"`
+	MaxAge    int       `json:"max_age"`
+	Uses      int       `json:"uses"`
+	MaxUses   int       `json:"max_uses"`
+	XkcdPass  string    `json:"xkcdpass"`
+	Revoked   bool      `json:"revoked"`
+	Temporary bool      `json:"temporary"`
 }
 
 // A Channel holds all data related to an individual Discord channel.
@@ -204,7 +207,7 @@ type Guild struct {
 	AfkChannelID                string            `json:"afk_channel_id"`
 	EmbedChannelID              string            `json:"embed_channel_id"`
 	OwnerID                     string            `json:"owner_id"`
-	JoinedAt                    string            `json:"joined_at"` // make this a timestamp
+	JoinedAt                    Timestamp         `json:"joined_at"`
 	Splash                      string            `json:"splash"`
 	AfkTimeout                  int               `json:"afk_timeout"`
 	VerificationLevel           VerificationLevel `json:"verification_level"`
@@ -218,6 +221,15 @@ type Guild struct {
 	Channels                    []*Channel        `json:"channels"`
 	VoiceStates                 []*VoiceState     `json:"voice_states"`
 	Unavailable                 bool              `json:"unavailable"`
+}
+
+// A UserGuild holds a brief version of a Guild
+type UserGuild struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Icon        string `json:"icon"`
+	Owner       bool   `json:"owner"`
+	Permissions int    `json:"permissions"`
 }
 
 // A GuildParams stores all the data needed to update discord guild settings
@@ -410,6 +422,12 @@ type GuildBan struct {
 type GuildEmojisUpdate struct {
 	GuildID string   `json:"guild_id"`
 	Emojis  []*Emoji `json:"emojis"`
+}
+
+// A GuildMembersChunk stores data for the Guild Members Chunk websocket event.
+type GuildMembersChunk struct {
+	GuildID string    `json:"guild_id"`
+	Members []*Member `json:"members"`
 }
 
 // A GuildIntegration stores data for a guild integration.

@@ -42,6 +42,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		ShouldReconnectOnError: true,
 		ShardID:                0,
 		ShardCount:             1,
+		MaxRestRetries:         3,
 	}
 
 	// If no arguments are passed return the empty Session interface.
@@ -236,6 +237,7 @@ func (s *Session) initialize() {
 	s.AddHandler(s.onResumed)
 	s.AddHandler(s.onVoiceServerUpdate)
 	s.AddHandler(s.onVoiceStateUpdate)
+	s.AddHandler(s.State.onReady)
 	s.AddHandler(s.State.onInterface)
 }
 
