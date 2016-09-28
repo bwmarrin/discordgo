@@ -131,6 +131,17 @@ func TestUserSettings(t *testing.T) {
 	}
 }
 
+func TestUserUpdateStatus(t *testing.T) {
+	if dg == nil {
+		t.Skip("Cannot TestUserSettings, dg not set.")
+	}
+
+	_, err := dg.UserUpdateStatus(StatusDoNotDisturb)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+}
+
 // TestLogout tests the Logout() function. This should not return an error.
 func TestLogout(t *testing.T) {
 
