@@ -537,7 +537,10 @@ func (s *State) MessageRemove(message *Message) error {
 				if c.Messages != nil {
 					c.LastMessageID == message.ID
 				} else {
-					c.LastMessageID == ChannelMessages(c.ID, 1)[0]
+					lastMessage := ChannelMessages(c.ID, 1)
+					if lastMessage != nil {
+						c.LastMessageID == lastMessage[0].ID
+					}
 				}
 			}
 			return nil
