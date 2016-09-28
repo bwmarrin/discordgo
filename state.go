@@ -522,6 +522,12 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Attachments != nil {
 				m.Attachments = message.Attachments
 			}
+			if message.Timestamp != "" {
+				m.Timestamp = message.Timestamp
+			}
+			if message.Author != nil {
+				m.Author = message.Author
+			}
 
 			return nil
 		}
