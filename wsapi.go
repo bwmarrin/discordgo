@@ -522,13 +522,13 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 		return
 	}
 
-	// We only care about events that are about us
-	if se.State.Ready.User.ID != st.UserID {
+	// We only care about events that are about us.
+	if se.State.User.ID != st.UserID {
 		return
 	}
 
 	// Store the SessionID for later use.
-	voice.UserID = st.UserID // TODO: Review
+	voice.UserID = st.UserID
 	voice.sessionID = st.SessionID
 }
 
