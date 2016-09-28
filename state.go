@@ -506,6 +506,8 @@ func (s *State) MessageAdd(message *Message) error {
 		}
 	}
 
+	c.LastMessageID = message.ID
+
 	c.Messages = append(c.Messages, message)
 
 	if len(c.Messages) > s.MaxMessageCount {
@@ -531,6 +533,13 @@ func (s *State) MessageRemove(message *Message) error {
 	for i, m := range c.Messages {
 		if m.ID == message.ID {
 			c.Messages = append(c.Messages[:i], c.Messages[i+1:]...)
+			if c.LastMessageID == message.ID {
+				if c.Messages != nil {
+					c.LastMessageID == message.ID
+				} else {
+					c.LastMessageID == ChannelMessages(c.ID, 1)[0]
+				}
+			}
 			return nil
 		}
 	}
