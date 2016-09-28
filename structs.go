@@ -223,6 +223,15 @@ type Guild struct {
 	Unavailable                 bool              `json:"unavailable"`
 }
 
+// A UserGuild holds a brief version of a Guild
+type UserGuild struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Icon        string `json:"icon"`
+	Owner       bool   `json:"owner"`
+	Permissions int    `json:"permissions"`
+}
+
 // A GuildParams stores all the data needed to update discord guild settings
 type GuildParams struct {
 	Name              string             `json:"name"`
