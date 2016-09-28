@@ -350,7 +350,7 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 	return
 }
 
-// UserGuilds returns an array of Guild structures for all guilds.
+// UserGuilds returns an array of UserGuild structures for all guilds.
 func (s *Session) UserGuilds() (st []*UserGuild, err error) {
 
 	body, err := s.Request("GET", EndpointUserGuilds("@me"), nil)
