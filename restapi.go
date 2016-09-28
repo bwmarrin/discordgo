@@ -322,7 +322,10 @@ func (s *Session) UserSettings() (st *Settings, err error) {
 
 // UserUpdateStatus update the user status
 // status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
-func (s *Session) UserUpdateStatus(status string) (st *Settings, err error) {
+func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
+	if status == StatusOffline {
+		err = errors.New("You can't set your Status to offline")
+	}
 
 	data := struct {
 		Status string `json:"status"`

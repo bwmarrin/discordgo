@@ -254,9 +254,9 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User   *User  `json:"user"`
-	Status string `json:"status"`
-	Game   *Game  `json:"game"`
+	User   *User   `json:"user"`
+	Status *Status `json:"status"`
+	Game   *Game   `json:"game"`
 }
 
 // A Game struct holds the name of the "playing .." game for a user
@@ -304,10 +304,22 @@ type Settings struct {
 	GuildPositions         []string           `json:"guild_positions"`
 	RestrictedGuilds       []string           `json:"restricted_guilds"`
 	FriendSourceFlags      *FriendSourceFlags `json:"friend_source_flags"`
-	Status                 string             `json:"status"`
+	Status                 *Status            `json:"status"`
 	DetectPlatformAccounts bool               `json:"detect_platform_accounts"`
 	DeveloperMode          bool               `json:"developer_mode"`
 }
+
+// VerificationLevel type defination
+type Status string
+
+// Constants for VerificationLevel levels from 0 to 3 inclusive
+const (
+	StatusOnline       Status = "online"
+	StatusIdle         Status = "idle"
+	StatusDoNotDisturb Status = "dnd"
+	StatusInvisible    Status = "invisible"
+	StatusOffline      Status = "offline"
+)
 
 // FriendSourceFlags stores ... TODO :)
 type FriendSourceFlags struct {
