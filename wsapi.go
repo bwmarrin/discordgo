@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -474,22 +473,13 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 		return
 	}
 
-	// Need to have this happen at login and store it in the Session
-	// TODO : This should be done upon connecting to Discord, or
-	// be moved to a small helper function
-	self, err := s.User("@me") // TODO: move to Login/New
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	// We only care about events that are about us
-	if st.UserID != self.ID {
+	if se.State.Ready.User.ID != st.UserID {
 		return
 	}
 
 	// Store the SessionID for later use.
-	voice.UserID = self.ID // TODO: Review
+	voice.UserID = st.UserID // TODO: Review
 	voice.sessionID = st.SessionID
 }
 
