@@ -325,6 +325,7 @@ func (s *Session) UserSettings() (st *Settings, err error) {
 func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 	if status == StatusOffline {
 		err = errors.New("You can't set your Status to offline")
+		return
 	}
 
 	data := struct {
