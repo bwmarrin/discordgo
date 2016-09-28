@@ -283,7 +283,7 @@ type requestGuildMembersOp struct {
 // RequestGuildMembers requests guild members from the gateway
 // The gateway responds with GuildMembersChunk events
 // guildID  : The ID of the guild to request members of
-// query    : String that username sarts with, leave empty to return all members
+// query    : String that username starts with, leave empty to return all members
 // limit    : Max number of items to return, or 0 to request all members matched
 func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
 	s.log(LogInformational, "called")
