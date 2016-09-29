@@ -432,6 +432,12 @@ type GuildBan struct {
 	GuildID string `json:"guild_id"`
 }
 
+// A GuildBans stores data for a banned user.
+type GuildBans struct {
+	Reason string `json:"reason"`
+	User   *User  `json:"user"`
+}
+
 // A GuildEmojisUpdate stores data for a guild emoji update event.
 type GuildEmojisUpdate struct {
 	GuildID string   `json:"guild_id"`
