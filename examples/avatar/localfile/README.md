@@ -37,5 +37,5 @@ Usage of ./ocalfile:
 For example to start application with Token and a non-default avatar:
 
 ```sh
-./localfile -t "YOUR_BOT_TOKEN" -f "./pathtoavatar.jpg"
+./localfile -t "Bot YOUR_BOT_TOKEN" -f "./pathtoavatar.jpg"
 ```

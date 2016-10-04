@@ -2,12 +2,12 @@
 MyToken Example
 ====
 
-This example demonstrates how to utilize DiscordGo to print out the 
+This example demonstrates how to utilize DiscordGo to print out the
 Authentication Token for a given user account.
 
 ### Build
 
-This assumes you already have a working Go environment setup and that 
+This assumes you already have a working Go environment setup and that
 DiscordGo is correctly installed on your system.
 
 ```sh
@@ -32,4 +32,10 @@ authentication.
 
 ```sh
 ./mytoken -e EmailHere -p PasswordHere
+```
+
+The below example shows how to start the bot using the bot user's token
+
+```sh
+./pingpong -t "Bot YOUR_BOT_TOKEN"
 ```

@@ -27,7 +27,7 @@ Usage of ./airhorn:
 The below example shows how to start the bot.
 
 ```sh
-./airhorn -t <bot token>
+./airhorn -t "Bot YOUR_BOT_TOKEN"
 ```
 
 ### Creating sounds
