@@ -376,9 +376,9 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 	return
 }
 
+// UserChannelPermissions returns the permission of a user in a channel.
 // NOTE: This function is now deprecated and will be removed in the future.
 // Please see the same function inside state.go
-// UserChannelPermissions returns the permission of a user in a channel.
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
 func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
