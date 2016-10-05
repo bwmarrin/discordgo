@@ -42,5 +42,5 @@ authentication.
 The below example shows how to start the bot using the bot user's token
 
 ```sh
-./pingpong -t "BOT YOUR_BOT_TOKEN"
+./pingpong -t "Bot YOUR_BOT_TOKEN"
 ```
