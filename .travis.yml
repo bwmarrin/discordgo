@@ -1,5 +1,6 @@
 language: go
 go:
+    - 1.5
     - 1.6
     - tip
 install:
@@ -9,5 +10,5 @@ install:
 script:
     - diff <(gofmt -d .) <(echo -n)
     - go vet -x ./...
-    - golint -set_exit_status ./...
+    - golint ./...
     - go test -v -race ./...
