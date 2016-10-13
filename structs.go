@@ -408,6 +408,11 @@ type MessageAck struct {
 	ChannelID string `json:"channel_id"`
 }
 
+// An Ack is used to ack messages
+type Ack struct {
+	Token string `json:"token"`
+}
+
 // A GuildIntegrationsUpdate stores data for the guild integrations update
 // websocket event.
 type GuildIntegrationsUpdate struct {
