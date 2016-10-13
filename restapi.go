@@ -1127,9 +1127,15 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 // ChannelMessageAck acknowledges and marks the given message as read
 // channeld  : The ID of a Channel
 // messageID : the ID of a Message
-func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
+// lastToken : token returned by last ack
+func (s *Session) ChannelMessageAck(channelID, messageID, lastToken string) (st *Ack, err error) {
 
-	_, err = s.request("POST", EndpointChannelMessageAck(channelID, messageID), "", nil, 0)
+	body, err := s.Request("POST", EndpointChannelMessageAck(channelID, messageID), &Ack{Token: lastToken})
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
 	return
 }
 
