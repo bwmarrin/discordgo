@@ -169,7 +169,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 		response, err = s.request(method, urlStr, contentType, b, sequence)
 
 	default: // Error condition
-		err = fmt.Errorf("HTTP %s, %s", resp.Status, response)
+		err = newRestError(req, resp, response)
 	}
 
 	return
