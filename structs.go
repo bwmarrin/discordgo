@@ -502,6 +502,12 @@ type UserGuildSettingsEdit struct {
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
+// An APIErrorMessage is an api error message returned from discord
+type APIErrorMessage struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 // ChannelPinsUpdate stores data for the channel pins update event
 type ChannelPinsUpdate struct {
 	LastPinTimestamp string `json:"last_pin_timestamp"`
