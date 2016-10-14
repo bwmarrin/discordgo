@@ -25,8 +25,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
-	"sync"
 	"time"
 )
 
@@ -53,28 +51,9 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 // retry with sequence+1 until it either succeeds or sequence >= session.MaxRestRetries
 func (s *Session) request(method, urlStr, contentType string, b []byte, sequence int) (response []byte, err error) {
 
-	// rate limit mutex for this url
-	// TODO: review for performance improvements
-	// ideally we just ignore endpoints that we've never
-	// received a 429 on. But this simple method works and
-	// is a lot less complex :) It also might even be more
-	// performat due to less checks and maps.
-	var mu *sync.Mutex
+	// Lock this bucket
+	bucket := s.ratelimiter.LockBucket(urlStr)
 
-	s.rateLimit.Lock()
-	if s.rateLimit.url == nil {
-		s.rateLimit.url = make(map[string]*sync.Mutex)
-	}
-
-	bu := strings.Split(urlStr, "?")
-	mu, _ = s.rateLimit.url[bu[0]]
-	if mu == nil {
-		mu = new(sync.Mutex)
-		s.rateLimit.url[bu[0]] = mu
-	}
-	s.rateLimit.Unlock()
-
-	mu.Lock() // lock this URL for ratelimiting
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -82,6 +61,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
 	if err != nil {
+		bucket.Release(nil)
 		return
 	}
 
@@ -104,8 +84,8 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 	client := &http.Client{Timeout: (20 * time.Second)}
 
 	resp, err := client.Do(req)
-	mu.Unlock() // unlock ratelimit mutex
 	if err != nil {
+		bucket.Release(nil)
 		return
 	}
 	defer func() {
@@ -114,6 +94,11 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 			log.Println("error closing resp body")
 		}
 	}()
+
+	err = bucket.Release(resp.Header)
+	if err != nil {
+		return
+	}
 
 	response, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -149,13 +134,10 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 
 	case 429: // TOO MANY REQUESTS - Rate limiting
 
-		mu.Lock() // lock URL ratelimit mutex
-
 		rl := TooManyRequests{}
 		err = json.Unmarshal(response, &rl)
 		if err != nil {
 			s.log(LogError, "rate limit unmarshal error, %s", err)
-			mu.Unlock()
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
@@ -165,7 +147,6 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
-		mu.Unlock() // we have to unlock here
 		response, err = s.request(method, urlStr, contentType, b, sequence)
 
 	default: // Error condition

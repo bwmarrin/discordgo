@@ -15,6 +15,7 @@ package discordgo
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo/internal/ratelimit"
 	"reflect"
 )
 
@@ -37,6 +38,7 @@ func New(args ...interface{}) (s *Session, err error) {
 	// Create an empty Session interface.
 	s = &Session{
 		State:                  NewState(),
+		ratelimiter:            ratelimit.New(),
 		StateEnabled:           true,
 		Compress:               true,
 		ShouldReconnectOnError: true,
