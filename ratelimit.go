@@ -50,13 +50,13 @@ func (r *RateLimiter) LockBucket(path string) *Bucket {
 
 	// If we ran out of calls and the reset time is still ahead of us
 	// then we need to take it easy and relax a little
-	for b.remaining < 1 && b.reset.After(time.Now()) {
+	if b.remaining < 1 && b.reset.After(time.Now()) {
 		time.Sleep(b.reset.Sub(time.Now()))
-	}
 
-	// Lock and unlock to check for global ratelimites after sleeping
-	r.Lock()
-	r.Unlock()
+		// Lock and unlock to check for global ratelimites after sleeping
+		r.Lock()
+		r.Unlock()
+	}
 
 	b.remaining--
 	return b
