@@ -1,4 +1,4 @@
-package ratelimit
+package discordgo
 
 import (
 	"net/http"
@@ -65,7 +65,7 @@ func TestParseURL(t *testing.T) {
 
 // This test takes ~2 seconds to run
 func TestRatelimitReset(t *testing.T) {
-	rl := New()
+	rl := NewRatelimiter()
 
 	sendReq := func(endpoint string) {
 		bucket := rl.LockBucket(endpoint)
@@ -101,14 +101,14 @@ func TestRatelimitReset(t *testing.T) {
 }
 
 func BenchmarkRatelimitSingleEndpoint(b *testing.B) {
-	rl := New()
+	rl := NewRatelimiter()
 	for i := 0; i < b.N; i++ {
 		sendBenchReq("/guilds/99/channels", rl)
 	}
 }
 
 func BenchmarkRatelimitParallelMultiEndpoints(b *testing.B) {
-	rl := New()
+	rl := NewRatelimiter()
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0
 		for pb.Next() {

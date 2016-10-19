@@ -17,7 +17,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bwmarrin/discordgo/internal/ratelimit"
 	"github.com/gorilla/websocket"
 )
 
@@ -89,7 +88,7 @@ type Session struct {
 	listening chan interface{}
 
 	// used to deal with rate limits
-	ratelimiter *ratelimit.RateLimiter
+	ratelimiter *RateLimiter
 
 	// sequence tracks the current gateway api websocket sequence number
 	sequence int

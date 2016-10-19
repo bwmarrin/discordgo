@@ -1,4 +1,4 @@
-package ratelimit
+package discordgo
 
 import (
 	"net/http"
@@ -17,7 +17,7 @@ type RateLimiter struct {
 }
 
 // New returns a new RateLimiter
-func New() *RateLimiter {
+func NewRatelimiter() *RateLimiter {
 
 	return &RateLimiter{
 		buckets: make(map[string]*Bucket),
