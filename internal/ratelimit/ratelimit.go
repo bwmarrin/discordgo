@@ -51,10 +51,7 @@ func (r *RateLimiter) LockBucket(path string) *Bucket {
 	// If we ran out of calls and the reset time is still ahead of us
 	// then we need to take it easy and relax a little
 	for b.remaining < 1 && b.reset.After(time.Now()) {
-		// Sleep for an extra 500ms incase of time slighly out of sync
-		// (i got ratelimited for 1 and 2 milliseconds a lot when testing...)
-		toSleep := b.reset.Sub(time.Now()) + time.Millisecond*500
-		time.Sleep(toSleep)
+		time.Sleep(b.reset.Sub(time.Now()))
 	}
 
 	// Lock and unlock to check for global ratelimites after sleeping
@@ -131,7 +128,8 @@ func (b *Bucket) Release(headers http.Header) error {
 			return err
 		}
 
-		b.reset = time.Unix(unix, 0)
+		// Add a second to account for time desync and such
+		b.reset = time.Unix(unix, 0).Add(time.Second)
 	}
 
 	// Udpate remaining if header is present
