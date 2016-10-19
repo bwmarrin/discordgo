@@ -25,8 +25,9 @@ func NewRatelimiter() *RateLimiter {
 }
 
 // getBucket retrieves or creates a bucket
-// ratelimiter is expected to be locked when calling this
 func (r *RateLimiter) getBucket(key string) *Bucket {
+	r.Lock()
+	defer r.Unlock()
 
 	if bucket, ok := r.buckets[key]; ok {
 		return bucket
@@ -42,9 +43,7 @@ func (r *RateLimiter) LockBucket(path string) *Bucket {
 
 	bucketKey := ParseURL(path)
 
-	r.Lock()
 	b := r.getBucket(bucketKey)
-	r.Unlock()
 
 	b.mu.Lock()
 
