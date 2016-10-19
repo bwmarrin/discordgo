@@ -2,9 +2,7 @@ package discordgo
 
 import (
 	"net/http"
-	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 )
@@ -147,44 +145,4 @@ func (b *Bucket) Release(headers http.Header) error {
 	}
 
 	return nil
-}
-
-var (
-	minorVariables = []*regexp.Regexp{
-		// Snowflake
-		regexp.MustCompile(`permissions/[0-9]+`),
-		regexp.MustCompile(`pins/[0-9]+`),
-		regexp.MustCompile(`members/[0-9]+`),
-		regexp.MustCompile(`messages/[0-9]+`),
-		regexp.MustCompile(`users/[0-9]+`),
-		regexp.MustCompile(`roles/[0-9]+`),
-		regexp.MustCompile(`bans/[0-9]+`),
-		regexp.MustCompile(`integrations/[0-9]+`),
-		regexp.MustCompile(`application/[0-9]+`),
-
-		// Not snowflake (strings, hashes etc..)
-		regexp.MustCompile(`invites/[0-9a-zA-Z]+`),
-		regexp.MustCompile(`icons/[0-9a-zA-Z]+`),
-		regexp.MustCompile(`splashes/[0-9a-zA-Z]+`),
-		regexp.MustCompile(`emojis/[0-9a-zA-Z]+`),
-		regexp.MustCompile(`avatars/[0-9a-zA-Z]+`),
-	}
-)
-
-// ParseURL parses the url, removing everything not relevant to identifying a bucket.
-// such as minor variables
-func ParseURL(url string) string {
-
-	// Remove url parameters
-	noParam := strings.SplitN(url, "?", 2)[0]
-
-	for _, r := range minorVariables {
-
-		noParam = r.ReplaceAllStringFunc(noParam, func(s string) string {
-			// Strip out the var, but keep the endpoint
-			split := strings.SplitN(s, "/", 2)
-			return split[0] + "/"
-		})
-	}
-	return noParam
 }
