@@ -12,6 +12,7 @@ import (
 // Ratelimiter holds all ratelimit buckets
 type RateLimiter struct {
 	sync.Mutex
+	global          *Bucket
 	buckets         map[string]*Bucket
 	globalRateLimit time.Duration
 }
@@ -21,6 +22,7 @@ func NewRatelimiter() *RateLimiter {
 
 	return &RateLimiter{
 		buckets: make(map[string]*Bucket),
+		global:  &Bucket{Key: "global"},
 	}
 }
 
@@ -33,17 +35,20 @@ func (r *RateLimiter) getBucket(key string) *Bucket {
 		return bucket
 	}
 
-	b := &Bucket{remaining: 1, r: r, Key: key}
+	b := &Bucket{
+		remaining: 1,
+		Key:       key,
+		global:    r.global,
+	}
+
 	r.buckets[key] = b
 	return b
 }
 
 // LockBucket Locks until a request can be made
-func (r *RateLimiter) LockBucket(path string) *Bucket {
+func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 
-	bucketKey := ParseURL(path)
-
-	b := r.getBucket(bucketKey)
+	b := r.getBucket(bucketID)
 
 	b.mu.Lock()
 
@@ -52,10 +57,11 @@ func (r *RateLimiter) LockBucket(path string) *Bucket {
 	if b.remaining < 1 && b.reset.After(time.Now()) {
 		time.Sleep(b.reset.Sub(time.Now()))
 
-		// Lock and unlock to check for global ratelimites after sleeping
-		r.Lock()
-		r.Unlock()
 	}
+
+	// Check for global ratelimits
+	r.global.mu.Lock()
+	r.global.mu.Unlock()
 
 	b.remaining--
 	return b
@@ -69,7 +75,7 @@ type Bucket struct {
 	remaining int
 	limit     int
 	reset     time.Time
-	r         *RateLimiter
+	global    *Bucket
 }
 
 // Release unlocks the bucket and reads the headers to update the buckets ratelimit info
@@ -99,14 +105,14 @@ func (b *Bucket) Release(headers http.Header) error {
 			// where n is the amount of requests that were going on
 			sleepTo := time.Now().Add(time.Duration(parsedAfter) * time.Millisecond)
 
-			b.r.Lock()
+			b.global.mu.Lock()
 
 			sleepDuration := sleepTo.Sub(time.Now())
 			if sleepDuration > 0 {
 				time.Sleep(sleepDuration)
 			}
 
-			b.r.Unlock()
+			b.global.mu.Unlock()
 		}()
 
 		return nil
