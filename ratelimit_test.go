@@ -44,7 +44,7 @@ func TestRatelimitReset(t *testing.T) {
 	}
 }
 
-// This test takes ~2 seconds to run
+// This test takes ~1 seconds to run
 func TestRatelimitGlobal(t *testing.T) {
 	rl := NewRatelimiter()
 
@@ -54,7 +54,7 @@ func TestRatelimitGlobal(t *testing.T) {
 		headers := http.Header(make(map[string][]string))
 
 		headers.Set("X-RateLimit-Global", "1")
-		// Reset for approx 2 seconds from now
+		// Reset for approx 1 seconds from now
 		headers.Set("Retry-After", "1000")
 
 		err := bucket.Release(headers)

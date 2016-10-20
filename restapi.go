@@ -297,7 +297,7 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 		NewPassword string `json:"new_password,omitempty"`
 	}{email, password, username, avatar, newPassword}
 
-	body, err := s.Request("PATCH", EndpointUser("@me"), data)
+	body, err := s.RequestWithBucketID("PATCH", EndpointUser("@me"), data, EndpointUsers)
 	if err != nil {
 		return
 	}
