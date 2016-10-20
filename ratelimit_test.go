@@ -40,7 +40,42 @@ func TestRatelimitReset(t *testing.T) {
 	if time.Since(sent) >= time.Second && time.Since(sent) < time.Second*4 {
 		t.Log("OK", time.Since(sent))
 	} else {
-		t.Error("Did not ratelimit correctly")
+		t.Error("Did not ratelimit correctly, got:", time.Since(sent))
+	}
+}
+
+// This test takes ~2 seconds to run
+func TestRatelimitGlobal(t *testing.T) {
+	rl := NewRatelimiter()
+
+	sendReq := func(endpoint string) {
+		bucket := rl.LockBucket(endpoint)
+
+		headers := http.Header(make(map[string][]string))
+
+		headers.Set("X-RateLimit-Global", "1")
+		// Reset for approx 2 seconds from now
+		headers.Set("Retry-After", "1000")
+
+		err := bucket.Release(headers)
+		if err != nil {
+			t.Errorf("Release returned error: %v", err)
+		}
+	}
+
+	sent := time.Now()
+
+	// This should trigger a global ratelimit
+	sendReq("/guilds/99/channels")
+	time.Sleep(time.Millisecond * 100)
+
+	// This shouldn't go through in less than 1 second
+	sendReq("/guilds/55/channels")
+
+	if time.Since(sent) >= time.Second && time.Since(sent) < time.Second*2 {
+		t.Log("OK", time.Since(sent))
+	} else {
+		t.Error("Did not ratelimit correctly, got:", time.Since(sent))
 	}
 }
 
