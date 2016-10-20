@@ -54,6 +54,10 @@ func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, b
 // Sequence is the sequence number, if it fails with a 502 it will
 // retry with sequence+1 until it either succeeds or sequence >= session.MaxRestRetries
 func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID string, sequence int) (response []byte, err error) {
+	if bucketID == "" {
+		bucketID = strings.SplitN(bucketID, "?", 2)[0]
+	}
+
 	bucket := s.ratelimiter.LockBucket(bucketID)
 
 	if s.Debug {
