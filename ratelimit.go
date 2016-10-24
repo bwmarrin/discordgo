@@ -126,13 +126,23 @@ func (b *Bucket) Release(headers http.Header) error {
 		b.reset = time.Now().Add(time.Duration(parsedAfter) * time.Millisecond)
 
 	} else if reset != "" {
+		// Calculate the reset time by using the date header returned from discord
+		discordTime, err := http.ParseTime(headers.Get("Date"))
+		if err != nil {
+			return err
+		}
+
 		unix, err := strconv.ParseInt(reset, 10, 64)
 		if err != nil {
 			return err
 		}
 
-		// Add a second to account for time desync and such
-		b.reset = time.Unix(unix, 0).Add(time.Second)
+		// Calculate the time until reset and add it to the current local time
+		// some extra time is added because without it i still encountered 429's.
+		// The added amount is the lowest amount that gave no 429's
+		// in 1k requests
+		delta := time.Unix(unix, 0).Sub(discordTime) + time.Millisecond*250
+		b.reset = time.Now().Add(delta)
 	}
 
 	// Udpate remaining if header is present
