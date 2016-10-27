@@ -48,7 +48,7 @@ func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 
 	b := r.getBucket(bucketID)
 
-	b.mu.Lock()
+	b.Lock()
 
 	// If we ran out of calls and the reset time is still ahead of us
 	// then we need to take it easy and relax a little
@@ -58,8 +58,8 @@ func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 	}
 
 	// Check for global ratelimits
-	r.global.mu.Lock()
-	r.global.mu.Unlock()
+	r.global.Lock()
+	r.global.Unlock()
 
 	b.remaining--
 	return b
@@ -67,9 +67,8 @@ func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 
 // Bucket represents a ratelimit bucket, each bucket gets ratelimited individually (-global ratelimits)
 type Bucket struct {
-	Key string
-
-	mu        sync.Mutex
+	sync.Mutex
+	Key       string
 	remaining int
 	limit     int
 	reset     time.Time
@@ -80,7 +79,7 @@ type Bucket struct {
 // and locks up the whole thing in case if there's a global ratelimit.
 func (b *Bucket) Release(headers http.Header) error {
 
-	defer b.mu.Unlock()
+	defer b.Unlock()
 	if headers == nil {
 		return nil
 	}
@@ -103,14 +102,14 @@ func (b *Bucket) Release(headers http.Header) error {
 			// where n is the amount of requests that were going on
 			sleepTo := time.Now().Add(time.Duration(parsedAfter) * time.Millisecond)
 
-			b.global.mu.Lock()
+			b.global.Lock()
 
 			sleepDuration := sleepTo.Sub(time.Now())
 			if sleepDuration > 0 {
 				time.Sleep(sleepDuration)
 			}
 
-			b.global.mu.Unlock()
+			b.global.Unlock()
 		}()
 
 		return nil
