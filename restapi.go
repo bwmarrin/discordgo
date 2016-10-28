@@ -440,7 +440,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions&PermissionManageRoles > 0 {
+	if apermissions&PermissionAdministrator > 0 {
 		apermissions |= PermissionAll
 	}
 
@@ -1437,5 +1437,174 @@ func (s *Session) Gateway() (gateway string, err error) {
 	}
 
 	gateway = temp.URL
+	return
+}
+
+// Functions specific to Webhooks
+
+// WebhookCreate returns a new Webhook.
+// channelID: The ID of a Channel.
+// name     : The name of the webhook.
+// avatar   : The avatar of the webhook.
+func (s *Session) WebhookCreate(channelID, name, avatar string) (st *Webhook, err error) {
+
+	data := struct {
+		Name   string `json:"name"`
+		Avatar string `json:"avatar,omitempty"`
+	}{name, avatar}
+
+	body, err := s.Request("POST", EndpointChannelWebhooks(channelID), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// ChannelWebhooks returns all webhooks for a given channel.
+// channelID: The ID of a channel.
+func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointChannelWebhooks(channelID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// GuildWebhooks returns all webhooks for a given guild.
+// guildID: The ID of a Guild.
+func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointGuildWebhooks(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// Webhook returns a webhook for a given ID
+// webhookID: The ID of a webhook.
+func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointWebhook(webhookID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookWithToken returns a webhook for a given ID
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook.
+func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointWebhookToken(webhookID, token), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookEdit updates an existing Webhook.
+// webhookID: The ID of a webhook.
+// name     : The name of the webhook.
+// avatar   : The avatar of the webhook.
+func (s *Session) WebhookEdit(webhookID, name, avatar string) (st *Role, err error) {
+
+	data := struct {
+		Name   string `json:"name,omitempty"`
+		Avatar string `json:"avatar,omitempty"`
+	}{name, avatar}
+
+	body, err := s.Request("PATCH", EndpointWebhook(webhookID), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookEditWithToken updates an existing Webhook with an auth token.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook.
+// name     : The name of the webhook.
+// avatar   : The avatar of the webhook.
+func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (st *Role, err error) {
+
+	data := struct {
+		Name   string `json:"name,omitempty"`
+		Avatar string `json:"avatar,omitempty"`
+	}{name, avatar}
+
+	body, err := s.Request("PATCH", EndpointWebhookToken(webhookID, token), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookDelete deletes a webhook for a given ID
+// webhookID: The ID of a webhook.
+func (s *Session) WebhookDelete(webhookID string) (st *Webhook, err error) {
+
+	body, err := s.Request("DELETE", EndpointWebhook(webhookID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookDeleteWithToken deletes a webhook for a given ID with an auth token.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook.
+func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, err error) {
+
+	body, err := s.Request("DELETE", EndpointWebhookToken(webhookID, token), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookExecute executes a webhook.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the bebhook
+func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (err error) {
+	uri := EndpointWebhookToken(webhookID, token)
+
+	if wait {
+		uri += "?wait=true"
+	}
+
+	fmt.Println(uri)
+
+	_, err = s.Request("POST", uri, data)
+
 	return
 }
