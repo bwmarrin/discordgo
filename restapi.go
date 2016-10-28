@@ -169,7 +169,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, sequence
 		response, err = s.request(method, urlStr, contentType, b, sequence)
 
 	default: // Error condition
-		err = fmt.Errorf("HTTP %s, %s", resp.Status, response)
+		err = newRestError(req, resp, response)
 	}
 
 	return
@@ -324,6 +324,27 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 func (s *Session) UserSettings() (st *Settings, err error) {
 
 	body, err := s.Request("GET", EndpointUserSettings("@me"), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// UserUpdateStatus update the user status
+// status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
+func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
+	if status == StatusOffline {
+		err = errors.New("You can't set your Status to offline")
+		return
+	}
+
+	data := struct {
+		Status Status `json:"status"`
+	}{status}
+
+	body, err := s.Request("PATCH", EndpointUserSettings("@me"), data)
 	if err != nil {
 		return
 	}
@@ -1106,9 +1127,15 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 // ChannelMessageAck acknowledges and marks the given message as read
 // channeld  : The ID of a Channel
 // messageID : the ID of a Message
-func (s *Session) ChannelMessageAck(channelID, messageID string) (err error) {
+// lastToken : token returned by last ack
+func (s *Session) ChannelMessageAck(channelID, messageID, lastToken string) (st *Ack, err error) {
 
-	_, err = s.request("POST", EndpointChannelMessageAck(channelID, messageID), "", nil, 0)
+	body, err := s.Request("POST", EndpointChannelMessageAck(channelID, messageID), &Ack{Token: lastToken})
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
 	return
 }
 

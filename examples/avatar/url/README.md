@@ -37,5 +37,5 @@ Usage of ./url:
 For example to start application with Token and a non-default avatar:
 
 ```sh
-./url -t "YOUR_BOT_TOKEN" -l "http://bwmarrin.github.io/discordgo/img/discordgo.png"
+./url -t "Bot YOUR_BOT_TOKEN" -l "http://bwmarrin.github.io/discordgo/img/discordgo.png"
 ```
