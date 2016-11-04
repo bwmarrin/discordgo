@@ -444,8 +444,8 @@ type GuildRoleDelete struct {
 
 // A GuildBan stores data for a guild ban.
 type GuildBan struct {
-	User    *User  `json:"user"`
-	GuildID string `json:"guild_id"`
+	Reason string `json:"reason"`
+	User   *User  `json:"user"`
 }
 
 // A GuildEmojisUpdate stores data for a guild emoji update event.

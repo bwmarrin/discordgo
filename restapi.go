@@ -604,7 +604,7 @@ func (s *Session) GuildLeave(guildID string) (err error) {
 // GuildBans returns an array of User structures for all bans of a
 // given guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildBans(guildID string) (st []*User, err error) {
+func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 
 	body, err := s.Request("GET", EndpointGuildBans(guildID), nil)
 	if err != nil {
