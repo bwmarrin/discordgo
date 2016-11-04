@@ -1635,3 +1635,52 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 
 	return
 }
+
+// MessageReactionAdd creates an emoji reaction to a message.
+// channelID : The channel ID.
+// messageID : The message ID.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
+
+	_, err := s.Request("PUT", EndpointMessageReactions(channelID, messageID, emojiID), nil)
+
+	return err
+}
+
+// MessageReactionRemove deletes an emoji reaction to a message.
+// channelID : The channel ID.
+// messageID : The message ID.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+func (s *Session) MessageReactionRemove(channelID, messageID, emojiID string) error {
+
+	_, err := s.Request("DELETE", EndpointMessageReactions(channelID, messageID, emojiID), nil)
+
+	return err
+}
+
+// MessageReactions gets all the users reactions for a specific emoji.
+// channelID : The channel ID.
+// messageID : The message ID.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+// limit    : max number of users to return (max 100)
+func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit int) (st []*User, err error) {
+	uri := EndpointMessageReactions(channelID, messageID, emojiID)
+
+	v := url.Values{}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.Request("GET", uri, nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}

@@ -92,6 +92,10 @@ var (
 	EndpointWebhook      = func(wID string) string { return EndpointWebhooks + wID }
 	EndpointWebhookToken = func(wID, token string) string { return EndpointWebhooks + wID + "/" + token }
 
+	EndpointMessageReactions = func(cID, mID, eID string) string {
+		return EndpointChannelMessage(cID, mID) + "/reactions/" + eID + "/@me"
+	}
+
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invite/" + iID }
 
 	EndpointIntegrationsJoin = func(iID string) string { return EndpointAPI + "integrations/" + iID + "/join" }
