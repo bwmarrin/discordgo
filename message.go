@@ -28,6 +28,7 @@ type Message struct {
 	Attachments     []*MessageAttachment `json:"attachments"`
 	Embeds          []*MessageEmbed      `json:"embeds"`
 	Mentions        []*User              `json:"mentions"`
+	Reactions       []*MessageReactions  `json:"reactions"`
 }
 
 // A MessageAttachment stores data for message attachments.
@@ -108,6 +109,13 @@ type MessageEmbed struct {
 	Provider    *MessageEmbedProvider  `json:"provider,omitempty"`
 	Author      *MessageEmbedAuthor    `json:"author,omitempty"`
 	Fields      []*MessageEmbedField   `json:"fields,omitempty"`
+}
+
+// MessageReactions holds a reactions object for a message.
+type MessageReactions struct {
+	Count int    `json:"count"`
+	Me    bool   `json:"me"`
+	Emoji *Emoji `json:"emoji"`
 }
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
