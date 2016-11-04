@@ -186,6 +186,17 @@ type Emoji struct {
 	RequireColons bool     `json:"require_colons"`
 }
 
+// APIName returns an correctly formatted API name for use in the MessageReactions endpoints.
+func (e *Emoji) APIName() string {
+	if e.ID != "" && e.Name != "" {
+		return e.Name + ":" + e.ID
+	}
+	if e.Name != "" {
+		return e.Name
+	}
+	return e.ID
+}
+
 // VerificationLevel type defination
 type VerificationLevel int
 
@@ -533,6 +544,14 @@ type WebhookParams struct {
 	TTS       bool            `json:"tts,omitempty"`
 	File      string          `json:"file,omitempty"`
 	Embeds    []*MessageEmbed `json:"embeds,omitempty"`
+}
+
+// MessageReaction stores the data for a message reaction.
+type MessageReaction struct {
+	UserID    string `json:"user_id"`
+	MessageID string `json:"message_id"`
+	Emoji     Emoji  `json:"emoji"`
+	ChannelID string `json:"channel_id"`
 }
 
 // Constants for the different bit offsets of text channel permissions
