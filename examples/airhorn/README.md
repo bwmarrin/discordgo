@@ -21,13 +21,13 @@ cp ../src/github.com/bwmarrin/discordgo/examples/airhorn/airhorn.dca .
 ```
 Usage of ./airhorn:
   -t string
-        Account Token
+        Bot Token
 ```
 
 The below example shows how to start the bot.
 
 ```sh
-./airhorn -t "Bot YOUR_BOT_TOKEN"
+./airhorn -t YOUR_BOT_TOKEN
 ```
 
 ### Creating sounds

@@ -41,31 +41,73 @@ type MessageAttachment struct {
 	Size     int    `json:"size"`
 }
 
+// MessageEmbedFooter is a part of a MessageEmbed struct.
+type MessageEmbedFooter struct {
+	Text         string `json:"text,omitempty"`
+	IconURL      string `json:"icon_url,omitempty"`
+	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
+}
+
+// MessageEmbedImage is a part of a MessageEmbed struct.
+type MessageEmbedImage struct {
+	URL      string `json:"url,omitempty"`
+	ProxyURL string `json:"proxy_url,omitempty"`
+	Width    int    `json:"width,omitempty"`
+	Height   int    `json:"height,omitempty"`
+}
+
+// MessageEmbedThumbnail is a part of a MessageEmbed struct.
+type MessageEmbedThumbnail struct {
+	URL      string `json:"url,omitempty"`
+	ProxyURL string `json:"proxy_url,omitempty"`
+	Width    int    `json:"width,omitempty"`
+	Height   int    `json:"height,omitempty"`
+}
+
+// MessageEmbedVideo is a part of a MessageEmbed struct.
+type MessageEmbedVideo struct {
+	URL      string `json:"url,omitempty"`
+	ProxyURL string `json:"proxy_url,omitempty"`
+	Width    int    `json:"width,omitempty"`
+	Height   int    `json:"height,omitempty"`
+}
+
+// MessageEmbedProvider is a part of a MessageEmbed struct.
+type MessageEmbedProvider struct {
+	URL  string `json:"url,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+// MessageEmbedAuthor is a part of a MessageEmbed struct.
+type MessageEmbedAuthor struct {
+	URL          string `json:"url,omitempty"`
+	Name         string `json:"name,omitempty"`
+	IconURL      string `json:"icon_url,omitempty"`
+	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
+}
+
+// MessageEmbedField is a part of a MessageEmbed struct.
+type MessageEmbedField struct {
+	Name   string `json:"name,omitempty"`
+	Value  string `json:"value,omitempty"`
+	Inline bool   `json:"inline,omitempty"`
+}
+
 // An MessageEmbed stores data for message embeds.
 type MessageEmbed struct {
-	URL         string `json:"url"`
-	Type        string `json:"type"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Thumbnail   *struct {
-		URL      string `json:"url"`
-		ProxyURL string `json:"proxy_url"`
-		Width    int    `json:"width"`
-		Height   int    `json:"height"`
-	} `json:"thumbnail"`
-	Provider *struct {
-		URL  string `json:"url"`
-		Name string `json:"name"`
-	} `json:"provider"`
-	Author *struct {
-		URL  string `json:"url"`
-		Name string `json:"name"`
-	} `json:"author"`
-	Video *struct {
-		URL    string `json:"url"`
-		Width  int    `json:"width"`
-		Height int    `json:"height"`
-	} `json:"video"`
+	URL         string                 `json:"url,omitempty"`
+	Type        string                 `json:"type,omitempty"`
+	Title       string                 `json:"title,omitempty"`
+	Description string                 `json:"description,omitempty"`
+	Timestamp   string                 `json:"timestamp,omitempty"`
+	Color       int                    `json:"color,omitempty"`
+	Footer      *MessageEmbedFooter    `json:"footer,omitempty"`
+	Image       *MessageEmbedImage     `json:"image,omitempty"`
+	Thumbnail   *MessageEmbedThumbnail `json:"thumbnail,omitempty"`
+	Video       *MessageEmbedVideo     `json:"video,omitempty"`
+	Provider    *MessageEmbedProvider  `json:"provider,omitempty"`
+	Author      *MessageEmbedAuthor    `json:"author,omitempty"`
+	Fields      []*MessageEmbedField   `json:"fields,omitempty"`
 }
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
