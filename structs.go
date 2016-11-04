@@ -514,6 +514,27 @@ type ChannelPinsUpdate struct {
 	ChannelID        string `json:"channel_id"`
 }
 
+// Webhook stores the data for a webhook.
+type Webhook struct {
+	ID        string `json:"id"`
+	GuildID   string `json:"guild_id"`
+	ChannelID string `json:"channel_id"`
+	User      *User  `json:"user"`
+	Name      string `json:"name"`
+	Avatar    string `json:"avatar"`
+	Token     string `json:"token"`
+}
+
+// WebhookParams is a struct for webhook params, used in the WebhookExecute command.
+type WebhookParams struct {
+	Content   string          `json:"content,omitempty"`
+	Username  string          `json:"username,omitempty"`
+	AvatarURL string          `json:"avatar_url,omitempty"`
+	TTS       bool            `json:"tts,omitempty"`
+	File      string          `json:"file,omitempty"`
+	Embeds    []*MessageEmbed `json:"embeds,omitempty"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
@@ -524,6 +545,7 @@ const (
 	PermissionAttachFiles
 	PermissionReadMessageHistory
 	PermissionMentionEveryone
+	PermissionUseExternalEmojis
 )
 
 // Constants for the different bit offsets of voice permissions
@@ -536,12 +558,21 @@ const (
 	PermissionVoiceUseVAD
 )
 
+// Constants for general management.
+const (
+	PermissionChangeNickname = 1 << (iota + 26)
+	PermissionManageNicknames
+	PermissionManageRoles
+	PermissionManageWebhooks
+	PermissionManageEmojis
+)
+
 // Constants for the different bit offsets of general permissions
 const (
 	PermissionCreateInstantInvite = 1 << iota
 	PermissionKickMembers
 	PermissionBanMembers
-	PermissionManageRoles
+	PermissionAdministrator
 	PermissionManageChannels
 	PermissionManageServer
 
