@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	flag.StringVar(&token, "t", "", "Account Token")
+	flag.StringVar(&token, "t", "", "Bot Token")
 	flag.Parse()
 }
 
@@ -34,8 +34,8 @@ func main() {
 		return
 	}
 
-	// Create a new Discord session using the provided token.
-	dg, err := discordgo.New(token)
+	// Create a new Discord session using the provided bot token.
+	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
 		return

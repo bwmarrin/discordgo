@@ -35,6 +35,8 @@ var eventToInterface = map[string]interface{}{
 	"MESSAGE_CREATE":             MessageCreate{},
 	"MESSAGE_UPDATE":             MessageUpdate{},
 	"MESSAGE_DELETE":             MessageDelete{},
+	"MESSAGE_REACTION_ADD":       MessageReactionAdd{},
+	"MESSAGE_REACTION_REMOVE":    MessageReactionRemove{},
 	"PRESENCE_UPDATE":            PresenceUpdate{},
 	"PRESENCES_REPLACE":          PresencesReplace{},
 	"READY":                      Ready{},
@@ -74,6 +76,16 @@ type MessageDelete struct {
 	*Message
 }
 
+// MessageReactionAdd is a wrapper struct for an event.
+type MessageReactionAdd struct {
+	*MessageReaction
+}
+
+// MessageReactionRemove is a wrapper struct for an event.
+type MessageReactionRemove struct {
+	*MessageReaction
+}
+
 // ChannelCreate is a wrapper struct for an event.
 type ChannelCreate struct {
 	*Channel
@@ -106,12 +118,14 @@ type GuildDelete struct {
 
 // GuildBanAdd is a wrapper struct for an event.
 type GuildBanAdd struct {
-	*GuildBan
+	*User
+	GuildID string `json:"guild_id"`
 }
 
 // GuildBanRemove is a wrapper struct for an event.
 type GuildBanRemove struct {
-	*GuildBan
+	*User
+	GuildID string `json:"guild_id"`
 }
 
 // GuildMemberAdd is a wrapper struct for an event.

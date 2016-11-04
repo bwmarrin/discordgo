@@ -755,7 +755,7 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 		}
 	}
 
-	if apermissions&PermissionManageRoles > 0 {
+	if apermissions&PermissionAdministrator > 0 {
 		apermissions |= PermissionAll
 	}
 

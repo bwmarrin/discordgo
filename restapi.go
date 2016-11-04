@@ -155,7 +155,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 		response, err = s.request(method, urlStr, contentType, b, bucketID, sequence)
 
 	default: // Error condition
-		err = fmt.Errorf("HTTP %s, %s", resp.Status, response)
+		err = newRestError(req, resp, response)
 	}
 
 	return
@@ -447,7 +447,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions&PermissionManageRoles > 0 {
+	if apermissions&PermissionAdministrator > 0 {
 		apermissions |= PermissionAll
 	}
 
@@ -590,7 +590,7 @@ func (s *Session) GuildLeave(guildID string) (err error) {
 // GuildBans returns an array of User structures for all bans of a
 // given guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildBans(guildID string) (st []*User, err error) {
+func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointGuildBans(guildID), nil, EndpointGuildBans(guildID))
 	if err != nil {
@@ -1450,5 +1450,223 @@ func (s *Session) Gateway() (gateway string, err error) {
 	}
 
 	gateway = temp.URL
+	return
+}
+
+// Functions specific to Webhooks
+
+// WebhookCreate returns a new Webhook.
+// channelID: The ID of a Channel.
+// name     : The name of the webhook.
+// avatar   : The avatar of the webhook.
+func (s *Session) WebhookCreate(channelID, name, avatar string) (st *Webhook, err error) {
+
+	data := struct {
+		Name   string `json:"name"`
+		Avatar string `json:"avatar,omitempty"`
+	}{name, avatar}
+
+	body, err := s.Request("POST", EndpointChannelWebhooks(channelID), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// ChannelWebhooks returns all webhooks for a given channel.
+// channelID: The ID of a channel.
+func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointChannelWebhooks(channelID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// GuildWebhooks returns all webhooks for a given guild.
+// guildID: The ID of a Guild.
+func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointGuildWebhooks(guildID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// Webhook returns a webhook for a given ID
+// webhookID: The ID of a webhook.
+func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointWebhook(webhookID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookWithToken returns a webhook for a given ID
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook.
+func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err error) {
+
+	body, err := s.Request("GET", EndpointWebhookToken(webhookID, token), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookEdit updates an existing Webhook.
+// webhookID: The ID of a webhook.
+// name     : The name of the webhook.
+// avatar   : The avatar of the webhook.
+func (s *Session) WebhookEdit(webhookID, name, avatar string) (st *Role, err error) {
+
+	data := struct {
+		Name   string `json:"name,omitempty"`
+		Avatar string `json:"avatar,omitempty"`
+	}{name, avatar}
+
+	body, err := s.Request("PATCH", EndpointWebhook(webhookID), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookEditWithToken updates an existing Webhook with an auth token.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook.
+// name     : The name of the webhook.
+// avatar   : The avatar of the webhook.
+func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (st *Role, err error) {
+
+	data := struct {
+		Name   string `json:"name,omitempty"`
+		Avatar string `json:"avatar,omitempty"`
+	}{name, avatar}
+
+	body, err := s.Request("PATCH", EndpointWebhookToken(webhookID, token), data)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookDelete deletes a webhook for a given ID
+// webhookID: The ID of a webhook.
+func (s *Session) WebhookDelete(webhookID string) (st *Webhook, err error) {
+
+	body, err := s.Request("DELETE", EndpointWebhook(webhookID), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookDeleteWithToken deletes a webhook for a given ID with an auth token.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook.
+func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, err error) {
+
+	body, err := s.Request("DELETE", EndpointWebhookToken(webhookID, token), nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
+// WebhookExecute executes a webhook.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the bebhook
+func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (err error) {
+	uri := EndpointWebhookToken(webhookID, token)
+
+	if wait {
+		uri += "?wait=true"
+	}
+
+	fmt.Println(uri)
+
+	_, err = s.Request("POST", uri, data)
+
+	return
+}
+
+// MessageReactionAdd creates an emoji reaction to a message.
+// channelID : The channel ID.
+// messageID : The message ID.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
+
+	_, err := s.Request("PUT", EndpointMessageReactions(channelID, messageID, emojiID), nil)
+
+	return err
+}
+
+// MessageReactionRemove deletes an emoji reaction to a message.
+// channelID : The channel ID.
+// messageID : The message ID.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+func (s *Session) MessageReactionRemove(channelID, messageID, emojiID string) error {
+
+	_, err := s.Request("DELETE", EndpointMessageReactions(channelID, messageID, emojiID), nil)
+
+	return err
+}
+
+// MessageReactions gets all the users reactions for a specific emoji.
+// channelID : The channel ID.
+// messageID : The message ID.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+// limit    : max number of users to return (max 100)
+func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit int) (st []*User, err error) {
+	uri := EndpointMessageReactions(channelID, messageID, emojiID)
+
+	v := url.Values{}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.Request("GET", uri, nil)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
 	return
 }

@@ -3,7 +3,7 @@ Basic New Example
 ====
 
 This example demonstrates how to utilize DiscordGo to connect to Discord
-and print out all received chat messages.  
+and print out all received chat messages.
 
 This example uses the high level New() helper function to connect to Discord.
 
@@ -18,30 +18,18 @@ go build
 
 ### Usage
 
-You must authenticate using either an Authentication Token or both Email and
-Password for an account.  Keep in mind official Bot accounts only support
-authenticating via Token.
+This example uses bot tokens for authentication only.
+While user/password is supported by DiscordGo, it is not recommended.
 
 ```
 ./new_basic --help
 Usage of ./new_basic:
-  -e string
-        Account Email
-  -p string
-        Account Password
   -t string
-        Account Token
+        Bot Token
 ```
 
-The below example shows how to start the bot using an Email and Password for
-authentication.
+The below example shows how to start the bot
 
 ```sh
-./new_basic -e EmailHere -p PasswordHere
-```
-
-The below example shows how to start the bot using the bot user's token
-
-```sh
-./new_basic -t "Bot YOUR_BOT_TOKEN"
+./new_basic -t YOUR_BOT_TOKEN
 ```
