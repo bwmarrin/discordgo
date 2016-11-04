@@ -1466,7 +1466,7 @@ func (s *Session) WebhookCreate(channelID, name, avatar string) (st *Webhook, er
 		Avatar string `json:"avatar,omitempty"`
 	}{name, avatar}
 
-	body, err := s.Request("POST", EndpointChannelWebhooks(channelID), data)
+	body, err := s.RequestWithBucketID("POST", EndpointChannelWebhooks(channelID), data, EndpointChannelWebhooks(channelID))
 	if err != nil {
 		return
 	}
@@ -1480,7 +1480,7 @@ func (s *Session) WebhookCreate(channelID, name, avatar string) (st *Webhook, er
 // channelID: The ID of a channel.
 func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
 
-	body, err := s.Request("GET", EndpointChannelWebhooks(channelID), nil)
+	body, err := s.RequestWithBucketID("GET", EndpointChannelWebhooks(channelID), nil, EndpointChannelWebhooks(channelID))
 	if err != nil {
 		return
 	}
@@ -1494,7 +1494,7 @@ func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
 // guildID: The ID of a Guild.
 func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
 
-	body, err := s.Request("GET", EndpointGuildWebhooks(guildID), nil)
+	body, err := s.RequestWithBucketID("GET", EndpointGuildWebhooks(guildID), nil, EndpointGuildWebhooks(guildID))
 	if err != nil {
 		return
 	}
@@ -1508,7 +1508,7 @@ func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
 // webhookID: The ID of a webhook.
 func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
 
-	body, err := s.Request("GET", EndpointWebhook(webhookID), nil)
+	body, err := s.RequestWithBucketID("GET", EndpointWebhook(webhookID), nil, EndpointWebhooks)
 	if err != nil {
 		return
 	}
@@ -1523,7 +1523,7 @@ func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
 // token    : The auth token for the webhook.
 func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err error) {
 
-	body, err := s.Request("GET", EndpointWebhookToken(webhookID, token), nil)
+	body, err := s.RequestWithBucketID("GET", EndpointWebhookToken(webhookID, token), nil, EndpointWebhookToken("", ""))
 	if err != nil {
 		return
 	}
@@ -1544,7 +1544,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar string) (st *Role, err err
 		Avatar string `json:"avatar,omitempty"`
 	}{name, avatar}
 
-	body, err := s.Request("PATCH", EndpointWebhook(webhookID), data)
+	body, err := s.RequestWithBucketID("PATCH", EndpointWebhook(webhookID), data, EndpointWebhooks)
 	if err != nil {
 		return
 	}
@@ -1566,7 +1566,7 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 		Avatar string `json:"avatar,omitempty"`
 	}{name, avatar}
 
-	body, err := s.Request("PATCH", EndpointWebhookToken(webhookID, token), data)
+	body, err := s.RequestWithBucketID("PATCH", EndpointWebhookToken(webhookID, token), data, EndpointWebhookToken("", ""))
 	if err != nil {
 		return
 	}
@@ -1580,7 +1580,7 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 // webhookID: The ID of a webhook.
 func (s *Session) WebhookDelete(webhookID string) (st *Webhook, err error) {
 
-	body, err := s.Request("DELETE", EndpointWebhook(webhookID), nil)
+	body, err := s.RequestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks)
 	if err != nil {
 		return
 	}
@@ -1595,7 +1595,7 @@ func (s *Session) WebhookDelete(webhookID string) (st *Webhook, err error) {
 // token    : The auth token for the webhook.
 func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, err error) {
 
-	body, err := s.Request("DELETE", EndpointWebhookToken(webhookID, token), nil)
+	body, err := s.RequestWithBucketID("DELETE", EndpointWebhookToken(webhookID, token), nil, EndpointWebhookToken("", ""))
 	if err != nil {
 		return
 	}
@@ -1617,7 +1617,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 
 	fmt.Println(uri)
 
-	_, err = s.Request("POST", uri, data)
+	_, err = s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken("", ""))
 
 	return
 }
@@ -1628,7 +1628,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
 
-	_, err := s.Request("PUT", EndpointMessageReactions(channelID, messageID, emojiID), nil)
+	_, err := s.RequestWithBucketID("PUT", EndpointMessageReactions(channelID, messageID, emojiID), nil, EndpointMessageReactions(channelID, "", ""))
 
 	return err
 }
@@ -1639,7 +1639,7 @@ func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 func (s *Session) MessageReactionRemove(channelID, messageID, emojiID string) error {
 
-	_, err := s.Request("DELETE", EndpointMessageReactions(channelID, messageID, emojiID), nil)
+	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReactions(channelID, messageID, emojiID), nil, EndpointMessageReactions(channelID, "", ""))
 
 	return err
 }
@@ -1662,7 +1662,7 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
 	}
 
-	body, err := s.Request("GET", uri, nil)
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointMessageReactions(channelID, "", ""))
 	if err != nil {
 		return
 	}
