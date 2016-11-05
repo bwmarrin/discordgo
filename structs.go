@@ -100,6 +100,9 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	// used to determine whether all guilds have been lazy loaded
+	loadedGuildMap map[string]bool
 }
 
 type rateLimitMutex struct {
