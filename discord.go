@@ -246,7 +246,7 @@ func (s *Session) initialize() {
 func (s *Session) onReady(se *Session, r *Ready) {
 
 	for _, g := range r.Guilds {
-		if g.Unavailable != nil && !*g.Unavailable {
+		if g.Unavailable != nil {
 			s.loadedGuildMap[g.ID] = false
 		}
 	}
@@ -279,6 +279,6 @@ func (s *Session) onGuildCreate(se *Session, gc *GuildCreate) {
 
 	// If guilds are fully lazy loaded, emit a 'GuildReady' evnet.
 	if fullyLoaded {
-		s.handle(GuildReady{})
+		s.handle(&GuildReady{})
 	}
 }
