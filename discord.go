@@ -44,6 +44,8 @@ func New(args ...interface{}) (s *Session, err error) {
 		ShardID:                0,
 		ShardCount:             1,
 		MaxRestRetries:         3,
+
+		loadedGuildMap: make(map[string]bool),
 	}
 
 	// If no arguments are passed return the empty Session interface.
@@ -240,10 +242,17 @@ func (s *Session) initialize() {
 	s.AddHandler(s.onVoiceStateUpdate)
 	s.AddHandler(s.State.onReady)
 	s.AddHandler(s.State.onInterface)
+	s.AddHandler(s.onGuildCreate)
 }
 
 // onReady handles the ready event.
 func (s *Session) onReady(se *Session, r *Ready) {
+
+	for _, g := range r.Guilds {
+		if g.Unavailable != nil && !*g.Unavailable {
+			s.loadedGuildMap[g.ID] = false
+		}
+	}
 
 	// Store the SessionID within the Session struct.
 	s.sessionID = r.SessionID
@@ -257,4 +266,22 @@ func (s *Session) onResumed(se *Session, r *Resumed) {
 
 	// Start the heartbeat to keep the connection alive.
 	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
+}
+
+// onGuildCreate handles the guild creation event.
+func (s *Session) onGuildCreate(se *Session, gc *GuildCreate) {
+	s.loadedGuildMap[gc.ID] = true
+
+	// Iterate over the guilds that must be loaded, and check if they all have been.
+	fullyLoaded := true
+	for _, g := range s.loadedGuildMap {
+		if g != true {
+			fullyLoaded = false
+		}
+	}
+
+	// If guilds are fully lazy loaded, emit a 'GuildReady' evnet.
+	if fullyLoaded {
+		s.handle(GuildReady{})
+	}
 }
