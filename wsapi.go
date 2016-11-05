@@ -655,7 +655,7 @@ func (s *Session) Close() (err error) {
 		// frame and wait for the server to close the connection.
 		err := s.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 		if err != nil {
-			s.log(LogError, "error closing websocket, %s", err)
+			s.log(LogInformational, "error closing websocket, %s", err)
 		}
 
 		// TODO: Wait for Discord to actually close the connection.
@@ -664,7 +664,7 @@ func (s *Session) Close() (err error) {
 		s.log(LogInformational, "closing gateway websocket")
 		err = s.wsConn.Close()
 		if err != nil {
-			s.log(LogError, "error closing websocket, %s", err)
+			s.log(LogInformational, "error closing websocket, %s", err)
 		}
 
 		s.wsConn = nil
