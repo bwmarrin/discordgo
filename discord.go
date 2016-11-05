@@ -270,18 +270,22 @@ func (s *Session) onResumed(se *Session, r *Resumed) {
 
 // onGuildCreate handles the guild creation event.
 func (s *Session) onGuildCreate(se *Session, gc *GuildCreate) {
-	s.loadedGuildMap[gc.ID] = true
+	if _, ok := s.loadedGuildMap[gc.ID]; ok {
+		s.loadedGuildMap[gc.ID] = true
+	}
 
 	// Iterate over the guilds that must be loaded, and check if they all have been.
-	fullyLoaded := true
+	numLoadedGuilds := 0
 	for _, g := range s.loadedGuildMap {
-		if g != true {
-			fullyLoaded = false
+		if g == true {
+			numLoadedGuilds++
 		}
 	}
 
-	// If guilds are fully lazy loaded, emit a 'GuildReady' evnet.
-	if fullyLoaded {
+	// If guilds are fully lazy loaded, emit a 'GuildReady' event.
+	if len(s.loadedGuildMap) > 0 && numLoadedGuilds == len(s.loadedGuildMap) {
+		// Clear the map, so the event won't be emitted unless another 'Ready' event is emitted.
+		s.loadedGuildMap = make(map[string]bool)
 		s.handle(&GuildReady{})
 	}
 }
