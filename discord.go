@@ -249,7 +249,7 @@ func (s *Session) initialize() {
 func (s *Session) onReady(se *Session, r *Ready) {
 
 	for _, g := range r.Guilds {
-		if g.Unavailable == false {
+		if g.Unavailable == true {
 			s.loadedGuildMap[g.ID] = false
 		}
 	}
