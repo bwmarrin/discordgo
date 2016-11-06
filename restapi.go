@@ -381,7 +381,7 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 // Please see the same function inside state.go
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
-func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions uint64, err error) {
 	channel, err := s.State.Channel(channelID)
 	if err != nil || channel == nil {
 		channel, err = s.Channel(channelID)
@@ -796,7 +796,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // color     : The color of the role (decimal, not hex).
 // hoist     : Whether to display the role's users separately.
 // perm      : The permissions for the role.
-func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int) (st *Role, err error) {
+func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm uint64) (st *Role, err error) {
 
 	// Prevent sending a color int that is too big.
 	if color > 0xFFFFFF {
@@ -807,7 +807,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 		Name        string `json:"name"`        // The color the role should have (as a decimal, not hex)
 		Color       int    `json:"color"`       // Whether to display the role's users separately
 		Hoist       bool   `json:"hoist"`       // The role's name (overwrites existing)
-		Permissions int    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
+		Permissions uint64 `json:"permissions"` // The overall permissions number of the role (overwrites existing)
 	}{name, color, hoist, perm}
 
 	body, err := s.Request("PATCH", EndpointGuildRole(guildID, roleID), data)
@@ -1285,13 +1285,13 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 // ChannelPermissionSet creates a Permission Override for the given channel.
 // NOTE: This func name may changed.  Using Set instead of Create because
 // you can both create a new override or update an override with this function.
-func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, allow, deny int) (err error) {
+func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, allow, deny uint64) (err error) {
 
 	data := struct {
 		ID    string `json:"id"`
 		Type  string `json:"type"`
-		Allow int    `json:"allow"`
-		Deny  int    `json:"deny"`
+		Allow uint64 `json:"allow"`
+		Deny  uint64 `json:"deny"`
 	}{targetID, targetType, allow, deny}
 
 	_, err = s.Request("PUT", EndpointChannelPermission(channelID, targetID), data)

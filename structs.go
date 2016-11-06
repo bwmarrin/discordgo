@@ -170,8 +170,8 @@ type Channel struct {
 type PermissionOverwrite struct {
 	ID    string `json:"id"`
 	Type  string `json:"type"`
-	Deny  int    `json:"deny"`
-	Allow int    `json:"allow"`
+	Deny  uint64 `json:"deny"`
+	Allow uint64 `json:"allow"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -235,7 +235,7 @@ type Role struct {
 	Hoist       bool   `json:"hoist"`
 	Color       int    `json:"color"`
 	Position    int    `json:"position"`
-	Permissions int    `json:"permissions"`
+	Permissions uint64 `json:"permissions"`
 }
 
 // A VoiceState stores the voice states of Guilds
