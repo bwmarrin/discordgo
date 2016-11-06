@@ -474,6 +474,7 @@ const (
 	PermissionAttachFiles
 	PermissionReadMessageHistory
 	PermissionMentionEveryone
+	PermissionUseExternalEmoji
 )
 
 // Constants for the different bit offsets of voice permissions
@@ -484,6 +485,11 @@ const (
 	PermissionVoiceDeafenMembers
 	PermissionVoiceMoveMembers
 	PermissionVoiceUseVAD
+
+	PermissionChangeNickName
+	PermissionManageNickName
+	PermissionManageRoles
+	PermissionManageWebhooks
 )
 
 // Constants for the different bit offsets of general permissions
@@ -491,9 +497,10 @@ const (
 	PermissionCreateInstantInvite = 1 << iota
 	PermissionKickMembers
 	PermissionBanMembers
-	PermissionManageRoles
+	PermissionAdministrator
 	PermissionManageChannels
 	PermissionManageServer
+	PermissionAddReations
 
 	PermissionAllText = PermissionReadMessages |
 		PermissionSendMessages |
@@ -502,7 +509,9 @@ const (
 		PermissionEmbedLinks |
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
-		PermissionMentionEveryone
+		PermissionMentionEveryone |
+        PermissionUseExternalEmoji |
+        PermissionAddReations
 	PermissionAllVoice = PermissionVoiceConnect |
 		PermissionVoiceSpeak |
 		PermissionVoiceMuteMembers |
@@ -513,9 +522,14 @@ const (
 		PermissionAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
-		PermissionManageChannels
+		PermissionManageChannels |
+		PermissionManageWebhooks
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
-		PermissionManageServer
+		PermissionManageServer |
+        PermissionChangeNickName |
+        PermissionManageNickName |
+        PermissionAdministrator
+
 )
