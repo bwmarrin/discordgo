@@ -256,6 +256,7 @@ func TestGuildPruneCount(t *testing.T) {
 	}
 }
 
+/*
 // TestGuildPrune tests GuildPrune() function. This should not return an error.
 func TestGuildPrune(t *testing.T) {
 
@@ -272,3 +273,4 @@ func TestGuildPrune(t *testing.T) {
 		t.Errorf("GuildPrune returned error: %+v", err)
 	}
 }
+*/
