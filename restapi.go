@@ -886,20 +886,8 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 		return
 	}
 
-	u, err := url.Parse(EndpointGuildPrune(guildID))
-	if err != nil {
-		return
-	}
-
-	q := u.Query()
-	q.Set("days", fmt.Sprintf("%d", days))
-	u.RawQuery = q.Encode()
-
-	p := struct {
-		Pruned uint32 `json:"pruned"`
-	}{}
-
-	body, err := s.RequestWithBucketID("GET", u.String(), nil, EndpointGuildPrune(guildID))
+	uri := EndpointGuildPrune(guildID) + "?days=" + days
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildPrune(guildID))
 
 	err = unmarshal(body, &p)
 	if err != nil {
