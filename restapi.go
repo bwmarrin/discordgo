@@ -925,7 +925,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 	}
 
 	data := struct {
-		days uint32 `json:"days"`
+		days uint32
 	}{days}
 
 	p := struct {
