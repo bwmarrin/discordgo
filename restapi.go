@@ -874,6 +874,79 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 	return
 }
 
+// GuildPruneCount Returns the number of members that would be removed in a prune operation.
+// Requires 'KICK_MEMBER' permission.
+// guildID	: The ID of a Guild.
+// days		: The number of days to count prune for (1 or more).
+func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, err error) {
+	count = 0
+
+	if days <= 0 {
+		err = errors.New("The number of days should be more than or equal to 1.")
+		return
+	}
+
+	u, err := url.Parse(EndpointGuildPrune(guildID))
+	if err != nil {
+		return
+	}
+
+	q := u.Query()
+	q.Set("days", fmt.Sprintf("%d", days))
+	u.RawQuery = q.Encode()
+
+	p := struct {
+		Pruned uint32 `json:"pruned"`
+	}{}
+
+	body, err := s.RequestWithBucketID("GET", u.String(), nil, EndpointGuildPrune(guildID))
+
+	err = unmarshal(body, &p)
+	if err != nil {
+		return
+	}
+
+	count = p.Pruned
+
+	return
+}
+
+// GuildPrune Begin as prune operation. Requires the 'KICK_MEMBERS' permission.
+// Returns an object with one 'pruned' key indicating the number of members that were removed in the prune operation.
+// guildID	: The ID of a Guild.
+// days		: The number of days to count prune for (1 or more).
+func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err error) {
+
+	count = 0
+
+	if days <= 0 {
+		err = errors.New("The number of days should be more than or equal to 1.")
+		return
+	}
+
+	data := struct {
+		days uint32 `json:"days"`
+	}{days}
+
+	p := struct {
+		Pruned uint32 `json:"pruned"`
+	}{}
+
+	body, err := s.RequestWithBucketID("POST", EndpointGuildPrune(guildID), data, EndpointGuildPrune(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &p)
+	if err != nil {
+		return
+	}
+
+	count = p.Pruned
+
+	return
+}
+
 // GuildIntegrations returns an array of Integrations for a guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildIntegrations(guildID string) (st []*GuildIntegration, err error) {
