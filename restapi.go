@@ -1672,7 +1672,7 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 
 // WebhookExecute executes a webhook.
 // webhookID: The ID of a webhook.
-// token    : The auth token for the bebhook
+// token    : The auth token for the webhook
 func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
@@ -1693,7 +1693,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
 
-	_, err := s.RequestWithBucketID("PUT", EndpointMessageReactions(channelID, messageID, emojiID), nil, EndpointMessageReactions(channelID, "", ""))
+	_, err := s.RequestWithBucketID("PUT", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, "", "", ""))
 
 	return err
 }
@@ -1702,9 +1702,10 @@ func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error
 // channelID : The channel ID.
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
-func (s *Session) MessageReactionRemove(channelID, messageID, emojiID string) error {
+// userID	 : @me or ID of the user to delete the reaction for.
+func (s *Session) MessageReactionRemove(channelID, messageID, emojiID, userID string) error {
 
-	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReactions(channelID, messageID, emojiID), nil, EndpointMessageReactions(channelID, "", ""))
+	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, userID), nil, EndpointMessageReaction(channelID, "", "", ""))
 
 	return err
 }
@@ -1727,7 +1728,7 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
 	}
 
-	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointMessageReactions(channelID, "", ""))
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointMessageReaction(channelID, "", "", ""))
 	if err != nil {
 		return
 	}
