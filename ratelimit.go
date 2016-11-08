@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Ratelimiter holds all ratelimit buckets
+// RateLimiter holds all ratelimit buckets
 type RateLimiter struct {
 	sync.Mutex
 	global          *Bucket
@@ -15,7 +15,7 @@ type RateLimiter struct {
 	globalRateLimit time.Duration
 }
 
-// New returns a new RateLimiter
+// NewRatelimiter returns a new RateLimiter
 func NewRatelimiter() *RateLimiter {
 
 	return &RateLimiter{

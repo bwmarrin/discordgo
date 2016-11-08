@@ -238,3 +238,39 @@ func TestChannelMessageSend2(t *testing.T) {
 		t.Errorf("ChannelMessageSend returned error: %+v", err)
 	}
 }
+
+// TestGuildPruneCount tests GuildPruneCount() function. This should not return an error.
+func TestGuildPruneCount(t *testing.T) {
+
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.GuildPruneCount(envGuild, 1)
+	if err != nil {
+		t.Errorf("GuildPruneCount returned error: %+v", err)
+	}
+}
+
+/*
+// TestGuildPrune tests GuildPrune() function. This should not return an error.
+func TestGuildPrune(t *testing.T) {
+
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.GuildPrune(envGuild, 1)
+	if err != nil {
+		t.Errorf("GuildPrune returned error: %+v", err)
+	}
+}
+*/
