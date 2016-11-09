@@ -1736,3 +1736,71 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 	err = unmarshal(body, &st)
 	return
 }
+
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Discord Relationships (Friends list)
+// ------------------------------------------------------------------------------------------------
+
+// RelationshipsGet returns an array of all the relationships of the user.
+func (s *Session) RelationshipsGet() (r []*Relationship, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointRelationships(), nil, EndpointRelationships())
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &r)
+	return
+}
+
+// relationshipCreate creates a new relationship. (I.e. send or accept a friend request, block a user.)
+// relationshipType : 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
+func (s *Session) relationshipCreate(userID string, relationshipType int) (err error) {
+	data := struct {
+		Type int `json:"type"`
+	}{relationshipType}
+
+	fmt.Println("Data: " + fmt.Sprintf("%v", data))
+
+	_, err = s.RequestWithBucketID("PUT", EndpointRelationship(userID), data, EndpointRelationships())
+	return
+}
+
+// RelationshipFriendRequestSend sends a friend request to a user.
+// userID: ID of the user.
+func (s *Session) RelationshipFriendRequestSend(userID string) (err error) {
+	err = s.relationshipCreate(userID, 4)
+	return
+}
+
+// RelationshipFriendRequestAccept accepts a friend request from a user.
+// userID: ID of the user.
+func (s *Session) RelationshipFriendRequestAccept(userID string) (err error) {
+	err = s.relationshipCreate(userID, 1)
+	return
+}
+
+// RelationshipUserBlock blocks a user.
+// userID: ID of the user.
+func (s *Session) RelationshipUserBlock(userID string) (err error) {
+	err = s.relationshipCreate(userID, 2)
+	return
+}
+
+// RelationshipDelete removes the relationship with a user.
+// userID: ID of the user.
+func (s *Session) RelationshipDelete(userID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointRelationship(userID), nil, EndpointRelationships())
+	return
+}
+
+// RelationshipsMutualGet returns an array of all the users both @me and the given user is friends with.
+// userID: ID of the user.
+func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointRelationshipsMutual(userID), nil, EndpointRelationshipsMutual(userID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &mf)
+	return
+}
