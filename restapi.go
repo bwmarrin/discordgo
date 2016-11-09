@@ -1756,7 +1756,7 @@ func (s *Session) RelationshipsGet() (r []*Relationship, err error) {
 // relationshipType : 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
 func (s *Session) relationshipCreate(userID string, relationshipType uint8) (err error) {
 	data := struct {
-		Type uint8 `json:"type"`
+		Type int `json:"type"`
 	}{relationshipType}
 
 	fmt.Println("Data: " + fmt.Sprintf("%v", data))

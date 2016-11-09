@@ -381,7 +381,7 @@ type Ready struct {
 // A Relationship between the logged in user and Relationship.User
 type Relationship struct {
 	User *User  `json:"user"`
-	Type uint8  `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
+	Type int    `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
 	ID   string `json:"id"`
 }
 
