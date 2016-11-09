@@ -1754,7 +1754,7 @@ func (s *Session) RelationshipsGet() (r []*Relationship, err error) {
 
 // relationshipCreate creates a new relationship. (I.e. send or accept a friend request, block a user.)
 // relationshipType : 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
-func (s *Session) relationshipCreate(userID string, relationshipType uint8) (err error) {
+func (s *Session) relationshipCreate(userID string, relationshipType int) (err error) {
 	data := struct {
 		Type int `json:"type"`
 	}{relationshipType}
