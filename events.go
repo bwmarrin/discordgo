@@ -120,13 +120,13 @@ type GuildDelete struct {
 
 // GuildBanAdd is a wrapper struct for an event.
 type GuildBanAdd struct {
-	*User
+	User    *User  `json:"user"`
 	GuildID string `json:"guild_id"`
 }
 
 // GuildBanRemove is a wrapper struct for an event.
 type GuildBanRemove struct {
-	*User
+	User    *User  `json:"user"`
 	GuildID string `json:"guild_id"`
 }
 
