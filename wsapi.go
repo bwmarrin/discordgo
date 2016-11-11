@@ -509,7 +509,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 }
 
 // onVoiceStateUpdate handles Voice State Update events on the data websocket.
-func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
+func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 
 	// If we don't have a connection for the channel, don't bother
 	if st.ChannelID == "" {
@@ -523,7 +523,7 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 	}
 
 	// We only care about events that are about us.
-	if se.State.User.ID != st.UserID {
+	if s.State.User.ID != st.UserID {
 		return
 	}
 
@@ -537,7 +537,7 @@ func (s *Session) onVoiceStateUpdate(se *Session, st *VoiceStateUpdate) {
 // This is also fired if the Guild's voice region changes while connected
 // to a voice channel.  In that case, need to re-establish connection to
 // the new region endpoint.
-func (s *Session) onVoiceServerUpdate(se *Session, st *VoiceServerUpdate) {
+func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 
 	s.log(LogInformational, "called")
 
