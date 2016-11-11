@@ -441,7 +441,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		}
 
 	default:
-		v.log(LogError, "unknown voice operation, %d, %s", e.Operation, string(e.RawData))
+		v.log(LogDebug, "unknown voice operation, %d, %s", e.Operation, string(e.RawData))
 	}
 
 	return
