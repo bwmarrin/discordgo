@@ -303,18 +303,22 @@ func (g *Game) UnmarshalJSON(bytes []byte) error {
 	g.Name = temp.Name
 	g.URL = temp.URL
 
-	err = json.Unmarshal(temp.Type, &g.Type)
-	if err == nil {
-		return nil
+	if temp.Type != nil {
+		err = json.Unmarshal(temp.Type, &g.Type)
+		if err == nil {
+			return nil
+		}
+
+		s := ""
+		err = json.Unmarshal(temp.Type, &s)
+		if err == nil {
+			g.Type, err = strconv.Atoi(s)
+		}
+
+		return err
 	}
 
-	s := ""
-	err = json.Unmarshal(temp.Type, &s)
-	if err == nil {
-		g.Type, err = strconv.Atoi(s)
-	}
-
-	return err
+	return nil
 }
 
 // A Member stores user information for Guild members.
