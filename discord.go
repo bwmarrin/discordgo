@@ -207,6 +207,8 @@ func (s *Session) handle(event interface{}) {
 
 	handlerParameters := []reflect.Value{reflect.ValueOf(s), reflect.ValueOf(event)}
 
+	s.onInterface(event)
+
 	if handlers, ok := s.handlers[nil]; ok {
 		for _, handler := range handlers {
 			go handler.Call(handlerParameters)
@@ -226,24 +228,32 @@ func (s *Session) initialize() {
 	s.log(LogInformational, "called")
 
 	s.handlersMu.Lock()
+	defer s.handlersMu.Unlock()
+
 	if s.handlers != nil {
-		s.handlersMu.Unlock()
 		return
 	}
 
 	s.handlers = map[interface{}][]reflect.Value{}
-	s.handlersMu.Unlock()
+}
 
-	s.AddHandler(s.onReady)
-	s.AddHandler(s.onResumed)
-	s.AddHandler(s.onVoiceServerUpdate)
-	s.AddHandler(s.onVoiceStateUpdate)
-	s.AddHandler(s.State.onReady)
-	s.AddHandler(s.State.onInterface)
+// onInterface handles all internal events and routes them to the appropriate internal handler.
+func (s *Session) onInterface(i interface{}) {
+	switch t := i.(type) {
+	case *Ready:
+		s.onReady(t)
+	case *Resumed:
+		s.onResumed(t)
+	case *VoiceServerUpdate:
+		go s.onVoiceServerUpdate(t)
+	case *VoiceStateUpdate:
+		go s.onVoiceStateUpdate(t)
+	}
+	s.State.onInterface(s, i)
 }
 
 // onReady handles the ready event.
-func (s *Session) onReady(se *Session, r *Ready) {
+func (s *Session) onReady(r *Ready) {
 
 	// Store the SessionID within the Session struct.
 	s.sessionID = r.SessionID
@@ -253,7 +263,7 @@ func (s *Session) onReady(se *Session, r *Ready) {
 }
 
 // onResumed handles the resumed event.
-func (s *Session) onResumed(se *Session, r *Resumed) {
+func (s *Session) onResumed(r *Resumed) {
 
 	// Start the heartbeat to keep the connection alive.
 	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)

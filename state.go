@@ -639,6 +639,12 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 	if s == nil {
 		return ErrNilState
 	}
+
+	r, ok := i.(*Ready)
+	if ok {
+		return s.onReady(se, r)
+	}
+
 	if !se.StateEnabled {
 		return nil
 	}
