@@ -1228,6 +1228,28 @@ func (s *Session) ChannelMessageSendTTS(channelID string, content string) (st *M
 	return s.channelMessageSend(channelID, content, true)
 }
 
+// ChannelMessageSendEmbed sends a message to the given channel with embedded data (bot only).
+// channelID : The ID of a Channel.
+// embed     : The embed data to send.
+func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed) (st *Message, err error) {
+	if embed != nil && embed.Type == "" {
+		embed.Type = "rich"
+	}
+
+	data := struct {
+		Embed *MessageEmbed `json:"embed"`
+	}{embed}
+
+	// Send the message to the given channel
+	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
+}
+
 // ChannelMessageEdit edits an existing message, replacing it entirely with
 // the given content.
 // channeld  : The ID of a Channel
@@ -1680,8 +1702,6 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 		uri += "?wait=true"
 	}
 
-	fmt.Println(uri)
-
 	_, err = s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken("", ""))
 
 	return
@@ -1758,8 +1778,6 @@ func (s *Session) relationshipCreate(userID string, relationshipType int) (err e
 	data := struct {
 		Type int `json:"type"`
 	}{relationshipType}
-
-	fmt.Println("Data: " + fmt.Sprintf("%v", data))
 
 	_, err = s.RequestWithBucketID("PUT", EndpointRelationship(userID), data, EndpointRelationships())
 	return
