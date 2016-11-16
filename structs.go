@@ -291,6 +291,7 @@ type Game struct {
 	URL  string `json:"url"`
 }
 
+// UnmarshalJSON unmarshals json to Game struct
 func (g *Game) UnmarshalJSON(bytes []byte) error {
 	temp := &struct {
 		Name string          `json:"name"`
