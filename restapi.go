@@ -1269,6 +1269,28 @@ func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st *
 	return
 }
 
+// ChannelMessageEditEmbed edits an existing message with embedded data (bot only).
+// channelID : The ID of a Channel
+// messageID : The ID of a Message
+// embed     : The embed data to send
+func (s *Session) ChannelMessageEditEmbed(channelID, messageID string, embed *MessageEmbed) (st *Message, err error) {
+	if embed != nil && embed.Type == "" {
+		embed.Type = "rich"
+	}
+
+	data := struct {
+		Embed *MessageEmbed `json:"embed"`
+	}{embed}
+
+	response, err := s.RequestWithBucketID("PATCH", EndpointChannelMessage(channelID, messageID), data, EndpointChannelMessage(channelID, ""))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
+}
+
 // ChannelMessageDelete deletes a message from the Channel.
 func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) {
 
