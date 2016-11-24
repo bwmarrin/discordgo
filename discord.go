@@ -27,6 +27,8 @@ const VERSION = "0.13.0"
 // There are 3 ways to call New:
 //     With a single auth token - All requests will use the token blindly,
 //         no verification of the token will be done and requests may fail.
+//         IF THE TOKEN IS FOR A BOT, IT MUST BE PREFIXED WITH `BOT `
+//         eg: `"Bot <token>"`
 //     With an email and password - Discord will sign in with the provided
 //         credentials.
 //     With an email, password and auth token - Discord will verify the auth
