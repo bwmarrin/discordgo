@@ -29,6 +29,7 @@ var eventToInterface = map[string]interface{}{
 	"GUILD_ROLE_DELETE":          GuildRoleDelete{},
 	"GUILD_INTEGRATIONS_UPDATE":  GuildIntegrationsUpdate{},
 	"GUILD_EMOJIS_UPDATE":        GuildEmojisUpdate{},
+	"GUILD_READY":                GuildReady{},
 	"MESSAGE_ACK":                MessageAck{},
 	"MESSAGE_CREATE":             MessageCreate{},
 	"MESSAGE_UPDATE":             MessageUpdate{},
@@ -136,6 +137,9 @@ type GuildRoleCreate struct {
 type GuildRoleUpdate struct {
 	*GuildRole
 }
+
+// GuildReady is an empty struct for an event.
+type GuildReady struct{}
 
 // PresencesReplace is an array of Presences for an event.
 type PresencesReplace []*Presence
