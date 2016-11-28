@@ -170,8 +170,8 @@ type Channel struct {
 type PermissionOverwrite struct {
 	ID    string `json:"id"`
 	Type  string `json:"type"`
-	Deny  int    `json:"deny"`
-	Allow int    `json:"allow"`
+	Deny  uint64 `json:"deny"`
+	Allow uint64 `json:"allow"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -235,7 +235,7 @@ type Role struct {
 	Hoist       bool   `json:"hoist"`
 	Color       int    `json:"color"`
 	Position    int    `json:"position"`
-	Permissions int    `json:"permissions"`
+	Permissions uint64 `json:"permissions"`
 }
 
 // A VoiceState stores the voice states of Guilds
@@ -474,6 +474,7 @@ const (
 	PermissionAttachFiles
 	PermissionReadMessageHistory
 	PermissionMentionEveryone
+	PermissionUseExternalEmoji
 )
 
 // Constants for the different bit offsets of voice permissions
@@ -484,6 +485,11 @@ const (
 	PermissionVoiceDeafenMembers
 	PermissionVoiceMoveMembers
 	PermissionVoiceUseVAD
+
+	PermissionChangeNickName
+	PermissionManageNickName
+	PermissionManageRoles
+	PermissionManageWebhooks
 )
 
 // Constants for the different bit offsets of general permissions
@@ -491,9 +497,10 @@ const (
 	PermissionCreateInstantInvite = 1 << iota
 	PermissionKickMembers
 	PermissionBanMembers
-	PermissionManageRoles
+	PermissionAdministrator
 	PermissionManageChannels
 	PermissionManageServer
+	PermissionAddReations
 
 	PermissionAllText = PermissionReadMessages |
 		PermissionSendMessages |
@@ -502,7 +509,9 @@ const (
 		PermissionEmbedLinks |
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
-		PermissionMentionEveryone
+		PermissionMentionEveryone |
+        PermissionUseExternalEmoji |
+        PermissionAddReations
 	PermissionAllVoice = PermissionVoiceConnect |
 		PermissionVoiceSpeak |
 		PermissionVoiceMuteMembers |
@@ -513,9 +522,14 @@ const (
 		PermissionAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
-		PermissionManageChannels
+		PermissionManageChannels |
+		PermissionManageWebhooks
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
-		PermissionManageServer
+		PermissionManageServer |
+        PermissionChangeNickName |
+        PermissionManageNickName |
+        PermissionAdministrator
+
 )
