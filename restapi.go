@@ -1380,7 +1380,6 @@ func (s *Session) VoiceICE() (st *VoiceICE, err error) {
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Websockets
 // ------------------------------------------------------------------------------------------------
-
 // Gateway returns the a websocket Gateway address
 func (s *Session) Gateway() (gateway string, err error) {
 
@@ -1399,5 +1398,12 @@ func (s *Session) Gateway() (gateway string, err error) {
 	}
 
 	gateway = temp.URL
+
+	// Ensure the gateway always has a trailing slash.
+	// MacOS will fail to connect if we add query params without a trailing slash on the base domain.
+	if !strings.HasSuffix(gateway, "/") {
+		gateway += "/"
+	}
+
 	return
 }
