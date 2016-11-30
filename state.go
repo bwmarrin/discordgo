@@ -81,15 +81,24 @@ func (s *State) GuildAdd(guild *Guild) error {
 			guild.Emojis = g.Emojis
 		}
 		if guild.Members == nil {
+			for _, m := range g.Members {
+				m.GuildID = guild.ID
+			}
 			guild.Members = g.Members
 		}
 		if guild.Presences == nil {
 			guild.Presences = g.Presences
 		}
 		if guild.Channels == nil {
+			for _, c := range g.Channels {
+				c.GuildID = guild.ID
+			}
 			guild.Channels = g.Channels
 		}
 		if guild.VoiceStates == nil {
+			for _, g := range g.VoiceStates {
+				g.GuildID = guild.ID
+			}
 			guild.VoiceStates = g.VoiceStates
 		}
 		*g = *guild
