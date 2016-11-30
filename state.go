@@ -67,7 +67,6 @@ func (s *State) GuildAdd(guild *Guild) error {
 
 	// Update the channels to point to the right guild, adding them to the channelMap as we go
 	for _, c := range guild.Channels {
-		c.GuildID = guild.ID
 		s.channelMap[c.ID] = c
 	}
 
@@ -81,24 +80,15 @@ func (s *State) GuildAdd(guild *Guild) error {
 			guild.Emojis = g.Emojis
 		}
 		if guild.Members == nil {
-			for _, m := range g.Members {
-				m.GuildID = guild.ID
-			}
 			guild.Members = g.Members
 		}
 		if guild.Presences == nil {
 			guild.Presences = g.Presences
 		}
 		if guild.Channels == nil {
-			for _, c := range g.Channels {
-				c.GuildID = guild.ID
-			}
 			guild.Channels = g.Channels
 		}
 		if guild.VoiceStates == nil {
-			for _, g := range g.VoiceStates {
-				g.GuildID = guild.ID
-			}
 			guild.VoiceStates = g.VoiceStates
 		}
 		*g = *guild
@@ -631,16 +621,7 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 		s.guildMap[g.ID] = g
 
 		for _, c := range g.Channels {
-			c.GuildID = g.ID
 			s.channelMap[c.ID] = c
-		}
-
-		for _, m := range g.Members {
-			m.GuildID = g.ID
-		}
-
-		for _, vs := range g.VoiceStates {
-			vs.GuildID = g.ID
 		}
 	}
 

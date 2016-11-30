@@ -239,11 +239,34 @@ func (s *Session) initialize() {
 	s.handlers = map[interface{}][]reflect.Value{}
 }
 
+// setGuildIds will set the GuildID on all the members of a guild.
+// This is done as event data does not have it set.
+func setGuildIds(g *Guild) {
+	for _, c := range g.Channels {
+		c.GuildID = g.ID
+	}
+
+	for _, m := range g.Members {
+		m.GuildID = g.ID
+	}
+
+	for _, vs := range g.VoiceStates {
+		vs.GuildID = g.ID
+	}
+}
+
 // onInterface handles all internal events and routes them to the appropriate internal handler.
 func (s *Session) onInterface(i interface{}) {
 	switch t := i.(type) {
 	case *Ready:
+		for _, g := range t.Guilds {
+			setGuildIds(g)
+		}
 		s.onReady(t)
+	case *GuildCreate:
+		setGuildIds(t.Guild)
+	case *GuildUpdate:
+		setGuildIds(t.Guild)
 	case *Resumed:
 		s.onResumed(t)
 	case *VoiceServerUpdate:
