@@ -732,6 +732,28 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 	return
 }
 
+// GuildMemberRoleAdd adds the specified role to a given member
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  roleID 	  : The ID of a Role to be assigned to the user.
+func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error) {
+
+	_, err = s.RequestWithBucketID("PUT", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, userID, roleID))
+
+	return
+}
+
+// GuildMemberRoleRemove removes the specified role to a given member
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  roleID 	  : The ID of a Role to be removed from the user.
+func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err error) {
+
+	_, err = s.RequestWithBucketID("DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, userID, roleID))
+
+	return
+}
+
 // GuildChannels returns an array of Channel structures for all channels of a
 // given guild.
 // guildID   : The ID of a Guild.
