@@ -625,6 +625,14 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 			c.GuildID = g.ID
 			s.channelMap[c.ID] = c
 		}
+
+		for _, m := range g.Members {
+			m.GuildID = g.ID
+		}
+
+		for _, vs := range g.VoiceStates {
+			vs.GuildID = g.ID
+		}
 	}
 
 	for _, c := range s.PrivateChannels {
