@@ -308,8 +308,12 @@ func (s *State) ChannelAdd(channel *Channel) error {
 
 	// If the channel exists, replace it
 	if c, ok := s.channelMap[channel.ID]; ok {
-		channel.Messages = c.Messages
-		channel.PermissionOverwrites = c.PermissionOverwrites
+		if c.Messages != nil {
+			channel.Messages = c.Messages
+		}
+		if c.PermissionOverwrites != nil {
+			channel.PermissionOverwrites = c.PermissionOverwrites
+		}
 
 		*c = *channel
 		return nil
