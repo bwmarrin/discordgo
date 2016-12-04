@@ -13,7 +13,6 @@ package discordgo
 
 import (
 	"encoding/json"
-	"reflect"
 	"strconv"
 	"sync"
 	"time"
@@ -74,13 +73,10 @@ type Session struct {
 	// StateEnabled is true.
 	State *State
 
-	handlersMu sync.RWMutex
-	// This is a mapping of event struct to a reflected value
-	// for event handlers.
-	// We store the reflected value instead of the function
-	// reference as it is more performant, instead of re-reflecting
-	// the function each event.
-	handlers map[interface{}][]reflect.Value
+	// Event handlers
+	handlersMu   sync.RWMutex
+	handlers     map[string][]*eventHandlerInstance
+	onceHandlers map[string][]*eventHandlerInstance
 
 	// The websocket connection.
 	wsConn *websocket.Conn
@@ -108,12 +104,6 @@ type rateLimitMutex struct {
 	sync.Mutex
 	url map[string]*sync.Mutex
 	// bucket map[string]*sync.Mutex // TODO :)
-}
-
-// A Resumed struct holds the data received in a RESUMED event
-type Resumed struct {
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	Trace             []string      `json:"_trace"`
 }
 
 // A VoiceRegion stores data for a specific voice region server.
@@ -385,32 +375,6 @@ type FriendSourceFlags struct {
 	MutualFriends bool `json:"mutual_friends"`
 }
 
-// An Event provides a basic initial struct for all websocket event.
-type Event struct {
-	Operation int             `json:"op"`
-	Sequence  int             `json:"s"`
-	Type      string          `json:"t"`
-	RawData   json.RawMessage `json:"d"`
-	Struct    interface{}     `json:"-"`
-}
-
-// A Ready stores all data for the websocket READY event.
-type Ready struct {
-	Version           int           `json:"v"`
-	SessionID         string        `json:"session_id"`
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	User              *User         `json:"user"`
-	ReadState         []*ReadState  `json:"read_state"`
-	PrivateChannels   []*Channel    `json:"private_channels"`
-	Guilds            []*Guild      `json:"guilds"`
-
-	// Undocumented fields
-	Settings          *Settings            `json:"user_settings"`
-	UserGuildSettings []*UserGuildSettings `json:"user_guild_settings"`
-	Relationships     []*Relationship      `json:"relationships"`
-	Presences         []*Presence          `json:"presences"`
-}
-
 // A Relationship between the logged in user and Relationship.User
 type Relationship struct {
 	User *User  `json:"user"`
@@ -433,46 +397,14 @@ type ReadState struct {
 	ID            string `json:"id"`
 }
 
-// A TypingStart stores data for the typing start websocket event.
-type TypingStart struct {
-	UserID    string `json:"user_id"`
-	ChannelID string `json:"channel_id"`
-	Timestamp int    `json:"timestamp"`
-}
-
-// A PresenceUpdate stores data for the presence update websocket event.
-type PresenceUpdate struct {
-	Presence
-	GuildID string   `json:"guild_id"`
-	Roles   []string `json:"roles"`
-}
-
-// A MessageAck stores data for the message ack websocket event.
-type MessageAck struct {
-	MessageID string `json:"message_id"`
-	ChannelID string `json:"channel_id"`
-}
-
 // An Ack is used to ack messages
 type Ack struct {
 	Token string `json:"token"`
 }
 
-// A GuildIntegrationsUpdate stores data for the guild integrations update
-// websocket event.
-type GuildIntegrationsUpdate struct {
-	GuildID string `json:"guild_id"`
-}
-
-// A GuildRole stores data for guild role websocket events.
+// A GuildRole stores data for guild roles.
 type GuildRole struct {
 	Role    *Role  `json:"role"`
-	GuildID string `json:"guild_id"`
-}
-
-// A GuildRoleDelete stores data for the guild role delete websocket event.
-type GuildRoleDelete struct {
-	RoleID  string `json:"role_id"`
 	GuildID string `json:"guild_id"`
 }
 
@@ -480,18 +412,6 @@ type GuildRoleDelete struct {
 type GuildBan struct {
 	Reason string `json:"reason"`
 	User   *User  `json:"user"`
-}
-
-// A GuildEmojisUpdate stores data for a guild emoji update event.
-type GuildEmojisUpdate struct {
-	GuildID string   `json:"guild_id"`
-	Emojis  []*Emoji `json:"emojis"`
-}
-
-// A GuildMembersChunk stores data for the Guild Members Chunk websocket event.
-type GuildMembersChunk struct {
-	GuildID string    `json:"guild_id"`
-	Members []*Member `json:"members"`
 }
 
 // A GuildIntegration stores data for a guild integration.
@@ -551,12 +471,6 @@ type UserGuildSettingsEdit struct {
 type APIErrorMessage struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-}
-
-// ChannelPinsUpdate stores data for the channel pins update event
-type ChannelPinsUpdate struct {
-	LastPinTimestamp string `json:"last_pin_timestamp"`
-	ChannelID        string `json:"channel_id"`
 }
 
 // Webhook stores the data for a webhook.
