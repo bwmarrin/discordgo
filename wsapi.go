@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"runtime"
 	"time"
 
@@ -121,9 +120,8 @@ func (s *Session) Open() (err error) {
 
 	s.Unlock()
 
-	s.initialize()
 	s.log(LogInformational, "emit connect event")
-	s.handle(&Connect{})
+	s.handleEvent(connectEventType, &Connect{})
 
 	s.log(LogInformational, "exiting")
 	return
@@ -409,16 +407,12 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	// Store the message sequence
 	s.sequence = e.Sequence
 
-	// Map event to registered event handlers and pass it along
-	// to any registered functions
-	i := eventToInterface[e.Type]
-	if i != nil {
-
-		// Create a new instance of the event type.
-		i = reflect.New(reflect.TypeOf(i)).Interface()
+	// Map event to registered event handlers and pass it along to any registered handlers.
+	if eh, ok := registeredInterfaceProviders[e.Type]; ok {
+		e.Struct = eh.New()
 
 		// Attempt to unmarshal our event.
-		if err = json.Unmarshal(e.RawData, i); err != nil {
+		if err = json.Unmarshal(e.RawData, e.Struct); err != nil {
 			s.log(LogError, "error unmarshalling %s event, %s", e.Type, err)
 		}
 
@@ -429,29 +423,18 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		// it's better to pass along what we received than nothing at all.
 		// TODO: Think about that decision :)
 		// Either way, READY events must fire, even with errors.
-		go s.handle(i)
-
+		s.handleEvent(e.Type, e.Struct)
 	} else {
 		s.log(LogWarning, "unknown event: Op: %d, Seq: %d, Type: %s, Data: %s", e.Operation, e.Sequence, e.Type, string(e.RawData))
 	}
 
-	// Emit event to the OnEvent handler
-	e.Struct = i
-	go s.handle(e)
+	// For legacy reasons, we send the raw event also, this could be useful for handling unknown events.
+	s.handleEvent(eventEventType, e)
 }
 
 // ------------------------------------------------------------------------------------------------
 // Code related to voice connections that initiate over the data websocket
 // ------------------------------------------------------------------------------------------------
-
-// A VoiceServerUpdate stores the data received during the Voice Server Update
-// data websocket event. This data is used during the initial Voice Channel
-// join handshaking.
-type VoiceServerUpdate struct {
-	Token    string `json:"token"`
-	GuildID  string `json:"guild_id"`
-	Endpoint string `json:"endpoint"`
-}
 
 type voiceChannelJoinData struct {
 	GuildID   *string `json:"guild_id"`
@@ -712,7 +695,7 @@ func (s *Session) Close() (err error) {
 	s.Unlock()
 
 	s.log(LogInformational, "emit disconnect event")
-	s.handle(&Disconnect{})
+	s.handleEvent(disconnectEventType, &Disconnect{})
 
 	return
 }

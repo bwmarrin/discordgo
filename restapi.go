@@ -146,7 +146,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
-		s.handle(RateLimit{TooManyRequests: &rl, URL: urlStr})
+		s.handleEvent(rateLimitEventType, RateLimit{TooManyRequests: &rl, URL: urlStr})
 
 		time.Sleep(rl.RetryAfter * time.Millisecond)
 		// we can make the above smarter
