@@ -1,7 +1,7 @@
 language: go
 go:
     - 1.6
-    - tip
+    - 1.7
 install:
     - go get github.com/bwmarrin/discordgo
     - go get -v .
@@ -9,5 +9,5 @@ install:
 script:
     - diff <(gofmt -d .) <(echo -n)
     - go vet -x ./...
-    - golint ./...
+    - golint -set_exit_status ./...
     - go test -v -race ./...
