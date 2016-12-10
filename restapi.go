@@ -370,9 +370,30 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 }
 
 // UserGuilds returns an array of UserGuild structures for all guilds.
-func (s *Session) UserGuilds() (st []*UserGuild, err error) {
+// limit     : The number guilds that can be returned. (max 100)
+// beforeID  : If provided all guilds returns all guilds after given ID.
+// afterID   : If provided all guilds returns all guilds after after ID.
+func (s *Session) UserGuilds(limit int, beforeID, afterID string) (st []*UserGuild, err error) {
 
-	body, err := s.RequestWithBucketID("GET", EndpointUserGuilds("@me"), nil, EndpointUserGuilds(""))
+	v := url.Values{}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+	if afterID != "" {
+		v.Set("after", afterID)
+	}
+	if beforeID != "" {
+		v.Set("before", beforeID)
+	}
+
+	uri := EndpointUserGuilds("@me")
+
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointUserGuilds(""))
 	if err != nil {
 		return
 	}
