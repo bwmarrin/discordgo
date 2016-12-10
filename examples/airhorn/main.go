@@ -102,7 +102,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 // This function will be called (due to AddHandler above) every time a new
 // guild is joined.
 func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
-	if event.Guild.Unavailable != nil {
+	if event.Guild.Unavailable {
 		return
 	}
 
@@ -131,6 +131,10 @@ func loadSound() error {
 
 		// If this is the end of the file, just return.
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
+			file.Close()
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 

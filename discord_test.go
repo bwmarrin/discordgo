@@ -223,8 +223,8 @@ func TestAddHandler(t *testing.T) {
 	d.AddHandler(interfaceHandler)
 	d.AddHandler(bogusHandler)
 
-	d.handle(&MessageCreate{})
-	d.handle(&MessageDelete{})
+	d.handleEvent(messageCreateEventType, &MessageCreate{})
+	d.handleEvent(messageDeleteEventType, &MessageDelete{})
 
 	<-time.After(500 * time.Millisecond)
 
@@ -253,11 +253,11 @@ func TestRemoveHandler(t *testing.T) {
 	d := Session{}
 	r := d.AddHandler(testHandler)
 
-	d.handle(&MessageCreate{})
+	d.handleEvent(messageCreateEventType, &MessageCreate{})
 
 	r()
 
-	d.handle(&MessageCreate{})
+	d.handleEvent(messageCreateEventType, &MessageCreate{})
 
 	<-time.After(500 * time.Millisecond)
 
