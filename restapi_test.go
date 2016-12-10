@@ -114,7 +114,7 @@ func TestUserGuilds(t *testing.T) {
 		t.Skip("Cannot TestUserGuilds, dg not set.")
 	}
 
-	_, err := dg.UserGuilds()
+	_, err := dg.UserGuilds(10, "", "")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
