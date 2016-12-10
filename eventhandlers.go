@@ -62,12 +62,16 @@ func (eh channelCreateEventHandler) New() interface{} {
 	return &ChannelCreate{}
 }
 
+var _ EventInterfaceProvider = channelCreateEventHandler(nil)
+
 // Handle is the handler for ChannelCreate events.
 func (eh channelCreateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*ChannelCreate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = channelCreateEventHandler(nil)
 
 // channelDeleteEventHandler is an event handler for ChannelDelete events.
 type channelDeleteEventHandler func(*Session, *ChannelDelete)
@@ -82,12 +86,16 @@ func (eh channelDeleteEventHandler) New() interface{} {
 	return &ChannelDelete{}
 }
 
+var _ EventInterfaceProvider = channelDeleteEventHandler(nil)
+
 // Handle is the handler for ChannelDelete events.
 func (eh channelDeleteEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*ChannelDelete); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = channelDeleteEventHandler(nil)
 
 // channelPinsUpdateEventHandler is an event handler for ChannelPinsUpdate events.
 type channelPinsUpdateEventHandler func(*Session, *ChannelPinsUpdate)
@@ -102,12 +110,16 @@ func (eh channelPinsUpdateEventHandler) New() interface{} {
 	return &ChannelPinsUpdate{}
 }
 
+var _ EventInterfaceProvider = channelPinsUpdateEventHandler(nil)
+
 // Handle is the handler for ChannelPinsUpdate events.
 func (eh channelPinsUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*ChannelPinsUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = channelPinsUpdateEventHandler(nil)
 
 // channelUpdateEventHandler is an event handler for ChannelUpdate events.
 type channelUpdateEventHandler func(*Session, *ChannelUpdate)
@@ -122,12 +134,16 @@ func (eh channelUpdateEventHandler) New() interface{} {
 	return &ChannelUpdate{}
 }
 
+var _ EventInterfaceProvider = channelUpdateEventHandler(nil)
+
 // Handle is the handler for ChannelUpdate events.
 func (eh channelUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*ChannelUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = channelUpdateEventHandler(nil)
 
 // connectEventHandler is an event handler for Connect events.
 type connectEventHandler func(*Session, *Connect)
@@ -137,17 +153,14 @@ func (eh connectEventHandler) Type() string {
 	return connectEventType
 }
 
-// New returns a new instance of Connect.
-func (eh connectEventHandler) New() interface{} {
-	return &Connect{}
-}
-
 // Handle is the handler for Connect events.
 func (eh connectEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*Connect); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = connectEventHandler(nil)
 
 // disconnectEventHandler is an event handler for Disconnect events.
 type disconnectEventHandler func(*Session, *Disconnect)
@@ -157,17 +170,14 @@ func (eh disconnectEventHandler) Type() string {
 	return disconnectEventType
 }
 
-// New returns a new instance of Disconnect.
-func (eh disconnectEventHandler) New() interface{} {
-	return &Disconnect{}
-}
-
 // Handle is the handler for Disconnect events.
 func (eh disconnectEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*Disconnect); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = disconnectEventHandler(nil)
 
 // eventEventHandler is an event handler for Event events.
 type eventEventHandler func(*Session, *Event)
@@ -177,17 +187,14 @@ func (eh eventEventHandler) Type() string {
 	return eventEventType
 }
 
-// New returns a new instance of Event.
-func (eh eventEventHandler) New() interface{} {
-	return &Event{}
-}
-
 // Handle is the handler for Event events.
 func (eh eventEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*Event); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = eventEventHandler(nil)
 
 // guildBanAddEventHandler is an event handler for GuildBanAdd events.
 type guildBanAddEventHandler func(*Session, *GuildBanAdd)
@@ -202,12 +209,16 @@ func (eh guildBanAddEventHandler) New() interface{} {
 	return &GuildBanAdd{}
 }
 
+var _ EventInterfaceProvider = guildBanAddEventHandler(nil)
+
 // Handle is the handler for GuildBanAdd events.
 func (eh guildBanAddEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildBanAdd); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildBanAddEventHandler(nil)
 
 // guildBanRemoveEventHandler is an event handler for GuildBanRemove events.
 type guildBanRemoveEventHandler func(*Session, *GuildBanRemove)
@@ -222,12 +233,16 @@ func (eh guildBanRemoveEventHandler) New() interface{} {
 	return &GuildBanRemove{}
 }
 
+var _ EventInterfaceProvider = guildBanRemoveEventHandler(nil)
+
 // Handle is the handler for GuildBanRemove events.
 func (eh guildBanRemoveEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildBanRemove); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildBanRemoveEventHandler(nil)
 
 // guildCreateEventHandler is an event handler for GuildCreate events.
 type guildCreateEventHandler func(*Session, *GuildCreate)
@@ -242,12 +257,16 @@ func (eh guildCreateEventHandler) New() interface{} {
 	return &GuildCreate{}
 }
 
+var _ EventInterfaceProvider = guildCreateEventHandler(nil)
+
 // Handle is the handler for GuildCreate events.
 func (eh guildCreateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildCreate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildCreateEventHandler(nil)
 
 // guildDeleteEventHandler is an event handler for GuildDelete events.
 type guildDeleteEventHandler func(*Session, *GuildDelete)
@@ -262,12 +281,16 @@ func (eh guildDeleteEventHandler) New() interface{} {
 	return &GuildDelete{}
 }
 
+var _ EventInterfaceProvider = guildDeleteEventHandler(nil)
+
 // Handle is the handler for GuildDelete events.
 func (eh guildDeleteEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildDelete); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildDeleteEventHandler(nil)
 
 // guildEmojisUpdateEventHandler is an event handler for GuildEmojisUpdate events.
 type guildEmojisUpdateEventHandler func(*Session, *GuildEmojisUpdate)
@@ -282,12 +305,16 @@ func (eh guildEmojisUpdateEventHandler) New() interface{} {
 	return &GuildEmojisUpdate{}
 }
 
+var _ EventInterfaceProvider = guildEmojisUpdateEventHandler(nil)
+
 // Handle is the handler for GuildEmojisUpdate events.
 func (eh guildEmojisUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildEmojisUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildEmojisUpdateEventHandler(nil)
 
 // guildIntegrationsUpdateEventHandler is an event handler for GuildIntegrationsUpdate events.
 type guildIntegrationsUpdateEventHandler func(*Session, *GuildIntegrationsUpdate)
@@ -302,12 +329,16 @@ func (eh guildIntegrationsUpdateEventHandler) New() interface{} {
 	return &GuildIntegrationsUpdate{}
 }
 
+var _ EventInterfaceProvider = guildIntegrationsUpdateEventHandler(nil)
+
 // Handle is the handler for GuildIntegrationsUpdate events.
 func (eh guildIntegrationsUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildIntegrationsUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildIntegrationsUpdateEventHandler(nil)
 
 // guildMemberAddEventHandler is an event handler for GuildMemberAdd events.
 type guildMemberAddEventHandler func(*Session, *GuildMemberAdd)
@@ -322,12 +353,16 @@ func (eh guildMemberAddEventHandler) New() interface{} {
 	return &GuildMemberAdd{}
 }
 
+var _ EventInterfaceProvider = guildMemberAddEventHandler(nil)
+
 // Handle is the handler for GuildMemberAdd events.
 func (eh guildMemberAddEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberAdd); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildMemberAddEventHandler(nil)
 
 // guildMemberRemoveEventHandler is an event handler for GuildMemberRemove events.
 type guildMemberRemoveEventHandler func(*Session, *GuildMemberRemove)
@@ -342,12 +377,16 @@ func (eh guildMemberRemoveEventHandler) New() interface{} {
 	return &GuildMemberRemove{}
 }
 
+var _ EventInterfaceProvider = guildMemberRemoveEventHandler(nil)
+
 // Handle is the handler for GuildMemberRemove events.
 func (eh guildMemberRemoveEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberRemove); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildMemberRemoveEventHandler(nil)
 
 // guildMemberUpdateEventHandler is an event handler for GuildMemberUpdate events.
 type guildMemberUpdateEventHandler func(*Session, *GuildMemberUpdate)
@@ -362,12 +401,16 @@ func (eh guildMemberUpdateEventHandler) New() interface{} {
 	return &GuildMemberUpdate{}
 }
 
+var _ EventInterfaceProvider = guildMemberUpdateEventHandler(nil)
+
 // Handle is the handler for GuildMemberUpdate events.
 func (eh guildMemberUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildMemberUpdateEventHandler(nil)
 
 // guildMembersChunkEventHandler is an event handler for GuildMembersChunk events.
 type guildMembersChunkEventHandler func(*Session, *GuildMembersChunk)
@@ -382,12 +425,16 @@ func (eh guildMembersChunkEventHandler) New() interface{} {
 	return &GuildMembersChunk{}
 }
 
+var _ EventInterfaceProvider = guildMembersChunkEventHandler(nil)
+
 // Handle is the handler for GuildMembersChunk events.
 func (eh guildMembersChunkEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildMembersChunk); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildMembersChunkEventHandler(nil)
 
 // guildRoleCreateEventHandler is an event handler for GuildRoleCreate events.
 type guildRoleCreateEventHandler func(*Session, *GuildRoleCreate)
@@ -402,12 +449,16 @@ func (eh guildRoleCreateEventHandler) New() interface{} {
 	return &GuildRoleCreate{}
 }
 
+var _ EventInterfaceProvider = guildRoleCreateEventHandler(nil)
+
 // Handle is the handler for GuildRoleCreate events.
 func (eh guildRoleCreateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleCreate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildRoleCreateEventHandler(nil)
 
 // guildRoleDeleteEventHandler is an event handler for GuildRoleDelete events.
 type guildRoleDeleteEventHandler func(*Session, *GuildRoleDelete)
@@ -422,12 +473,16 @@ func (eh guildRoleDeleteEventHandler) New() interface{} {
 	return &GuildRoleDelete{}
 }
 
+var _ EventInterfaceProvider = guildRoleDeleteEventHandler(nil)
+
 // Handle is the handler for GuildRoleDelete events.
 func (eh guildRoleDeleteEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleDelete); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildRoleDeleteEventHandler(nil)
 
 // guildRoleUpdateEventHandler is an event handler for GuildRoleUpdate events.
 type guildRoleUpdateEventHandler func(*Session, *GuildRoleUpdate)
@@ -442,12 +497,16 @@ func (eh guildRoleUpdateEventHandler) New() interface{} {
 	return &GuildRoleUpdate{}
 }
 
+var _ EventInterfaceProvider = guildRoleUpdateEventHandler(nil)
+
 // Handle is the handler for GuildRoleUpdate events.
 func (eh guildRoleUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildRoleUpdateEventHandler(nil)
 
 // guildUpdateEventHandler is an event handler for GuildUpdate events.
 type guildUpdateEventHandler func(*Session, *GuildUpdate)
@@ -462,12 +521,16 @@ func (eh guildUpdateEventHandler) New() interface{} {
 	return &GuildUpdate{}
 }
 
+var _ EventInterfaceProvider = guildUpdateEventHandler(nil)
+
 // Handle is the handler for GuildUpdate events.
 func (eh guildUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = guildUpdateEventHandler(nil)
 
 // messageAckEventHandler is an event handler for MessageAck events.
 type messageAckEventHandler func(*Session, *MessageAck)
@@ -482,12 +545,16 @@ func (eh messageAckEventHandler) New() interface{} {
 	return &MessageAck{}
 }
 
+var _ EventInterfaceProvider = messageAckEventHandler(nil)
+
 // Handle is the handler for MessageAck events.
 func (eh messageAckEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*MessageAck); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = messageAckEventHandler(nil)
 
 // messageCreateEventHandler is an event handler for MessageCreate events.
 type messageCreateEventHandler func(*Session, *MessageCreate)
@@ -502,12 +569,16 @@ func (eh messageCreateEventHandler) New() interface{} {
 	return &MessageCreate{}
 }
 
+var _ EventInterfaceProvider = messageCreateEventHandler(nil)
+
 // Handle is the handler for MessageCreate events.
 func (eh messageCreateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*MessageCreate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = messageCreateEventHandler(nil)
 
 // messageDeleteEventHandler is an event handler for MessageDelete events.
 type messageDeleteEventHandler func(*Session, *MessageDelete)
@@ -522,12 +593,16 @@ func (eh messageDeleteEventHandler) New() interface{} {
 	return &MessageDelete{}
 }
 
+var _ EventInterfaceProvider = messageDeleteEventHandler(nil)
+
 // Handle is the handler for MessageDelete events.
 func (eh messageDeleteEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*MessageDelete); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = messageDeleteEventHandler(nil)
 
 // messageReactionAddEventHandler is an event handler for MessageReactionAdd events.
 type messageReactionAddEventHandler func(*Session, *MessageReactionAdd)
@@ -542,12 +617,16 @@ func (eh messageReactionAddEventHandler) New() interface{} {
 	return &MessageReactionAdd{}
 }
 
+var _ EventInterfaceProvider = messageReactionAddEventHandler(nil)
+
 // Handle is the handler for MessageReactionAdd events.
 func (eh messageReactionAddEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*MessageReactionAdd); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = messageReactionAddEventHandler(nil)
 
 // messageReactionRemoveEventHandler is an event handler for MessageReactionRemove events.
 type messageReactionRemoveEventHandler func(*Session, *MessageReactionRemove)
@@ -562,12 +641,16 @@ func (eh messageReactionRemoveEventHandler) New() interface{} {
 	return &MessageReactionRemove{}
 }
 
+var _ EventInterfaceProvider = messageReactionRemoveEventHandler(nil)
+
 // Handle is the handler for MessageReactionRemove events.
 func (eh messageReactionRemoveEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*MessageReactionRemove); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = messageReactionRemoveEventHandler(nil)
 
 // messageUpdateEventHandler is an event handler for MessageUpdate events.
 type messageUpdateEventHandler func(*Session, *MessageUpdate)
@@ -582,12 +665,16 @@ func (eh messageUpdateEventHandler) New() interface{} {
 	return &MessageUpdate{}
 }
 
+var _ EventInterfaceProvider = messageUpdateEventHandler(nil)
+
 // Handle is the handler for MessageUpdate events.
 func (eh messageUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*MessageUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = messageUpdateEventHandler(nil)
 
 // presenceUpdateEventHandler is an event handler for PresenceUpdate events.
 type presenceUpdateEventHandler func(*Session, *PresenceUpdate)
@@ -602,12 +689,16 @@ func (eh presenceUpdateEventHandler) New() interface{} {
 	return &PresenceUpdate{}
 }
 
+var _ EventInterfaceProvider = presenceUpdateEventHandler(nil)
+
 // Handle is the handler for PresenceUpdate events.
 func (eh presenceUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*PresenceUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = presenceUpdateEventHandler(nil)
 
 // presencesReplaceEventHandler is an event handler for PresencesReplace events.
 type presencesReplaceEventHandler func(*Session, *PresencesReplace)
@@ -622,12 +713,16 @@ func (eh presencesReplaceEventHandler) New() interface{} {
 	return &PresencesReplace{}
 }
 
+var _ EventInterfaceProvider = presencesReplaceEventHandler(nil)
+
 // Handle is the handler for PresencesReplace events.
 func (eh presencesReplaceEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*PresencesReplace); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = presencesReplaceEventHandler(nil)
 
 // rateLimitEventHandler is an event handler for RateLimit events.
 type rateLimitEventHandler func(*Session, *RateLimit)
@@ -637,17 +732,14 @@ func (eh rateLimitEventHandler) Type() string {
 	return rateLimitEventType
 }
 
-// New returns a new instance of RateLimit.
-func (eh rateLimitEventHandler) New() interface{} {
-	return &RateLimit{}
-}
-
 // Handle is the handler for RateLimit events.
 func (eh rateLimitEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*RateLimit); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = rateLimitEventHandler(nil)
 
 // readyEventHandler is an event handler for Ready events.
 type readyEventHandler func(*Session, *Ready)
@@ -662,12 +754,16 @@ func (eh readyEventHandler) New() interface{} {
 	return &Ready{}
 }
 
+var _ EventInterfaceProvider = readyEventHandler(nil)
+
 // Handle is the handler for Ready events.
 func (eh readyEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*Ready); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = readyEventHandler(nil)
 
 // relationshipAddEventHandler is an event handler for RelationshipAdd events.
 type relationshipAddEventHandler func(*Session, *RelationshipAdd)
@@ -682,12 +778,16 @@ func (eh relationshipAddEventHandler) New() interface{} {
 	return &RelationshipAdd{}
 }
 
+var _ EventInterfaceProvider = relationshipAddEventHandler(nil)
+
 // Handle is the handler for RelationshipAdd events.
 func (eh relationshipAddEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*RelationshipAdd); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = relationshipAddEventHandler(nil)
 
 // relationshipRemoveEventHandler is an event handler for RelationshipRemove events.
 type relationshipRemoveEventHandler func(*Session, *RelationshipRemove)
@@ -702,12 +802,16 @@ func (eh relationshipRemoveEventHandler) New() interface{} {
 	return &RelationshipRemove{}
 }
 
+var _ EventInterfaceProvider = relationshipRemoveEventHandler(nil)
+
 // Handle is the handler for RelationshipRemove events.
 func (eh relationshipRemoveEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*RelationshipRemove); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = relationshipRemoveEventHandler(nil)
 
 // resumedEventHandler is an event handler for Resumed events.
 type resumedEventHandler func(*Session, *Resumed)
@@ -722,12 +826,16 @@ func (eh resumedEventHandler) New() interface{} {
 	return &Resumed{}
 }
 
+var _ EventInterfaceProvider = resumedEventHandler(nil)
+
 // Handle is the handler for Resumed events.
 func (eh resumedEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*Resumed); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = resumedEventHandler(nil)
 
 // typingStartEventHandler is an event handler for TypingStart events.
 type typingStartEventHandler func(*Session, *TypingStart)
@@ -742,12 +850,16 @@ func (eh typingStartEventHandler) New() interface{} {
 	return &TypingStart{}
 }
 
+var _ EventInterfaceProvider = typingStartEventHandler(nil)
+
 // Handle is the handler for TypingStart events.
 func (eh typingStartEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*TypingStart); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = typingStartEventHandler(nil)
 
 // userGuildSettingsUpdateEventHandler is an event handler for UserGuildSettingsUpdate events.
 type userGuildSettingsUpdateEventHandler func(*Session, *UserGuildSettingsUpdate)
@@ -762,12 +874,16 @@ func (eh userGuildSettingsUpdateEventHandler) New() interface{} {
 	return &UserGuildSettingsUpdate{}
 }
 
+var _ EventInterfaceProvider = userGuildSettingsUpdateEventHandler(nil)
+
 // Handle is the handler for UserGuildSettingsUpdate events.
 func (eh userGuildSettingsUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*UserGuildSettingsUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = userGuildSettingsUpdateEventHandler(nil)
 
 // userSettingsUpdateEventHandler is an event handler for UserSettingsUpdate events.
 type userSettingsUpdateEventHandler func(*Session, *UserSettingsUpdate)
@@ -782,12 +898,16 @@ func (eh userSettingsUpdateEventHandler) New() interface{} {
 	return &UserSettingsUpdate{}
 }
 
+var _ EventInterfaceProvider = userSettingsUpdateEventHandler(nil)
+
 // Handle is the handler for UserSettingsUpdate events.
 func (eh userSettingsUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*UserSettingsUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = userSettingsUpdateEventHandler(nil)
 
 // userUpdateEventHandler is an event handler for UserUpdate events.
 type userUpdateEventHandler func(*Session, *UserUpdate)
@@ -802,12 +922,16 @@ func (eh userUpdateEventHandler) New() interface{} {
 	return &UserUpdate{}
 }
 
+var _ EventInterfaceProvider = userUpdateEventHandler(nil)
+
 // Handle is the handler for UserUpdate events.
 func (eh userUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*UserUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = userUpdateEventHandler(nil)
 
 // voiceServerUpdateEventHandler is an event handler for VoiceServerUpdate events.
 type voiceServerUpdateEventHandler func(*Session, *VoiceServerUpdate)
@@ -822,12 +946,16 @@ func (eh voiceServerUpdateEventHandler) New() interface{} {
 	return &VoiceServerUpdate{}
 }
 
+var _ EventInterfaceProvider = voiceServerUpdateEventHandler(nil)
+
 // Handle is the handler for VoiceServerUpdate events.
 func (eh voiceServerUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*VoiceServerUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = voiceServerUpdateEventHandler(nil)
 
 // voiceStateUpdateEventHandler is an event handler for VoiceStateUpdate events.
 type voiceStateUpdateEventHandler func(*Session, *VoiceStateUpdate)
@@ -842,12 +970,16 @@ func (eh voiceStateUpdateEventHandler) New() interface{} {
 	return &VoiceStateUpdate{}
 }
 
+var _ EventInterfaceProvider = voiceStateUpdateEventHandler(nil)
+
 // Handle is the handler for VoiceStateUpdate events.
 func (eh voiceStateUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*VoiceStateUpdate); ok {
 		eh(s, t)
 	}
 }
+
+var _ EventHandler = voiceStateUpdateEventHandler(nil)
 
 func handlerForInterface(handler interface{}) EventHandler {
 	switch v := handler.(type) {
