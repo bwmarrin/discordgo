@@ -737,6 +737,11 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 		return
 	}
 
+	if userID == guild.OwnerID {
+		apermissions = PermissionAll
+		return
+	}
+
 	member, err := s.Member(guild.ID, userID)
 	if err != nil {
 		return
