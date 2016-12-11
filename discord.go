@@ -60,7 +60,7 @@ func New(args ...interface{}) (s *Session, err error) {
 
 		case []string:
 			if len(v) > 3 {
-				err = fmt.Errorf("Too many string parameters provided.")
+				err = fmt.Errorf("too many string parameters provided")
 				return
 			}
 
@@ -91,7 +91,7 @@ func New(args ...interface{}) (s *Session, err error) {
 			} else if s.Token == "" {
 				s.Token = v
 			} else {
-				err = fmt.Errorf("Too many string parameters provided.")
+				err = fmt.Errorf("too many string parameters provided")
 				return
 			}
 
@@ -99,7 +99,7 @@ func New(args ...interface{}) (s *Session, err error) {
 			// TODO: Parse configuration struct
 
 		default:
-			err = fmt.Errorf("Unsupported parameter type provided.")
+			err = fmt.Errorf("unsupported parameter type provided")
 			return
 		}
 	}

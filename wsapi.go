@@ -57,7 +57,7 @@ func (s *Session) Open() (err error) {
 	}
 
 	if s.wsConn != nil {
-		err = errors.New("Web socket already opened.")
+		err = errors.New("web socket already opened")
 		return
 	}
 

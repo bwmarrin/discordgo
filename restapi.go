@@ -960,7 +960,7 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 	count = 0
 
 	if days <= 0 {
-		err = errors.New("The number of days should be more than or equal to 1.")
+		err = errors.New("the number of days should be more than or equal to 1")
 		return
 	}
 
@@ -990,7 +990,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 	count = 0
 
 	if days <= 0 {
-		err = errors.New("The number of days should be more than or equal to 1.")
+		err = errors.New("the number of days should be more than or equal to 1")
 		return
 	}
 
@@ -1092,7 +1092,7 @@ func (s *Session) GuildIcon(guildID string) (img image.Image, err error) {
 	}
 
 	if g.Icon == "" {
-		err = errors.New("Guild does not have an icon set.")
+		err = errors.New("guild does not have an icon set")
 		return
 	}
 
@@ -1114,7 +1114,7 @@ func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
 	}
 
 	if g.Splash == "" {
-		err = errors.New("Guild does not have a splash set.")
+		err = errors.New("guild does not have a splash set")
 		return
 	}
 

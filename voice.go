@@ -93,7 +93,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	}
 
 	if v.wsConn == nil {
-		return fmt.Errorf("No VoiceConnection websocket.")
+		return fmt.Errorf("no VoiceConnection websocket")
 	}
 
 	data := voiceSpeakingOp{5, voiceSpeakingData{b, 0}}
@@ -251,7 +251,7 @@ func (v *VoiceConnection) waitUntilConnected() error {
 		}
 
 		if i > 10 {
-			return fmt.Errorf("Timeout waiting for voice.")
+			return fmt.Errorf("timeout waiting for voice")
 		}
 
 		time.Sleep(1 * time.Second)
@@ -282,7 +282,7 @@ func (v *VoiceConnection) open() (err error) {
 			break
 		}
 		if i > 20 { // only loop for up to 1 second total
-			return fmt.Errorf("Did not receive voice Session ID in time.")
+			return fmt.Errorf("did not receive voice Session ID in time")
 		}
 		time.Sleep(50 * time.Millisecond)
 		i++

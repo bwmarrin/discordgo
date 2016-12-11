@@ -246,6 +246,7 @@ type Role struct {
 	Permissions int    `json:"permissions"`
 }
 
+// Roles are a collection of Role
 type Roles []*Role
 
 func (r Roles) Len() int {

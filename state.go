@@ -19,7 +19,7 @@ import (
 )
 
 // ErrNilState is returned when the state is nil.
-var ErrNilState = errors.New("State not instantiated, please use discordgo.New() or assign Session.State.")
+var ErrNilState = errors.New("state not instantiated, please use discordgo.New() or assign Session.State")
 
 // A State contains the current known state.
 // As discord sends this in a READY blob, it seems reasonable to simply
@@ -144,7 +144,7 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 		return g, nil
 	}
 
-	return nil, errors.New("Guild not found.")
+	return nil, errors.New("guild not found")
 }
 
 // TODO: Consider moving Guild state update methods onto *Guild.
@@ -196,7 +196,7 @@ func (s *State) MemberRemove(member *Member) error {
 		}
 	}
 
-	return errors.New("Member not found.")
+	return errors.New("member not found")
 }
 
 // Member gets a member by ID from a guild.
@@ -219,7 +219,7 @@ func (s *State) Member(guildID, userID string) (*Member, error) {
 		}
 	}
 
-	return nil, errors.New("Member not found.")
+	return nil, errors.New("member not found")
 }
 
 // RoleAdd adds a role to the current world state, or
@@ -269,7 +269,7 @@ func (s *State) RoleRemove(guildID, roleID string) error {
 		}
 	}
 
-	return errors.New("Role not found.")
+	return errors.New("role not found")
 }
 
 // Role gets a role by ID from a guild.
@@ -292,7 +292,7 @@ func (s *State) Role(guildID, roleID string) (*Role, error) {
 		}
 	}
 
-	return nil, errors.New("Role not found.")
+	return nil, errors.New("role not found")
 }
 
 // ChannelAdd adds a guild to the current world state, or
@@ -325,7 +325,7 @@ func (s *State) ChannelAdd(channel *Channel) error {
 	} else {
 		guild, ok := s.guildMap[channel.GuildID]
 		if !ok {
-			return errors.New("Guild for channel not found.")
+			return errors.New("guild for channel not found")
 		}
 
 		guild.Channels = append(guild.Channels, channel)
@@ -404,7 +404,7 @@ func (s *State) Channel(channelID string) (*Channel, error) {
 		return c, nil
 	}
 
-	return nil, errors.New("Channel not found.")
+	return nil, errors.New("channel not found")
 }
 
 // Emoji returns an emoji for a guild and emoji id.
@@ -427,7 +427,7 @@ func (s *State) Emoji(guildID, emojiID string) (*Emoji, error) {
 		}
 	}
 
-	return nil, errors.New("Emoji not found.")
+	return nil, errors.New("emoji not found")
 }
 
 // EmojiAdd adds an emoji to the current world state.
@@ -539,7 +539,7 @@ func (s *State) MessageRemove(message *Message) error {
 		}
 	}
 
-	return errors.New("Message not found.")
+	return errors.New("message not found")
 }
 
 func (s *State) voiceStateUpdate(update *VoiceStateUpdate) error {
@@ -593,7 +593,7 @@ func (s *State) Message(channelID, messageID string) (*Message, error) {
 		}
 	}
 
-	return nil, errors.New("Message not found.")
+	return nil, errors.New("message not found")
 }
 
 // OnReady takes a Ready event and updates all internal state.
