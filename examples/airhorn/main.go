@@ -131,7 +131,7 @@ func loadSound() error {
 
 		// If this is the end of the file, just return.
 		if err == io.EOF || err == io.ErrUnexpectedEOF {
-			file.Close()
+			err := file.Close()
 			if err != nil {
 				return err
 			}
