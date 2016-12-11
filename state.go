@@ -609,10 +609,9 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 	// if state is disabled, store the bare essentials.
 	if !se.StateEnabled {
 		ready := Ready{
-			Version:           r.Version,
-			SessionID:         r.SessionID,
-			HeartbeatInterval: r.HeartbeatInterval,
-			User:              r.User,
+			Version:   r.Version,
+			SessionID: r.SessionID,
+			User:      r.User,
 		}
 
 		s.Ready = ready

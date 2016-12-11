@@ -210,8 +210,6 @@ func (s *Session) onInterface(i interface{}) {
 		setGuildIds(t.Guild)
 	case *GuildUpdate:
 		setGuildIds(t.Guild)
-	case *Resumed:
-		s.onResumed(t)
 	case *VoiceServerUpdate:
 		go s.onVoiceServerUpdate(t)
 	case *VoiceStateUpdate:
@@ -225,14 +223,4 @@ func (s *Session) onReady(r *Ready) {
 
 	// Store the SessionID within the Session struct.
 	s.sessionID = r.SessionID
-
-	// Start the heartbeat to keep the connection alive.
-	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
-}
-
-// onResumed handles the resumed event.
-func (s *Session) onResumed(r *Resumed) {
-
-	// Start the heartbeat to keep the connection alive.
-	go s.heartbeat(s.wsConn, s.listening, r.HeartbeatInterval)
 }

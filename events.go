@@ -2,7 +2,6 @@ package discordgo
 
 import (
 	"encoding/json"
-	"time"
 )
 
 // This file contains all the possible structs that can be
@@ -37,13 +36,12 @@ type Event struct {
 
 // A Ready stores all data for the websocket READY event.
 type Ready struct {
-	Version           int           `json:"v"`
-	SessionID         string        `json:"session_id"`
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	User              *User         `json:"user"`
-	ReadState         []*ReadState  `json:"read_state"`
-	PrivateChannels   []*Channel    `json:"private_channels"`
-	Guilds            []*Guild      `json:"guilds"`
+	Version         int          `json:"v"`
+	SessionID       string       `json:"session_id"`
+	User            *User        `json:"user"`
+	ReadState       []*ReadState `json:"read_state"`
+	PrivateChannels []*Channel   `json:"private_channels"`
+	Guilds          []*Guild     `json:"guilds"`
 
 	// Undocumented fields
 	Settings          *Settings            `json:"user_settings"`
@@ -191,8 +189,7 @@ type PresenceUpdate struct {
 
 // Resumed is the data for a Resumed event.
 type Resumed struct {
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	Trace             []string      `json:"_trace"`
+	Trace []string `json:"_trace"`
 }
 
 // RelationshipAdd is the data for a RelationshipAdd event.
