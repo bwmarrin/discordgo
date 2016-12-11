@@ -14,6 +14,7 @@ package discordgo
 
 import (
 	"errors"
+	"sort"
 	"sync"
 )
 
@@ -747,48 +748,46 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 		return
 	}
 
-	for _, role := range guild.Roles {
-		if role.ID == guild.ID {
-			apermissions |= role.Permissions
-			break
-		}
+	return memberPermissions(guild, channel, member), nil
+}
+
+// UserColor returns the color of a user in a channel.
+// While colors are defined at a Guild level, determining for a channel is more useful in message handlers.
+// 0 is returned in cases of error, which is the color of @everyone.
+// userID    : The ID of the user to calculate the color for.
+// channelID   : The ID of the channel to calculate the color for.
+func (s *State) UserColor(userID, channelID string) int {
+	if s == nil {
+		return 0
 	}
 
-	for _, role := range guild.Roles {
+	channel, err := s.Channel(channelID)
+	if err != nil {
+		return 0
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return 0
+	}
+
+	member, err := s.Member(guild.ID, userID)
+	if err != nil {
+		return 0
+	}
+
+	roles := Roles(guild.Roles)
+	sort.Sort(roles)
+
+	for _, role := range roles {
 		for _, roleID := range member.Roles {
 			if role.ID == roleID {
-				apermissions |= role.Permissions
-				break
+				if role.Color != 0 {
+					return role.Color
+				}
 			}
 		}
 	}
 
-	if apermissions&PermissionAdministrator > 0 {
-		apermissions |= PermissionAll
-	}
-
-	// Member overwrites can override role overrides, so do two passes
-	for _, overwrite := range channel.PermissionOverwrites {
-		for _, roleID := range member.Roles {
-			if overwrite.Type == "role" && roleID == overwrite.ID {
-				apermissions &= ^overwrite.Deny
-				apermissions |= overwrite.Allow
-				break
-			}
-		}
-	}
-
-	for _, overwrite := range channel.PermissionOverwrites {
-		if overwrite.Type == "member" && overwrite.ID == userID {
-			apermissions &= ^overwrite.Deny
-			apermissions |= overwrite.Allow
-			break
-		}
-	}
-
-	if apermissions&PermissionAdministrator > 0 {
-		apermissions |= PermissionAllChannel
-	}
-
-	return
+	return 0
 }

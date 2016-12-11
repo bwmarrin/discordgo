@@ -37,18 +37,19 @@ type {{privateName .}}EventHandler func(*Session, *{{.}})
 func (eh {{privateName .}}EventHandler) Type() string {
   return {{privateName .}}EventType
 }
-
+{{if isDiscordEvent .}}
 // New returns a new instance of {{.}}.
 func (eh {{privateName .}}EventHandler) New() interface{} {
   return &{{.}}{}
-}
-
+}{{end}}
 // Handle is the handler for {{.}} events.
 func (eh {{privateName .}}EventHandler) Handle(s *Session, i interface{}) {
   if t, ok := i.(*{{.}}); ok {
     eh(s, t)
   }
 }
+
+var _ EventHandler = {{privateName .}}EventHandler(nil)
 {{end}}
 func handlerForInterface(handler interface{}) EventHandler {
   switch v := handler.(type) {
@@ -60,6 +61,7 @@ func handlerForInterface(handler interface{}) EventHandler {
 
   return nil
 }
+
 func init() { {{range .}}{{if isDiscordEvent .}}
   registerInterfaceProvider({{privateName .}}EventHandler(nil)){{end}}{{end}}
 }
