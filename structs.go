@@ -100,12 +100,6 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
-type rateLimitMutex struct {
-	sync.Mutex
-	url map[string]*sync.Mutex
-	// bucket map[string]*sync.Mutex // TODO :)
-}
-
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
 	ID       string `json:"id"`
