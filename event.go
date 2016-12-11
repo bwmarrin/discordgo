@@ -217,7 +217,10 @@ func (s *Session) onInterface(i interface{}) {
 	case *VoiceStateUpdate:
 		go s.onVoiceStateUpdate(t)
 	}
-	s.State.onInterface(s, i)
+	err := s.State.onInterface(s, i)
+	if err != nil {
+		s.log(LogError, err)
+	}
 }
 
 // onReady handles the ready event.
