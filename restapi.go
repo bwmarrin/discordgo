@@ -423,6 +423,13 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 // NOTE: This function is now deprecated and will be removed in the future.
 // Please see the same function inside state.go
 func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+	// Try to just get permissions from state.
+	apermissions, err = s.State.UserChannelPermissions(userID, channelID)
+	if err == nil {
+		return
+	}
+
+	// Otherwise try get as much data from state as possible, falling back to the network.
 	channel, err := s.State.Channel(channelID)
 	if err != nil || channel == nil {
 		channel, err = s.Channel(channelID)
@@ -452,6 +459,19 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
+	return memberPermissions(guild, channel, member), nil
+}
+
+// Calculates the permissions for a member.
+// https://support.discordapp.com/hc/en-us/articles/206141927-How-is-the-permission-hierarchy-structured-
+func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermissions int) {
+	userID := member.User.ID
+
+	if userID == guild.OwnerID {
+		apermissions = PermissionAll
+		return
+	}
+
 	for _, role := range guild.Roles {
 		if role.ID == guild.ID {
 			apermissions |= role.Permissions
@@ -468,20 +488,35 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions&PermissionAdministrator > 0 {
+	if apermissions&PermissionAdministrator == PermissionAdministrator {
 		apermissions |= PermissionAll
 	}
+
+	// Apply @everyone overrides from the channel.
+	for _, overwrite := range channel.PermissionOverwrites {
+		if guild.ID == overwrite.ID {
+			apermissions &= ^overwrite.Deny
+			apermissions |= overwrite.Allow
+			break
+		}
+	}
+
+	denies := 0
+	allows := 0
 
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
 		for _, roleID := range member.Roles {
 			if overwrite.Type == "role" && roleID == overwrite.ID {
-				apermissions &= ^overwrite.Deny
-				apermissions |= overwrite.Allow
+				denies |= overwrite.Deny
+				allows |= overwrite.Allow
 				break
 			}
 		}
 	}
+
+	apermissions &= ^denies
+	apermissions |= allows
 
 	for _, overwrite := range channel.PermissionOverwrites {
 		if overwrite.Type == "member" && overwrite.ID == userID {
@@ -491,11 +526,11 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	if apermissions&PermissionAdministrator > 0 {
+	if apermissions&PermissionAdministrator == PermissionAdministrator {
 		apermissions |= PermissionAllChannel
 	}
 
-	return
+	return apermissions
 }
 
 // ------------------------------------------------------------------------------------------------
