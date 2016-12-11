@@ -14,6 +14,7 @@ package discordgo
 
 import (
 	"errors"
+	"sort"
 	"sync"
 )
 
@@ -748,4 +749,45 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 	}
 
 	return memberPermissions(guild, channel, member), nil
+}
+
+// UserColor returns the color of a user in a channel.
+// While colors are defined at a Guild level, determining for a channel is more useful in message handlers.
+// 0 is returned in cases of error, which is the color of @everyone.
+// userID    : The ID of the user to calculate the color for.
+// channelID   : The ID of the channel to calculate the color for.
+func (s *State) UserColor(userID, channelID string) int {
+	if s == nil {
+		return 0
+	}
+
+	channel, err := s.Channel(channelID)
+	if err != nil {
+		return 0
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return 0
+	}
+
+	member, err := s.Member(guild.ID, userID)
+	if err != nil {
+		return 0
+	}
+
+	roles := Roles(guild.Roles)
+	sort.Sort(roles)
+
+	for _, role := range roles {
+		for _, roleID := range member.Roles {
+			if role.ID == roleID {
+				if role.Color != 0 {
+					return role.Color
+				}
+			}
+		}
+	}
+
+	return 0
 }
