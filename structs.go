@@ -252,6 +252,20 @@ type Role struct {
 	Permissions int    `json:"permissions"`
 }
 
+type Roles []*Role
+
+func (r Roles) Len() int {
+	return len(r)
+}
+
+func (r Roles) Less(i, j int) bool {
+	return r[i].Position > r[j].Position
+}
+
+func (r Roles) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
 // A VoiceState stores the voice states of Guilds
 type VoiceState struct {
 	UserID    string `json:"user_id"`
