@@ -13,6 +13,7 @@ package discordgo
 
 import (
 	"encoding/json"
+	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -72,6 +73,9 @@ type Session struct {
 	// Managed state object, updated internally with events when
 	// StateEnabled is true.
 	State *State
+
+	// The http client used for REST requests
+	Client *http.Client
 
 	// Event handlers
 	handlersMu   sync.RWMutex

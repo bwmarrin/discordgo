@@ -13,7 +13,11 @@
 // Package discordgo provides Discord binding for Go
 package discordgo
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+	"time"
+)
 
 // VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
 const VERSION = "0.16.0-dev"
@@ -43,6 +47,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		ShardID:                0,
 		ShardCount:             1,
 		MaxRestRetries:         3,
+		Client:                 &http.Client{Timeout: (20 * time.Second)},
 	}
 
 	// If no arguments are passed return the empty Session interface.
