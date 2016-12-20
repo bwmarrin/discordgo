@@ -837,6 +837,8 @@ func (v *VoiceConnection) reconnect() {
 			return
 		}
 
+		v.log(LogInformational, "error reconnecting to channel %s, %s", v.ChannelID, err)
+
 		// if the reconnect above didn't work lets just send a disconnect
 		// packet to reset things.
 		// Send a OP4 with a nil channel to disconnect
@@ -848,6 +850,5 @@ func (v *VoiceConnection) reconnect() {
 			v.log(LogError, "error sending disconnect packet, %s", err)
 		}
 
-		v.log(LogInformational, "error reconnecting to channel %s, %s", v.ChannelID, err)
 	}
 }
