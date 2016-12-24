@@ -574,5 +574,6 @@ const (
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
-		PermissionManageServer
+		PermissionManageServer |
+		PermissionAdministrator
 )
