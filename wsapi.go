@@ -74,7 +74,7 @@ func (s *Session) Open() (err error) {
 		}
 
 		// Add the version and encoding to the URL
-		s.gateway = fmt.Sprintf("%s?v=4&encoding=json", s.gateway)
+		s.gateway = fmt.Sprintf("%s?v=5&encoding=json", s.gateway)
 	}
 
 	header := http.Header{}
@@ -178,6 +178,11 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 type heartbeatOp struct {
 	Op   int `json:"op"`
 	Data int `json:"d"`
+}
+
+type helloOp struct {
+	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
+	Trace             []string      `json:"_trace"`
 }
 
 // heartbeat sends regular heartbeats to Discord so it knows the client
@@ -393,6 +398,16 @@ func (s *Session) onEvent(messageType int, message []byte) {
 			return
 		}
 
+		return
+	}
+
+	if e.Operation == 10 {
+		var h helloOp
+		if err = json.Unmarshal(e.RawData, &h); err != nil {
+			s.log(LogError, "error unmarshalling helloOp, %s", err)
+		} else {
+			go s.heartbeat(s.wsConn, s.listening, h.HeartbeatInterval)
+		}
 		return
 	}
 
