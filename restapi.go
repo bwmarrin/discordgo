@@ -87,9 +87,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 		}
 	}
 
-	client := &http.Client{Timeout: (20 * time.Second)}
-
-	resp, err := client.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		bucket.Release(nil)
 		return
