@@ -92,7 +92,7 @@ type Session struct {
 	ratelimiter *RateLimiter
 
 	// sequence tracks the current gateway api websocket sequence number
-	sequence int
+	sequence *int32
 
 	// stores sessions current Discord Gateway
 	gateway string

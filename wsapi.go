@@ -19,6 +19,7 @@ import (
 	"io"
 	"net/http"
 	"runtime"
+	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -89,13 +90,14 @@ func (s *Session) Open() (err error) {
 		return
 	}
 
-	if s.sessionID != "" && s.sequence > 0 {
+	sequence := atomic.LoadInt32(s.sequence)
+	if s.sessionID != "" && sequence > 0 {
 
 		p := resumePacket{}
 		p.Op = 6
 		p.Data.Token = s.Token
 		p.Data.SessionID = s.sessionID
-		p.Data.Sequence = s.sequence
+		p.Data.Sequence = int(sequence)
 
 		s.log(LogInformational, "sending resume packet to gateway")
 		err = s.wsConn.WriteJSON(p)
@@ -200,10 +202,10 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	ticker := time.NewTicker(i * time.Millisecond)
 
 	for {
-
-		s.log(LogInformational, "sending gateway websocket heartbeat seq %d", s.sequence)
+		sequence := atomic.LoadInt32(s.sequence)
+		s.log(LogInformational, "sending gateway websocket heartbeat seq %d", sequence)
 		s.wsMutex.Lock()
-		err = wsConn.WriteJSON(heartbeatOp{1, s.sequence})
+		err = wsConn.WriteJSON(heartbeatOp{1, int(sequence)})
 		s.wsMutex.Unlock()
 		if err != nil {
 			s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
@@ -370,7 +372,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	if e.Operation == 1 {
 		s.log(LogInformational, "sending heartbeat in response to Op1")
 		s.wsMutex.Lock()
-		err = s.wsConn.WriteJSON(heartbeatOp{1, s.sequence})
+		err = s.wsConn.WriteJSON(heartbeatOp{1, int(atomic.LoadInt32(s.sequence))})
 		s.wsMutex.Unlock()
 		if err != nil {
 			s.log(LogError, "error sending heartbeat in response to Op1")
@@ -420,7 +422,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	}
 
 	// Store the message sequence
-	s.sequence = e.Sequence
+	atomic.StoreInt32(s.sequence, int32(e.Sequence))
 
 	// Map event to registered event handlers and pass it along to any registered handlers.
 	if eh, ok := registeredInterfaceProviders[e.Type]; ok {
