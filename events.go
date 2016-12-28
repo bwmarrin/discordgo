@@ -233,3 +233,9 @@ type VoiceServerUpdate struct {
 type VoiceStateUpdate struct {
 	*VoiceState
 }
+
+// MessageDeleteBulk is the data for a MessageDeleteBulk event
+type MessageDeleteBulk struct {
+	Messages  []string `json:"ids"`
+	ChannelID string   `json:"channel_id"`
+}

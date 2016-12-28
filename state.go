@@ -710,6 +710,12 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 		if s.MaxMessageCount != 0 {
 			err = s.MessageRemove(t.Message)
 		}
+	case *MessageDeleteBulk:
+		if s.MaxMessageCount != 0 {
+			for _, mID := range t.Messages {
+				s.MessageRemove(&Message{ID: mID, ChannelID: t.ChannelID})
+			}
+		}
 	case *VoiceStateUpdate:
 		if s.TrackVoice {
 			err = s.voiceStateUpdate(t)
