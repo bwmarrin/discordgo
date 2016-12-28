@@ -519,11 +519,16 @@ func (s *State) MessageAdd(message *Message) error {
 }
 
 // MessageRemove removes a message from the world state.
-func (s *State) MessageRemove(channelID, messageID string) error {
+func (s *State) MessageRemove(message *Message) error {
 	if s == nil {
 		return ErrNilState
 	}
 
+	return s.messageRemoveById(message.ChannelID, message.ID)
+}
+
+// messageRemoveById removes a message by channelID and messageID from the world state.
+func (s *State) messageRemoveById(channelID, messageID string) error {
 	c, err := s.Channel(channelID)
 	if err != nil {
 		return err
@@ -708,12 +713,12 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 		}
 	case *MessageDelete:
 		if s.MaxMessageCount != 0 {
-			err = s.MessageRemove(t.ChannelID, t.ID)
+			err = s.MessageRemove(t.Message)
 		}
 	case *MessageDeleteBulk:
 		if s.MaxMessageCount != 0 {
 			for _, mID := range t.Messages {
-				s.MessageRemove(t.ChannelID, mID)
+				s.messageRemoveById(t.ChannelID, mID)
 			}
 		}
 	case *VoiceStateUpdate:
