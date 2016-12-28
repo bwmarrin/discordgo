@@ -31,6 +31,7 @@ const (
 	messageAckEventType              = "MESSAGE_ACK"
 	messageCreateEventType           = "MESSAGE_CREATE"
 	messageDeleteEventType           = "MESSAGE_DELETE"
+	messageDeleteBulkEventType       = "MESSAGE_DELETE_BULK"
 	messageReactionAddEventType      = "MESSAGE_REACTION_ADD"
 	messageReactionRemoveEventType   = "MESSAGE_REACTION_REMOVE"
 	messageUpdateEventType           = "MESSAGE_UPDATE"
@@ -562,6 +563,28 @@ func (eh messageDeleteEventHandler) Handle(s *Session, i interface{}) {
 
 var _ EventHandler = messageDeleteEventHandler(nil)
 
+// messageDeleteBulkEventHandler is an event handler for MessageDeleteBulk events.
+type messageDeleteBulkEventHandler func(*Session, *MessageDeleteBulk)
+
+// Type returns the event type for MessageDeleteBulk events.
+func (eh messageDeleteBulkEventHandler) Type() string {
+	return messageDeleteBulkEventType
+}
+
+// New returns a new instance of MessageDeleteBulk.
+func (eh messageDeleteBulkEventHandler) New() interface{} {
+	return &MessageDeleteBulk{}
+}
+
+// Handle is the handler for MessageDeleteBulk events.
+func (eh messageDeleteBulkEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*MessageDeleteBulk); ok {
+		eh(s, t)
+	}
+}
+
+var _ EventHandler = messageDeleteBulkEventHandler(nil)
+
 // messageReactionAddEventHandler is an event handler for MessageReactionAdd events.
 type messageReactionAddEventHandler func(*Session, *MessageReactionAdd)
 
@@ -961,6 +984,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return messageCreateEventHandler(v)
 	case func(*Session, *MessageDelete):
 		return messageDeleteEventHandler(v)
+	case func(*Session, *MessageDeleteBulk):
+		return messageDeleteBulkEventHandler(v)
 	case func(*Session, *MessageReactionAdd):
 		return messageReactionAddEventHandler(v)
 	case func(*Session, *MessageReactionRemove):
@@ -1020,6 +1045,7 @@ func init() {
 	registerInterfaceProvider(messageAckEventHandler(nil))
 	registerInterfaceProvider(messageCreateEventHandler(nil))
 	registerInterfaceProvider(messageDeleteEventHandler(nil))
+	registerInterfaceProvider(messageDeleteBulkEventHandler(nil))
 	registerInterfaceProvider(messageReactionAddEventHandler(nil))
 	registerInterfaceProvider(messageReactionRemoveEventHandler(nil))
 	registerInterfaceProvider(messageUpdateEventHandler(nil))
