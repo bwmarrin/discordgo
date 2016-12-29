@@ -49,7 +49,6 @@ func (eh {{privateName .}}EventHandler) Handle(s *Session, i interface{}) {
   }
 }
 
-var _ EventHandler = {{privateName .}}EventHandler(nil)
 {{end}}
 func handlerForInterface(handler interface{}) EventHandler {
   switch v := handler.(type) {
