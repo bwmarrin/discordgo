@@ -1210,6 +1210,7 @@ func (s *Session) ChannelTyping(channelID string) (err error) {
 // limit     : The number messages that can be returned. (max 100)
 // beforeID  : If provided all messages returned will be before given ID.
 // afterID   : If provided all messages returned will be after given ID.
+// aroundID  : If provided all messages returned will be around given ID.
 func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID, aroundID string) (st []*Message, err error) {
 
 	uri := EndpointChannelMessages(channelID)
