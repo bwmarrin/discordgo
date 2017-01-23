@@ -200,6 +200,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 
 	var err error
 	ticker := time.NewTicker(i * time.Millisecond)
+	defer ticker.Stop()
 
 	for {
 		sequence := atomic.LoadInt64(s.sequence)
