@@ -776,11 +776,16 @@ func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error)
 // GuildMemberNickname updates the nickname of a guild member
 // guildID   : The ID of a guild
 // userID    : The ID of a user
+// userID    : The ID of a user or "@me" which is a shortcut of the current user ID
 func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err error) {
 
 	data := struct {
 		Nick string `json:"nick"`
 	}{nickname}
+
+	if userID == "@me" {
+		userID += "/nick"
+	}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	return
