@@ -1135,7 +1135,7 @@ func (s *Session) ChannelEditTopic(channelID, topic string) (st *Channel, err er
 
 	data := struct {
 		Topic string `json:"topic"`
-	}{name}
+	}{topic}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(channelID), data, EndpointChannel(channelID))
 	if err != nil {
