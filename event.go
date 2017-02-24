@@ -218,7 +218,7 @@ func (s *Session) onInterface(i interface{}) {
 	}
 	err := s.State.onInterface(s, i)
 	if err != nil {
-		s.log(LogError, "error dispatching internal event, %s", err)
+		s.log(LogDebug, "error dispatching internal event, %s", err)
 	}
 }
 
