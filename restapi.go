@@ -183,6 +183,37 @@ func (s *Session) Login(email, password string) (err error) {
 	}{email, password}
 
 	response, err := s.RequestWithBucketID("POST", EndpointLogin, data, EndpointLogin)
+        if err != nil {
+                return
+        }
+
+        temp := struct {
+                Mfa bool `json:"mfa"`
+                Token string `json:"token"`
+                Ticket string `json:"ticket"`
+        }{}
+
+        err = unmarshal(response, &temp)
+        if err != nil {
+                return
+        }
+
+        s.Mfa = temp.Mfa
+        s.Token = temp.Token
+        s.Ticket = temp.Ticket
+        return
+}
+
+// Log in with additional TOTP token
+func (s *Session) AuthTotp(code, ticket string) (err error) {
+
+        data := struct {
+                Code   string `json:"code"`
+                Ticket string `json:"ticket"`
+        }{code, ticket}
+
+	response, err := s.RequestWithBucketID("POST", EndpointAuthTotp, data, EndpointAuthTotp)
+
 	if err != nil {
 		return
 	}
