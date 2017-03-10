@@ -1339,24 +1339,24 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // channelID : The ID of a Channel.
 // content   : The message to send.
 // embed     : The embed data to send.
-func (s *Session) ChannelMessageSendEmbedWithMessage(channelID string, content string, embed *MessageEmbed) (st *Message, err error) {
-    if embed != nil && embed.Type == "" {
-        embed.Type = "rich"
-    }
+func (s *Session) ChannelMessageSendEmbed(channelID string, content string, embed *MessageEmbed) (st *Message, err error) {
+	if embed != nil && embed.Type == "" {
+		embed.Type = "rich"
+	}
 
-    data := struct {
-        Embed   *MessageEmbed `json:"embed"`
-        Content string `json:"content"`
-    }{embed, content}
+	data := struct {
+		Embed *MessageEmbed `json:"embed"`
+		Content string `json:"content"`
+	}{embed, content}
 
-    // Send the message to the given channel
-    response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
-    if err != nil {
-        return
-    }
+	// Send the message to the given channel
+	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
+	if err != nil {
+		return
+	}
 
-    err = unmarshal(response, &st)
-    return
+	err = unmarshal(response, &st)
+	return
 }
 
 // ChannelMessageEdit edits an existing message, replacing it entirely with
