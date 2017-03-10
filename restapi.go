@@ -1317,22 +1317,8 @@ func (s *Session) ChannelMessageSendTTS(channelID string, content string) (st *M
 // channelID : The ID of a Channel.
 // embed     : The embed data to send.
 func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed) (st *Message, err error) {
-	if embed != nil && embed.Type == "" {
-		embed.Type = "rich"
-	}
 
-	data := struct {
-		Embed *MessageEmbed `json:"embed"`
-	}{embed}
-
-	// Send the message to the given channel
-	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(response, &st)
-	return
+	return s.ChannelMessageSendEmbedWithMessage(channelID, "", embed)
 }
 
 // ChannelMessageSendEmbedWithMessage sends a message to the given channel with embedded data (bot only) and a message.
