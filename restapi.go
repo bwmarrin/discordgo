@@ -262,7 +262,7 @@ func (s *Session) User(userID string) (st *User, err error) {
 	return
 }
 
-// Deprecated. Please use UserAvatarDecode
+// UserAvatar is deprecated. Please use UserAvatarDecode
 // userID    : A user ID or "@me" which is a shortcut of current user ID
 func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
 	u, err := s.User(userID)
@@ -270,9 +270,9 @@ func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
 		return
 	}
 	img, err = s.UserAvatarDecode(u)
- 	return
- }
- 
+	return
+}
+
 // UserAvatarDecode returns an image.Image of a user's Avatar
 // user : The user which avatar should be retrieved
 func (s *Session) UserAvatarDecode(u *User) (img image.Image, err error) {
