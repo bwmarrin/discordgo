@@ -342,7 +342,7 @@ type User struct {
 	ID            string `json:"id"`
 	Email         string `json:"email"`
 	Username      string `json:"username"`
-	Avatar        string `json:"Avatar"`
+	Avatar        string `json:"avatar"`
 	Discriminator string `json:"discriminator"`
 	Token         string `json:"token"`
 	Verified      bool   `json:"verified"`
