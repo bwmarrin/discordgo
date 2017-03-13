@@ -278,8 +278,8 @@ func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
 
 // UserAvatarDecode returns an image.Image of a user's Avatar.
 // user : The user which avatar should be retrieved.
-func (s *Session) UserAvatarDecode(u *discordgo.User) (img image.Image, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointUserAvatar(userID, u.Avatar), nil, EndpointUserAvatar("", ""))
+func (s *Session) UserAvatarDecode(u *User) (img image.Image, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointUserAvatar(u.ID, u.Avatar), nil, EndpointUserAvatar("", ""))
 	if err != nil {
 		return
 	}
