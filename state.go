@@ -716,6 +716,10 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 		}
 	case *PresenceUpdate:
 		if s.TrackMembers {
+			if t.Status == "offline" {
+				return
+			}
+
 			var m *Member
 			m, err = s.Member(t.GuildID, t.User.ID)
 
