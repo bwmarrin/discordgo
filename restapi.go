@@ -1319,7 +1319,7 @@ func (s *Session) ChannelMessageSendTTS(channelID string, content string) (st *M
 	return s.channelMessageSend(channelID, content, true)
 }
 
-// ChannelMessageSendEmbed sends a message to the given channel with embedded data (bot only).
+// ChannelMessageSendEmbed sends a message to the given channel with embedded data.
 // channelID : The ID of a Channel.
 // embed     : The embed data to send.
 func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed) (st *Message, err error) {
@@ -1327,7 +1327,7 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 	return s.ChannelMessageSendEmbedWithMessage(channelID, "", embed)
 }
 
-// ChannelMessageSendEmbedWithMessage sends a message to the given channel with embedded data (bot only) and a message.
+// ChannelMessageSendEmbedWithMessage sends a message to the given channel with embedded data and a message.
 // channelID : The ID of a Channel.
 // content   : The message to send.
 // embed     : The embed data to send.
@@ -1370,7 +1370,7 @@ func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st *
 	return
 }
 
-// ChannelMessageEditEmbed edits an existing message with embedded data (bot only).
+// ChannelMessageEditEmbed edits an existing message with embedded data.
 // channelID : The ID of a Channel
 // messageID : The ID of a Message
 // embed     : The embed data to send
