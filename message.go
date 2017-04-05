@@ -31,12 +31,18 @@ type Message struct {
 	Reactions       []*MessageReactions  `json:"reactions"`
 }
 
-// A MessageSend stores all parameters you can send with ChannelMessageSendComplex.
+// MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
 	Content string        `json:"content"`
 	Tts     bool          `json:"tts"`
 	Embed   *MessageEmbed `json:"embed"`
 	Nounce  string        `json:"nounce"`
+}
+
+// MessageEdit stores all parameters you can send with ChannelMessageSendComplex.
+type MessageEdit struct {
+	Content string        `json:"content"`
+	Embed   *MessageEmbed `json:"embed"`
 }
 
 // A MessageAttachment stores data for message attachments.
