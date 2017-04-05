@@ -1281,18 +1281,20 @@ func (s *Session) ChannelMessageAck(channelID, messageID, lastToken string) (st 
 	return
 }
 
-// channelMessageSend sends a message to the given channel.
+// ChannelMessageSend sends a message to the given channel.
 // channelID : The ID of a Channel.
 // content   : The message to send.
-// tts       : Whether to send the message with TTS.
-func (s *Session) channelMessageSend(channelID, content string, tts bool) (st *Message, err error) {
+func (s *Session) ChannelMessageSend(channelID string, content string) (st *Message, err error) {
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{Content: content})
+}
 
-	// TODO: nonce string ?
-	data := struct {
-		Content string `json:"content"`
-		TTS     bool   `json:"tts"`
-	}{content, tts}
-
+// ChannelMessageSendComplex sends a message to the given channel.
+// channelID : The ID of a Channel.
+// message   : The message struct to send.
+func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend) (st *Message, err error) {
+	if data.Embed != nil && data.Embed.Type == "" {
+		data.Embed.Type = "rich"
+	}
 	// Send the message to the given channel
 	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
 	if err != nil {
@@ -1303,27 +1305,17 @@ func (s *Session) channelMessageSend(channelID, content string, tts bool) (st *M
 	return
 }
 
-// ChannelMessageSend sends a message to the given channel.
-// channelID : The ID of a Channel.
-// content   : The message to send.
-func (s *Session) ChannelMessageSend(channelID string, content string) (st *Message, err error) {
-
-	return s.channelMessageSend(channelID, content, false)
-}
-
 // ChannelMessageSendTTS sends a message to the given channel with Text to Speech.
 // channelID : The ID of a Channel.
 // content   : The message to send.
 func (s *Session) ChannelMessageSendTTS(channelID string, content string) (st *Message, err error) {
-
-	return s.channelMessageSend(channelID, content, true)
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{Content: content, Tts: true})
 }
 
 // ChannelMessageSendEmbed sends a message to the given channel with embedded data.
 // channelID : The ID of a Channel.
 // embed     : The embed data to send.
 func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed) (st *Message, err error) {
-
 	return s.ChannelMessageSendEmbedWithMessage(channelID, "", embed)
 }
 
@@ -1332,23 +1324,7 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // content   : The message to send.
 // embed     : The embed data to send.
 func (s *Session) ChannelMessageSendEmbedWithMessage(channelID string, content string, embed *MessageEmbed) (st *Message, err error) {
-	if embed != nil && embed.Type == "" {
-		embed.Type = "rich"
-	}
-
-	data := struct {
-		Embed   *MessageEmbed `json:"embed"`
-		Content string        `json:"content"`
-	}{embed, content}
-
-	// Send the message to the given channel
-	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(response, &st)
-	return
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{Content: content, Embed: embed})
 }
 
 // ChannelMessageEdit edits an existing message, replacing it entirely with
