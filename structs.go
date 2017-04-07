@@ -337,19 +337,6 @@ type Member struct {
 	Roles    []string `json:"roles"`
 }
 
-// A User stores all data for an individual Discord user.
-type User struct {
-	ID            string `json:"id"`
-	Email         string `json:"email"`
-	Username      string `json:"username"`
-	Avatar        string `json:"avatar"`
-	Discriminator string `json:"discriminator"`
-	Token         string `json:"token"`
-	Verified      bool   `json:"verified"`
-	MFAEnabled    bool   `json:"mfa_enabled"`
-	Bot           bool   `json:"bot"`
-}
-
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
 	RenderEmbeds           bool               `json:"render_embeds"`
