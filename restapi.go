@@ -1316,7 +1316,7 @@ func (s *Session) ChannelMessageSendTTS(channelID string, content string) (*Mess
 // channelID : The ID of a Channel.
 // embed     : The embed data to send.
 func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed) (*Message, error) {
-	return s.ChannelMessageSendEmbedWithMessage(channelID, "", embed)
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{Embed: embed})
 }
 
 // ChannelMessageEdit edits an existing message, replacing it entirely with
