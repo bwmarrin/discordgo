@@ -19,5 +19,5 @@ type User struct {
 
 //String returns a unique identifier of the form username#discriminator
 func (u *User) String() string {
-	return fmt.Sprintf("%v#%v", u.Username, u.Discriminator)
+	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
