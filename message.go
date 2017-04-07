@@ -36,7 +36,7 @@ type MessageSend struct {
 	Content string        `json:"content"`
 	Tts     bool          `json:"tts"`
 	Embed   *MessageEmbed `json:"embed"`
-	Nounce  string        `json:"nounce"`
+	Nonce   string        `json:"nonce"`
 }
 
 // MessageEdit stores all parameters you can send with ChannelMessageSendComplex.
