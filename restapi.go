@@ -1319,14 +1319,6 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 	return s.ChannelMessageSendEmbedWithMessage(channelID, "", embed)
 }
 
-// ChannelMessageSendEmbedWithMessage sends a message to the given channel with embedded data and a message.
-// channelID : The ID of a Channel.
-// content   : The message to send.
-// embed     : The embed data to send.
-func (s *Session) ChannelMessageSendEmbedWithMessage(channelID string, content string, embed *MessageEmbed) (*Message, error) {
-	return s.ChannelMessageSendComplex(channelID, &MessageSend{Content: content, Embed: embed})
-}
-
 // ChannelMessageEdit edits an existing message, replacing it entirely with
 // the given content.
 // channeld  : The ID of a Channel
