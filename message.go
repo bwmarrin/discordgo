@@ -40,7 +40,7 @@ type MessageSend struct {
 
 // MessageEdit stores all parameters you can send with ChannelMessageSendComplex.
 type MessageEdit struct {
-	Content *string       `json:"content"`
+	Content *string       `json:"content,omitempty"`
 	Embed   *MessageEmbed `json:"embed"`
 }
 
