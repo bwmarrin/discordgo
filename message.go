@@ -44,6 +44,9 @@ type MessageEdit struct {
 	Embed   *MessageEmbed `json:"embed"`
 }
 
+// SetContent is the same as setting the variable Content,
+// except it doesn't take a pointer.
+// Only a conveniance function.
 func (m *MessageEdit) SetContent(str string) {
 	m.Content = &str
 }
