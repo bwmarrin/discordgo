@@ -33,7 +33,7 @@ type Message struct {
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
-	*MessageEdit
+	MessageEdit
 	Tts   bool          `json:"tts"`
 	Embed *MessageEmbed `json:"embed"`
 }
