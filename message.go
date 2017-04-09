@@ -33,16 +33,19 @@ type Message struct {
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
-	Content string        `json:"content"`
-	Tts     bool          `json:"tts"`
-	Embed   *MessageEmbed `json:"embed"`
-	Nonce   string        `json:"nonce"`
+	*MessageEdit
+	Tts   bool          `json:"tts"`
+	Embed *MessageEmbed `json:"embed"`
 }
 
 // MessageEdit stores all parameters you can send with ChannelMessageSendComplex.
 type MessageEdit struct {
-	Content string        `json:"content"`
+	Content *string       `json:"content"`
 	Embed   *MessageEmbed `json:"embed"`
+}
+
+func (m *MessageEdit) SetContent(str string) {
+	m.Content = &str
 }
 
 // A MessageAttachment stores data for message attachments.

@@ -1285,7 +1285,9 @@ func (s *Session) ChannelMessageAck(channelID, messageID, lastToken string) (st 
 // channelID : The ID of a Channel.
 // content   : The message to send.
 func (s *Session) ChannelMessageSend(channelID string, content string) (*Message, error) {
-	return s.ChannelMessageSendComplex(channelID, &MessageSend{Content: content})
+	send := &MessageSend{}
+	send.SetContent(content)
+	return s.ChannelMessageSendComplex(channelID, send)
 }
 
 // ChannelMessageSendComplex sends a message to the given channel.
@@ -1309,7 +1311,9 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 // channelID : The ID of a Channel.
 // content   : The message to send.
 func (s *Session) ChannelMessageSendTTS(channelID string, content string) (*Message, error) {
-	return s.ChannelMessageSendComplex(channelID, &MessageSend{Content: content, Tts: true})
+	send := &MessageSend{Tts: true}
+	send.SetContent(content)
+	return s.ChannelMessageSendComplex(channelID, send)
 }
 
 // ChannelMessageSendEmbed sends a message to the given channel with embedded data.
@@ -1325,7 +1329,9 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // messageID : The ID of a Message
 // content   : The contents of the message
 func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (*Message, error) {
-	return s.ChannelMessageEditComplex(channelID, messageID, &MessageEdit{Content: content})
+	send := &MessageEdit{}
+	send.SetContent(content)
+	return s.ChannelMessageEditComplex(channelID, messageID, send)
 }
 
 // ChannelMessageEditComplex edits an existing message, replacing it entirely with
