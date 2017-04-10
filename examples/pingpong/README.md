@@ -1,6 +1,6 @@
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
-# DiscordGo Ping Pong Example
+## DiscordGo Ping Pong Example
 
 This example demonstrates how to utilize DiscordGo to create a Ping Pong Bot.
 
