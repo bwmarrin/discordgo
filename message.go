@@ -31,7 +31,7 @@ type Message struct {
 	Reactions       []*MessageReactions  `json:"reactions"`
 }
 
-// This is used in MessageSend and MessageEdit to share common parameters.
+// MessageParams is used in MessageSend and MessageEdit to share common parameters.
 type MessageParams struct {
 	Content *string       `json:"content,omitempty"`
 	Embed   *MessageEmbed `json:"embed"`
