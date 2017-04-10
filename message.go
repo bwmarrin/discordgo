@@ -31,22 +31,27 @@ type Message struct {
 	Reactions       []*MessageReactions  `json:"reactions"`
 }
 
+// This is used in MessageSend and MessageEdit to share common parameters.
+type MessageParams struct {
+	Content *string       `json:"content,omitempty"`
+	Embed   *MessageEmbed `json:"embed"`
+}
+
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
-	MessageEdit
+	MessageParams
 	Tts bool `json:"tts"`
 }
 
 // MessageEdit stores all parameters you can send with ChannelMessageSendComplex.
 type MessageEdit struct {
-	Content *string       `json:"content,omitempty"`
-	Embed   *MessageEmbed `json:"embed"`
+	MessageParams
 }
 
 // SetContent is the same as setting the variable Content,
 // except it doesn't take a pointer.
 // Only a conveniance function.
-func (m *MessageEdit) SetContent(str string) {
+func (m *MessageParams) SetContent(str string) {
 	m.Content = &str
 }
 
