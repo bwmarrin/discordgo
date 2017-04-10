@@ -34,7 +34,7 @@ type Message struct {
 // MessageParams is used in MessageSend and MessageEdit to share common parameters.
 type MessageParams struct {
 	Content *string       `json:"content,omitempty"`
-	Embed   *MessageEmbed `json:"embed"`
+	Embed   *MessageEmbed `json:"embed,omitempty"`
 }
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
