@@ -1482,7 +1482,7 @@ func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 // channelID   : The ID of a Channel
 // i           : An Invite struct with the values MaxAge, MaxUses, Temporary,
 //               and XkcdPass defined.
-func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, err error) {
+func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st []*Invite, err error) {
 
 	data := struct {
 		MaxAge    int    `json:"max_age"`
