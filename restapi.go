@@ -611,13 +611,7 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 		}
 	}
 
-	data := struct {
-		Name              string             `json:"name,omitempty"`
-		Region            string             `json:"region,omitempty"`
-		VerificationLevel *VerificationLevel `json:"verification_level,omitempty"`
-	}{g.Name, g.Region, g.VerificationLevel}
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointGuild(guildID), data, EndpointGuild(guildID))
+	body, err := s.RequestWithBucketID("PATCH", EndpointGuild(guildID), g, EndpointGuild(guildID))
 	if err != nil {
 		return
 	}
