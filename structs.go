@@ -233,9 +233,15 @@ type UserGuild struct {
 
 // A GuildParams stores all the data needed to update discord guild settings
 type GuildParams struct {
-	Name              string             `json:"name"`
-	Region            string             `json:"region"`
-	VerificationLevel *VerificationLevel `json:"verification_level"`
+	Name                        string             `json:"name,omitempty"`
+	Region                      string             `json:"region,omitempty"`
+	VerificationLevel           *VerificationLevel `json:"verification_level,omitempty"`
+	DefaultMessageNotifications int                `json:"default_message_notifications,omitempty"` // TODO: Separate type?
+	AfkChannelID                string             `json:"afk_channel_id,omitempty"`
+	AfkTimeout                  int                `json:"afk_timeout,omitempty"`
+	Icon                        string             `json:"icon,omitempty"`
+	OwnerID                     string             `json:"owner_id,omitempty"`
+	Splash                      string             `json:"splash,omitempty"`
 }
 
 // A Role stores information about Discord guild member roles.
