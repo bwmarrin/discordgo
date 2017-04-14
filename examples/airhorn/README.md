@@ -2,8 +2,8 @@
 
 ## DiscordGo Airhorn Example
 
-This example demonstrates how to utilize DiscordGo to listen to an !airhorn
-command in a channel and play a sound to that user's current voice channel.
+This example demonstrates how to utilize DiscordGo to listen for an !airhorn
+command in a channel and then play a sound to that user's current voice channel.
 
 **Join [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP)
 Discord chat channel for support.**
