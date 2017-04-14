@@ -296,7 +296,7 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 	data := struct {
 		Email       string `json:"email"`
 		Password    string `json:"password"`
-		Username    string `json:"username"`
+		Username    string `json:"username,omitempty"`
 		Avatar      string `json:"avatar,omitempty"`
 		NewPassword string `json:"new_password,omitempty"`
 	}{email, password, username, avatar, newPassword}
