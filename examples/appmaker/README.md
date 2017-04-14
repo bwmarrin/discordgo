@@ -53,5 +53,5 @@ Below example will create a new Bot Application under the given account.
 The Bot will be named **DiscordGoRocks**
 
 ```sh
-./appmaker -t YOUR_USER_TOKEN -a DiscordGoRocks
+./appmaker -t YOUR_USER_TOKEN -n DiscordGoRocks
 ```
