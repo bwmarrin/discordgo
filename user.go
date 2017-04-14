@@ -1,9 +1,5 @@
 package discordgo
 
-import (
-	"fmt"
-)
-
 // A User stores all data for an individual Discord user.
 type User struct {
 	ID            string `json:"id"`
@@ -19,5 +15,5 @@ type User struct {
 
 //String returns a unique identifier of the form username#discriminator
 func (u *User) String() string {
-	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
+	return u.Username + "#" + u.Discriminator
 }
