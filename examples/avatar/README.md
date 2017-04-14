@@ -40,10 +40,10 @@ Usage of ./avatar:
 The below example shows how to set your Avatar from a local file.
 
 ```sh
-./avatar-t TOKEN -f avatar.png
+./avatar -t TOKEN -f avatar.png
 ```
 The below example shows how to set your Avatar from a URL.
 
 ```sh
-./avatar-t TOKEN -u http://bwmarrin.github.io/discordgo/img/discordgo.png
+./avatar -t TOKEN -u http://bwmarrin.github.io/discordgo/img/discordgo.png
 ```
