@@ -1,20 +1,21 @@
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
-Avatar Examples
-====
 
-These example demonstrates how to utilize DiscordGo to change the account avatar using local files and urls.
+## DiscordGo Avatar Example
+
+This example demonstrates how to utilize DiscordGo to change the avatar for
+a Discord account.  This example works both with a local file or the URL of
+an image.
+
+**Join [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP)
+Discord chat channel for support.**
 
 ### Build
 
-This assumes you already have a working Go environment setup and that DiscordGo is correctly installed on your system.
-Change directory into the example you wish to build.
+This assumes you already have a working Go environment setup and that
+DiscordGo is correctly installed on your system.
 
-```sh
-cd $GOPATH/src/github.com/bwmarrin/discordgo/examples/avatar/localfile
-```
-```sh
-cd $GOPATH/src/github.com/bwmarrin/discordgo/examples/avatar/url
-```
+From within the avatar example folder, run the below command to compile the
+example.
 
 ```sh
 go build
@@ -22,8 +23,27 @@ go build
 
 ### Usage
 
-Please refer to the README.md inside the example folder for usage of that particular example.
+This example uses bot tokens for authentication only. While email/password is 
+supported by DiscordGo, it is not recommended to use them.
 
-### Note
+```
+./avatar --help
+Usage of ./avatar:
+  -f string
+        Avatar File Name
+  -t string
+        Bot Token
+  -u string
+        URL to the avatar image
+```
 
-Please be aware that you will need to login with the account you just changed avatar of to visually see the change. Alternatively you could query the avatar from dicord servers to make sure the change has indeed occured.
+The below example shows how to set your Avatar from a local file.
+
+```sh
+./avatar-t TOKEN -f avatar.png
+```
+The below example shows how to set your Avatar from a URL.
+
+```sh
+./avatar-t TOKEN -u http://bwmarrin.github.io/discordgo/img/discordgo.png
+```
