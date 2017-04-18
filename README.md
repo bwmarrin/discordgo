@@ -1,28 +1,28 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 # DiscordGo 
 
-[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) 
-[![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discord.gg/0SBTUU1wZTWT6sqd)
+[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discord.gg/0SBTUU1wZTWT6sqd)
+
+<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
 DiscordGo is a [Go](https://golang.org/) package that provides low level 
 bindings to the [Discord](https://discordapp.com/) chat client API. DiscordGo 
-has nearly complete support for all of the Discord JSON-API endpoints, websocket
+has nearly complete support for all of the Discord API endpoints, websocket
 interface, and voice interface.
 
-If you would like to help the discordgo package please use 
+If you would like to help the DiscordGo package please use 
 [this link](https://discordapp.com/oauth2/authorize?client_id=173113690092994561&scope=bot)
-to add the official discordgo test bot **dgo** to your server. This provides 
+to add the official DiscordGo test bot **dgo** to your server. This provides 
 indispensable help to this project.
 
-* See [dgVoice](https://github.com/bwmarrin/dgvoice) package to extend DiscordGo
-with additional voice helper functions and features.
+* See [dgVoice](https://github.com/bwmarrin/dgvoice) package for an example of
+additional voice helper functions and features for DiscordGo
 
 * See [dca](https://github.com/bwmarrin/dca) for an **experimental** stand alone
 tool that wraps `ffmpeg` to create opus encoded audio appropriate for use with
 Discord (and DiscordGo)
 
-Join [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP)
-Discord chat channel for support.
+**For help with this package or general Go discussion, please join the [Discord 
+Gophers](https://discord.gg/0f1SbxBZjYq9jLBk) chat server.**
 
 ## Getting Started
 
@@ -45,9 +45,6 @@ slightly and have a more stable package with documented releases then use *maste
 
 ### Installing
 
-DiscordGo has been tested to compile on Debian 8 (Go 1.3.3), 
-FreeBSD 10 (Go 1.5.1), and Windows 7 (Go 1.5.2).
-
 This assumes you already have a working Go environment, if not please see
 [this page](https://golang.org/doc/install) first.
 
@@ -64,8 +61,6 @@ cd $GOPATH/src/github.com/bwmarrin/discordgo
 git checkout develop
 ```
 
-
-
 ### Usage
 
 Import the package into your project.
@@ -78,7 +73,7 @@ Construct a new Discord client which can be used to access the variety of
 Discord API functions and to set callback functions for Discord events.
 
 ```go
-discord, err := discordgo.New("username", "password")
+discord, err := discordgo.New("authentication token")
 ```
 
 See Documentation and Examples below for more detailed information.
@@ -87,8 +82,7 @@ See Documentation and Examples below for more detailed information.
 ## Documentation
 
 **NOTICE** : This library and the Discord API are unfinished.
-Because of that there may be major changes to library functions, constants,
-and structures.
+Because of that there may be major changes to library in the future.
 
 The DiscordGo code is fairly well documented at this point and is currently
 the only documentation available.  Both GoDoc and GoWalker (below) present
