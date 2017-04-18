@@ -177,6 +177,11 @@ type MessageReactionRemove struct {
 	*MessageReaction
 }
 
+// MessageReactionRemoveAll is the data for a MessageReactionRemoveAll event.
+type MessageReactionRemoveAll struct {
+	*MessageReaction
+}
+
 // PresencesReplace is the data for a PresencesReplace event.
 type PresencesReplace []*Presence
 
