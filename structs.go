@@ -28,7 +28,9 @@ type Session struct {
 	// General configurable settings.
 
 	// Authentication token for this session
-	Token string
+	Token  string
+	MFA    bool
+	Ticket string // Should not be used. Discord doesn't like it
 
 	// Debug for printing JSON request/responses
 	Debug    bool // Deprecated, will be removed.
