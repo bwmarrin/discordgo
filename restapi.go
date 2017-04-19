@@ -186,9 +186,8 @@ func (s *Session) Login(email, password string) (err error) {
 	}
 
 	temp := struct {
-		Token  string `json:"token"`
-		MFA    bool   `json:"mfa"`
-		Ticket string `json:"ticket"`
+		Token string `json:"token"`
+		MFA   bool   `json:"mfa"`
 	}{}
 
 	err = unmarshal(response, &temp)
@@ -198,7 +197,6 @@ func (s *Session) Login(email, password string) (err error) {
 
 	s.Token = temp.Token
 	s.MFA = temp.MFA
-	s.Ticket = temp.Ticket
 	return
 }
 
