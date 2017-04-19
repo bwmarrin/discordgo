@@ -29,6 +29,7 @@ type Session struct {
 
 	// Authentication token for this session
 	Token string
+	MFA   bool
 
 	// Debug for printing JSON request/responses
 	Debug    bool // Deprecated, will be removed.

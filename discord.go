@@ -14,6 +14,7 @@
 package discordgo
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -21,6 +22,9 @@ import (
 
 // VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
 const VERSION = "0.16.0-dev"
+
+// ErrMFA will be risen by New when the user has 2FA.
+var ErrMFA = errors.New("account has 2FA enabled")
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
@@ -119,7 +123,11 @@ func New(args ...interface{}) (s *Session, err error) {
 	} else {
 		err = s.Login(auth, pass)
 		if err != nil || s.Token == "" {
-			err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
+			if s.MFA {
+				err = ErrMFA
+			} else {
+				err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
+			}
 			return
 		}
 	}
