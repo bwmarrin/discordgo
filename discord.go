@@ -24,7 +24,7 @@ import (
 const VERSION = "0.16.0-dev"
 
 // ErrMFA will be risen by New when the user has 2FA.
-var ErrMFA = errors.New("Account has 2FA enabled.")
+var ErrMFA = errors.New("account has 2FA enabled")
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
