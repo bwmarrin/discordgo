@@ -1847,6 +1847,20 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 }
 
 // ------------------------------------------------------------------------------------------------
+// Functions specific to user notes
+// ------------------------------------------------------------------------------------------------
+
+// UserNotesSet sets the note for a specific user.
+func (s *Session) UserNotesSet(userID string, message string) (err error) {
+	data := struct {
+		Note string `json:"note"`
+	}{message}
+
+	_, err = s.RequestWithBucketID("PUT", EndpointUserNotes(userID), data, EndpointUserNotes(""))
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Relationships (Friends list)
 // ------------------------------------------------------------------------------------------------
 
