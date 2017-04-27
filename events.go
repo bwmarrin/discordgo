@@ -227,6 +227,12 @@ type UserGuildSettingsUpdate struct {
 	*UserGuildSettings
 }
 
+// UserNoteUpdate is the data for a UserNoteUpdate event.
+type UserNoteUpdate struct {
+	ID   string `json:"id"`
+	Note string `json:"note"`
+}
+
 // VoiceServerUpdate is the data for a VoiceServerUpdate event.
 type VoiceServerUpdate struct {
 	Token    string `json:"token"`
