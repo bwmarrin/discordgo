@@ -48,6 +48,7 @@ type Ready struct {
 	UserGuildSettings []*UserGuildSettings `json:"user_guild_settings"`
 	Relationships     []*Relationship      `json:"relationships"`
 	Presences         []*Presence          `json:"presences"`
+	Notes             map[string]string    `json:"notes"`
 }
 
 // ChannelCreate is the data for a ChannelCreate event.
