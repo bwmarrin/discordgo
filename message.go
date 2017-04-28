@@ -46,8 +46,15 @@ type MessageEdit struct {
 
 	ID      string
 	Channel string
+}
 
-	session *Session
+// NewMessageEdit returns a MessageEdit struct, initialized
+// with the Channel and ID.
+func NewMessageEdit(channelID string, messageID string) *MessageEdit {
+	return &MessageEdit{
+		Channel: channelID,
+		ID:      messageID,
+	}
 }
 
 // SetContent is the same as setting the variable Content,
@@ -62,21 +69,6 @@ func (m *MessageEdit) SetContent(str string) *MessageEdit {
 func (m *MessageEdit) SetEmbed(embed *MessageEmbed) *MessageEdit {
 	m.Embed = embed
 	return m
-}
-
-// Do does the main API request for ChannelMessageEditComplex.
-func (m *MessageEdit) Do() (st *Message, err error) {
-	if m.Embed != nil && m.Embed.Type == "" {
-		m.Embed.Type = "rich"
-	}
-
-	response, err := m.session.RequestWithBucketID("PATCH", EndpointChannelMessage(m.Channel, m.ID), m, EndpointChannelMessage(m.Channel, ""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(response, &st)
-	return
 }
 
 // A MessageAttachment stores data for message attachments.
