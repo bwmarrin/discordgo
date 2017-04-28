@@ -661,13 +661,22 @@ func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 // GuildBanCreate bans the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
+// reason    : The reason for this ban
 // days      : The number of days of previous comments to delete.
-func (s *Session) GuildBanCreate(guildID, userID string, days int) (err error) {
+func (s *Session) GuildBanCreate(guildID, userID, reason string, days int) (err error) {
 
 	uri := EndpointGuildBan(guildID, userID)
 
+	queryParams := url.Values{}
 	if days > 0 {
-		uri = fmt.Sprintf("%s?delete-message-days=%d", uri, days)
+		queryParams.Set("delete-message-days", strconv.Itoa(days))
+	}
+	if reason != "" {
+		queryParams.Set("reason", reason)
+	}
+
+	if len(queryParams) > 0 {
+		uri += "?" + queryParams.Encode()
 	}
 
 	_, err = s.RequestWithBucketID("PUT", uri, nil, EndpointGuildBan(guildID, ""))
