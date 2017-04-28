@@ -15,12 +15,12 @@ type User struct {
 	Bot           bool   `json:"bot"`
 }
 
-//String returns a unique identifier of the form username#discriminator
+// String returns a unique identifier of the form username#discriminator
 func (u *User) String() string {
 	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }
 
-//Mention return a string which mentions the user
+// Mention return a string which mentions the user
 func (u *User) Mention() string {
 	return fmt.Sprintf("<@%s>", u.ID)
 }
