@@ -1601,7 +1601,7 @@ func (s *Session) VoiceICE() (st *VoiceICE, err error) {
 // Functions specific to Discord Websockets
 // ------------------------------------------------------------------------------------------------
 
-// Gateway returns the a websocket Gateway address
+// Gateway returns the websocket Gateway address
 func (s *Session) Gateway() (gateway string, err error) {
 
 	response, err := s.RequestWithBucketID("GET", EndpointGateway, nil, EndpointGateway)
