@@ -27,8 +27,8 @@ type RateLimit struct {
 
 // Event provides a basic initial struct for all websocket events.
 type Event struct {
-	Operation int             `json:"op"`
-	Sequence  int             `json:"s"`
+	Operation int32             `json:"op"`
+	Sequence  int32             `json:"s"`
 	Type      string          `json:"t"`
 	RawData   json.RawMessage `json:"d"`
 	// Struct contains one of the other types in this file.
@@ -37,7 +37,7 @@ type Event struct {
 
 // A Ready stores all data for the websocket READY event.
 type Ready struct {
-	Version           int           `json:"v"`
+	Version           int32           `json:"v"`
 	SessionID         string        `json:"session_id"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 	User              *User         `json:"user"`
@@ -209,7 +209,7 @@ type RelationshipRemove struct {
 type TypingStart struct {
 	UserID    string `json:"user_id"`
 	ChannelID string `json:"channel_id"`
-	Timestamp int    `json:"timestamp"`
+	Timestamp int32    `json:"timestamp"`
 }
 
 // UserUpdate is the data for a UserUpdate event.

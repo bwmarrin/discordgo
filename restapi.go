@@ -855,9 +855,9 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 
 	data := struct {
 		Name        string `json:"name"`        // The role's name (overwrites existing)
-		Color       int    `json:"color"`       // The color the role should have (as a decimal, not hex)
+		Color       int32    `json:"color"`       // The color the role should have (as a decimal, not hex)
 		Hoist       bool   `json:"hoist"`       // Whether to display the role's users separately
-		Permissions int    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
+		Permissions int32    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
 		Mentionable bool   `json:"mentionable"` // Whether this role is mentionable
 	}{name, color, hoist, perm, mention}
 
@@ -1000,8 +1000,8 @@ func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID
 func (s *Session) GuildIntegrationEdit(guildID, integrationID string, expireBehavior, expireGracePeriod int, enableEmoticons bool) (err error) {
 
 	data := struct {
-		ExpireBehavior    int  `json:"expire_behavior"`
-		ExpireGracePeriod int  `json:"expire_grace_period"`
+		ExpireBehavior    int32`json:"expire_behavior"`
+		ExpireGracePeriod int32`json:"expire_grace_period"`
 		EnableEmoticons   bool `json:"enable_emoticons"`
 	}{expireBehavior, expireGracePeriod, enableEmoticons}
 
@@ -1449,8 +1449,8 @@ func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, err error) {
 
 	data := struct {
-		MaxAge    int    `json:"max_age"`
-		MaxUses   int    `json:"max_uses"`
+		MaxAge    int32  `json:"max_age"`
+		MaxUses   int32  `json:"max_uses"`
 		Temporary bool   `json:"temporary"`
 		XKCDPass  string `json:"xkcdpass"`
 	}{i.MaxAge, i.MaxUses, i.Temporary, i.XkcdPass}
@@ -1472,8 +1472,8 @@ func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, a
 	data := struct {
 		ID    string `json:"id"`
 		Type  string `json:"type"`
-		Allow int    `json:"allow"`
-		Deny  int    `json:"deny"`
+		Allow int32  `json:"allow"`
+		Deny  int32  `json:"deny"`
 	}{targetID, targetType, allow, deny}
 
 	_, err = s.RequestWithBucketID("PUT", EndpointChannelPermission(channelID, targetID), data, EndpointChannelPermission(channelID, ""))

@@ -25,11 +25,11 @@ import (
 )
 
 type resumePacket struct {
-	Op   int `json:"op"`
+	Op   int32 `json:"op"`
 	Data struct {
 		Token     string `json:"token"`
 		SessionID string `json:"session_id"`
-		Sequence  int    `json:"seq"`
+		Sequence  int32  `json:"seq"`
 	} `json:"d"`
 }
 
@@ -176,8 +176,8 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 }
 
 type heartbeatOp struct {
-	Op   int `json:"op"`
-	Data int `json:"d"`
+	Op   int32 `json:"op"`
+	Data int32 `json:"d"`
 }
 
 // heartbeat sends regular heartbeats to Discord so it knows the client
@@ -221,12 +221,12 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 }
 
 type updateStatusData struct {
-	IdleSince *int  `json:"idle_since"`
+	IdleSince *int32`json:"idle_since"`
 	Game      *Game `json:"game"`
 }
 
 type updateStatusOp struct {
-	Op   int              `json:"op"`
+	Op   int32              `json:"op"`
 	Data updateStatusData `json:"d"`
 }
 
@@ -280,11 +280,11 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 type requestGuildMembersData struct {
 	GuildID string `json:"guild_id"`
 	Query   string `json:"query"`
-	Limit   int    `json:"limit"`
+	Limit   int32  `json:"limit"`
 }
 
 type requestGuildMembersOp struct {
-	Op   int                     `json:"op"`
+	Op   int32                     `json:"op"`
 	Data requestGuildMembersData `json:"d"`
 }
 
@@ -444,7 +444,7 @@ type voiceChannelJoinData struct {
 }
 
 type voiceChannelJoinOp struct {
-	Op   int                  `json:"op"`
+	Op   int32                  `json:"op"`
 	Data voiceChannelJoinData `json:"d"`
 }
 
@@ -558,13 +558,13 @@ type identifyProperties struct {
 type identifyData struct {
 	Token          string             `json:"token"`
 	Properties     identifyProperties `json:"properties"`
-	LargeThreshold int                `json:"large_threshold"`
+	LargeThreshold int64              `json:"large_threshold"`
 	Compress       bool               `json:"compress"`
-	Shard          *[2]int            `json:"shard,omitempty"`
+	Shard          *[2]int32          `json:"shard,omitempty"`
 }
 
 type identifyOp struct {
-	Op   int          `json:"op"`
+	Op   int32          `json:"op"`
 	Data identifyData `json:"d"`
 }
 

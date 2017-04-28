@@ -37,9 +37,9 @@ type MessageAttachment struct {
 	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url"`
 	Filename string `json:"filename"`
-	Width    int    `json:"width"`
-	Height   int    `json:"height"`
-	Size     int    `json:"size"`
+	Width    int32    `json:"width"`
+	Height   int32    `json:"height"`
+	Size     int32    `json:"size"`
 }
 
 // MessageEmbedFooter is a part of a MessageEmbed struct.
@@ -53,24 +53,24 @@ type MessageEmbedFooter struct {
 type MessageEmbedImage struct {
 	URL      string `json:"url,omitempty"`
 	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
+	Width    int32    `json:"width,omitempty"`
+	Height   int32    `json:"height,omitempty"`
 }
 
 // MessageEmbedThumbnail is a part of a MessageEmbed struct.
 type MessageEmbedThumbnail struct {
 	URL      string `json:"url,omitempty"`
 	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
+	Width    int32    `json:"width,omitempty"`
+	Height   int32    `json:"height,omitempty"`
 }
 
 // MessageEmbedVideo is a part of a MessageEmbed struct.
 type MessageEmbedVideo struct {
 	URL      string `json:"url,omitempty"`
 	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
+	Width    int32    `json:"width,omitempty"`
+	Height   int32    `json:"height,omitempty"`
 }
 
 // MessageEmbedProvider is a part of a MessageEmbed struct.
@@ -101,7 +101,7 @@ type MessageEmbed struct {
 	Title       string                 `json:"title,omitempty"`
 	Description string                 `json:"description,omitempty"`
 	Timestamp   string                 `json:"timestamp,omitempty"`
-	Color       int                    `json:"color,omitempty"`
+	Color       int32                    `json:"color,omitempty"`
 	Footer      *MessageEmbedFooter    `json:"footer,omitempty"`
 	Image       *MessageEmbedImage     `json:"image,omitempty"`
 	Thumbnail   *MessageEmbedThumbnail `json:"thumbnail,omitempty"`
@@ -113,7 +113,7 @@ type MessageEmbed struct {
 
 // MessageReactions holds a reactions object for a message.
 type MessageReactions struct {
-	Count int    `json:"count"`
+	Count int32    `json:"count"`
 	Me    bool   `json:"me"`
 	Emoji *Emoji `json:"emoji"`
 }

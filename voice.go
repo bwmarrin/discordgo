@@ -84,11 +84,11 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 
 	type voiceSpeakingData struct {
 		Speaking bool `json:"speaking"`
-		Delay    int  `json:"delay"`
+		Delay    int32`json:"delay"`
 	}
 
 	type voiceSpeakingOp struct {
-		Op   int               `json:"op"` // Always 5
+		Op   int32             `json:"op"` // Always 5
 		Data voiceSpeakingData `json:"d"`
 	}
 
@@ -214,7 +214,7 @@ func (v *VoiceConnection) AddHandler(h VoiceSpeakingUpdateHandler) {
 // VoiceSpeakingUpdate is a struct for a VoiceSpeakingUpdate event.
 type VoiceSpeakingUpdate struct {
 	UserID   string `json:"user_id"`
-	SSRC     int    `json:"ssrc"`
+	SSRC     int32  `json:"ssrc"`
 	Speaking bool   `json:"speaking"`
 }
 
@@ -233,7 +233,7 @@ type voiceOP4 struct {
 // which is sort of like the voice READY packet
 type voiceOP2 struct {
 	SSRC              uint32        `json:"ssrc"`
-	Port              int           `json:"port"`
+	Port              int32         `json:"port"`
 	Modes             []string      `json:"modes"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 }
@@ -305,7 +305,7 @@ func (v *VoiceConnection) open() (err error) {
 		Token     string `json:"token"`
 	}
 	type voiceHandshakeOp struct {
-		Op   int                `json:"op"` // Always 0
+		Op   int32              `json:"op"` // Always 0
 		Data voiceHandshakeData `json:"d"`
 	}
 	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token}}
@@ -501,7 +501,7 @@ type voiceUDPD struct {
 }
 
 type voiceUDPOp struct {
-	Op   int       `json:"op"` // Always 1
+	Op   int32     `json:"op"` // Always 1
 	Data voiceUDPD `json:"d"`
 }
 

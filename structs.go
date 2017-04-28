@@ -111,7 +111,7 @@ type VoiceRegion struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Hostname string `json:"sample_hostname"`
-	Port     int    `json:"sample_port"`
+	Port     int32  `json:"sample_port"`
 }
 
 // A VoiceICE stores data for voice ICE servers.
@@ -134,9 +134,9 @@ type Invite struct {
 	Inviter   *User     `json:"inviter"`
 	Code      string    `json:"code"`
 	CreatedAt Timestamp `json:"created_at"`
-	MaxAge    int       `json:"max_age"`
-	Uses      int       `json:"uses"`
-	MaxUses   int       `json:"max_uses"`
+	MaxAge    int32     `json:"max_age"`
+	Uses      int32     `json:"uses"`
+	MaxUses   int32     `json:"max_uses"`
 	XkcdPass  string    `json:"xkcdpass"`
 	Revoked   bool      `json:"revoked"`
 	Temporary bool      `json:"temporary"`
@@ -150,8 +150,8 @@ type Channel struct {
 	Topic                string                 `json:"topic"`
 	Type                 string                 `json:"type"`
 	LastMessageID        string                 `json:"last_message_id"`
-	Position             int                    `json:"position"`
-	Bitrate              int                    `json:"bitrate"`
+	Position             int32                  `json:"position"`
+	Bitrate              int32                  `json:"bitrate"`
 	IsPrivate            bool                   `json:"is_private"`
 	Recipient            *User                  `json:"recipient"`
 	Messages             []*Message             `json:"-"`
@@ -162,8 +162,8 @@ type Channel struct {
 type PermissionOverwrite struct {
 	ID    string `json:"id"`
 	Type  string `json:"type"`
-	Deny  int    `json:"deny"`
-	Allow int    `json:"allow"`
+	Deny  int32  `json:"deny"`
+	Allow int32  `json:"allow"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -209,12 +209,12 @@ type Guild struct {
 	OwnerID                     string            `json:"owner_id"`
 	JoinedAt                    Timestamp         `json:"joined_at"`
 	Splash                      string            `json:"splash"`
-	AfkTimeout                  int               `json:"afk_timeout"`
-	MemberCount                 int               `json:"member_count"`
+	AfkTimeout                  int32             `json:"afk_timeout"`
+	MemberCount                 int32             `json:"member_count"`
 	VerificationLevel           VerificationLevel `json:"verification_level"`
 	EmbedEnabled                bool              `json:"embed_enabled"`
 	Large                       bool              `json:"large"` // ??
-	DefaultMessageNotifications int               `json:"default_message_notifications"`
+	DefaultMessageNotifications int32             `json:"default_message_notifications"`
 	Roles                       []*Role           `json:"roles"`
 	Emojis                      []*Emoji          `json:"emojis"`
 	Members                     []*Member         `json:"members"`
@@ -230,7 +230,7 @@ type UserGuild struct {
 	Name        string `json:"name"`
 	Icon        string `json:"icon"`
 	Owner       bool   `json:"owner"`
-	Permissions int    `json:"permissions"`
+	Permissions int32  `json:"permissions"`
 }
 
 // A GuildParams stores all the data needed to update discord guild settings
@@ -247,9 +247,9 @@ type Role struct {
 	Managed     bool   `json:"managed"`
 	Mentionable bool   `json:"mentionable"`
 	Hoist       bool   `json:"hoist"`
-	Color       int    `json:"color"`
-	Position    int    `json:"position"`
-	Permissions int    `json:"permissions"`
+	Color       int32  `json:"color"`
+	Position    int32  `json:"position"`
+	Permissions int32  `json:"permissions"`
 }
 
 // A VoiceState stores the voice states of Guilds
@@ -277,7 +277,7 @@ type Presence struct {
 // A Game struct holds the name of the "playing .." game for a user
 type Game struct {
 	Name string `json:"name"`
-	Type int    `json:"type"`
+	Type int32  `json:"type"`
 	URL  string `json:"url"`
 }
 
@@ -378,7 +378,7 @@ type FriendSourceFlags struct {
 // A Relationship between the logged in user and Relationship.User
 type Relationship struct {
 	User *User  `json:"user"`
-	Type int    `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
+	Type int32  `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
 	ID   string `json:"id"`
 }
 
@@ -392,7 +392,7 @@ type TooManyRequests struct {
 
 // A ReadState stores data on the read state of channels.
 type ReadState struct {
-	MentionCount  int    `json:"mention_count"`
+	MentionCount  int32  `json:"mention_count"`
 	LastMessageID string `json:"last_message_id"`
 	ID            string `json:"id"`
 }
@@ -422,11 +422,11 @@ type GuildIntegration struct {
 	Enabled           bool                     `json:"enabled"`
 	Syncing           bool                     `json:"syncing"`
 	RoleID            string                   `json:"role_id"`
-	ExpireBehavior    int                      `json:"expire_behavior"`
-	ExpireGracePeriod int                      `json:"expire_grace_period"`
+	ExpireBehavior    int32                    `json:"expire_behavior"`
+	ExpireGracePeriod int32                    `json:"expire_grace_period"`
 	User              *User                    `json:"user"`
 	Account           *GuildIntegrationAccount `json:"account"`
-	SyncedAt          int                      `json:"synced_at"`
+	SyncedAt          int32                    `json:"synced_at"`
 }
 
 // A GuildIntegrationAccount stores data for a guild integration account.
@@ -444,7 +444,7 @@ type GuildEmbed struct {
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
 type UserGuildSettingsChannelOverride struct {
 	Muted                bool   `json:"muted"`
-	MessageNotifications int    `json:"message_notifications"`
+	MessageNotifications int32  `json:"message_notifications"`
 	ChannelID            string `json:"channel_id"`
 }
 
@@ -453,7 +453,7 @@ type UserGuildSettings struct {
 	SupressEveryone      bool                                `json:"suppress_everyone"`
 	Muted                bool                                `json:"muted"`
 	MobilePush           bool                                `json:"mobile_push"`
-	MessageNotifications int                                 `json:"message_notifications"`
+	MessageNotifications int32                               `json:"message_notifications"`
 	GuildID              string                              `json:"guild_id"`
 	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
@@ -463,13 +463,13 @@ type UserGuildSettingsEdit struct {
 	SupressEveryone      bool                                         `json:"suppress_everyone"`
 	Muted                bool                                         `json:"muted"`
 	MobilePush           bool                                         `json:"mobile_push"`
-	MessageNotifications int                                          `json:"message_notifications"`
+	MessageNotifications int32                                        `json:"message_notifications"`
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
 // An APIErrorMessage is an api error message returned from discord
 type APIErrorMessage struct {
-	Code    int    `json:"code"`
+	Code    int32  `json:"code"`
 	Message string `json:"message"`
 }
 
