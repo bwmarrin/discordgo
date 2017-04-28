@@ -22,5 +22,5 @@ func (u *User) String() string {
 
 //Tag return a string which tags the user
 func (u *User) Tag() string {
-	return fmt.Sprintf("<@%v>", u.ID)
+	return fmt.Sprintf("<@%s>", u.ID)
 }
