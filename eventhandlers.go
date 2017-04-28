@@ -45,6 +45,7 @@ const (
 	resumedEventType                  = "RESUMED"
 	typingStartEventType              = "TYPING_START"
 	userGuildSettingsUpdateEventType  = "USER_GUILD_SETTINGS_UPDATE"
+	userNoteUpdateEventType           = "USER_NOTE_UPDATE"
 	userSettingsUpdateEventType       = "USER_SETTINGS_UPDATE"
 	userUpdateEventType               = "USER_UPDATE"
 	voiceServerUpdateEventType        = "VOICE_SERVER_UPDATE"
@@ -791,6 +792,26 @@ func (eh userGuildSettingsUpdateEventHandler) Handle(s *Session, i interface{}) 
 	}
 }
 
+// userNoteUpdateEventHandler is an event handler for UserNoteUpdate events.
+type userNoteUpdateEventHandler func(*Session, *UserNoteUpdate)
+
+// Type returns the event type for UserNoteUpdate events.
+func (eh userNoteUpdateEventHandler) Type() string {
+	return userNoteUpdateEventType
+}
+
+// New returns a new instance of UserNoteUpdate.
+func (eh userNoteUpdateEventHandler) New() interface{} {
+	return &UserNoteUpdate{}
+}
+
+// Handle is the handler for UserNoteUpdate events.
+func (eh userNoteUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*UserNoteUpdate); ok {
+		eh(s, t)
+	}
+}
+
 // userSettingsUpdateEventHandler is an event handler for UserSettingsUpdate events.
 type userSettingsUpdateEventHandler func(*Session, *UserSettingsUpdate)
 
@@ -951,6 +972,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return typingStartEventHandler(v)
 	case func(*Session, *UserGuildSettingsUpdate):
 		return userGuildSettingsUpdateEventHandler(v)
+	case func(*Session, *UserNoteUpdate):
+		return userNoteUpdateEventHandler(v)
 	case func(*Session, *UserSettingsUpdate):
 		return userSettingsUpdateEventHandler(v)
 	case func(*Session, *UserUpdate):
@@ -999,6 +1022,7 @@ func init() {
 	registerInterfaceProvider(resumedEventHandler(nil))
 	registerInterfaceProvider(typingStartEventHandler(nil))
 	registerInterfaceProvider(userGuildSettingsUpdateEventHandler(nil))
+	registerInterfaceProvider(userNoteUpdateEventHandler(nil))
 	registerInterfaceProvider(userSettingsUpdateEventHandler(nil))
 	registerInterfaceProvider(userUpdateEventHandler(nil))
 	registerInterfaceProvider(voiceServerUpdateEventHandler(nil))

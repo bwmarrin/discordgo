@@ -48,6 +48,7 @@ type Ready struct {
 	UserGuildSettings []*UserGuildSettings `json:"user_guild_settings"`
 	Relationships     []*Relationship      `json:"relationships"`
 	Presences         []*Presence          `json:"presences"`
+	Notes             map[string]string    `json:"notes"`
 }
 
 // ChannelCreate is the data for a ChannelCreate event.
@@ -225,6 +226,12 @@ type UserSettingsUpdate map[string]interface{}
 // UserGuildSettingsUpdate is the data for a UserGuildSettingsUpdate event.
 type UserGuildSettingsUpdate struct {
 	*UserGuildSettings
+}
+
+// UserNoteUpdate is the data for a UserNoteUpdate event.
+type UserNoteUpdate struct {
+	ID   string `json:"id"`
+	Note string `json:"note"`
 }
 
 // VoiceServerUpdate is the data for a VoiceServerUpdate event.
