@@ -15,7 +15,7 @@ package discordgo
 
 import "fmt"
 
-// VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
+// VERSION of Discordgo, follows Semantic Versioning. (http://semver.org/)
 const VERSION = "0.15.0"
 
 // New creates a new Discord session and will automate some startup
