@@ -714,6 +714,39 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 		if s.TrackVoice {
 			err = s.voiceStateUpdate(t)
 		}
+	case *PresenceUpdate:
+		if s.TrackMembers {
+			if t.Status == "offline" {
+				return
+			}
+
+			var m *Member
+			m, err = s.Member(t.GuildID, t.User.ID)
+
+			if err != nil {
+				// Member not found; this is a user coming online
+				m = &Member{
+					GuildID: t.GuildID,
+					Nick:    t.Nick,
+					User:    t.User,
+					Roles:   t.Roles,
+				}
+				err = s.MemberAdd(m)
+			} else {
+				if t.Nick != "" {
+					m.Nick = t.Nick
+				}
+
+				if t.User.Username != "" {
+					m.User.Username = t.User.Username
+				}
+
+				// PresenceUpdates always contain a list of roles, so there's no need to check for an empty list here
+				m.Roles = t.Roles
+
+				err = s.MemberAdd(m)
+			}
+		}
 	}
 
 	return
