@@ -661,9 +661,17 @@ func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 // GuildBanCreate bans the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
+// days      : The number of days of previous comments to delete.
+func (s *Session) GuildBanCreate(guildID, userID string, days int) (err error) {
+	return s.GuildBanCreateWithReason(guildID, userID, "", days)
+}
+
+// GuildBanCreateWithReason bans the given user from the given guild also providing a reaso.
+// guildID   : The ID of a Guild.
+// userID    : The ID of a User
 // reason    : The reason for this ban
 // days      : The number of days of previous comments to delete.
-func (s *Session) GuildBanCreate(guildID, userID, reason string, days int) (err error) {
+func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days int) (err error) {
 
 	uri := EndpointGuildBan(guildID, userID)
 
