@@ -35,7 +35,7 @@ const ({{range .}}
 )
 {{range .}}
 // {{privateName .}}EventHandler is an event handler for {{.}} events.
-type {{privateName .}}EventHandler func(*Session, *{{.}}, context.Context)
+type {{privateName .}}EventHandler func(context.Context, *Session, *{{.}})
 
 // Type returns the event type for {{.}} events.
 func (eh {{privateName .}}EventHandler) Type() string {
@@ -47,24 +47,24 @@ func (eh {{privateName .}}EventHandler) New() interface{} {
   return &{{.}}{}
 }{{end}}
 // Handle is the handler for {{.}} events.
-func (eh {{privateName .}}EventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh {{privateName .}}EventHandler) Handle(c context.Context, s *Session, i interface{}) {
   if t, ok := i.(*{{.}}); ok {
-    eh(s, t, c)
+    eh(c, s, t)
   }
 }
 
 {{end}}
 func handlerForInterface(handler interface{}) EventHandler {
   switch v := handler.(type) {
-  case func(*Session, interface{}, context.Context):
+  case func(context.Context, *Session, interface{}):
     return interfaceEventHandler(v){{range .}}
-  case func(*Session, *{{.}}, context.Context):
+  case func(context.Context, *Session, *{{.}}):
     return {{privateName .}}EventHandler(v){{end}}
 	case func(*Session, interface{}):
-		w := func(s *Session, i interface{}, c context.Context){v(s,i)}
+		w := func(_ context.Context, s *Session, i interface{}){ v(s, i) }
 		return interfaceEventHandler(w){{range .}}
 	case func(*Session, *{{.}}):
-		w := func(s *Session, i *{{.}}, _ context.Context){ v(s, i) }
+		w := func(_ context.Context, s *Session, i *{{.}}){ v(s, i) }
 		return {{privateName .}}EventHandler(w){{end}}
   }
 

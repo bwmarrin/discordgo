@@ -12,7 +12,7 @@ type EventHandler interface {
 	// Handle is called whenever an event of Type() happens.
 	// It is the recievers responsibility to type assert that the interface
 	// is the expected struct.
-	Handle(*Session, interface{}, context.Context)
+	Handle(context.Context, *Session, interface{})
 }
 
 // EventInterfaceProvider is an interface for providing empty interfaces for
@@ -31,7 +31,7 @@ type EventInterfaceProvider interface {
 const interfaceEventType = "__INTERFACE__"
 
 // interfaceEventHandler is an event handler for interface{} events.
-type interfaceEventHandler func(*Session, interface{}, context.Context)
+type interfaceEventHandler func(context.Context, *Session, interface{})
 
 // Type returns the event type for interface{} events.
 func (eh interfaceEventHandler) Type() string {
@@ -39,8 +39,8 @@ func (eh interfaceEventHandler) Type() string {
 }
 
 // Handle is the handler for an interface{} event.
-func (eh interfaceEventHandler) Handle(s *Session, i interface{}, c context.Context) {
-	eh(s, i, c)
+func (eh interfaceEventHandler) Handle(c context.Context, s *Session, i interface{}) {
+	eh(c, s, i)
 }
 
 var registeredInterfaceProviders = map[string]EventInterfaceProvider{}
@@ -166,12 +166,12 @@ func (s *Session) handle(t string, i interface{}) {
 	c := cf()
 
 	for _, eh := range s.handlers[t] {
-		go eh.eventHandler.Handle(s, i, c)
+		go eh.eventHandler.Handle(c, s, i)
 	}
 
 	if len(s.onceHandlers[t]) > 0 {
 		for _, eh := range s.onceHandlers[t] {
-			go eh.eventHandler.Handle(s, i, c)
+			go eh.eventHandler.Handle(c, s, i)
 		}
 		s.onceHandlers[t] = nil
 	}

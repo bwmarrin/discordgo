@@ -209,7 +209,7 @@ func TestAddHandler(t *testing.T) {
 
 	contextHandlerCalled := int32(0)
 	contextHandlerCalledWithValue := int32(0)
-	contextHandler := func(s *Session, m *MessageCreate, c context.Context) {
+	contextHandler := func(c context.Context, s *Session, m *MessageCreate) {
 		atomic.AddInt32(&contextHandlerCalled, 1)
 		atomic.AddInt32(&contextHandlerCalledWithValue, c.Value("key").(int32))
 	}

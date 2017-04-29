@@ -57,7 +57,7 @@ const (
 )
 
 // channelCreateEventHandler is an event handler for ChannelCreate events.
-type channelCreateEventHandler func(*Session, *ChannelCreate, context.Context)
+type channelCreateEventHandler func(context.Context, *Session, *ChannelCreate)
 
 // Type returns the event type for ChannelCreate events.
 func (eh channelCreateEventHandler) Type() string {
@@ -70,14 +70,14 @@ func (eh channelCreateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for ChannelCreate events.
-func (eh channelCreateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh channelCreateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*ChannelCreate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // channelDeleteEventHandler is an event handler for ChannelDelete events.
-type channelDeleteEventHandler func(*Session, *ChannelDelete, context.Context)
+type channelDeleteEventHandler func(context.Context, *Session, *ChannelDelete)
 
 // Type returns the event type for ChannelDelete events.
 func (eh channelDeleteEventHandler) Type() string {
@@ -90,14 +90,14 @@ func (eh channelDeleteEventHandler) New() interface{} {
 }
 
 // Handle is the handler for ChannelDelete events.
-func (eh channelDeleteEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh channelDeleteEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*ChannelDelete); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // channelPinsUpdateEventHandler is an event handler for ChannelPinsUpdate events.
-type channelPinsUpdateEventHandler func(*Session, *ChannelPinsUpdate, context.Context)
+type channelPinsUpdateEventHandler func(context.Context, *Session, *ChannelPinsUpdate)
 
 // Type returns the event type for ChannelPinsUpdate events.
 func (eh channelPinsUpdateEventHandler) Type() string {
@@ -110,14 +110,14 @@ func (eh channelPinsUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for ChannelPinsUpdate events.
-func (eh channelPinsUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh channelPinsUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*ChannelPinsUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // channelUpdateEventHandler is an event handler for ChannelUpdate events.
-type channelUpdateEventHandler func(*Session, *ChannelUpdate, context.Context)
+type channelUpdateEventHandler func(context.Context, *Session, *ChannelUpdate)
 
 // Type returns the event type for ChannelUpdate events.
 func (eh channelUpdateEventHandler) Type() string {
@@ -130,14 +130,14 @@ func (eh channelUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for ChannelUpdate events.
-func (eh channelUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh channelUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*ChannelUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // connectEventHandler is an event handler for Connect events.
-type connectEventHandler func(*Session, *Connect, context.Context)
+type connectEventHandler func(context.Context, *Session, *Connect)
 
 // Type returns the event type for Connect events.
 func (eh connectEventHandler) Type() string {
@@ -145,14 +145,14 @@ func (eh connectEventHandler) Type() string {
 }
 
 // Handle is the handler for Connect events.
-func (eh connectEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh connectEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*Connect); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // disconnectEventHandler is an event handler for Disconnect events.
-type disconnectEventHandler func(*Session, *Disconnect, context.Context)
+type disconnectEventHandler func(context.Context, *Session, *Disconnect)
 
 // Type returns the event type for Disconnect events.
 func (eh disconnectEventHandler) Type() string {
@@ -160,14 +160,14 @@ func (eh disconnectEventHandler) Type() string {
 }
 
 // Handle is the handler for Disconnect events.
-func (eh disconnectEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh disconnectEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*Disconnect); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // eventEventHandler is an event handler for Event events.
-type eventEventHandler func(*Session, *Event, context.Context)
+type eventEventHandler func(context.Context, *Session, *Event)
 
 // Type returns the event type for Event events.
 func (eh eventEventHandler) Type() string {
@@ -175,14 +175,14 @@ func (eh eventEventHandler) Type() string {
 }
 
 // Handle is the handler for Event events.
-func (eh eventEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh eventEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*Event); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildBanAddEventHandler is an event handler for GuildBanAdd events.
-type guildBanAddEventHandler func(*Session, *GuildBanAdd, context.Context)
+type guildBanAddEventHandler func(context.Context, *Session, *GuildBanAdd)
 
 // Type returns the event type for GuildBanAdd events.
 func (eh guildBanAddEventHandler) Type() string {
@@ -195,14 +195,14 @@ func (eh guildBanAddEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildBanAdd events.
-func (eh guildBanAddEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildBanAddEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildBanAdd); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildBanRemoveEventHandler is an event handler for GuildBanRemove events.
-type guildBanRemoveEventHandler func(*Session, *GuildBanRemove, context.Context)
+type guildBanRemoveEventHandler func(context.Context, *Session, *GuildBanRemove)
 
 // Type returns the event type for GuildBanRemove events.
 func (eh guildBanRemoveEventHandler) Type() string {
@@ -215,14 +215,14 @@ func (eh guildBanRemoveEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildBanRemove events.
-func (eh guildBanRemoveEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildBanRemoveEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildBanRemove); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildCreateEventHandler is an event handler for GuildCreate events.
-type guildCreateEventHandler func(*Session, *GuildCreate, context.Context)
+type guildCreateEventHandler func(context.Context, *Session, *GuildCreate)
 
 // Type returns the event type for GuildCreate events.
 func (eh guildCreateEventHandler) Type() string {
@@ -235,14 +235,14 @@ func (eh guildCreateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildCreate events.
-func (eh guildCreateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildCreateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildCreate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildDeleteEventHandler is an event handler for GuildDelete events.
-type guildDeleteEventHandler func(*Session, *GuildDelete, context.Context)
+type guildDeleteEventHandler func(context.Context, *Session, *GuildDelete)
 
 // Type returns the event type for GuildDelete events.
 func (eh guildDeleteEventHandler) Type() string {
@@ -255,14 +255,14 @@ func (eh guildDeleteEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildDelete events.
-func (eh guildDeleteEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildDeleteEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildDelete); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildEmojisUpdateEventHandler is an event handler for GuildEmojisUpdate events.
-type guildEmojisUpdateEventHandler func(*Session, *GuildEmojisUpdate, context.Context)
+type guildEmojisUpdateEventHandler func(context.Context, *Session, *GuildEmojisUpdate)
 
 // Type returns the event type for GuildEmojisUpdate events.
 func (eh guildEmojisUpdateEventHandler) Type() string {
@@ -275,14 +275,14 @@ func (eh guildEmojisUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildEmojisUpdate events.
-func (eh guildEmojisUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildEmojisUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildEmojisUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildIntegrationsUpdateEventHandler is an event handler for GuildIntegrationsUpdate events.
-type guildIntegrationsUpdateEventHandler func(*Session, *GuildIntegrationsUpdate, context.Context)
+type guildIntegrationsUpdateEventHandler func(context.Context, *Session, *GuildIntegrationsUpdate)
 
 // Type returns the event type for GuildIntegrationsUpdate events.
 func (eh guildIntegrationsUpdateEventHandler) Type() string {
@@ -295,14 +295,14 @@ func (eh guildIntegrationsUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildIntegrationsUpdate events.
-func (eh guildIntegrationsUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildIntegrationsUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildIntegrationsUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildMemberAddEventHandler is an event handler for GuildMemberAdd events.
-type guildMemberAddEventHandler func(*Session, *GuildMemberAdd, context.Context)
+type guildMemberAddEventHandler func(context.Context, *Session, *GuildMemberAdd)
 
 // Type returns the event type for GuildMemberAdd events.
 func (eh guildMemberAddEventHandler) Type() string {
@@ -315,14 +315,14 @@ func (eh guildMemberAddEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildMemberAdd events.
-func (eh guildMemberAddEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildMemberAddEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberAdd); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildMemberRemoveEventHandler is an event handler for GuildMemberRemove events.
-type guildMemberRemoveEventHandler func(*Session, *GuildMemberRemove, context.Context)
+type guildMemberRemoveEventHandler func(context.Context, *Session, *GuildMemberRemove)
 
 // Type returns the event type for GuildMemberRemove events.
 func (eh guildMemberRemoveEventHandler) Type() string {
@@ -335,14 +335,14 @@ func (eh guildMemberRemoveEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildMemberRemove events.
-func (eh guildMemberRemoveEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildMemberRemoveEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberRemove); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildMemberUpdateEventHandler is an event handler for GuildMemberUpdate events.
-type guildMemberUpdateEventHandler func(*Session, *GuildMemberUpdate, context.Context)
+type guildMemberUpdateEventHandler func(context.Context, *Session, *GuildMemberUpdate)
 
 // Type returns the event type for GuildMemberUpdate events.
 func (eh guildMemberUpdateEventHandler) Type() string {
@@ -355,14 +355,14 @@ func (eh guildMemberUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildMemberUpdate events.
-func (eh guildMemberUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildMemberUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildMembersChunkEventHandler is an event handler for GuildMembersChunk events.
-type guildMembersChunkEventHandler func(*Session, *GuildMembersChunk, context.Context)
+type guildMembersChunkEventHandler func(context.Context, *Session, *GuildMembersChunk)
 
 // Type returns the event type for GuildMembersChunk events.
 func (eh guildMembersChunkEventHandler) Type() string {
@@ -375,14 +375,14 @@ func (eh guildMembersChunkEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildMembersChunk events.
-func (eh guildMembersChunkEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildMembersChunkEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildMembersChunk); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildRoleCreateEventHandler is an event handler for GuildRoleCreate events.
-type guildRoleCreateEventHandler func(*Session, *GuildRoleCreate, context.Context)
+type guildRoleCreateEventHandler func(context.Context, *Session, *GuildRoleCreate)
 
 // Type returns the event type for GuildRoleCreate events.
 func (eh guildRoleCreateEventHandler) Type() string {
@@ -395,14 +395,14 @@ func (eh guildRoleCreateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildRoleCreate events.
-func (eh guildRoleCreateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildRoleCreateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleCreate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildRoleDeleteEventHandler is an event handler for GuildRoleDelete events.
-type guildRoleDeleteEventHandler func(*Session, *GuildRoleDelete, context.Context)
+type guildRoleDeleteEventHandler func(context.Context, *Session, *GuildRoleDelete)
 
 // Type returns the event type for GuildRoleDelete events.
 func (eh guildRoleDeleteEventHandler) Type() string {
@@ -415,14 +415,14 @@ func (eh guildRoleDeleteEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildRoleDelete events.
-func (eh guildRoleDeleteEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildRoleDeleteEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleDelete); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildRoleUpdateEventHandler is an event handler for GuildRoleUpdate events.
-type guildRoleUpdateEventHandler func(*Session, *GuildRoleUpdate, context.Context)
+type guildRoleUpdateEventHandler func(context.Context, *Session, *GuildRoleUpdate)
 
 // Type returns the event type for GuildRoleUpdate events.
 func (eh guildRoleUpdateEventHandler) Type() string {
@@ -435,14 +435,14 @@ func (eh guildRoleUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildRoleUpdate events.
-func (eh guildRoleUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildRoleUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // guildUpdateEventHandler is an event handler for GuildUpdate events.
-type guildUpdateEventHandler func(*Session, *GuildUpdate, context.Context)
+type guildUpdateEventHandler func(context.Context, *Session, *GuildUpdate)
 
 // Type returns the event type for GuildUpdate events.
 func (eh guildUpdateEventHandler) Type() string {
@@ -455,14 +455,14 @@ func (eh guildUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for GuildUpdate events.
-func (eh guildUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh guildUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*GuildUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageAckEventHandler is an event handler for MessageAck events.
-type messageAckEventHandler func(*Session, *MessageAck, context.Context)
+type messageAckEventHandler func(context.Context, *Session, *MessageAck)
 
 // Type returns the event type for MessageAck events.
 func (eh messageAckEventHandler) Type() string {
@@ -475,14 +475,14 @@ func (eh messageAckEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageAck events.
-func (eh messageAckEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageAckEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageAck); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageCreateEventHandler is an event handler for MessageCreate events.
-type messageCreateEventHandler func(*Session, *MessageCreate, context.Context)
+type messageCreateEventHandler func(context.Context, *Session, *MessageCreate)
 
 // Type returns the event type for MessageCreate events.
 func (eh messageCreateEventHandler) Type() string {
@@ -495,14 +495,14 @@ func (eh messageCreateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageCreate events.
-func (eh messageCreateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageCreateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageCreate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageDeleteEventHandler is an event handler for MessageDelete events.
-type messageDeleteEventHandler func(*Session, *MessageDelete, context.Context)
+type messageDeleteEventHandler func(context.Context, *Session, *MessageDelete)
 
 // Type returns the event type for MessageDelete events.
 func (eh messageDeleteEventHandler) Type() string {
@@ -515,14 +515,14 @@ func (eh messageDeleteEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageDelete events.
-func (eh messageDeleteEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageDeleteEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageDelete); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageDeleteBulkEventHandler is an event handler for MessageDeleteBulk events.
-type messageDeleteBulkEventHandler func(*Session, *MessageDeleteBulk, context.Context)
+type messageDeleteBulkEventHandler func(context.Context, *Session, *MessageDeleteBulk)
 
 // Type returns the event type for MessageDeleteBulk events.
 func (eh messageDeleteBulkEventHandler) Type() string {
@@ -535,14 +535,14 @@ func (eh messageDeleteBulkEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageDeleteBulk events.
-func (eh messageDeleteBulkEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageDeleteBulkEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageDeleteBulk); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageReactionAddEventHandler is an event handler for MessageReactionAdd events.
-type messageReactionAddEventHandler func(*Session, *MessageReactionAdd, context.Context)
+type messageReactionAddEventHandler func(context.Context, *Session, *MessageReactionAdd)
 
 // Type returns the event type for MessageReactionAdd events.
 func (eh messageReactionAddEventHandler) Type() string {
@@ -555,14 +555,14 @@ func (eh messageReactionAddEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageReactionAdd events.
-func (eh messageReactionAddEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageReactionAddEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageReactionAdd); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageReactionRemoveEventHandler is an event handler for MessageReactionRemove events.
-type messageReactionRemoveEventHandler func(*Session, *MessageReactionRemove, context.Context)
+type messageReactionRemoveEventHandler func(context.Context, *Session, *MessageReactionRemove)
 
 // Type returns the event type for MessageReactionRemove events.
 func (eh messageReactionRemoveEventHandler) Type() string {
@@ -575,14 +575,14 @@ func (eh messageReactionRemoveEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageReactionRemove events.
-func (eh messageReactionRemoveEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageReactionRemoveEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageReactionRemove); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageReactionRemoveAllEventHandler is an event handler for MessageReactionRemoveAll events.
-type messageReactionRemoveAllEventHandler func(*Session, *MessageReactionRemoveAll, context.Context)
+type messageReactionRemoveAllEventHandler func(context.Context, *Session, *MessageReactionRemoveAll)
 
 // Type returns the event type for MessageReactionRemoveAll events.
 func (eh messageReactionRemoveAllEventHandler) Type() string {
@@ -595,14 +595,14 @@ func (eh messageReactionRemoveAllEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageReactionRemoveAll events.
-func (eh messageReactionRemoveAllEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageReactionRemoveAllEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageReactionRemoveAll); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // messageUpdateEventHandler is an event handler for MessageUpdate events.
-type messageUpdateEventHandler func(*Session, *MessageUpdate, context.Context)
+type messageUpdateEventHandler func(context.Context, *Session, *MessageUpdate)
 
 // Type returns the event type for MessageUpdate events.
 func (eh messageUpdateEventHandler) Type() string {
@@ -615,14 +615,14 @@ func (eh messageUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for MessageUpdate events.
-func (eh messageUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh messageUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*MessageUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // presenceUpdateEventHandler is an event handler for PresenceUpdate events.
-type presenceUpdateEventHandler func(*Session, *PresenceUpdate, context.Context)
+type presenceUpdateEventHandler func(context.Context, *Session, *PresenceUpdate)
 
 // Type returns the event type for PresenceUpdate events.
 func (eh presenceUpdateEventHandler) Type() string {
@@ -635,14 +635,14 @@ func (eh presenceUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for PresenceUpdate events.
-func (eh presenceUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh presenceUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*PresenceUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // presencesReplaceEventHandler is an event handler for PresencesReplace events.
-type presencesReplaceEventHandler func(*Session, *PresencesReplace, context.Context)
+type presencesReplaceEventHandler func(context.Context, *Session, *PresencesReplace)
 
 // Type returns the event type for PresencesReplace events.
 func (eh presencesReplaceEventHandler) Type() string {
@@ -655,14 +655,14 @@ func (eh presencesReplaceEventHandler) New() interface{} {
 }
 
 // Handle is the handler for PresencesReplace events.
-func (eh presencesReplaceEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh presencesReplaceEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*PresencesReplace); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // rateLimitEventHandler is an event handler for RateLimit events.
-type rateLimitEventHandler func(*Session, *RateLimit, context.Context)
+type rateLimitEventHandler func(context.Context, *Session, *RateLimit)
 
 // Type returns the event type for RateLimit events.
 func (eh rateLimitEventHandler) Type() string {
@@ -670,14 +670,14 @@ func (eh rateLimitEventHandler) Type() string {
 }
 
 // Handle is the handler for RateLimit events.
-func (eh rateLimitEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh rateLimitEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*RateLimit); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // readyEventHandler is an event handler for Ready events.
-type readyEventHandler func(*Session, *Ready, context.Context)
+type readyEventHandler func(context.Context, *Session, *Ready)
 
 // Type returns the event type for Ready events.
 func (eh readyEventHandler) Type() string {
@@ -690,14 +690,14 @@ func (eh readyEventHandler) New() interface{} {
 }
 
 // Handle is the handler for Ready events.
-func (eh readyEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh readyEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*Ready); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // relationshipAddEventHandler is an event handler for RelationshipAdd events.
-type relationshipAddEventHandler func(*Session, *RelationshipAdd, context.Context)
+type relationshipAddEventHandler func(context.Context, *Session, *RelationshipAdd)
 
 // Type returns the event type for RelationshipAdd events.
 func (eh relationshipAddEventHandler) Type() string {
@@ -710,14 +710,14 @@ func (eh relationshipAddEventHandler) New() interface{} {
 }
 
 // Handle is the handler for RelationshipAdd events.
-func (eh relationshipAddEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh relationshipAddEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*RelationshipAdd); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // relationshipRemoveEventHandler is an event handler for RelationshipRemove events.
-type relationshipRemoveEventHandler func(*Session, *RelationshipRemove, context.Context)
+type relationshipRemoveEventHandler func(context.Context, *Session, *RelationshipRemove)
 
 // Type returns the event type for RelationshipRemove events.
 func (eh relationshipRemoveEventHandler) Type() string {
@@ -730,14 +730,14 @@ func (eh relationshipRemoveEventHandler) New() interface{} {
 }
 
 // Handle is the handler for RelationshipRemove events.
-func (eh relationshipRemoveEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh relationshipRemoveEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*RelationshipRemove); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // resumedEventHandler is an event handler for Resumed events.
-type resumedEventHandler func(*Session, *Resumed, context.Context)
+type resumedEventHandler func(context.Context, *Session, *Resumed)
 
 // Type returns the event type for Resumed events.
 func (eh resumedEventHandler) Type() string {
@@ -750,14 +750,14 @@ func (eh resumedEventHandler) New() interface{} {
 }
 
 // Handle is the handler for Resumed events.
-func (eh resumedEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh resumedEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*Resumed); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // typingStartEventHandler is an event handler for TypingStart events.
-type typingStartEventHandler func(*Session, *TypingStart, context.Context)
+type typingStartEventHandler func(context.Context, *Session, *TypingStart)
 
 // Type returns the event type for TypingStart events.
 func (eh typingStartEventHandler) Type() string {
@@ -770,14 +770,14 @@ func (eh typingStartEventHandler) New() interface{} {
 }
 
 // Handle is the handler for TypingStart events.
-func (eh typingStartEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh typingStartEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*TypingStart); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // userGuildSettingsUpdateEventHandler is an event handler for UserGuildSettingsUpdate events.
-type userGuildSettingsUpdateEventHandler func(*Session, *UserGuildSettingsUpdate, context.Context)
+type userGuildSettingsUpdateEventHandler func(context.Context, *Session, *UserGuildSettingsUpdate)
 
 // Type returns the event type for UserGuildSettingsUpdate events.
 func (eh userGuildSettingsUpdateEventHandler) Type() string {
@@ -790,14 +790,14 @@ func (eh userGuildSettingsUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for UserGuildSettingsUpdate events.
-func (eh userGuildSettingsUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh userGuildSettingsUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*UserGuildSettingsUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // userNoteUpdateEventHandler is an event handler for UserNoteUpdate events.
-type userNoteUpdateEventHandler func(*Session, *UserNoteUpdate, context.Context)
+type userNoteUpdateEventHandler func(context.Context, *Session, *UserNoteUpdate)
 
 // Type returns the event type for UserNoteUpdate events.
 func (eh userNoteUpdateEventHandler) Type() string {
@@ -810,14 +810,14 @@ func (eh userNoteUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for UserNoteUpdate events.
-func (eh userNoteUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh userNoteUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*UserNoteUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // userSettingsUpdateEventHandler is an event handler for UserSettingsUpdate events.
-type userSettingsUpdateEventHandler func(*Session, *UserSettingsUpdate, context.Context)
+type userSettingsUpdateEventHandler func(context.Context, *Session, *UserSettingsUpdate)
 
 // Type returns the event type for UserSettingsUpdate events.
 func (eh userSettingsUpdateEventHandler) Type() string {
@@ -830,14 +830,14 @@ func (eh userSettingsUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for UserSettingsUpdate events.
-func (eh userSettingsUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh userSettingsUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*UserSettingsUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // userUpdateEventHandler is an event handler for UserUpdate events.
-type userUpdateEventHandler func(*Session, *UserUpdate, context.Context)
+type userUpdateEventHandler func(context.Context, *Session, *UserUpdate)
 
 // Type returns the event type for UserUpdate events.
 func (eh userUpdateEventHandler) Type() string {
@@ -850,14 +850,14 @@ func (eh userUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for UserUpdate events.
-func (eh userUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh userUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*UserUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // voiceServerUpdateEventHandler is an event handler for VoiceServerUpdate events.
-type voiceServerUpdateEventHandler func(*Session, *VoiceServerUpdate, context.Context)
+type voiceServerUpdateEventHandler func(context.Context, *Session, *VoiceServerUpdate)
 
 // Type returns the event type for VoiceServerUpdate events.
 func (eh voiceServerUpdateEventHandler) Type() string {
@@ -870,14 +870,14 @@ func (eh voiceServerUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for VoiceServerUpdate events.
-func (eh voiceServerUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh voiceServerUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*VoiceServerUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 // voiceStateUpdateEventHandler is an event handler for VoiceStateUpdate events.
-type voiceStateUpdateEventHandler func(*Session, *VoiceStateUpdate, context.Context)
+type voiceStateUpdateEventHandler func(context.Context, *Session, *VoiceStateUpdate)
 
 // Type returns the event type for VoiceStateUpdate events.
 func (eh voiceStateUpdateEventHandler) Type() string {
@@ -890,233 +890,233 @@ func (eh voiceStateUpdateEventHandler) New() interface{} {
 }
 
 // Handle is the handler for VoiceStateUpdate events.
-func (eh voiceStateUpdateEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+func (eh voiceStateUpdateEventHandler) Handle(c context.Context, s *Session, i interface{}) {
 	if t, ok := i.(*VoiceStateUpdate); ok {
-		eh(s, t, c)
+		eh(c, s, t)
 	}
 }
 
 func handlerForInterface(handler interface{}) EventHandler {
 	switch v := handler.(type) {
-	case func(*Session, interface{}, context.Context):
+	case func(context.Context, *Session, interface{}):
 		return interfaceEventHandler(v)
-	case func(*Session, *ChannelCreate, context.Context):
+	case func(context.Context, *Session, *ChannelCreate):
 		return channelCreateEventHandler(v)
-	case func(*Session, *ChannelDelete, context.Context):
+	case func(context.Context, *Session, *ChannelDelete):
 		return channelDeleteEventHandler(v)
-	case func(*Session, *ChannelPinsUpdate, context.Context):
+	case func(context.Context, *Session, *ChannelPinsUpdate):
 		return channelPinsUpdateEventHandler(v)
-	case func(*Session, *ChannelUpdate, context.Context):
+	case func(context.Context, *Session, *ChannelUpdate):
 		return channelUpdateEventHandler(v)
-	case func(*Session, *Connect, context.Context):
+	case func(context.Context, *Session, *Connect):
 		return connectEventHandler(v)
-	case func(*Session, *Disconnect, context.Context):
+	case func(context.Context, *Session, *Disconnect):
 		return disconnectEventHandler(v)
-	case func(*Session, *Event, context.Context):
+	case func(context.Context, *Session, *Event):
 		return eventEventHandler(v)
-	case func(*Session, *GuildBanAdd, context.Context):
+	case func(context.Context, *Session, *GuildBanAdd):
 		return guildBanAddEventHandler(v)
-	case func(*Session, *GuildBanRemove, context.Context):
+	case func(context.Context, *Session, *GuildBanRemove):
 		return guildBanRemoveEventHandler(v)
-	case func(*Session, *GuildCreate, context.Context):
+	case func(context.Context, *Session, *GuildCreate):
 		return guildCreateEventHandler(v)
-	case func(*Session, *GuildDelete, context.Context):
+	case func(context.Context, *Session, *GuildDelete):
 		return guildDeleteEventHandler(v)
-	case func(*Session, *GuildEmojisUpdate, context.Context):
+	case func(context.Context, *Session, *GuildEmojisUpdate):
 		return guildEmojisUpdateEventHandler(v)
-	case func(*Session, *GuildIntegrationsUpdate, context.Context):
+	case func(context.Context, *Session, *GuildIntegrationsUpdate):
 		return guildIntegrationsUpdateEventHandler(v)
-	case func(*Session, *GuildMemberAdd, context.Context):
+	case func(context.Context, *Session, *GuildMemberAdd):
 		return guildMemberAddEventHandler(v)
-	case func(*Session, *GuildMemberRemove, context.Context):
+	case func(context.Context, *Session, *GuildMemberRemove):
 		return guildMemberRemoveEventHandler(v)
-	case func(*Session, *GuildMemberUpdate, context.Context):
+	case func(context.Context, *Session, *GuildMemberUpdate):
 		return guildMemberUpdateEventHandler(v)
-	case func(*Session, *GuildMembersChunk, context.Context):
+	case func(context.Context, *Session, *GuildMembersChunk):
 		return guildMembersChunkEventHandler(v)
-	case func(*Session, *GuildRoleCreate, context.Context):
+	case func(context.Context, *Session, *GuildRoleCreate):
 		return guildRoleCreateEventHandler(v)
-	case func(*Session, *GuildRoleDelete, context.Context):
+	case func(context.Context, *Session, *GuildRoleDelete):
 		return guildRoleDeleteEventHandler(v)
-	case func(*Session, *GuildRoleUpdate, context.Context):
+	case func(context.Context, *Session, *GuildRoleUpdate):
 		return guildRoleUpdateEventHandler(v)
-	case func(*Session, *GuildUpdate, context.Context):
+	case func(context.Context, *Session, *GuildUpdate):
 		return guildUpdateEventHandler(v)
-	case func(*Session, *MessageAck, context.Context):
+	case func(context.Context, *Session, *MessageAck):
 		return messageAckEventHandler(v)
-	case func(*Session, *MessageCreate, context.Context):
+	case func(context.Context, *Session, *MessageCreate):
 		return messageCreateEventHandler(v)
-	case func(*Session, *MessageDelete, context.Context):
+	case func(context.Context, *Session, *MessageDelete):
 		return messageDeleteEventHandler(v)
-	case func(*Session, *MessageDeleteBulk, context.Context):
+	case func(context.Context, *Session, *MessageDeleteBulk):
 		return messageDeleteBulkEventHandler(v)
-	case func(*Session, *MessageReactionAdd, context.Context):
+	case func(context.Context, *Session, *MessageReactionAdd):
 		return messageReactionAddEventHandler(v)
-	case func(*Session, *MessageReactionRemove, context.Context):
+	case func(context.Context, *Session, *MessageReactionRemove):
 		return messageReactionRemoveEventHandler(v)
-	case func(*Session, *MessageReactionRemoveAll, context.Context):
+	case func(context.Context, *Session, *MessageReactionRemoveAll):
 		return messageReactionRemoveAllEventHandler(v)
-	case func(*Session, *MessageUpdate, context.Context):
+	case func(context.Context, *Session, *MessageUpdate):
 		return messageUpdateEventHandler(v)
-	case func(*Session, *PresenceUpdate, context.Context):
+	case func(context.Context, *Session, *PresenceUpdate):
 		return presenceUpdateEventHandler(v)
-	case func(*Session, *PresencesReplace, context.Context):
+	case func(context.Context, *Session, *PresencesReplace):
 		return presencesReplaceEventHandler(v)
-	case func(*Session, *RateLimit, context.Context):
+	case func(context.Context, *Session, *RateLimit):
 		return rateLimitEventHandler(v)
-	case func(*Session, *Ready, context.Context):
+	case func(context.Context, *Session, *Ready):
 		return readyEventHandler(v)
-	case func(*Session, *RelationshipAdd, context.Context):
+	case func(context.Context, *Session, *RelationshipAdd):
 		return relationshipAddEventHandler(v)
-	case func(*Session, *RelationshipRemove, context.Context):
+	case func(context.Context, *Session, *RelationshipRemove):
 		return relationshipRemoveEventHandler(v)
-	case func(*Session, *Resumed, context.Context):
+	case func(context.Context, *Session, *Resumed):
 		return resumedEventHandler(v)
-	case func(*Session, *TypingStart, context.Context):
+	case func(context.Context, *Session, *TypingStart):
 		return typingStartEventHandler(v)
-	case func(*Session, *UserGuildSettingsUpdate, context.Context):
+	case func(context.Context, *Session, *UserGuildSettingsUpdate):
 		return userGuildSettingsUpdateEventHandler(v)
-	case func(*Session, *UserNoteUpdate, context.Context):
+	case func(context.Context, *Session, *UserNoteUpdate):
 		return userNoteUpdateEventHandler(v)
-	case func(*Session, *UserSettingsUpdate, context.Context):
+	case func(context.Context, *Session, *UserSettingsUpdate):
 		return userSettingsUpdateEventHandler(v)
-	case func(*Session, *UserUpdate, context.Context):
+	case func(context.Context, *Session, *UserUpdate):
 		return userUpdateEventHandler(v)
-	case func(*Session, *VoiceServerUpdate, context.Context):
+	case func(context.Context, *Session, *VoiceServerUpdate):
 		return voiceServerUpdateEventHandler(v)
-	case func(*Session, *VoiceStateUpdate, context.Context):
+	case func(context.Context, *Session, *VoiceStateUpdate):
 		return voiceStateUpdateEventHandler(v)
 	case func(*Session, interface{}):
-		w := func(s *Session, i interface{}, c context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i interface{}) { v(s, i) }
 		return interfaceEventHandler(w)
 	case func(*Session, *ChannelCreate):
-		w := func(s *Session, i *ChannelCreate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *ChannelCreate) { v(s, i) }
 		return channelCreateEventHandler(w)
 	case func(*Session, *ChannelDelete):
-		w := func(s *Session, i *ChannelDelete, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *ChannelDelete) { v(s, i) }
 		return channelDeleteEventHandler(w)
 	case func(*Session, *ChannelPinsUpdate):
-		w := func(s *Session, i *ChannelPinsUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *ChannelPinsUpdate) { v(s, i) }
 		return channelPinsUpdateEventHandler(w)
 	case func(*Session, *ChannelUpdate):
-		w := func(s *Session, i *ChannelUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *ChannelUpdate) { v(s, i) }
 		return channelUpdateEventHandler(w)
 	case func(*Session, *Connect):
-		w := func(s *Session, i *Connect, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *Connect) { v(s, i) }
 		return connectEventHandler(w)
 	case func(*Session, *Disconnect):
-		w := func(s *Session, i *Disconnect, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *Disconnect) { v(s, i) }
 		return disconnectEventHandler(w)
 	case func(*Session, *Event):
-		w := func(s *Session, i *Event, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *Event) { v(s, i) }
 		return eventEventHandler(w)
 	case func(*Session, *GuildBanAdd):
-		w := func(s *Session, i *GuildBanAdd, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildBanAdd) { v(s, i) }
 		return guildBanAddEventHandler(w)
 	case func(*Session, *GuildBanRemove):
-		w := func(s *Session, i *GuildBanRemove, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildBanRemove) { v(s, i) }
 		return guildBanRemoveEventHandler(w)
 	case func(*Session, *GuildCreate):
-		w := func(s *Session, i *GuildCreate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildCreate) { v(s, i) }
 		return guildCreateEventHandler(w)
 	case func(*Session, *GuildDelete):
-		w := func(s *Session, i *GuildDelete, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildDelete) { v(s, i) }
 		return guildDeleteEventHandler(w)
 	case func(*Session, *GuildEmojisUpdate):
-		w := func(s *Session, i *GuildEmojisUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildEmojisUpdate) { v(s, i) }
 		return guildEmojisUpdateEventHandler(w)
 	case func(*Session, *GuildIntegrationsUpdate):
-		w := func(s *Session, i *GuildIntegrationsUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildIntegrationsUpdate) { v(s, i) }
 		return guildIntegrationsUpdateEventHandler(w)
 	case func(*Session, *GuildMemberAdd):
-		w := func(s *Session, i *GuildMemberAdd, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildMemberAdd) { v(s, i) }
 		return guildMemberAddEventHandler(w)
 	case func(*Session, *GuildMemberRemove):
-		w := func(s *Session, i *GuildMemberRemove, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildMemberRemove) { v(s, i) }
 		return guildMemberRemoveEventHandler(w)
 	case func(*Session, *GuildMemberUpdate):
-		w := func(s *Session, i *GuildMemberUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildMemberUpdate) { v(s, i) }
 		return guildMemberUpdateEventHandler(w)
 	case func(*Session, *GuildMembersChunk):
-		w := func(s *Session, i *GuildMembersChunk, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildMembersChunk) { v(s, i) }
 		return guildMembersChunkEventHandler(w)
 	case func(*Session, *GuildRoleCreate):
-		w := func(s *Session, i *GuildRoleCreate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildRoleCreate) { v(s, i) }
 		return guildRoleCreateEventHandler(w)
 	case func(*Session, *GuildRoleDelete):
-		w := func(s *Session, i *GuildRoleDelete, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildRoleDelete) { v(s, i) }
 		return guildRoleDeleteEventHandler(w)
 	case func(*Session, *GuildRoleUpdate):
-		w := func(s *Session, i *GuildRoleUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildRoleUpdate) { v(s, i) }
 		return guildRoleUpdateEventHandler(w)
 	case func(*Session, *GuildUpdate):
-		w := func(s *Session, i *GuildUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *GuildUpdate) { v(s, i) }
 		return guildUpdateEventHandler(w)
 	case func(*Session, *MessageAck):
-		w := func(s *Session, i *MessageAck, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageAck) { v(s, i) }
 		return messageAckEventHandler(w)
 	case func(*Session, *MessageCreate):
-		w := func(s *Session, i *MessageCreate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageCreate) { v(s, i) }
 		return messageCreateEventHandler(w)
 	case func(*Session, *MessageDelete):
-		w := func(s *Session, i *MessageDelete, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageDelete) { v(s, i) }
 		return messageDeleteEventHandler(w)
 	case func(*Session, *MessageDeleteBulk):
-		w := func(s *Session, i *MessageDeleteBulk, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageDeleteBulk) { v(s, i) }
 		return messageDeleteBulkEventHandler(w)
 	case func(*Session, *MessageReactionAdd):
-		w := func(s *Session, i *MessageReactionAdd, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageReactionAdd) { v(s, i) }
 		return messageReactionAddEventHandler(w)
 	case func(*Session, *MessageReactionRemove):
-		w := func(s *Session, i *MessageReactionRemove, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageReactionRemove) { v(s, i) }
 		return messageReactionRemoveEventHandler(w)
 	case func(*Session, *MessageReactionRemoveAll):
-		w := func(s *Session, i *MessageReactionRemoveAll, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageReactionRemoveAll) { v(s, i) }
 		return messageReactionRemoveAllEventHandler(w)
 	case func(*Session, *MessageUpdate):
-		w := func(s *Session, i *MessageUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *MessageUpdate) { v(s, i) }
 		return messageUpdateEventHandler(w)
 	case func(*Session, *PresenceUpdate):
-		w := func(s *Session, i *PresenceUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *PresenceUpdate) { v(s, i) }
 		return presenceUpdateEventHandler(w)
 	case func(*Session, *PresencesReplace):
-		w := func(s *Session, i *PresencesReplace, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *PresencesReplace) { v(s, i) }
 		return presencesReplaceEventHandler(w)
 	case func(*Session, *RateLimit):
-		w := func(s *Session, i *RateLimit, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *RateLimit) { v(s, i) }
 		return rateLimitEventHandler(w)
 	case func(*Session, *Ready):
-		w := func(s *Session, i *Ready, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *Ready) { v(s, i) }
 		return readyEventHandler(w)
 	case func(*Session, *RelationshipAdd):
-		w := func(s *Session, i *RelationshipAdd, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *RelationshipAdd) { v(s, i) }
 		return relationshipAddEventHandler(w)
 	case func(*Session, *RelationshipRemove):
-		w := func(s *Session, i *RelationshipRemove, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *RelationshipRemove) { v(s, i) }
 		return relationshipRemoveEventHandler(w)
 	case func(*Session, *Resumed):
-		w := func(s *Session, i *Resumed, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *Resumed) { v(s, i) }
 		return resumedEventHandler(w)
 	case func(*Session, *TypingStart):
-		w := func(s *Session, i *TypingStart, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *TypingStart) { v(s, i) }
 		return typingStartEventHandler(w)
 	case func(*Session, *UserGuildSettingsUpdate):
-		w := func(s *Session, i *UserGuildSettingsUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *UserGuildSettingsUpdate) { v(s, i) }
 		return userGuildSettingsUpdateEventHandler(w)
 	case func(*Session, *UserNoteUpdate):
-		w := func(s *Session, i *UserNoteUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *UserNoteUpdate) { v(s, i) }
 		return userNoteUpdateEventHandler(w)
 	case func(*Session, *UserSettingsUpdate):
-		w := func(s *Session, i *UserSettingsUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *UserSettingsUpdate) { v(s, i) }
 		return userSettingsUpdateEventHandler(w)
 	case func(*Session, *UserUpdate):
-		w := func(s *Session, i *UserUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *UserUpdate) { v(s, i) }
 		return userUpdateEventHandler(w)
 	case func(*Session, *VoiceServerUpdate):
-		w := func(s *Session, i *VoiceServerUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *VoiceServerUpdate) { v(s, i) }
 		return voiceServerUpdateEventHandler(w)
 	case func(*Session, *VoiceStateUpdate):
-		w := func(s *Session, i *VoiceStateUpdate, _ context.Context) { v(s, i) }
+		w := func(_ context.Context, s *Session, i *VoiceStateUpdate) { v(s, i) }
 		return voiceStateUpdateEventHandler(w)
 	}
 
