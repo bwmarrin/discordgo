@@ -200,6 +200,8 @@ func TestOpenClose(t *testing.T) {
 	}
 }
 
+type testContextKey string
+
 func TestAddHandler(t *testing.T) {
 
 	testHandlerCalled := int32(0)
@@ -211,7 +213,7 @@ func TestAddHandler(t *testing.T) {
 	contextHandlerCalledWithValue := int32(0)
 	contextHandler := func(c context.Context, s *Session, m *MessageCreate) {
 		atomic.AddInt32(&contextHandlerCalled, 1)
-		atomic.AddInt32(&contextHandlerCalledWithValue, c.Value("key").(int32))
+		atomic.AddInt32(&contextHandlerCalledWithValue, c.Value(testContextKey("key")).(int32))
 	}
 
 	interfaceHandlerCalled := int32(0)
@@ -226,7 +228,7 @@ func TestAddHandler(t *testing.T) {
 
 	d := Session{}
 	d.ContextFactory = func() context.Context {
-		return context.WithValue(context.Background(), "key", int32(42))
+		return context.WithValue(context.Background(), testContextKey("key"), int32(42))
 	}
 
 	d.AddHandler(testHandler)
