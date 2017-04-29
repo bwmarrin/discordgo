@@ -23,6 +23,10 @@ var eventHandlerTmpl = template.Must(template.New("eventHandler").Funcs(template
 
 package discordgo
 
+import (
+	"context"
+)
+
 // Following are all the event types.
 // Event type values are used to match the events returned by Discord.
 // EventTypes surrounded by __ are synthetic and are internal to DiscordGo.
@@ -31,7 +35,7 @@ const ({{range .}}
 )
 {{range .}}
 // {{privateName .}}EventHandler is an event handler for {{.}} events.
-type {{privateName .}}EventHandler func(*Session, *{{.}})
+type {{privateName .}}EventHandler func(*Session, *{{.}}, context.Context)
 
 // Type returns the event type for {{.}} events.
 func (eh {{privateName .}}EventHandler) Type() string {
@@ -43,19 +47,25 @@ func (eh {{privateName .}}EventHandler) New() interface{} {
   return &{{.}}{}
 }{{end}}
 // Handle is the handler for {{.}} events.
-func (eh {{privateName .}}EventHandler) Handle(s *Session, i interface{}) {
+func (eh {{privateName .}}EventHandler) Handle(s *Session, i interface{}, c context.Context) {
   if t, ok := i.(*{{.}}); ok {
-    eh(s, t)
+    eh(s, t, c)
   }
 }
 
 {{end}}
 func handlerForInterface(handler interface{}) EventHandler {
   switch v := handler.(type) {
-  case func(*Session, interface{}):
+  case func(*Session, interface{}, context.Context):
     return interfaceEventHandler(v){{range .}}
-  case func(*Session, *{{.}}):
+  case func(*Session, *{{.}}, context.Context):
     return {{privateName .}}EventHandler(v){{end}}
+	case func(*Session, interface{}):
+		w := func(s *Session, i interface{}, c context.Context){v(s,i)}
+		return interfaceEventHandler(w){{range .}}
+	case func(*Session, *{{.}}):
+		w := func(s *Session, i *{{.}}, _ context.Context){ v(s, i) }
+		return {{privateName .}}EventHandler(w){{end}}
   }
 
   return nil

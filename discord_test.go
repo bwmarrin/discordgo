@@ -1,6 +1,7 @@
 package discordgo
 
 import (
+	"context"
 	"os"
 	"runtime"
 	"sync/atomic"
@@ -206,6 +207,13 @@ func TestAddHandler(t *testing.T) {
 		atomic.AddInt32(&testHandlerCalled, 1)
 	}
 
+	contextHandlerCalled := int32(0)
+	contextHandlerCalledWithValue := int32(0)
+	contextHandler := func(s *Session, m *MessageCreate, c context.Context) {
+		atomic.AddInt32(&contextHandlerCalled, 1)
+		atomic.AddInt32(&contextHandlerCalledWithValue, c.Value("key").(int32))
+	}
+
 	interfaceHandlerCalled := int32(0)
 	interfaceHandler := func(s *Session, i interface{}) {
 		atomic.AddInt32(&interfaceHandlerCalled, 1)
@@ -217,8 +225,14 @@ func TestAddHandler(t *testing.T) {
 	}
 
 	d := Session{}
+	d.ContextFactory = func() context.Context {
+		return context.WithValue(context.Background(), "key", int32(42))
+	}
+
 	d.AddHandler(testHandler)
 	d.AddHandler(testHandler)
+
+	d.AddHandler(contextHandler)
 
 	d.AddHandler(interfaceHandler)
 	d.AddHandler(bogusHandler)
@@ -231,6 +245,13 @@ func TestAddHandler(t *testing.T) {
 	// testHandler will be called twice because it was added twice.
 	if atomic.LoadInt32(&testHandlerCalled) != 2 {
 		t.Fatalf("testHandler was not called twice.")
+	}
+
+	if atomic.LoadInt32(&contextHandlerCalled) != 1 {
+		t.Fatalf("contextHandler was not called.")
+	}
+	if atomic.LoadInt32(&contextHandlerCalledWithValue) != 42 {
+		t.Fatalf("contextHandler was called with the wrong value.")
 	}
 
 	// interfaceHandler will be called twice, once for each event.

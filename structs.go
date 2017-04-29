@@ -12,6 +12,7 @@
 package discordgo
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -77,6 +78,10 @@ type Session struct {
 
 	// The http client used for REST requests
 	Client *http.Client
+
+	// Returns the context to be passed to a handler.
+	// Called once per received event, not per handler.
+	ContextFactory func() context.Context
 
 	// Event handlers
 	handlersMu   sync.RWMutex

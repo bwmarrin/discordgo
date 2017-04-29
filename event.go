@@ -1,5 +1,9 @@
 package discordgo
 
+import (
+	"context"
+)
+
 // EventHandler is an interface for Discord events.
 type EventHandler interface {
 	// Type returns the type of event this handler belongs to.
@@ -8,7 +12,7 @@ type EventHandler interface {
 	// Handle is called whenever an event of Type() happens.
 	// It is the recievers responsibility to type assert that the interface
 	// is the expected struct.
-	Handle(*Session, interface{})
+	Handle(*Session, interface{}, context.Context)
 }
 
 // EventInterfaceProvider is an interface for providing empty interfaces for
@@ -27,7 +31,7 @@ type EventInterfaceProvider interface {
 const interfaceEventType = "__INTERFACE__"
 
 // interfaceEventHandler is an event handler for interface{} events.
-type interfaceEventHandler func(*Session, interface{})
+type interfaceEventHandler func(*Session, interface{}, context.Context)
 
 // Type returns the event type for interface{} events.
 func (eh interfaceEventHandler) Type() string {
@@ -35,8 +39,8 @@ func (eh interfaceEventHandler) Type() string {
 }
 
 // Handle is the handler for an interface{} event.
-func (eh interfaceEventHandler) Handle(s *Session, i interface{}) {
-	eh(s, i)
+func (eh interfaceEventHandler) Handle(s *Session, i interface{}, c context.Context) {
+	eh(s, i, c)
 }
 
 var registeredInterfaceProviders = map[string]EventInterfaceProvider{}
@@ -155,13 +159,19 @@ func (s *Session) removeEventHandlerInstance(t string, ehi *eventHandlerInstance
 
 // Handles calling permanent and once handlers for an event type.
 func (s *Session) handle(t string, i interface{}) {
+	cf := s.ContextFactory
+	if cf == nil {
+		cf = context.Background
+	}
+	c := cf()
+
 	for _, eh := range s.handlers[t] {
-		go eh.eventHandler.Handle(s, i)
+		go eh.eventHandler.Handle(s, i, c)
 	}
 
 	if len(s.onceHandlers[t]) > 0 {
 		for _, eh := range s.onceHandlers[t] {
-			go eh.eventHandler.Handle(s, i)
+			go eh.eventHandler.Handle(s, i, c)
 		}
 		s.onceHandlers[t] = nil
 	}
