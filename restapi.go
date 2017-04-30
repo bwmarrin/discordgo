@@ -1444,8 +1444,8 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 // channelID : The ID of a Channel.
 // name: The name of the file.
 // io.Reader : A reader for the file contents.
-func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Message, err error) {
-	return s.ChannelFileSendWithMessage(channelID, "", name, r)
+func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (*Message, error) {
+	return s.ChannelFileSendWithComplex(channelID, name, r, &MessageSend{})
 }
 
 // ChannelFileSendWithMessage sends a file to the given channel with an message.
@@ -1453,15 +1453,33 @@ func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Mess
 // content: Optional Message content.
 // name: The name of the file.
 // io.Reader : A reader for the file contents.
-func (s *Session) ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (st *Message, err error) {
+func (s *Session) ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (*Message, error) {
+	return s.ChannelFileSendWithComplex(channelID, name, r, &MessageSend{Content: content})
+}
 
+// ChannelFileSendWithComplex sends a file to the given channel with an message.
+// channelID : The ID of a Channel.
+// name: The name of the file.
+// io.Reader : A reader for the file contents.
+// content: Optional extra data.
+func (s *Session) ChannelFileSendWithComplex(channelID, name string, r io.Reader, data *MessageSend) (st *Message, err error) {
 	body := &bytes.Buffer{}
 	bodywriter := multipart.NewWriter(body)
 
-	if len(content) != 0 {
-		if err := bodywriter.WriteField("content", content); err != nil {
+	// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
+
+	if err := bodywriter.WriteField("content", data.Content); err != nil {
+		return nil, err
+	}
+	embed, err := json.Marshal(data.Embed)
+	if err != nil {
+		err = bodywriter.WriteField("embed", string(embed))
+		if err != nil {
 			return nil, err
 		}
+	}
+	if err := bodywriter.WriteField("tts", strconv.FormatBool(data.Tts)); err != nil {
+		return nil, err
 	}
 
 	writer, err := bodywriter.CreateFormFile("file", name)
