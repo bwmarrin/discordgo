@@ -5,13 +5,6 @@ import{
 }
 
 //////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////// VARS NEEDED FOR TESTING
-var (
-  tstate = NewState()
-
-)
-
-//////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
 func TestNewState(t *testing.T)  {
@@ -130,6 +123,81 @@ func TestEmojiOperations(t *testing.T)  {
     }
     if emoji2 == nil {
       t.Errorf("Emoji not found when added")
+    }
+  }
+
+func TestMemberOperations(t *testing.T) {
+    s, err := NewState()
+    var m member
+    var g Guild
+
+    m.ID = "Test Member"
+    guild.ID = "Test Guild"
+    s.GuildAdd(guild)
+
+    _,err := s.MemberAdd("Test Guild", m)
+    if err != nil {
+      t.Errorf("GuildAdd() returned error: %+v", err)
+    }
+
+    m2, err := s.Member("Test Guild", "Test Member")
+    if err != nil {
+      t.Errorf("Member() returned error: %+v", err)
+    }
+    if m2==nil {
+      t.Errorf("Guild not found when added")
+    }
+
+    _, err := m.MemberRemove("Test Guild", m)
+    if err != nil {
+      t.Errorf("MemberRemove() returned error: %+v", err)
+    }
+
+    m3, err := m.Member("Test Guild", "Test Member")
+    if err != nil {
+      t.ErrorF("Member() returned error: %+v", err)
+    }
+
+    if m3 == nil {
+      t.Errorf("Member correctly not found after removal expeced error")
+    }
+  }
+
+  func TestRoleOperations(t *testing.T) {
+    s, err := NewState()
+    var r Role
+    var g Guild
+
+    r.ID = "Test Role"
+    guild.ID = "Test Guild"
+    s.GuildAdd(guild)
+
+    _,err := s.RoleAdd("Test Guild", r)
+    if err != nil {
+      t.Errorf("GuildAdd() returned error: %+v", err)
+    }
+
+    r2, err := s.Role("Test Guild", "Test Role")
+    if err != nil {
+      t.Errorf("Role() returned error: %+v", err)
+    }
+    
+    if r2==nil {
+      t.Errorf("Guild not found when added")
+    }
+
+    _, err := m.RoleRemove("Test Guild", r)
+    if err != nil {
+      t.Errorf("RoleRemove() returned error: %+v", err)
+    }
+
+    r3, err := M.Role("Test Guild", "Test Role")
+    if err != nil {
+      t.ErrorF("Role() returned error: %+v", err)
+    }
+
+    if r3 == nil {
+      t.Errorf("Role correctly not found after removal expeced error")
     }
   }
 }
