@@ -34,6 +34,7 @@ type State struct {
 	TrackMembers    bool
 	TrackRoles      bool
 	TrackVoice      bool
+	TrackPresences  bool
 
 	guildMap   map[string]*Guild
 	channelMap map[string]*Channel
@@ -46,13 +47,14 @@ func NewState() *State {
 			PrivateChannels: []*Channel{},
 			Guilds:          []*Guild{},
 		},
-		TrackChannels: true,
-		TrackEmojis:   true,
-		TrackMembers:  true,
-		TrackRoles:    true,
-		TrackVoice:    true,
-		guildMap:      make(map[string]*Guild),
-		channelMap:    make(map[string]*Channel),
+		TrackChannels:  true,
+		TrackEmojis:    true,
+		TrackMembers:   true,
+		TrackRoles:     true,
+		TrackVoice:     true,
+		TrackPresences: true,
+		guildMap:       make(map[string]*Guild),
+		channelMap:     make(map[string]*Channel),
 	}
 }
 
@@ -145,6 +147,111 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 	}
 
 	return nil, errors.New("guild not found")
+}
+
+// PresenceAdd adds a presence to the current world state, or
+// updates it if it already exists.
+func (s *State) PresenceAdd(guildID string, presence *Presence) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, p := range guild.Presences {
+		if p.User.ID == presence.User.ID {
+			//guild.Presences[i] = presence
+
+			//Update status
+			//if presence.Game != nil {
+			guild.Presences[i].Game = presence.Game
+			//}
+			if presence.Status != "" {
+				guild.Presences[i].Status = presence.Status
+			}
+			if presence.Roles != nil {
+				guild.Presences[i].Roles = presence.Roles
+			}
+			if presence.Nick != "" {
+				guild.Presences[i].Nick = presence.Nick
+			}
+
+			//Update the optionally sent user information
+			//ID Is a mandatory field so you should not need to check if it is empty
+			guild.Presences[i].User.ID = presence.User.ID
+
+			if presence.User.Avatar != "" {
+				guild.Presences[i].User.Avatar = presence.User.Avatar
+			}
+			if presence.User.Discriminator != "" {
+				guild.Presences[i].User.Discriminator = presence.User.Discriminator
+			}
+			if presence.User.Email != "" {
+				guild.Presences[i].User.Email = presence.User.Email
+			}
+			if presence.User.Token != "" {
+				guild.Presences[i].User.Token = presence.User.Token
+			}
+			if presence.User.Username != "" {
+				guild.Presences[i].User.Username = presence.User.Username
+			}
+
+			return nil
+		}
+	}
+
+	guild.Presences = append(guild.Presences)
+	return nil
+}
+
+// PresenceRemove removes a presence from the current world state.
+func (s *State) PresenceRemove(guildID string, presence *Presence) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, p := range guild.Presences {
+		if p.User.ID == presence.User.ID {
+			guild.Presences = append(guild.Presences[:i], guild.Presences[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("presence not found")
+}
+
+// Presence gets a presence by ID from a guild.
+func (s *State) Presence(guildID, userID string) (*Presence, error) {
+	if s == nil {
+		return nil, ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range guild.Presences {
+		if p.User.ID == userID {
+			return p, nil
+		}
+	}
+
+	return nil, errors.New("presence not found")
 }
 
 // TODO: Consider moving Guild state update methods onto *Guild.
@@ -295,7 +402,7 @@ func (s *State) Role(guildID, roleID string) (*Role, error) {
 	return nil, errors.New("role not found")
 }
 
-// ChannelAdd adds a channel to the current world state, or
+// ChannelAdd adds a guild to the current world state, or
 // updates it if it already exists.
 // Channels may exist either as PrivateChannels or inside
 // a guild.
@@ -725,6 +832,45 @@ func (s *State) onInterface(se *Session, i interface{}) (err error) {
 		if s.TrackVoice {
 			err = s.voiceStateUpdate(t)
 		}
+	case *PresenceUpdate:
+		if s.TrackPresences {
+			s.PresenceAdd(t.GuildID, &t.Presence)
+		}
+		if s.TrackMembers {
+			if t.Status == StatusOffline {
+				return
+			}
+
+			var m *Member
+			m, err = s.Member(t.GuildID, t.User.ID)
+
+			if err != nil {
+				// Member not found; this is a user coming online
+				m = &Member{
+					GuildID: t.GuildID,
+					Nick:    t.Nick,
+					User:    t.User,
+					Roles:   t.Roles,
+				}
+
+			} else {
+
+				if t.Nick != "" {
+					m.Nick = t.Nick
+				}
+
+				if t.User.Username != "" {
+					m.User.Username = t.User.Username
+				}
+
+				// PresenceUpdates always contain a list of roles, so there's no need to check for an empty list here
+				m.Roles = t.Roles
+
+			}
+
+			err = s.MemberAdd(m)
+		}
+
 	}
 
 	return
