@@ -169,14 +169,10 @@ func (s *State) PresenceAdd(guildID string, presence *Presence) error {
 			//guild.Presences[i] = presence
 
 			//Update status
-			//if presence.Game != nil {
 			guild.Presences[i].Game = presence.Game
-			//}
+			guild.Presences[i].Roles = presence.Roles
 			if presence.Status != "" {
 				guild.Presences[i].Status = presence.Status
-			}
-			if presence.Roles != nil {
-				guild.Presences[i].Roles = presence.Roles
 			}
 			if presence.Nick != "" {
 				guild.Presences[i].Nick = presence.Nick
