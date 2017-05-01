@@ -558,7 +558,7 @@ type identifyProperties struct {
 type identifyData struct {
 	Token          string             `json:"token"`
 	Properties     identifyProperties `json:"properties"`
-	LargeThreshold int64              `json:"large_threshold"`
+	LargeThreshold int32              `json:"large_threshold"`
 	Compress       bool               `json:"compress"`
 	Shard          *[2]int32          `json:"shard,omitempty"`
 }

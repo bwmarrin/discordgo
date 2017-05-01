@@ -728,7 +728,12 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 		Nick string `json:"nick"`
 	}{nickname}
 
-	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	if userID == "@me" {
+		_, err = s.RequestWithBucketID("PATCH", discordgo.EndpointGuildMember(guild.ID, "@me")+"/nick", data, discordgo.EndpointGuildMember(guild.ID, ""))
+	}else{
+		_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	}
+
 	return
 }
 
