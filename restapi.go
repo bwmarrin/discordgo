@@ -1311,7 +1311,49 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		data.Embed.Type = "rich"
 	}
 
-	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
+	var response []byte
+	if data.File != nil {
+		body := &bytes.Buffer{}
+		bodywriter := multipart.NewWriter(body)
+
+		// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
+
+		if err = bodywriter.WriteField("content", data.Content); err != nil {
+			return nil, err
+		}
+		var embed []byte
+		embed, err = json.Marshal(data.Embed)
+		if err != nil {
+			err = bodywriter.WriteField("embed", string(embed))
+			if err != nil {
+				return nil, err
+			}
+		}
+		if err = bodywriter.WriteField("tts", strconv.FormatBool(data.Tts)); err != nil {
+			return nil, err
+		}
+
+		var writer io.Writer
+		writer, err = bodywriter.CreateFormFile("file", data.File.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = io.Copy(writer, data.File.Reader)
+		if err != nil {
+			return
+		}
+
+		err = bodywriter.Close()
+		if err != nil {
+			return
+		}
+
+		endpoint := EndpointChannelMessages(channelID)
+		response, err = s.request("POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0)
+	} else {
+		response, err = s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
+	}
 	if err != nil {
 		return
 	}
@@ -1445,65 +1487,17 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 // name: The name of the file.
 // io.Reader : A reader for the file contents.
 func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (*Message, error) {
-	return s.ChannelFileSendWithComplex(channelID, name, r, &MessageSend{})
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{File: &File{Name: name, Reader: r}})
 }
 
 // ChannelFileSendWithMessage sends a file to the given channel with an message.
+// DEPRECATED. Use ChannelMessageSendComplex instead.
 // channelID : The ID of a Channel.
 // content: Optional Message content.
 // name: The name of the file.
 // io.Reader : A reader for the file contents.
 func (s *Session) ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (*Message, error) {
-	return s.ChannelFileSendWithComplex(channelID, name, r, &MessageSend{Content: content})
-}
-
-// ChannelFileSendWithComplex sends a file to the given channel with an message.
-// channelID : The ID of a Channel.
-// name: The name of the file.
-// io.Reader : A reader for the file contents.
-// content: Optional extra data.
-func (s *Session) ChannelFileSendWithComplex(channelID, name string, r io.Reader, data *MessageSend) (st *Message, err error) {
-	body := &bytes.Buffer{}
-	bodywriter := multipart.NewWriter(body)
-
-	// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
-
-	if err := bodywriter.WriteField("content", data.Content); err != nil {
-		return nil, err
-	}
-	embed, err := json.Marshal(data.Embed)
-	if err != nil {
-		err = bodywriter.WriteField("embed", string(embed))
-		if err != nil {
-			return nil, err
-		}
-	}
-	if err := bodywriter.WriteField("tts", strconv.FormatBool(data.Tts)); err != nil {
-		return nil, err
-	}
-
-	writer, err := bodywriter.CreateFormFile("file", name)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = io.Copy(writer, r)
-	if err != nil {
-		return
-	}
-
-	err = bodywriter.Close()
-	if err != nil {
-		return
-	}
-
-	response, err := s.request("POST", EndpointChannelMessages(channelID), bodywriter.FormDataContentType(), body.Bytes(), EndpointChannelMessages(channelID), 0)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(response, &st)
-	return
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{File: &File{Name: name, Reader: r}, Content: content})
 }
 
 // ChannelInvites returns an array of Invite structures for the given channel
