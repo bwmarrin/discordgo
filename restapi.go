@@ -1311,6 +1311,8 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		data.Embed.Type = "rich"
 	}
 
+	endpoint := EndpointChannelMessages(channelID)
+
 	var response []byte
 	if data.File != nil {
 		body := &bytes.Buffer{}
@@ -1352,10 +1354,9 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 			return
 		}
 
-		endpoint := EndpointChannelMessages(channelID)
 		response, err = s.request("POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0)
 	} else {
-		response, err = s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
+		response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
 	}
 	if err != nil {
 		return
