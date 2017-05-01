@@ -1311,7 +1311,59 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		data.Embed.Type = "rich"
 	}
 
-	response, err := s.RequestWithBucketID("POST", EndpointChannelMessages(channelID), data, EndpointChannelMessages(channelID))
+	endpoint := EndpointChannelMessages(channelID)
+
+	var response []byte
+	if data.File != nil {
+		body := &bytes.Buffer{}
+		bodywriter := multipart.NewWriter(body)
+
+		// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
+
+		if data.Content != "" {
+			if err = bodywriter.WriteField("content", data.Content); err != nil {
+				return
+			}
+		}
+
+		if data.Embed != nil {
+			var embed []byte
+			embed, err = json.Marshal(data.Embed)
+			if err != nil {
+				return
+			}
+			err = bodywriter.WriteField("embed", string(embed))
+			if err != nil {
+				return
+			}
+		}
+
+		if data.Tts {
+			if err = bodywriter.WriteField("tts", "true"); err != nil {
+				return
+			}
+		}
+
+		var writer io.Writer
+		writer, err = bodywriter.CreateFormFile("file", data.File.Name)
+		if err != nil {
+			return
+		}
+
+		_, err = io.Copy(writer, data.File.Reader)
+		if err != nil {
+			return
+		}
+
+		err = bodywriter.Close()
+		if err != nil {
+			return
+		}
+
+		response, err = s.request("POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0)
+	} else {
+		response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	}
 	if err != nil {
 		return
 	}
@@ -1444,48 +1496,18 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 // channelID : The ID of a Channel.
 // name: The name of the file.
 // io.Reader : A reader for the file contents.
-func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (st *Message, err error) {
-	return s.ChannelFileSendWithMessage(channelID, "", name, r)
+func (s *Session) ChannelFileSend(channelID, name string, r io.Reader) (*Message, error) {
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{File: &File{Name: name, Reader: r}})
 }
 
 // ChannelFileSendWithMessage sends a file to the given channel with an message.
+// DEPRECATED. Use ChannelMessageSendComplex instead.
 // channelID : The ID of a Channel.
 // content: Optional Message content.
 // name: The name of the file.
 // io.Reader : A reader for the file contents.
-func (s *Session) ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (st *Message, err error) {
-
-	body := &bytes.Buffer{}
-	bodywriter := multipart.NewWriter(body)
-
-	if len(content) != 0 {
-		if err := bodywriter.WriteField("content", content); err != nil {
-			return nil, err
-		}
-	}
-
-	writer, err := bodywriter.CreateFormFile("file", name)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = io.Copy(writer, r)
-	if err != nil {
-		return
-	}
-
-	err = bodywriter.Close()
-	if err != nil {
-		return
-	}
-
-	response, err := s.request("POST", EndpointChannelMessages(channelID), bodywriter.FormDataContentType(), body.Bytes(), EndpointChannelMessages(channelID), 0)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(response, &st)
-	return
+func (s *Session) ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (*Message, error) {
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{File: &File{Name: name, Reader: r}, Content: content})
 }
 
 // ChannelInvites returns an array of Invite structures for the given channel
