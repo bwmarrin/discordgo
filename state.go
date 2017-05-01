@@ -202,7 +202,7 @@ func (s *State) PresenceAdd(guildID string, presence *Presence) error {
 		}
 	}
 
-	guild.Presences = append(guild.Presences)
+	guild.Presences = append(guild.Presences, presence)
 	return nil
 }
 
@@ -398,7 +398,7 @@ func (s *State) Role(guildID, roleID string) (*Role, error) {
 	return nil, errors.New("role not found")
 }
 
-// ChannelAdd adds a guild to the current world state, or
+// ChannelAdd adds a channel to the current world state, or
 // updates it if it already exists.
 // Channels may exist either as PrivateChannels or inside
 // a guild.
