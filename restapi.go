@@ -1321,14 +1321,17 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		if err = bodywriter.WriteField("content", data.Content); err != nil {
 			return nil, err
 		}
+
 		var embed []byte
 		embed, err = json.Marshal(data.Embed)
 		if err != nil {
-			err = bodywriter.WriteField("embed", string(embed))
-			if err != nil {
-				return nil, err
-			}
+			return
 		}
+		err = bodywriter.WriteField("embed", string(embed))
+		if err != nil {
+			return nil, err
+		}
+
 		if err = bodywriter.WriteField("tts", strconv.FormatBool(data.Tts)); err != nil {
 			return nil, err
 		}
