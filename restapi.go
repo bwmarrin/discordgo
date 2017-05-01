@@ -1319,7 +1319,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
 
 		if err = bodywriter.WriteField("content", data.Content); err != nil {
-			return nil, err
+			return
 		}
 
 		var embed []byte
@@ -1329,17 +1329,17 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		}
 		err = bodywriter.WriteField("embed", string(embed))
 		if err != nil {
-			return nil, err
+			return
 		}
 
 		if err = bodywriter.WriteField("tts", strconv.FormatBool(data.Tts)); err != nil {
-			return nil, err
+			return
 		}
 
 		var writer io.Writer
 		writer, err = bodywriter.CreateFormFile("file", data.File.Name)
 		if err != nil {
-			return nil, err
+			return
 		}
 
 		_, err = io.Copy(writer, data.File.Reader)
