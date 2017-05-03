@@ -173,6 +173,12 @@ func unmarshal(data []byte, v interface{}) error {
 // ------------------------------------------------------------------------------------------------
 
 // Login asks the Discord server for an authentication token.
+//
+// NOTE: While email/pass authentication is supported by DiscordGo it is
+// HIGHLY DISCOURAGED by Discord. Please only use email/pass to obtain a token
+// and then use that authentication token for all future connections.
+// Also, doing any form of automation with a user (non Bot) account may result
+// in that account being permanently banned from Discord.
 func (s *Session) Login(email, password string) (err error) {
 
 	data := struct {
