@@ -11,6 +11,7 @@ package discordgo
 
 import (
 	"fmt"
+	"io"
 	"regexp"
 )
 
@@ -31,11 +32,18 @@ type Message struct {
 	Reactions       []*MessageReactions  `json:"reactions"`
 }
 
+// File stores info about files you e.g. send in messages.
+type File struct {
+	Name   string
+	Reader io.Reader
+}
+
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
 	Content string        `json:"content,omitempty"`
 	Embed   *MessageEmbed `json:"embed,omitempty"`
 	Tts     bool          `json:"tts"`
+	File    *File         `json:"file"`
 }
 
 // MessageEdit is used to chain parameters via ChannelMessageEditComplex, which
