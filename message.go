@@ -167,13 +167,22 @@ type MessageReactions struct {
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
 // username of the mention.
-func (m *Message) ContentWithMentionsReplaced(s *Session) (content string, err error) {
+func (m *Message) ContentWithMentionsReplaced() (content string) {
+	content = m.Content
+
+	for _, user := range m.Mentions {
+		content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+user.Username)
+	}
+	return
+}
+
+// ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
+// username of the mention, but also role IDs and more.
+func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, err error) {
 	content = m.Content
 
 	if !s.StateEnabled {
-		for _, user := range m.Mentions {
-			content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+user.Username)
-		}
+		content = m.ContentWithMentionsReplaced()
 		return
 	}
 
