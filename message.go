@@ -10,7 +10,6 @@
 package discordgo
 
 import (
-	"fmt"
 	"io"
 	"regexp"
 )
@@ -174,7 +173,7 @@ func (m *Message) ContentWithMentionsReplaced() string {
 	}
 	content := m.Content
 	for _, user := range m.Mentions {
-		content = regexp.MustCompile(fmt.Sprintf("<@!?(%s)>", user.ID)).ReplaceAllString(content, "@"+user.Username)
+		content = regexp.MustCompile("<@!?("+regexp.QuoteMeta(user.ID)+")>").ReplaceAllString(content, "@"+user.Username)
 	}
 	return content
 }
