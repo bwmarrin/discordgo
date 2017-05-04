@@ -12,6 +12,7 @@ package discordgo
 import (
 	"io"
 	"regexp"
+	"strings"
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -211,7 +212,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		if !role.Mentionable {
 			continue
 		}
-		content = regexp.MustCompile("<@&"+regexp.QuoteMeta(role.ID)+">").ReplaceAllString(content, "@"+role.Name)
+		content = strings.Replace(content, "<@&"+role.ID+">", "@"+role.Name, -1)
 	}
 	return
 }
