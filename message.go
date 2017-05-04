@@ -10,7 +10,6 @@
 package discordgo
 
 import (
-	"fmt"
 	"io"
 	"regexp"
 )
@@ -168,13 +167,42 @@ type MessageReactions struct {
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
 // username of the mention.
-func (m *Message) ContentWithMentionsReplaced() string {
-	if m.Mentions == nil {
-		return m.Content
+func (m *Message) ContentWithMentionsReplaced(s *Session) (content string, err error) {
+	content = m.Content
+
+	if !s.StateEnabled {
+		for _, user := range m.Mentions {
+			content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+user.Username)
+		}
+		return
 	}
-	content := m.Content
+
+	channel, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		return
+	}
+	guild, err := s.State.Guild(channel.GuildID)
+	if err != nil {
+		return
+	}
+
 	for _, user := range m.Mentions {
-		content = regexp.MustCompile(fmt.Sprintf("<@!?(%s)>", user.ID)).ReplaceAllString(content, "@"+user.Username)
+		member, err := s.State.Member(channel.GuildID, user.ID)
+		if err != nil {
+			continue
+		}
+
+		nick := member.Nick
+		if nick == "" {
+			nick = user.Username
+		}
+		content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+nick)
 	}
-	return content
+	for _, role := range guild.Roles {
+		if !role.Mentionable {
+			continue
+		}
+		content = regexp.MustCompile("<@&"+regexp.QuoteMeta(role.ID)+">").ReplaceAllString(content, "@"+role.Name)
+	}
+	return
 }
