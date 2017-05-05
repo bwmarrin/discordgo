@@ -928,8 +928,9 @@ func (s *State) UserColor(userID, channelID string) int {
 		return 0
 	}
 
-	roles := Roles(guild.Roles)
-	sort.Sort(roles)
+	roles := make([]*Role, len(guild.Roles))
+	copy(roles, guild.Roles)
+	sort.Sort(Roles(roles))
 
 	for _, role := range roles {
 		for _, roleID := range member.Roles {
