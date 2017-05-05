@@ -12,7 +12,6 @@ package discordgo
 import (
 	"io"
 	"regexp"
-	"strings"
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -177,6 +176,8 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 	return
 }
 
+var patternRoles *regexp.Regexp
+
 // ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
 // username of the mention, but also role IDs and more.
 func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, err error) {
@@ -188,10 +189,6 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	}
 
 	channel, err := s.State.Channel(m.ChannelID)
-	if err != nil {
-		return
-	}
-	guild, err := s.State.Guild(channel.GuildID)
 	if err != nil {
 		return
 	}
@@ -208,11 +205,18 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		}
 		content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+nick)
 	}
-	for _, role := range guild.Roles {
-		if !role.Mentionable {
-			continue
-		}
-		content = strings.Replace(content, "<@&"+role.ID+">", "@"+role.Name, -1)
+
+	if patternRoles == nil {
+		patternRoles = regexp.MustCompile("<&[^>]*>")
 	}
+
+	patternRoles.ReplaceAllStringFunc(content, func(mention string) string {
+		role, err := s.State.Role(channel.GuildID, mention)
+		if err != nil || !role.Mentionable {
+			return mention
+		}
+
+		return "<@&" + role.ID + ">"
+	})
 	return
 }
