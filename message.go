@@ -199,9 +199,10 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	}
 
 	for _, user := range m.Mentions {
-		member, err := s.State.Member(channel.GuildID, user.ID)
 		nick := user.Username
-		if (err == nil && member.Nick != "") || nick == "" {
+
+		member, err := s.State.Member(channel.GuildID, user.ID)
+		if err == nil && member.Nick != "" {
 			nick = member.Nick
 		}
 
