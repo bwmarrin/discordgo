@@ -172,7 +172,10 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 	content = m.Content
 
 	for _, user := range m.Mentions {
-		content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+user.Username)
+		content = strings.NewReplacer(
+			"<@"+user.ID+">", "@"+user.Username,
+			"<@!"+user.ID+">", "@"+user.Username,
+		).Replace(content)
 	}
 	return
 }
