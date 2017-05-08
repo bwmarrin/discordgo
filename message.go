@@ -12,6 +12,7 @@ package discordgo
 import (
 	"io"
 	"regexp"
+	"strings"
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -176,7 +177,7 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 	return
 }
 
-var patternRoles *regexp.Regexp
+var patternChannels *regexp.Regexp
 
 // ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
 // username of the mention, but also role IDs and more.
@@ -190,33 +191,42 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 
 	channel, err := s.State.Channel(m.ChannelID)
 	if err != nil {
+		content = m.ContentWithMentionsReplaced()
 		return
 	}
 
 	for _, user := range m.Mentions {
 		member, err := s.State.Member(channel.GuildID, user.ID)
-		if err != nil {
+		nick := user.Username
+		if (err == nil && member.Nick != "") || nick == "" {
+			nick = member.Nick
+		}
+
+		content = strings.NewReplacer(
+			"<@"+user.ID+">", "@"+nick,
+			"<@!"+user.ID+">", "@"+nick,
+		).Replace(content)
+	}
+	for _, roleID := range m.MentionRoles {
+		role, err := s.State.Role(channel.GuildID, roleID)
+		if err != nil || !role.Mentionable {
 			continue
 		}
 
-		nick := member.Nick
-		if nick == "" {
-			nick = user.Username
-		}
-		content = regexp.MustCompile("<@!?"+regexp.QuoteMeta(user.ID)+">").ReplaceAllString(content, "@"+nick)
+		content = strings.Replace(content, "<&"+role.ID+">", "@"+role.Name, -1)
 	}
 
-	if patternRoles == nil {
-		patternRoles = regexp.MustCompile("<&[^>]*>")
+	if patternChannels == nil {
+		patternChannels = regexp.MustCompile("<#[^>]*>")
 	}
 
-	patternRoles.ReplaceAllStringFunc(content, func(mention string) string {
-		role, err := s.State.Role(channel.GuildID, mention)
-		if err != nil || !role.Mentionable {
+	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
+		channel, err := s.State.Channel(mention[2 : len(mention)-1])
+		if err != nil {
 			return mention
 		}
 
-		return "<@&" + role.ID + ">"
+		return "#" + channel.Name
 	})
 	return
 }
