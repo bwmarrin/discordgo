@@ -304,7 +304,7 @@ type Game struct {
 // UnmarshalJSON unmarshals json to Game struct
 func (g *Game) UnmarshalJSON(bytes []byte) error {
 	temp := &struct {
-		Name string          `json:"name"`
+		Name json.Number     `json:"name"`
 		Type json.RawMessage `json:"type"`
 		URL  string          `json:"url"`
 	}{}
@@ -312,8 +312,8 @@ func (g *Game) UnmarshalJSON(bytes []byte) error {
 	if err != nil {
 		return err
 	}
-	g.Name = temp.Name
 	g.URL = temp.URL
+	g.Name = temp.Name.String()
 
 	if temp.Type != nil {
 		err = json.Unmarshal(temp.Type, &g.Type)
