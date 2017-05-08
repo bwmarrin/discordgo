@@ -206,7 +206,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		}
 
 		content = strings.NewReplacer(
-			"<@"+user.ID+">", "@"+nick,
+			"<@"+user.ID+">", "@"+user.Username,
 			"<@!"+user.ID+">", "@"+nick,
 		).Replace(content)
 	}

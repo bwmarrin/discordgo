@@ -35,7 +35,7 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		MentionRoles: []string{"role"},
 		Mentions:     []*User{user},
 	}
-	if result, _ := m.ContentWithMoreMentionsReplaced(s); result != "@Role Name @User Nick @User Nick #Channel Name" {
+	if result, _ := m.ContentWithMoreMentionsReplaced(s); result != "@Role Name @User Nick @User Name #Channel Name" {
 		t.Error(result)
 	}
 }
