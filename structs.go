@@ -549,6 +549,8 @@ const (
 	PermissionAdministrator
 	PermissionManageChannels
 	PermissionManageServer
+	PermissionAddReactions
+	PermissionViewAuditLogs
 
 	PermissionAllText = PermissionReadMessages |
 		PermissionSendMessages |
@@ -568,7 +570,9 @@ const (
 		PermissionAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
-		PermissionManageChannels
+		PermissionManageChannels |
+		PermissionAddReactions |
+		PermissionViewAuditLogs
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
