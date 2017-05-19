@@ -1219,6 +1219,24 @@ func (s *Session) ChannelEdit(channelID, name string) (st *Channel, err error) {
 	return
 }
 
+// ChannelEditTopic edits the given channel topic
+// channelID  : The ID of a Channel
+// topc       : The new topic to assign the channel.
+func (s *Session) ChannelEditTopic(channelID, topic string) (st *Channel, err error) {
+
+	data := struct {
+		Topic string `json:"topic"`
+	}{topic}
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(channelID), data, EndpointChannel(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // ChannelDelete deletes the given channel
 // channelID  : The ID of a Channel
 func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
