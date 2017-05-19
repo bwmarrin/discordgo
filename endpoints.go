@@ -42,6 +42,9 @@ var (
 	EndpointResetPassword  = EndpointAuth + "reset"
 	EndpointRegister       = EndpointAuth + "register"
 
+        EndpointAuthMfa        = EndpointAuth + "mfa/"
+        EndpointAuthTotp       = EndpointAuthMfa + "totp"
+
 	EndpointVoice        = EndpointAPI + "/voice/"
 	EndpointVoiceRegions = EndpointVoice + "regions"
 	EndpointVoiceIce     = EndpointVoice + "ice"

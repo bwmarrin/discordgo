@@ -31,6 +31,12 @@ type Session struct {
 	Token string
 	MFA   bool
 
+	// Indicates if two factor is required or not
+	Mfa bool
+
+	// Used to keep track of ticket needed for mfa
+	Ticket string
+
 	// Debug for printing JSON request/responses
 	Debug    bool // Deprecated, will be removed.
 	LogLevel int
