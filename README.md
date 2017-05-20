@@ -1,6 +1,29 @@
-# DiscordGo 
 
+
+
+
+# DiscordGo 
 [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discord.gg/0SBTUU1wZTWT6sqd)
+
+
+ 
+<!-- TOC -->
+
+- [DiscordGo](#discordgo)
+    - [Getting Started](#getting-started)
+        - [master vs develop Branch](#master-vs-develop-branch)
+        - [Installing](#installing)
+        - [Usage](#usage)
+    - [Documentation](#documentation)
+    - [Examples](#examples)
+    - [Troubleshooting](#troubleshooting)
+    - [Contributing](#contributing)
+    - [List of Discord APIs](#list-of-discord-apis)
+    - [Special Thanks](#special-thanks)
+
+<!-- /TOC -->
+
+_____
 
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
