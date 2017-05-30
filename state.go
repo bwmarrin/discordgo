@@ -254,6 +254,107 @@ func (s *State) Presence(guildID, userID string) (*Presence, error) {
 	return nil, ErrStateNotFound
 }
 
+// PresenceAdd adds a presence to the current world state, or
+// updates it if it already exists.
+func (s *State) PresenceAdd(guildID string, presence *Presence) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, p := range guild.Presences {
+		if p.User.ID == presence.User.ID {
+			//guild.Presences[i] = presence
+
+			//Update status
+			guild.Presences[i].Game = presence.Game
+			guild.Presences[i].Roles = presence.Roles
+			if presence.Status != "" {
+				guild.Presences[i].Status = presence.Status
+			}
+			if presence.Nick != "" {
+				guild.Presences[i].Nick = presence.Nick
+			}
+
+			//Update the optionally sent user information
+			//ID Is a mandatory field so you should not need to check if it is empty
+			guild.Presences[i].User.ID = presence.User.ID
+
+			if presence.User.Avatar != "" {
+				guild.Presences[i].User.Avatar = presence.User.Avatar
+			}
+			if presence.User.Discriminator != "" {
+				guild.Presences[i].User.Discriminator = presence.User.Discriminator
+			}
+			if presence.User.Email != "" {
+				guild.Presences[i].User.Email = presence.User.Email
+			}
+			if presence.User.Token != "" {
+				guild.Presences[i].User.Token = presence.User.Token
+			}
+			if presence.User.Username != "" {
+				guild.Presences[i].User.Username = presence.User.Username
+			}
+
+			return nil
+		}
+	}
+
+	guild.Presences = append(guild.Presences, presence)
+	return nil
+}
+
+// PresenceRemove removes a presence from the current world state.
+func (s *State) PresenceRemove(guildID string, presence *Presence) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, p := range guild.Presences {
+		if p.User.ID == presence.User.ID {
+			guild.Presences = append(guild.Presences[:i], guild.Presences[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("presence not found")
+}
+
+// Presence gets a presence by ID from a guild.
+func (s *State) Presence(guildID, userID string) (*Presence, error) {
+	if s == nil {
+		return nil, ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range guild.Presences {
+		if p.User.ID == userID {
+			return p, nil
+		}
+	}
+
+	return nil, errors.New("presence not found")
+}
+
 // TODO: Consider moving Guild state update methods onto *Guild.
 
 // MemberAdd adds a member to the current world state, or
@@ -932,8 +1033,9 @@ func (s *State) UserColor(userID, channelID string) int {
 		return 0
 	}
 
-	roles := Roles(guild.Roles)
-	sort.Sort(roles)
+	roles := make([]*Role, len(guild.Roles))
+	copy(roles, guild.Roles)
+	sort.Sort(Roles(roles))
 
 	for _, role := range roles {
 		for _, roleID := range member.Roles {
