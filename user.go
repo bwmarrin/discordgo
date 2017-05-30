@@ -31,17 +31,12 @@ func (u *User) Mention() string {
 // AvatarURL returns a URL to the user's avatar.
 //		size:     The size of the user's avatar as a power of two
 func (u *User) AvatarURL(size string) string {
-	return UserAvatarURL(u.ID, u.Avatar, size)
-}
-
-// UserAvatarURL returns a URL to the requested user's avatar
-//		userID:   The ID of the user to get
-//		avatarID: The ID of the user's avatar
-//		size:     The size of the user's avatar as a power of two
-func UserAvatarURL(userID, avatarID, size string) string {
-	extension := ".jpg"
-	if strings.HasPrefix(avatarID, "a_") {
-		extension = ".gif"
+	var URL string
+	if strings.HasPrefix(u.Avatar, "a_") {
+		URL = EndpointUserAvatarAnimated(u.ID, u.Avatar)
+	} else {
+		URL = EndpointUserAvatar(u.ID, u.Avatar)
 	}
-	return EndpointCDNAvatars + userID + "/" + avatarID + extension + "?size=" + size
+
+	return URL + "?" + size
 }
