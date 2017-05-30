@@ -38,5 +38,5 @@ func (u *User) AvatarURL(size string) string {
 		URL = EndpointUserAvatar(u.ID, u.Avatar)
 	}
 
-	return URL + "?" + size
+	return URL + "?size=" + size
 }
