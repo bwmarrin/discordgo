@@ -23,6 +23,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"strconv"
 	"strings"
@@ -1316,6 +1317,8 @@ func (s *Session) ChannelMessageSend(channelID string, content string) (*Message
 	})
 }
 
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
 // ChannelMessageSendComplex sends a message to the given channel.
 // channelID : The ID of a Channel.
 // data      : The message struct to send.
@@ -1326,46 +1329,60 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 	endpoint := EndpointChannelMessages(channelID)
 
-	var response []byte
+	// TODO: Remove this when compatibility is not required.
+	files := data.Files
 	if data.File != nil {
+		if files == nil {
+			files = []*File{data.File}
+		} else {
+			err = fmt.Errorf("cannot specify both File and Files")
+			return
+		}
+	}
+
+	var response []byte
+	if len(files) > 0 {
 		body := &bytes.Buffer{}
 		bodywriter := multipart.NewWriter(body)
 
-		// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
-
-		if data.Content != "" {
-			if err = bodywriter.WriteField("content", data.Content); err != nil {
-				return
-			}
-		}
-
-		if data.Embed != nil {
-			var embed []byte
-			embed, err = json.Marshal(data.Embed)
-			if err != nil {
-				return
-			}
-			err = bodywriter.WriteField("embed", string(embed))
-			if err != nil {
-				return
-			}
-		}
-
-		if data.Tts {
-			if err = bodywriter.WriteField("tts", "true"); err != nil {
-				return
-			}
-		}
-
-		var writer io.Writer
-		writer, err = bodywriter.CreateFormFile("file", data.File.Name)
+		var payload []byte
+		payload, err = json.Marshal(data)
 		if err != nil {
 			return
 		}
 
-		_, err = io.Copy(writer, data.File.Reader)
+		var p io.Writer
+
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", `form-data; name="payload_json"`)
+		h.Set("Content-Type", "application/json")
+
+		p, err = bodywriter.CreatePart(h)
 		if err != nil {
 			return
+		}
+
+		if _, err = p.Write(payload); err != nil {
+			return
+		}
+
+		for i, file := range files {
+			h := make(textproto.MIMEHeader)
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, quoteEscaper.Replace(file.Name)))
+			contentType := file.ContentType
+			if contentType == "" {
+				contentType = "application/octet-stream"
+			}
+			h.Set("Content-Type", contentType)
+
+			p, err = bodywriter.CreatePart(h)
+			if err != nil {
+				return
+			}
+
+			if _, err = io.Copy(p, file.Reader); err != nil {
+				return
+			}
 		}
 
 		err = bodywriter.Close()
