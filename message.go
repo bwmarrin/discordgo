@@ -34,8 +34,9 @@ type Message struct {
 
 // File stores info about files you e.g. send in messages.
 type File struct {
-	Name   string
-	Reader io.Reader
+	Name        string
+	ContentType string
+	Reader      io.Reader
 }
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
@@ -43,7 +44,10 @@ type MessageSend struct {
 	Content string        `json:"content,omitempty"`
 	Embed   *MessageEmbed `json:"embed,omitempty"`
 	Tts     bool          `json:"tts"`
-	File    *File         `json:"file"`
+	Files   []*File       `json:"-"`
+
+	// TODO: Remove this when compatibility is not required.
+	File *File `json:"-"`
 }
 
 // MessageEdit is used to chain parameters via ChannelMessageEditComplex, which
