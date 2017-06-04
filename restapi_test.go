@@ -166,6 +166,17 @@ func TestGateway(t *testing.T) {
 	}
 }
 
+func TestGatewayBot(t *testing.T) {
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+	_, err := dg.GatewayBot()
+	if err != nil {
+		t.Errorf("GatewayBot() returned error: %+v", err)
+	}
+}
+
 func TestVoiceICE(t *testing.T) {
 
 	if dg == nil {

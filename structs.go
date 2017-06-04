@@ -512,6 +512,12 @@ type MessageReaction struct {
 	ChannelID string `json:"channel_id"`
 }
 
+// GatewayBotResponse stores the data for the gateway/bot response
+type GatewayBotResponse struct {
+	URL    string `json:"url"`
+	Shards int    `json:"shards"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
