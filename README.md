@@ -76,6 +76,23 @@ Discord API functions and to set callback functions for Discord events.
 discord, err := discordgo.New("authentication token")
 ```
 
+### Troubleshooting
+
+If your go environment is brand new, you may encounter a 'cannot find package' 
+error when building projects that import discordgo. If go can't find it, tell
+go to `go get` it.
+
+For example, if you see this in your build output:
+
+```sh
+...cannot find package "golang.org/x/crypto/nacl/secretbox"...
+```
+
+Run this to fix it:
+```sh
+go get golang.org/x/crypto/nacl/secretbox
+```
+
 See Documentation and Examples below for more detailed information.
 
 
