@@ -1716,7 +1716,7 @@ func (s *Session) Gateway() (gateway string, err error) {
 	return
 }
 
-// Gateway returns the websocket Gateway address and the reccomended number of shards
+// GatewayBot returns the websocket Gateway address and the recommended number of shards
 func (s *Session) GatewayBot() (st *GatewayBotResponse, err error) {
 
 	response, err := s.RequestWithBucketID("GET", EndpointGatewayBot, nil, EndpointGatewayBot)
