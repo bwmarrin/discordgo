@@ -10,9 +10,9 @@
 package discordgo
 
 import (
-	"fmt"
 	"io"
 	"regexp"
+	"strings"
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -172,13 +172,65 @@ type MessageReactions struct {
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
 // username of the mention.
-func (m *Message) ContentWithMentionsReplaced() string {
-	if m.Mentions == nil {
-		return m.Content
-	}
-	content := m.Content
+func (m *Message) ContentWithMentionsReplaced() (content string) {
+	content = m.Content
+
 	for _, user := range m.Mentions {
-		content = regexp.MustCompile(fmt.Sprintf("<@!?(%s)>", user.ID)).ReplaceAllString(content, "@"+user.Username)
+		content = strings.NewReplacer(
+			"<@"+user.ID+">", "@"+user.Username,
+			"<@!"+user.ID+">", "@"+user.Username,
+		).Replace(content)
 	}
-	return content
+	return
+}
+
+var patternChannels = regexp.MustCompile("<#[^>]*>")
+
+// ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
+// username of the mention, but also role IDs and more.
+func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, err error) {
+	content = m.Content
+
+	if !s.StateEnabled {
+		content = m.ContentWithMentionsReplaced()
+		return
+	}
+
+	channel, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		content = m.ContentWithMentionsReplaced()
+		return
+	}
+
+	for _, user := range m.Mentions {
+		nick := user.Username
+
+		member, err := s.State.Member(channel.GuildID, user.ID)
+		if err == nil && member.Nick != "" {
+			nick = member.Nick
+		}
+
+		content = strings.NewReplacer(
+			"<@"+user.ID+">", "@"+user.Username,
+			"<@!"+user.ID+">", "@"+nick,
+		).Replace(content)
+	}
+	for _, roleID := range m.MentionRoles {
+		role, err := s.State.Role(channel.GuildID, roleID)
+		if err != nil || !role.Mentionable {
+			continue
+		}
+
+		content = strings.Replace(content, "<&"+role.ID+">", "@"+role.Name, -1)
+	}
+
+	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
+		channel, err := s.State.Channel(mention[2 : len(mention)-1])
+		if err != nil || channel.Type == "voice" {
+			return mention
+		}
+
+		return "#" + channel.Name
+	})
+	return
 }
