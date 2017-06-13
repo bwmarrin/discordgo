@@ -184,7 +184,7 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 	return
 }
 
-var patternChannels *regexp.Regexp
+var patternChannels = regexp.MustCompile("<#[^>]*>")
 
 // ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
 // username of the mention, but also role IDs and more.
@@ -222,10 +222,6 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		}
 
 		content = strings.Replace(content, "<&"+role.ID+">", "@"+role.Name, -1)
-	}
-
-	if patternChannels == nil {
-		patternChannels = regexp.MustCompile("<#[^>]*>")
 	}
 
 	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
