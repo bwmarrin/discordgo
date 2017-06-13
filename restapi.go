@@ -23,14 +23,22 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// ErrJSONUnmarshal is returned for JSON Unmarshall errors.
-var ErrJSONUnmarshal = errors.New("json unmarshal")
+// All error constants
+var (
+	ErrJSONUnmarshal           = errors.New("json unmarshal")
+	ErrStatusOffline           = errors.New("You can't set your Status to offline")
+	ErrVerificationLevelBounds = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
+	ErrPruneDaysBounds         = errors.New("the number of days should be more than or equal to 1")
+	ErrGuildNoIcon             = errors.New("guild does not have an icon set")
+	ErrGuildNoSplash           = errors.New("guild does not have a splash set")
+)
 
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
@@ -302,8 +310,8 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 	// If left blank, avatar will be set to null/blank
 
 	data := struct {
-		Email       string `json:"email"`
-		Password    string `json:"password"`
+		Email       string `json:"email,omitempty"`
+		Password    string `json:"password,omitempty"`
 		Username    string `json:"username,omitempty"`
 		Avatar      string `json:"avatar,omitempty"`
 		NewPassword string `json:"new_password,omitempty"`
@@ -334,7 +342,7 @@ func (s *Session) UserSettings() (st *Settings, err error) {
 // status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
 func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 	if status == StatusOffline {
-		err = errors.New("You can't set your Status to offline")
+		err = ErrStatusOffline
 		return
 	}
 
@@ -595,7 +603,7 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 	if g.VerificationLevel != nil {
 		val := *g.VerificationLevel
 		if val < 0 || val > 3 {
-			err = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
+			err = ErrVerificationLevelBounds
 			return
 		}
 	}
@@ -988,7 +996,7 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 	count = 0
 
 	if days <= 0 {
-		err = errors.New("the number of days should be more than or equal to 1")
+		err = ErrPruneDaysBounds
 		return
 	}
 
@@ -1018,7 +1026,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 	count = 0
 
 	if days <= 0 {
-		err = errors.New("the number of days should be more than or equal to 1")
+		err = ErrPruneDaysBounds
 		return
 	}
 
@@ -1120,7 +1128,7 @@ func (s *Session) GuildIcon(guildID string) (img image.Image, err error) {
 	}
 
 	if g.Icon == "" {
-		err = errors.New("guild does not have an icon set")
+		err = ErrGuildNoIcon
 		return
 	}
 
@@ -1142,7 +1150,7 @@ func (s *Session) GuildSplash(guildID string) (img image.Image, err error) {
 	}
 
 	if g.Splash == "" {
-		err = errors.New("guild does not have a splash set")
+		err = ErrGuildNoSplash
 		return
 	}
 
@@ -1309,6 +1317,8 @@ func (s *Session) ChannelMessageSend(channelID string, content string) (*Message
 	})
 }
 
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
 // ChannelMessageSendComplex sends a message to the given channel.
 // channelID : The ID of a Channel.
 // data      : The message struct to send.
@@ -1319,46 +1329,60 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 	endpoint := EndpointChannelMessages(channelID)
 
-	var response []byte
+	// TODO: Remove this when compatibility is not required.
+	files := data.Files
 	if data.File != nil {
+		if files == nil {
+			files = []*File{data.File}
+		} else {
+			err = fmt.Errorf("cannot specify both File and Files")
+			return
+		}
+	}
+
+	var response []byte
+	if len(files) > 0 {
 		body := &bytes.Buffer{}
 		bodywriter := multipart.NewWriter(body)
 
-		// What's a better way of doing this? Reflect? Generator? I'm open to suggestions
-
-		if data.Content != "" {
-			if err = bodywriter.WriteField("content", data.Content); err != nil {
-				return
-			}
-		}
-
-		if data.Embed != nil {
-			var embed []byte
-			embed, err = json.Marshal(data.Embed)
-			if err != nil {
-				return
-			}
-			err = bodywriter.WriteField("embed", string(embed))
-			if err != nil {
-				return
-			}
-		}
-
-		if data.Tts {
-			if err = bodywriter.WriteField("tts", "true"); err != nil {
-				return
-			}
-		}
-
-		var writer io.Writer
-		writer, err = bodywriter.CreateFormFile("file", data.File.Name)
+		var payload []byte
+		payload, err = json.Marshal(data)
 		if err != nil {
 			return
 		}
 
-		_, err = io.Copy(writer, data.File.Reader)
+		var p io.Writer
+
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", `form-data; name="payload_json"`)
+		h.Set("Content-Type", "application/json")
+
+		p, err = bodywriter.CreatePart(h)
 		if err != nil {
 			return
+		}
+
+		if _, err = p.Write(payload); err != nil {
+			return
+		}
+
+		for i, file := range files {
+			h := make(textproto.MIMEHeader)
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, quoteEscaper.Replace(file.Name)))
+			contentType := file.ContentType
+			if contentType == "" {
+				contentType = "application/octet-stream"
+			}
+			h.Set("Content-Type", contentType)
+
+			p, err = bodywriter.CreatePart(h)
+			if err != nil {
+				return
+			}
+
+			if _, err = io.Copy(p, file.Reader); err != nil {
+				return
+			}
 		}
 
 		err = bodywriter.Close()

@@ -25,6 +25,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// ErrWSAlreadyOpen is thrown when you attempt to open
+// a websocket that already is open.
+var ErrWSAlreadyOpen = errors.New("web socket already opened")
+
+// ErrWSNotFound is thrown when you attempt to use a websocket
+// that doesn't exist
+var ErrWSNotFound = errors.New("no websocket connection exists")
+
+// ErrWSShardBounds is thrown when you try to use a shard ID that is
+// less than the total shard count
+var ErrWSShardBounds = errors.New("ShardID must be less than ShardCount")
+
 type resumePacket struct {
 	Op   int `json:"op"`
 	Data struct {
@@ -58,7 +70,7 @@ func (s *Session) Open() (err error) {
 	}
 
 	if s.wsConn != nil {
-		err = errors.New("web socket already opened")
+		err = ErrWSAlreadyOpen
 		return
 	}
 
@@ -250,7 +262,7 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 	s.RLock()
 	defer s.RUnlock()
 	if s.wsConn == nil {
-		return errors.New("no websocket connection exists")
+		return ErrWSNotFound
 	}
 
 	var usd updateStatusData
@@ -307,7 +319,7 @@ func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err err
 	s.RLock()
 	defer s.RUnlock()
 	if s.wsConn == nil {
-		return errors.New("no websocket connection exists")
+		return ErrWSNotFound
 	}
 
 	data := requestGuildMembersData{
@@ -621,7 +633,7 @@ func (s *Session) identify() error {
 	if s.ShardCount > 1 {
 
 		if s.ShardID >= s.ShardCount {
-			return errors.New("ShardID must be less than ShardCount")
+			return ErrWSShardBounds
 		}
 
 		data.Shard = &[2]int{s.ShardID, s.ShardCount}

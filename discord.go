@@ -20,8 +20,8 @@ import (
 	"time"
 )
 
-// VERSION of Discordgo, follows Symantic Versioning. (http://semver.org/)
-const VERSION = "0.16.0-dev"
+// VERSION of DiscordGo, follows Semantic Versioning. (http://semver.org/)
+const VERSION = "0.17.0-dev"
 
 // ErrMFA will be risen by New when the user has 2FA.
 var ErrMFA = errors.New("account has 2FA enabled")
