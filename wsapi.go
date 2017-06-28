@@ -201,12 +201,12 @@ type helloOp struct {
 }
 
 // Number of heartbeat intervals to wait until forcing a connection restart.
-const FailedHeartbeatAcks time.Duration = 5
+const FailedHeartbeatAcks time.Duration = 5 * time.Millisecond
 
 // heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
-func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, i time.Duration) {
+func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, heartbeatIntervalMsec time.Duration) {
 
 	s.log(LogInformational, "called")
 
@@ -215,7 +215,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 
 	var err error
-	ticker := time.NewTicker(i * time.Millisecond)
+	ticker := time.NewTicker(heartbeatIntervalMsec * time.Millisecond)
 	defer ticker.Stop()
 
 	for {
@@ -227,7 +227,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 		s.wsMutex.Lock()
 		err = wsConn.WriteJSON(heartbeatOp{1, sequence})
 		s.wsMutex.Unlock()
-		if err != nil || time.Now().UTC().Sub(last) > (i*FailedHeartbeatAcks*time.Millisecond) {
+		if err != nil || time.Now().UTC().Sub(last) > (heartbeatIntervalMsec*FailedHeartbeatAcks) {
 			if err != nil {
 				s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
 			} else {
@@ -409,12 +409,7 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	// Must immediately disconnect from gateway and reconnect to new gateway.
 	if e.Operation == 7 {
 		s.log(LogInformational, "Closing and reconnecting in response to Op7")
-		err := s.Close()
-		if err != nil {
-			s.log(LogWarning, "error closing session connection, %s", err)
-		}
-
-		s.log(LogInformational, "calling reconnect() now")
+		s.Close()
 		s.reconnect()
 		return
 	}
