@@ -59,6 +59,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		MaxRestRetries:         3,
 		Client:                 &http.Client{Timeout: (20 * time.Second)},
 		sequence:               new(int64),
+		LastHeartbeatAck:       time.Now().UTC(),
 	}
 
 	// If no arguments are passed return the empty Session interface.
