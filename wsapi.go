@@ -237,9 +237,6 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 			s.reconnect()
 			return
 		}
-		s.Lock()
-		s.DataReady = true
-		s.Unlock()
 
 		select {
 		case <-ticker.C:
@@ -726,8 +723,6 @@ func (s *Session) Close() (err error) {
 
 	s.log(LogInformational, "called")
 	s.Lock()
-
-	s.DataReady = false
 
 	if s.listening != nil {
 		s.log(LogInformational, "closing listening channel")

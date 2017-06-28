@@ -841,7 +841,11 @@ func (v *VoiceConnection) reconnect() {
 	v.reconnecting = true
 	v.Unlock()
 
-	defer func() { v.reconnecting = false }()
+	defer func() {
+		v.Lock()
+		v.reconnecting = false
+		v.Unlock()
+	}()
 
 	// Close any currently open connections
 	v.Close()
@@ -855,8 +859,8 @@ func (v *VoiceConnection) reconnect() {
 			wait = 600
 		}
 
-		if v.session.DataReady == false || v.session.wsConn == nil {
-			v.log(LogInformational, "cannot reconenct to channel %s with unready session", v.ChannelID)
+		if v.session.wsConn == nil {
+			v.log(LogInformational, "cannot reconnect to channel %s with unready session", v.ChannelID)
 			continue
 		}
 
