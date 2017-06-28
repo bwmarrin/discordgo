@@ -78,6 +78,9 @@ type Session struct {
 	// The http client used for REST requests
 	Client *http.Client
 
+	// Stores the last HeartbeatAck that was recieved (in UTC)
+	LastHeartbeatAck time.Time
+
 	// Event handlers
 	handlersMu   sync.RWMutex
 	handlers     map[string][]*eventHandlerInstance

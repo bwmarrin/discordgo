@@ -131,6 +131,7 @@ func (s *Session) Open() (err error) {
 	// lock.
 	s.listening = make(chan interface{})
 	go s.listen(s.wsConn, s.listening)
+	s.LastHeartbeatAck = time.Now().UTC()
 
 	s.Unlock()
 
@@ -199,6 +200,9 @@ type helloOp struct {
 	Trace             []string      `json:"_trace"`
 }
 
+// Number of heartbeat intervals to wait until forcing a connection restart.
+const FailedHeartbeatAcks time.Duration = 5
+
 // heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
@@ -215,16 +219,22 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	defer ticker.Stop()
 
 	for {
+		s.RLock()
+		last := s.LastHeartbeatAck
+		s.RUnlock()
 		sequence := atomic.LoadInt64(s.sequence)
 		s.log(LogInformational, "sending gateway websocket heartbeat seq %d", sequence)
 		s.wsMutex.Lock()
 		err = wsConn.WriteJSON(heartbeatOp{1, sequence})
 		s.wsMutex.Unlock()
-		if err != nil {
-			s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
-			s.Lock()
-			s.DataReady = false
-			s.Unlock()
+		if err != nil || time.Now().UTC().Sub(last) > (i*FailedHeartbeatAcks*time.Millisecond) {
+			if err != nil {
+				s.log(LogError, "error sending heartbeat to gateway %s, %s", s.gateway, err)
+			} else {
+				s.log(LogError, "haven't gotten a heartbeat ACK in %v, triggering a reconnection", time.Now().UTC().Sub(last))
+			}
+			s.Close()
+			s.reconnect()
 			return
 		}
 		s.Lock()
@@ -398,7 +408,15 @@ func (s *Session) onEvent(messageType int, message []byte) {
 	// Reconnect
 	// Must immediately disconnect from gateway and reconnect to new gateway.
 	if e.Operation == 7 {
-		// TODO
+		s.log(LogInformational, "Closing and reconnecting in response to Op7")
+		err := s.Close()
+		if err != nil {
+			s.log(LogWarning, "error closing session connection, %s", err)
+		}
+
+		s.log(LogInformational, "calling reconnect() now")
+		s.reconnect()
+		return
 	}
 
 	// Invalid Session
@@ -423,6 +441,14 @@ func (s *Session) onEvent(messageType int, message []byte) {
 		} else {
 			go s.heartbeat(s.wsConn, s.listening, h.HeartbeatInterval)
 		}
+		return
+	}
+
+	if e.Operation == 11 {
+		s.Lock()
+		s.LastHeartbeatAck = time.Now().UTC()
+		s.Unlock()
+		s.log(LogInformational, "got heartbeat ACK")
 		return
 	}
 
