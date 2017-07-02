@@ -44,18 +44,36 @@ func (r *RateLimiter) SetCustomRateLimit(suffix string, requests int, reset time
 	r.Lock()
 	defer r.Unlock()
 
+	// if the ratelimit already exists, update the settings.
+	var rl *customRateLimit
 	for _, v := range r.customRateLimits {
 		if v.suffix == suffix {
 			v.requests = requests
 			v.reset = reset
-			return
+			rl = v
+			break
 		}
 	}
-	r.customRateLimits = append(r.customRateLimits, &customRateLimit{
-		suffix:   suffix,
-		requests: requests,
-		reset:    reset,
-	})
+
+	// Create a new ratelimit if it does not exist
+	if rl == nil {
+		rl = &customRateLimit{
+			suffix:   suffix,
+			requests: requests,
+			reset:    reset,
+		}
+		r.customRateLimits = append(r.customRateLimits, rl)
+	}
+
+	// Apply the custom rate limit to all active buckets matching suffix.
+	for _, v := range r.buckets {
+		if strings.HasSuffix(v.Key, rl.suffix) {
+			v.crlmut.Lock()
+			v.customRateLimit = rl
+			v.crlmut.Unlock()
+		}
+	}
+
 }
 
 // RemoveCustomRateLimit removes a custom ratelimit from the ratelimiter and all its buckets
@@ -77,10 +95,13 @@ func (r *RateLimiter) RemoveCustomRateLimit(suffix string) error {
 		return errors.New("err: custom rate limit not found")
 	}
 
+	// remove the ratelimit from all active buckets
 	for _, b := range r.buckets {
+		b.crlmut.Lock()
 		if b.customRateLimit != nil && b.customRateLimit.suffix == suffix {
 			b.customRateLimit = nil
 		}
+		b.crlmut.Unlock()
 	}
 
 	return nil
@@ -147,6 +168,7 @@ type Bucket struct {
 	global    *int64
 
 	// Custom Ratelimits
+	crlmut          sync.Mutex
 	lastReset       time.Time
 	customRateLimit *customRateLimit
 }
@@ -157,7 +179,10 @@ func (b *Bucket) Release(headers http.Header) error {
 	defer b.Unlock()
 
 	// Check if the bucket uses a custom ratelimiter
+	b.crlmut.Lock()
 	if rl := b.customRateLimit; rl != nil {
+		b.crlmut.Unlock()
+
 		if time.Now().Sub(b.lastReset) >= rl.reset {
 			b.remaining = rl.requests - 1
 			b.lastReset = time.Now()
@@ -167,6 +192,7 @@ func (b *Bucket) Release(headers http.Header) error {
 		}
 		return nil
 	}
+	b.crlmut.Unlock()
 
 	if headers == nil {
 		return nil
