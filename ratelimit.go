@@ -180,8 +180,8 @@ func (b *Bucket) Release(headers http.Header) error {
 
 	// Check if the bucket uses a custom ratelimiter
 	b.crlmut.Lock()
+	defer b.crlmut.Unlock()
 	if rl := b.customRateLimit; rl != nil {
-		b.crlmut.Unlock()
 
 		if time.Now().Sub(b.lastReset) >= rl.reset {
 			b.remaining = rl.requests - 1
@@ -192,7 +192,6 @@ func (b *Bucket) Release(headers http.Header) error {
 		}
 		return nil
 	}
-	b.crlmut.Unlock()
 
 	if headers == nil {
 		return nil
