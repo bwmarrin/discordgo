@@ -55,6 +55,9 @@ func (s *Session) SetCustomRateLimit(suffix string, requests int, reset time.Dur
 // RemoveCustomRateLimit removes a custom ratelimit from the ratelimiter and all its buckets
 //    suffix: The suffix of the custom ratelimiter to remove
 func (s *Session) RemoveCustomRateLimit(suffix string) error {
+	if s.ratelimiter == nil {
+		return errors.New("err: nil ratelimiter")
+	}
 	return s.ratelimiter.RemoveCustomRateLimit(suffix)
 }
 
