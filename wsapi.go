@@ -200,7 +200,7 @@ type helloOp struct {
 	Trace             []string      `json:"_trace"`
 }
 
-// Number of heartbeat intervals to wait until forcing a connection restart.
+// FailedHeartbeatAcks is the Number of heartbeat intervals to wait until forcing a connection restart.
 const FailedHeartbeatAcks time.Duration = 5 * time.Millisecond
 
 // heartbeat sends regular heartbeats to Discord so it knows the client
