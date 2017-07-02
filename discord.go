@@ -62,6 +62,9 @@ func New(args ...interface{}) (s *Session, err error) {
 		LastHeartbeatAck:       time.Now().UTC(),
 	}
 
+	// 200ms seems to be the lowest reset value you can set reactions to without getting 429s
+	s.ratelimiter.SetCustomRateLimit("//reactions//", 1, 200*time.Millisecond)
+
 	// If no arguments are passed return the empty Session interface.
 	if args == nil {
 		return

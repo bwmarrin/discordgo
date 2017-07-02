@@ -37,31 +37,9 @@ func NewRatelimiter() *RateLimiter {
 }
 
 // SetCustomRateLimit allows you to define a custom rate limit.
-// As of now, this function should only be used to override Discord's
-// ReactionAdd ratelimit to its correct ratelimit (1 / 250ms) instead of its current one (1/1s.)
-// To set the ReactionAdd ratelimit to its correct value use
-// SetCustomRateLimit("//reactions//", 1, 250 * time.Millisecond).
 //    suffix  :   Suffix of the bucket key. (ex) https://discordapp.com/api/channels/279809045819555840/messages//reactions//
 //    requests:   How many requests per reset
 //    reset   :   How long the reset timer is.
-func (s *Session) SetCustomRateLimit(suffix string, requests int, reset time.Duration) error {
-	if s.ratelimiter == nil {
-		return errors.New("err: nil ratelimiter")
-	}
-	s.ratelimiter.SetCustomRateLimit(suffix, requests, reset)
-	return nil
-}
-
-// RemoveCustomRateLimit removes a custom ratelimit from the ratelimiter and all its buckets
-//    suffix: The suffix of the custom ratelimiter to remove
-func (s *Session) RemoveCustomRateLimit(suffix string) error {
-	if s.ratelimiter == nil {
-		return errors.New("err: nil ratelimiter")
-	}
-	return s.ratelimiter.RemoveCustomRateLimit(suffix)
-}
-
-// SetCustomRateLimit ...
 func (r *RateLimiter) SetCustomRateLimit(suffix string, requests int, reset time.Duration) {
 	r.Lock()
 	defer r.Unlock()
@@ -80,7 +58,8 @@ func (r *RateLimiter) SetCustomRateLimit(suffix string, requests int, reset time
 	})
 }
 
-// RemoveCustomRateLimit ...
+// RemoveCustomRateLimit removes a custom ratelimit from the ratelimiter and all its buckets
+//    suffix: The suffix of the custom ratelimiter to remove
 func (r *RateLimiter) RemoveCustomRateLimit(suffix string) error {
 	r.Lock()
 	defer r.Unlock()
