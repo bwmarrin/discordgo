@@ -764,7 +764,21 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 // userID    : The ID of a User
 func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 
-	_, err = s.RequestWithBucketID("DELETE", EndpointGuildMember(guildID, userID), nil, EndpointGuildMember(guildID, ""))
+	return s.GuildMemberDeleteWithReason(guildID, userID, "")
+}
+
+// GuildMemberDelete removes the given user from the given guild.
+// guildID   : The ID of a Guild.
+// userID    : The ID of a User
+// reason    : The reason for the kick
+func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (err error) {
+
+	uri := EndpointGuildMember(guildID, userID)
+	if reason != "" {
+		uri += "?reason=" + url.QueryEscape(reason)
+	}
+
+	_, err = s.RequestWithBucketID("DELETE", uri, nil, EndpointGuildMember(guildID, ""))
 	return
 }
 
