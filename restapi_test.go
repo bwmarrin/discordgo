@@ -168,10 +168,10 @@ func TestGateway(t *testing.T) {
 
 func TestGatewayBot(t *testing.T) {
 
-	if dg == nil {
-		t.Skip("Skipping, dg not set.")
+	if dgBot == nil {
+		t.Skip("Skipping, dgBot not set.")
 	}
-	_, err := dg.GatewayBot()
+	_, err := dgBot.GatewayBot()
 	if err != nil {
 		t.Errorf("GatewayBot() returned error: %+v", err)
 	}
