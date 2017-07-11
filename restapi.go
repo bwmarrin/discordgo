@@ -1716,6 +1716,28 @@ func (s *Session) Gateway() (gateway string, err error) {
 	return
 }
 
+// GatewayBot returns the websocket Gateway address and the recommended number of shards
+func (s *Session) GatewayBot() (st *GatewayBotResponse, err error) {
+
+	response, err := s.RequestWithBucketID("GET", EndpointGatewayBot, nil, EndpointGatewayBot)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	if err != nil {
+		return
+	}
+
+	// Ensure the gateway always has a trailing slash.
+	// MacOS will fail to connect if we add query params without a trailing slash on the base domain.
+	if !strings.HasSuffix(st.URL, "/") {
+		st.URL += "/"
+	}
+
+	return
+}
+
 // Functions specific to Webhooks
 
 // WebhookCreate returns a new Webhook.
