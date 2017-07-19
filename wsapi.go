@@ -709,6 +709,13 @@ func (s *Session) reconnect() {
 				return
 			}
 
+			// Certain race conditions can call reconnect() twice. If this happens, we
+			// just break out of the reconnect loop
+			if err == ErrWSAlreadyOpen {
+				s.log(LogInformational, "Websocket already exists, no need to reconnect")
+				return
+			}
+
 			s.log(LogError, "error reconnecting to gateway, %s", err)
 
 			<-time.After(wait * time.Second)
