@@ -15,7 +15,6 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"runtime"
@@ -87,7 +86,7 @@ func (s *Session) Open() (err error) {
 		}
 
 		// Add the version and encoding to the URL
-		s.gateway = fmt.Sprintf("%s?v=5&encoding=json", s.gateway)
+		s.gateway = s.gateway + "?v=" + ApiVersion + "&encoding=json"
 	}
 
 	header := http.Header{}
