@@ -15,6 +15,19 @@ import (
 	"strings"
 )
 
+type MessageType int
+
+const (
+	MessageTypeDefault MessageType = iota
+	MessageTypeRecipientAdd
+	MessageTypeRecipientRemove
+	MessageTypeCall
+	MessageTypeChannelNameChange
+	MessageTypeChannelIconChange
+	MessageTypeChannelPinnedMessage
+	MessageTypeGuildMemberJoin
+)
+
 // A Message stores all data related to a specific Discord message.
 type Message struct {
 	ID              string               `json:"id"`
@@ -30,6 +43,7 @@ type Message struct {
 	Embeds          []*MessageEmbed      `json:"embeds"`
 	Mentions        []*User              `json:"mentions"`
 	Reactions       []*MessageReactions  `json:"reactions"`
+	Type            MessageType          `json:"type"`
 }
 
 // File stores info about files you e.g. send in messages.
@@ -226,7 +240,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 
 	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
 		channel, err := s.State.Channel(mention[2 : len(mention)-1])
-		if err != nil || channel.Type == "voice" {
+		if err != nil || channel.Type == ChannelTypeGuildVoice {
 			return mention
 		}
 
