@@ -11,9 +11,11 @@ import (
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////// VARS NEEDED FOR TESTING
 var (
-	dg *Session // Stores global discordgo session
+	dg    *Session // Stores a global discordgo user session
+	dgBot *Session // Stores a global discordgo bot session
 
-	envToken    = os.Getenv("DG_TOKEN")    // Token to use when authenticating
+	envToken    = os.Getenv("DG_TOKEN")    // Token to use when authenticating the user account
+	envBotToken = os.Getenv("DGB_TOKEN")   // Token to use when authenticating the bot account
 	envEmail    = os.Getenv("DG_EMAIL")    // Email to use when authenticating
 	envPassword = os.Getenv("DG_PASSWORD") // Password to use when authenticating
 	envGuild    = os.Getenv("DG_GUILD")    // Guild ID to use for tests
@@ -23,6 +25,12 @@ var (
 )
 
 func init() {
+	if envBotToken != "" {
+		if d, err := New(envBotToken); err == nil {
+			dgBot = d
+		}
+	}
+
 	if envEmail == "" || envPassword == "" || envToken == "" {
 		return
 	}

@@ -90,7 +90,6 @@ that information in a nice format.
 
 - [![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) 
 - [![Go Walker](http://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
-- [Unofficial Discord API Documentation](https://discordapi.readthedocs.org/en/latest/) 
 - Hand crafted documentation coming eventually.
 
 

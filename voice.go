@@ -811,7 +811,11 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		p.Opus, _ = secretbox.Open(nil, recvbuf[12:rlen], &nonce, &v.op4.SecretKey)
 
 		if c != nil {
-			c <- &p
+			select {
+			case c <- &p:
+			case <-close:
+				return
+			}
 		}
 	}
 }
