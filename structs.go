@@ -144,18 +144,27 @@ type Invite struct {
 	Temporary bool      `json:"temporary"`
 }
 
+type ChannelType int
+
+const (
+	ChannelTypeGuildText ChannelType = iota
+	ChannelTypeDM
+	ChannelTypeGuildVoice
+	ChannelTypeGroupDM
+	ChannelTypeGuildCategory
+)
+
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
 	ID                   string                 `json:"id"`
 	GuildID              string                 `json:"guild_id"`
 	Name                 string                 `json:"name"`
 	Topic                string                 `json:"topic"`
-	Type                 string                 `json:"type"`
+	Type                 ChannelType            `json:"type"`
 	LastMessageID        string                 `json:"last_message_id"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate"`
-	IsPrivate            bool                   `json:"is_private"`
-	Recipient            *User                  `json:"recipient"`
+	Recipients           []*User                `json:"recipient"`
 	Messages             []*Message             `json:"-"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 }
@@ -295,6 +304,7 @@ type Presence struct {
 	Game   *Game    `json:"game"`
 	Nick   string   `json:"nick"`
 	Roles  []string `json:"roles"`
+	Since  *int     `json:"since"`
 }
 
 // A Game struct holds the name of the "playing .." game for a user
