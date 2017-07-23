@@ -1018,7 +1018,7 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 		Pruned uint32 `json:"pruned"`
 	}{}
 
-	uri := EndpointGuildPrune(guildID) + "?days=" + days
+	uri := EndpointGuildPrune(guildID) + "?days=" + strconv.FormatUint(uint64(days), 10)
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildPrune(guildID))
 
 	err = unmarshal(body, &p)

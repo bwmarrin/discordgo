@@ -53,5 +53,5 @@ func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTErro
 }
 
 func (r RESTError) Error() string {
-	return "HTTP " + r.Response.Status + ", " + r.ResponseBody
+	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
 }
