@@ -78,6 +78,9 @@ type Session struct {
 	// The http client used for REST requests
 	Client *http.Client
 
+	// Stores the last HeartbeatAck that was recieved (in UTC)
+	LastHeartbeatAck time.Time
+
 	// Event handlers
 	handlersMu   sync.RWMutex
 	handlers     map[string][]*eventHandlerInstance
@@ -304,7 +307,7 @@ type Game struct {
 // UnmarshalJSON unmarshals json to Game struct
 func (g *Game) UnmarshalJSON(bytes []byte) error {
 	temp := &struct {
-		Name string          `json:"name"`
+		Name json.Number     `json:"name"`
 		Type json.RawMessage `json:"type"`
 		URL  string          `json:"url"`
 	}{}
@@ -312,8 +315,8 @@ func (g *Game) UnmarshalJSON(bytes []byte) error {
 	if err != nil {
 		return err
 	}
-	g.Name = temp.Name
 	g.URL = temp.URL
+	g.Name = temp.Name.String()
 
 	if temp.Type != nil {
 		err = json.Unmarshal(temp.Type, &g.Type)
@@ -509,6 +512,12 @@ type MessageReaction struct {
 	ChannelID string `json:"channel_id"`
 }
 
+// GatewayBotResponse stores the data for the gateway/bot response
+type GatewayBotResponse struct {
+	URL    string `json:"url"`
+	Shards int    `json:"shards"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
@@ -549,6 +558,8 @@ const (
 	PermissionAdministrator
 	PermissionManageChannels
 	PermissionManageServer
+	PermissionAddReactions
+	PermissionViewAuditLogs
 
 	PermissionAllText = PermissionReadMessages |
 		PermissionSendMessages |
@@ -568,7 +579,9 @@ const (
 		PermissionAllVoice |
 		PermissionCreateInstantInvite |
 		PermissionManageRoles |
-		PermissionManageChannels
+		PermissionManageChannels |
+		PermissionAddReactions |
+		PermissionViewAuditLogs
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |

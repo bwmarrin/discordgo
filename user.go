@@ -1,5 +1,7 @@
 package discordgo
 
+import "strings"
+
 // A User stores all data for an individual Discord user.
 type User struct {
 	ID            string `json:"id"`
@@ -21,4 +23,17 @@ func (u *User) String() string {
 // Mention return a string which mentions the user
 func (u *User) Mention() string {
 	return "<@" + u.ID + ">"
+}
+
+// AvatarURL returns a URL to the user's avatar.
+//		size:     The size of the user's avatar as a power of two
+func (u *User) AvatarURL(size string) string {
+	var URL string
+	if strings.HasPrefix(u.Avatar, "a_") {
+		URL = EndpointUserAvatarAnimated(u.ID, u.Avatar)
+	} else {
+		URL = EndpointUserAvatar(u.ID, u.Avatar)
+	}
+
+	return URL + "?size=" + size
 }
