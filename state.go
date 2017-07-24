@@ -89,7 +89,6 @@ func (s *State) GuildAdd(guild *Guild) error {
 
 	// If this guild contains a new member slice, we must regenerate the member map so the pointers stay valid
 	if guild.Members != nil {
-		delete(s.memberMap, guild.ID)
 		s.createMemberMap(guild)
 	}
 
@@ -349,7 +348,7 @@ func (s *State) Member(guildID, userID string) (*Member, error) {
 
 	members, ok := s.memberMap[guildID]
 	if !ok {
-		return nil, errors.New("guild not found")
+		return nil, ErrStateNotFound
 	}
 
 	m, ok := members[userID]
