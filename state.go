@@ -90,6 +90,9 @@ func (s *State) GuildAdd(guild *Guild) error {
 	// If this guild contains a new member slice, we must regenerate the member map so the pointers stay valid
 	if guild.Members != nil {
 		s.createMemberMap(guild)
+	} else if _, ok := s.memberMap[guild.ID]; !ok {
+		// Even if we have no new member slice, we still initialize the member map for this guild if it doesn't exist
+		s.memberMap[guild.ID] = make(map[string]*Member)
 	}
 
 	if g, ok := s.guildMap[guild.ID]; ok {
