@@ -458,7 +458,7 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		return nil
 	}
 
-	if channel.IsPrivate {
+	if channel.Type == ChannelTypeDM || channel.Type == ChannelTypeGroupDM {
 		s.PrivateChannels = append(s.PrivateChannels, channel)
 	} else {
 		guild, ok := s.guildMap[channel.GuildID]
@@ -485,7 +485,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 		return err
 	}
 
-	if channel.IsPrivate {
+	if channel.Type == ChannelTypeDM || channel.Type == ChannelTypeGroupDM {
 		s.Lock()
 		defer s.Unlock()
 
