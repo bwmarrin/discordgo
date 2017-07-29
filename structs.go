@@ -50,6 +50,10 @@ type Session struct {
 	// active guilds and the members of the guilds.
 	StateEnabled bool
 
+	// Custom event muxer to be used for incoming events if the
+	// default behaviour is not enough.
+	CustomEventMuxer EventMuxer
+
 	// Exposed but should not be modified by User.
 
 	// Whether the Data Websocket is ready
