@@ -767,7 +767,7 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 	return s.GuildMemberDeleteWithReason(guildID, userID, "")
 }
 
-// GuildMemberDelete removes the given user from the given guild.
+// GuildMemberDeleteWithReason removes the given user from the given guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
 // reason    : The reason for the kick
@@ -1924,6 +1924,16 @@ func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error
 func (s *Session) MessageReactionRemove(channelID, messageID, emojiID, userID string) error {
 
 	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, userID), nil, EndpointMessageReaction(channelID, "", "", ""))
+
+	return err
+}
+
+// MessageReactionsRemoveAll deletes all reactions from a message
+// channelID : The channel ID
+// messageID : The message ID.
+func (s *Session) MessageReactionsRemoveAll(channelID, messageID string) error {
+
+	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReactionsAll(channelID, messageID), nil, EndpointMessageReactionsAll(channelID, messageID))
 
 	return err
 }
