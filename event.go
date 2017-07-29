@@ -1,5 +1,15 @@
 package discordgo
 
+// EventMuxer is an interface for custom event muxers.
+// You can implement this interface and assign it to the session if you
+// need different behaviour from the default event muxer
+// Like not launching the handlers in their own goroutines and keeping it ordered
+//
+// Note: State will no longer be updated on its own, you have to call state.OnInterface
+type EventMuxer interface {
+	HandleEvent(s *Session, t string, evt interface{})
+}
+
 // EventHandler is an interface for Discord events.
 type EventHandler interface {
 	// Type returns the type of event this handler belongs to.
@@ -171,16 +181,30 @@ func (s *Session) handle(t string, i interface{}) {
 // interface{} event.
 func (s *Session) handleEvent(t string, i interface{}) {
 	s.handlersMu.RLock()
-	defer s.handlersMu.RUnlock()
 
 	// All events are dispatched internally first.
 	s.onInterface(i)
+
+	// Use the custom event muxer if provided
+	if s.CustomEventMuxer != nil {
+		s.handlersMu.RUnlock()
+		s.CustomEventMuxer.HandleEvent(s, t, i)
+		return
+	}
+
+	// Update state
+	err := s.State.OnInterface(s, i)
+	if err != nil {
+		s.log(LogDebug, "error dispatching internal event, %s", err)
+	}
 
 	// Then they are dispatched to anyone handling interface{} events.
 	s.handle(interfaceEventType, i)
 
 	// Finally they are dispatched to any typed handlers.
 	s.handle(t, i)
+
+	s.handlersMu.RUnlock()
 }
 
 // setGuildIds will set the GuildID on all the members of a guild.
@@ -215,10 +239,6 @@ func (s *Session) onInterface(i interface{}) {
 		go s.onVoiceServerUpdate(t)
 	case *VoiceStateUpdate:
 		go s.onVoiceStateUpdate(t)
-	}
-	err := s.State.onInterface(s, i)
-	if err != nil {
-		s.log(LogDebug, "error dispatching internal event, %s", err)
 	}
 }
 
