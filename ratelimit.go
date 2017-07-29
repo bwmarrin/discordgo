@@ -1,7 +1,6 @@
 package discordgo
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,81 +29,16 @@ type RateLimiter struct {
 func NewRatelimiter() *RateLimiter {
 
 	return &RateLimiter{
-		buckets:          make(map[string]*Bucket),
-		global:           new(int64),
-		customRateLimits: []*customRateLimit{},
+		buckets: make(map[string]*Bucket),
+		global:  new(int64),
+		customRateLimits: []*customRateLimit{
+			&customRateLimit{
+				suffix:   "//reactions//",
+				requests: 1,
+				reset:    200 * time.Millisecond,
+			},
+		},
 	}
-}
-
-// SetCustomRateLimit allows you to define a custom rate limit.
-//    suffix  :   Suffix of the bucket key. (ex) https://discordapp.com/api/channels/279809045819555840/messages//reactions//
-//    requests:   How many requests per reset
-//    reset   :   How long the reset timer is.
-func (r *RateLimiter) SetCustomRateLimit(suffix string, requests int, reset time.Duration) {
-	r.Lock()
-	defer r.Unlock()
-
-	// if the ratelimit already exists, update the settings.
-	var rl *customRateLimit
-	for _, v := range r.customRateLimits {
-		if v.suffix == suffix {
-			v.requests = requests
-			v.reset = reset
-			rl = v
-			break
-		}
-	}
-
-	// Create a new ratelimit if it does not exist
-	if rl == nil {
-		rl = &customRateLimit{
-			suffix:   suffix,
-			requests: requests,
-			reset:    reset,
-		}
-		r.customRateLimits = append(r.customRateLimits, rl)
-	}
-
-	// Apply the custom rate limit to all active buckets matching suffix.
-	for _, v := range r.buckets {
-		if strings.HasSuffix(v.Key, rl.suffix) {
-			v.crlmut.Lock()
-			v.customRateLimit = rl
-			v.crlmut.Unlock()
-		}
-	}
-
-}
-
-// RemoveCustomRateLimit removes a custom ratelimit from the ratelimiter and all its buckets
-//    suffix: The suffix of the custom ratelimiter to remove
-func (r *RateLimiter) RemoveCustomRateLimit(suffix string) error {
-	r.Lock()
-	defer r.Unlock()
-
-	found := false
-	for i, v := range r.customRateLimits {
-		if v.suffix == suffix {
-			r.customRateLimits = append(r.customRateLimits[:i], r.customRateLimits[i+1:]...)
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return errors.New("err: custom rate limit not found")
-	}
-
-	// remove the ratelimit from all active buckets
-	for _, b := range r.buckets {
-		b.crlmut.Lock()
-		if b.customRateLimit != nil && b.customRateLimit.suffix == suffix {
-			b.customRateLimit = nil
-		}
-		b.crlmut.Unlock()
-	}
-
-	return nil
 }
 
 // getBucket retrieves or creates a bucket
@@ -167,8 +101,6 @@ type Bucket struct {
 	reset     time.Time
 	global    *int64
 
-	// Custom Ratelimits
-	crlmut          sync.Mutex
 	lastReset       time.Time
 	customRateLimit *customRateLimit
 }
@@ -179,10 +111,7 @@ func (b *Bucket) Release(headers http.Header) error {
 	defer b.Unlock()
 
 	// Check if the bucket uses a custom ratelimiter
-	b.crlmut.Lock()
-	defer b.crlmut.Unlock()
 	if rl := b.customRateLimit; rl != nil {
-
 		if time.Now().Sub(b.lastReset) >= rl.reset {
 			b.remaining = rl.requests - 1
 			b.lastReset = time.Now()
