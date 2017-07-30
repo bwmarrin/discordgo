@@ -50,6 +50,10 @@ type Session struct {
 	// active guilds and the members of the guilds.
 	StateEnabled bool
 
+	// Wether to call event handlers synchronously or not
+	// e.g false = launch event handlers in their own goroutines.
+	SyncEvents bool
+
 	// Exposed but should not be modified by User.
 
 	// Whether the Data Websocket is ready
