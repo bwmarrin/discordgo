@@ -50,7 +50,7 @@ type Session struct {
 	// active guilds and the members of the guilds.
 	StateEnabled bool
 
-	// Wether to call event handlers synchronously or not
+	// Whether or not to call event handlers synchronously.
 	// e.g false = launch event handlers in their own goroutines.
 	SyncEvents bool
 
