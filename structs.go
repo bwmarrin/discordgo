@@ -648,5 +648,5 @@ const (
 	ErrCodeInvalidFormBody                           = 50035
 	ErrCodeInviteAcceptedToGuildApplicationsBotNotIn = 50036
 
-	ErrCodeReaction Blocked = 90001
+	ErrCodeReactionBlocked = 90001
 )
