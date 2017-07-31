@@ -166,6 +166,7 @@ type Channel struct {
 	Topic                string                 `json:"topic"`
 	Type                 ChannelType            `json:"type"`
 	LastMessageID        string                 `json:"last_message_id"`
+	NSFW                 bool                   `json:"nsfw"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate"`
 	Recipients           []*User                `json:"recipient"`
