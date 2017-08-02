@@ -156,12 +156,20 @@ func (s *Session) removeEventHandlerInstance(t string, ehi *eventHandlerInstance
 // Handles calling permanent and once handlers for an event type.
 func (s *Session) handle(t string, i interface{}) {
 	for _, eh := range s.handlers[t] {
-		go eh.eventHandler.Handle(s, i)
+		if s.SyncEvents {
+			eh.eventHandler.Handle(s, i)
+		} else {
+			go eh.eventHandler.Handle(s, i)
+		}
 	}
 
 	if len(s.onceHandlers[t]) > 0 {
 		for _, eh := range s.onceHandlers[t] {
-			go eh.eventHandler.Handle(s, i)
+			if s.SyncEvents {
+				eh.eventHandler.Handle(s, i)
+			} else {
+				go eh.eventHandler.Handle(s, i)
+			}
 		}
 		s.onceHandlers[t] = nil
 	}
