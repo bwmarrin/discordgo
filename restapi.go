@@ -1189,7 +1189,7 @@ func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string)
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------
 
-// Channel returns a Channel strucutre of a specific Channel.
+// Channel returns a Channel structure of a specific Channel.
 // channelID  : The ID of the Channel you want returned.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointChannel(channelID), nil, EndpointChannel(channelID))
