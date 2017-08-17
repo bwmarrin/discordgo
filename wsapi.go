@@ -250,8 +250,10 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 }
 
 type updateStatusData struct {
-	IdleSince *int  `json:"idle_since"`
-	Game      *Game `json:"game"`
+	IdleSince *int   `json:"since"`
+	Game      *Game  `json:"game"`
+	AFK       bool   `json:"afk"`
+	Status    string `json:"status"`
 }
 
 type updateStatusOp struct {
@@ -274,7 +276,10 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 		return ErrWSNotFound
 	}
 
-	var usd updateStatusData
+	usd := updateStatusData{
+		Status: "online",
+	}
+
 	if idle > 0 {
 		usd.IdleSince = &idle
 	}
