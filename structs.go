@@ -316,7 +316,7 @@ type Presence struct {
 type Game struct {
 	Name string `json:"name"`
 	Type int    `json:"type"`
-	URL  string `json:"url"`
+	URL  string `json:"url,omitempty"`
 }
 
 // UnmarshalJSON unmarshals json to Game struct
