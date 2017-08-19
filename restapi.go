@@ -1863,14 +1863,9 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 
 // WebhookDelete deletes a webhook for a given ID
 // webhookID: The ID of a webhook.
-func (s *Session) WebhookDelete(webhookID string) (st *Webhook, err error) {
+func (s *Session) WebhookDelete(webhookID string) (err error) {
 
-	body, err := s.RequestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
+	_, err = s.RequestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks)
 
 	return
 }
