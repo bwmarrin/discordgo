@@ -58,65 +58,6 @@ func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, b
 	return s.request(method, urlStr, "application/json", body, bucketID, 0)
 }
 
-type NewRequestBuffer func() RequestBuffer
-
-// RequestPostWithBuffer uses a buffer and a buffer combination function to combine multiple messages if there are fewer than minRequests requests left in the current bucket
-func (s *Session) RequestPostWithBuffer(urlStr string, data interface{}, newBuffer NewRequestBuffer, minRemaining int) (response []byte, err error) {
-	b := s.ratelimiter.GetBucket(urlStr)
-	b.Lock()
-	if b.buffer == nil {
-		b.buffer = newBuffer()
-	}
-
-	// data can be nil here, which tells the buffer to check if it's full
-	remain := b.buffer.Append(data)
-	softwait := s.ratelimiter.GetWaitTime(b, minRemaining)
-
-	if remain == 0 && softwait > 0 {
-		b.Release(nil)
-		time.Sleep(softwait)
-		b.Lock()
-	}
-
-	for {
-		data, remain = b.buffer.Process()
-
-		if data != nil {
-			if wait := s.ratelimiter.GetWaitTime(b, 1); wait > 0 {
-				s.log(LogInformational, "Hit rate limit in buffered request, sleeping for %v (%v remaining)", wait, remain)
-				time.Sleep(wait)
-			}
-
-			b.remaining--
-			softwait = s.ratelimiter.GetWaitTime(b, minRemaining)
-			var body []byte
-			body, err = json.Marshal(data)
-			if err == nil {
-				response, err = s.requestInner("POST", urlStr, "application/json", body, b, 0)
-			} else {
-				b.Release(nil)
-				break
-			}
-		} else {
-			b.Release(nil)
-			break
-		}
-
-		// If we have nothing left to do, bail out early to avoid extra work
-		if remain == 0 {
-			break
-		}
-
-		// If we ran out of breathing room on our bucket, sleep until the end of the soft limit
-		if softwait > 0 {
-			time.Sleep(softwait)
-		}
-		b.Lock() // Re-lock the bucket
-	}
-
-	return
-}
-
 // request makes a (GET/POST/...) Requests to Discord REST API.
 // Sequence is the sequence number, if it fails with a 502 it will
 // retry with sequence+1 until it either succeeds or sequence >= session.MaxRestRetries
@@ -124,11 +65,11 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	return s.requestInner(method, urlStr, contentType, b, s.ratelimiter.LockBucket(bucketID), sequence)
+	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
 }
 
-// Does the inner request logic with an already resolved bucket
-func (s *Session) requestInner(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+// RequestWithLockedBucket makes a request using a bucket that's already been locked
+func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -200,7 +141,7 @@ func (s *Session) requestInner(method, urlStr, contentType string, b []byte, buc
 		if sequence < s.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.requestInner(method, urlStr, contentType, b, s.ratelimiter.LockBucketObject(bucket), sequence+1)
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
@@ -219,7 +160,7 @@ func (s *Session) requestInner(method, urlStr, contentType string, b []byte, buc
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
-		response, err = s.requestInner(method, urlStr, contentType, b, s.ratelimiter.LockBucketObject(bucket), sequence)
+		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
 
 	default: // Error condition
 		err = newRestError(req, resp, response)
