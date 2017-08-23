@@ -12,6 +12,7 @@ package discordgo
 import (
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -30,12 +31,12 @@ const (
 
 // A Message stores all data related to a specific Discord message.
 type Message struct {
-	ID              string               `json:"id"`
-	ChannelID       string               `json:"channel_id"`
+	ID              int64                `json:"id,string"`
+	ChannelID       int64                `json:"channel_id,string"`
 	Content         string               `json:"content"`
 	Timestamp       Timestamp            `json:"timestamp"`
 	EditedTimestamp Timestamp            `json:"edited_timestamp"`
-	MentionRoles    []string             `json:"mention_roles"`
+	MentionRoles    IDSlice              `json:"mention_roles"`
 	Tts             bool                 `json:"tts"`
 	MentionEveryone bool                 `json:"mention_everyone"`
 	Author          *User                `json:"author"`
@@ -70,13 +71,13 @@ type MessageEdit struct {
 	Content *string       `json:"content,omitempty"`
 	Embed   *MessageEmbed `json:"embed,omitempty"`
 
-	ID      string
-	Channel string
+	ID      int64
+	Channel int64
 }
 
 // NewMessageEdit returns a MessageEdit struct, initialized
 // with the Channel and ID.
-func NewMessageEdit(channelID string, messageID string) *MessageEdit {
+func NewMessageEdit(channelID int64, messageID int64) *MessageEdit {
 	return &MessageEdit{
 		Channel: channelID,
 		ID:      messageID,
@@ -191,8 +192,8 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 
 	for _, user := range m.Mentions {
 		content = strings.NewReplacer(
-			"<@"+user.ID+">", "@"+user.Username,
-			"<@!"+user.ID+">", "@"+user.Username,
+			"<@"+StrID(user.ID)+">", "@"+user.Username,
+			"<@!"+StrID(user.ID)+">", "@"+user.Username,
 		).Replace(content)
 	}
 	return
@@ -225,8 +226,8 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		}
 
 		content = strings.NewReplacer(
-			"<@"+user.ID+">", "@"+user.Username,
-			"<@!"+user.ID+">", "@"+nick,
+			"<@"+StrID(user.ID)+">", "@"+user.Username,
+			"<@!"+StrID(user.ID)+">", "@"+nick,
 		).Replace(content)
 	}
 	for _, roleID := range m.MentionRoles {
@@ -235,11 +236,16 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 			continue
 		}
 
-		content = strings.Replace(content, "<&"+role.ID+">", "@"+role.Name, -1)
+		content = strings.Replace(content, "<&"+StrID(role.ID)+">", "@"+role.Name, -1)
 	}
 
 	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
-		channel, err := s.State.Channel(mention[2 : len(mention)-1])
+		id, err := strconv.ParseInt(mention[2:len(mention)-1], 10, 64)
+		if err != nil {
+			return mention
+		}
+
+		channel, err := s.State.Channel(id)
 		if err != nil || channel.Type == ChannelTypeGuildVoice {
 			return mention
 		}

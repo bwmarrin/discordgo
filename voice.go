@@ -35,9 +35,9 @@ type VoiceConnection struct {
 	Debug        bool // If true, print extra logging -- DEPRECATED
 	LogLevel     int
 	Ready        bool // If true, voice is ready to send/receive audio
-	UserID       string
-	GuildID      string
-	ChannelID    string
+	UserID       int64
+	GuildID      int64
+	ChannelID    int64
 	deaf         bool
 	mute         bool
 	speaking     bool
@@ -116,7 +116,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 
 // ChangeChannel sends Discord a request to change channels within a Guild
 // !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
-func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
+func (v *VoiceConnection) ChangeChannel(channelID int64, mute, deaf bool) (err error) {
 
 	v.log(LogInformational, "called")
 
@@ -311,8 +311,8 @@ func (v *VoiceConnection) open() (err error) {
 	}
 
 	type voiceHandshakeData struct {
-		ServerID  string `json:"server_id"`
-		UserID    string `json:"user_id"`
+		ServerID  int64  `json:"server_id,string"`
+		UserID    int64  `json:"user_id,string"`
 		SessionID string `json:"session_id"`
 		Token     string `json:"token"`
 	}

@@ -13,6 +13,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -55,4 +57,58 @@ func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTErro
 
 func (r RESTError) Error() string {
 	return fmt.Sprintf("HTTP %s, %s", r.Response.Status, r.ResponseBody)
+}
+
+// IDSlice Is a slice of snowflake id's that properly marshals and unmarshals the way discord expects them to
+// They unmarshal from string arrays and marshals back to string arrays
+type IDSlice []int64
+
+func (ids *IDSlice) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 {
+		return nil
+	}
+
+	// Split and strip away "[" "]"
+	split := strings.Split(string(data[1:len(data)-1]), ",")
+	*ids = make([]int64, len(split))
+	for i, s := range split {
+		s = strings.TrimSpace(s)
+		if len(s) < 3 {
+			// Empty or invalid
+			continue
+		}
+
+		// Strip away quotes and parse
+		parsed, err := strconv.ParseInt(s[1:len(s)-1], 10, 64)
+		if err != nil {
+			return err
+		}
+		(*ids)[i] = parsed
+	}
+
+	return nil
+}
+
+func (ids IDSlice) MarshalJSON() ([]byte, error) {
+	// Capacity:
+	// 2 brackets
+	// each id is:
+	//    18 characters currently, but 1 extra added for the future,
+	//    1 comma
+	//    2 quotes
+	outPut := make([]byte, 1, 2+(len(ids)*22))
+	outPut[0] = '['
+
+	for i, id := range ids {
+		if i != 0 {
+			outPut = append(outPut, '"', ',', '"')
+		} else {
+			outPut = append(outPut, '"')
+		}
+		outPut = append(outPut, []byte(strconv.FormatInt(id, 10))...)
+	}
+
+	outPut = append(outPut, '"', ']')
+	fmt.Println(string(outPut))
+	return outPut, nil
 }

@@ -15,7 +15,7 @@ package discordgo
 
 // An Application struct stores values for a Discord OAuth2 Application
 type Application struct {
-	ID                  string    `json:"id,omitempty"`
+	ID                  int64     `json:"id,omitempty"`
 	Name                string    `json:"name"`
 	Description         string    `json:"description,omitempty"`
 	Icon                string    `json:"icon,omitempty"`
@@ -31,9 +31,9 @@ type Application struct {
 
 // Application returns an Application structure of a specific Application
 //   appID : The ID of an Application
-func (s *Session) Application(appID string) (st *Application, err error) {
+func (s *Session) Application(appID int64) (st *Application, err error) {
 
-	body, err := s.RequestWithBucketID("GET", EndpointApplication(appID), nil, EndpointApplication(""))
+	body, err := s.RequestWithBucketID("GET", EndpointApplication(appID), nil, EndpointApplication(0))
 	if err != nil {
 		return
 	}
@@ -76,7 +76,7 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 
 // ApplicationUpdate updates an existing Application
 //   var : desc
-func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Application, err error) {
+func (s *Session) ApplicationUpdate(appID int64, ap *Application) (st *Application, err error) {
 
 	data := struct {
 		Name         string    `json:"name"`
@@ -84,7 +84,7 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
 	}{ap.Name, ap.Description, ap.RedirectURIs}
 
-	body, err := s.RequestWithBucketID("PUT", EndpointApplication(appID), data, EndpointApplication(""))
+	body, err := s.RequestWithBucketID("PUT", EndpointApplication(appID), data, EndpointApplication(0))
 	if err != nil {
 		return
 	}
@@ -95,9 +95,9 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 
 // ApplicationDelete deletes an existing Application
 //   appID : The ID of an Application
-func (s *Session) ApplicationDelete(appID string) (err error) {
+func (s *Session) ApplicationDelete(appID int64) (err error) {
 
-	_, err = s.RequestWithBucketID("DELETE", EndpointApplication(appID), nil, EndpointApplication(""))
+	_, err = s.RequestWithBucketID("DELETE", EndpointApplication(appID), nil, EndpointApplication(0))
 	if err != nil {
 		return
 	}
@@ -114,9 +114,9 @@ func (s *Session) ApplicationDelete(appID string) (err error) {
 //   appID : The ID of an Application
 //
 // NOTE: func name may change, if I can think up something better.
-func (s *Session) ApplicationBotCreate(appID string) (st *User, err error) {
+func (s *Session) ApplicationBotCreate(appID int64) (st *User, err error) {
 
-	body, err := s.RequestWithBucketID("POST", EndpointApplicationsBot(appID), nil, EndpointApplicationsBot(""))
+	body, err := s.RequestWithBucketID("POST", EndpointApplicationsBot(appID), nil, EndpointApplicationsBot(0))
 	if err != nil {
 		return
 	}

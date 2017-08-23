@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -143,4 +144,8 @@ func New(args ...interface{}) (s *Session, err error) {
 	// It is recommended that you now call Open() so that events will trigger.
 
 	return
+}
+
+func StrID(id int64) string {
+	return strconv.FormatInt(id, 10)
 }
