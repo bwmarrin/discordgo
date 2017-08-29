@@ -224,7 +224,7 @@ func (s *Session) onInterface(i interface{}) {
 	case *VoiceStateUpdate:
 		go s.onVoiceStateUpdate(t)
 	}
-	err := s.State.onInterface(s, i)
+	err := s.State.OnInterface(s, i)
 	if err != nil {
 		s.log(LogDebug, "error dispatching internal event, %s", err)
 	}
