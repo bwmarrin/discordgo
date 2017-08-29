@@ -285,9 +285,9 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 	}
 
 	if game != "" {
-		gameType := 0
+		gameType := GameTypeGame
 		if url != "" {
-			gameType = 1
+			gameType = GameTypeStreaming
 		}
 		usd.Game = &Game{
 			Name: game,
