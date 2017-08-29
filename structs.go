@@ -12,7 +12,6 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"net/http"
 	"sync"
 	"time"
@@ -325,17 +324,6 @@ type Game struct {
 	Name string   `json:"name"`
 	Type GameType `json:"type"`
 	URL  string   `json:"url,omitempty"`
-}
-
-// UnmarshalJSON unmarshals json to Game struct
-func (g *Game) UnmarshalJSON(bytes []byte) error {
-	temp := new(Game)
-	err := json.Unmarshal(bytes, temp)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // A Member stores user information for Guild members.
