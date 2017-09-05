@@ -585,7 +585,7 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 		Name string `json:"name"`
 	}{name}
 
-	body, err := s.RequestWithBucketID("POST", EndpointGuildCreate, data, EndpointGuildCreate)
+	body, err := s.RequestWithBucketID("POST", EndpointGuilds, data, EndpointGuilds)
 	if err != nil {
 		return
 	}
