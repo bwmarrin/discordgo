@@ -122,6 +122,8 @@ var (
 	EndpointRelationship        = func(uID string) string { return EndpointRelationships() + "/" + uID }
 	EndpointRelationshipsMutual = func(uID string) string { return EndpointUsers + uID + "/relationships" }
 
+	EndpointGuildCreate = EndpointAPI + "guild"
+
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invite/" + iID }
 
 	EndpointIntegrationsJoin = func(iID string) string { return EndpointAPI + "integrations/" + iID + "/join" }
