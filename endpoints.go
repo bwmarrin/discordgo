@@ -20,7 +20,7 @@ var (
 
 	EndpointDiscord  = "https://discordapp.com/"
 	EndpointAPI      = EndpointDiscord + "api/"
-	EndpointGuilds   = EndpointAPI + "guilds/"
+	EndpointGuilds   = EndpointAPI + "guilds"
 	EndpointChannels = EndpointAPI + "channels/"
 	EndpointUsers    = EndpointAPI + "users/"
 	EndpointGateway  = EndpointAPI + "gateway"
