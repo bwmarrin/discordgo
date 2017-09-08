@@ -87,7 +87,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 
 	req.Header.Set("Content-Type", contentType)
 	// TODO: Make a configurable static variable.
-	req.Header.Set("User-Agent", "DiscordBot (https://github.com/bwmarrin/discordgo, v"+VERSION)
+	req.Header.Set("User-Agent", "DiscordBot (https://github.com/bwmarrin/discordgo, v"+VERSION+")")
 
 	if s.Debug {
 		for k, v := range req.Header {
@@ -1382,11 +1382,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 		for i, file := range files {
 			h := make(textproto.MIMEHeader)
-			h.Set("Content-Disposition",
-				fmt.Sprintf(`form-data; name="file%d"; filename="%s"`,
-					i,
-					quoteEscaper.Replace(file.Name),
-				))
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, quoteEscaper.Replace(file.Name),))
 			contentType := file.ContentType
 			if contentType == "" {
 				contentType = "application/octet-stream"
