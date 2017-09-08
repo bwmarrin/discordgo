@@ -1382,7 +1382,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 		for i, file := range files {
 			h := make(textproto.MIMEHeader)
-			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, quoteEscaper.Replace(file.Name),))
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, quoteEscaper.Replace(file.Name)))
 			contentType := file.ContentType
 			if contentType == "" {
 				contentType = "application/octet-stream"
