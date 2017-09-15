@@ -148,8 +148,10 @@ type Invite struct {
 	Temporary bool      `json:"temporary"`
 }
 
+// ChannelType is the type of a Channel
 type ChannelType int
 
+// Block contains known ChannelType values
 const (
 	ChannelTypeGuildText ChannelType = iota
 	ChannelTypeDM
@@ -604,6 +606,7 @@ const (
 		PermissionAdministrator
 )
 
+// Block contains Discord JSON Error Response codes
 const (
 	ErrCodeUnknownAccount     = 10001
 	ErrCodeUnknownApplication = 10002

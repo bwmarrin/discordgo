@@ -86,7 +86,7 @@ func (s *Session) Open() (err error) {
 		}
 
 		// Add the version and encoding to the URL
-		s.gateway = s.gateway + "?v=" + ApiVersion + "&encoding=json"
+		s.gateway = s.gateway + "?v=" + APIVersion + "&encoding=json"
 	}
 
 	header := http.Header{}
