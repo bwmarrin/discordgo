@@ -171,7 +171,7 @@ type Channel struct {
 	NSFW                 bool                   `json:"nsfw"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate"`
-	Recipients           []*User                `json:"recipient"`
+	Recipients           []*User                `json:"recipients"`
 	Messages             []*Message             `json:"-"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 }
