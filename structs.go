@@ -174,6 +174,7 @@ type Channel struct {
 	Recipients           []*User                `json:"recipients"`
 	Messages             []*Message             `json:"-"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
+	ParentID             string                 `json:"parent_id"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
