@@ -12,9 +12,7 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
@@ -315,43 +313,19 @@ type Presence struct {
 	Since  *int     `json:"since"`
 }
 
+// A game type
+type GameType int
+
+const (
+	GameTypeGame GameType = iota
+	GameTypeStreaming
+)
+
 // A Game struct holds the name of the "playing .." game for a user
 type Game struct {
-	Name string `json:"name"`
-	Type int    `json:"type"`
-	URL  string `json:"url,omitempty"`
-}
-
-// UnmarshalJSON unmarshals json to Game struct
-func (g *Game) UnmarshalJSON(bytes []byte) error {
-	temp := &struct {
-		Name json.Number     `json:"name"`
-		Type json.RawMessage `json:"type"`
-		URL  string          `json:"url"`
-	}{}
-	err := json.Unmarshal(bytes, temp)
-	if err != nil {
-		return err
-	}
-	g.URL = temp.URL
-	g.Name = temp.Name.String()
-
-	if temp.Type != nil {
-		err = json.Unmarshal(temp.Type, &g.Type)
-		if err == nil {
-			return nil
-		}
-
-		s := ""
-		err = json.Unmarshal(temp.Type, &s)
-		if err == nil {
-			g.Type, err = strconv.Atoi(s)
-		}
-
-		return err
-	}
-
-	return nil
+	Name string   `json:"name"`
+	Type GameType `json:"type"`
+	URL  string   `json:"url,omitempty"`
 }
 
 // A Member stores user information for Guild members.
