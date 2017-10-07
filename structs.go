@@ -83,6 +83,9 @@ type Session struct {
 	// Stores the last HeartbeatAck that was recieved (in UTC)
 	LastHeartbeatAck time.Time
 
+	// used to deal with rate limits
+	Ratelimiter *RateLimiter
+
 	// Event handlers
 	handlersMu   sync.RWMutex
 	handlers     map[string][]*eventHandlerInstance
@@ -93,9 +96,6 @@ type Session struct {
 
 	// When nil, the session is not listening.
 	listening chan interface{}
-
-	// used to deal with rate limits
-	ratelimiter *RateLimiter
 
 	// sequence tracks the current gateway api websocket sequence number
 	sequence *int64
