@@ -15,8 +15,10 @@ import (
 	"strings"
 )
 
+// MessageType is the type of Message
 type MessageType int
 
+// Block contains the valid known MessageType values
 const (
 	MessageTypeDefault MessageType = iota
 	MessageTypeRecipientAdd

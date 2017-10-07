@@ -11,8 +11,8 @@
 
 package discordgo
 
-// The Discord API version used for the REST and Websocket API.
-var ApiVersion = "6"
+// APIVersion is the Discord API version used for the REST and Websocket API.
+var APIVersion = "6"
 
 // Known Discord API Endpoints.
 var (
@@ -22,7 +22,7 @@ var (
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
 	EndpointDiscord    = "https://discordapp.com/"
-	EndpointAPI        = EndpointDiscord + "api/v" + ApiVersion + "/"
+	EndpointAPI        = EndpointDiscord + "api/v" + APIVersion + "/"
 	EndpointGuilds     = EndpointAPI + "guilds/"
 	EndpointChannels   = EndpointAPI + "channels/"
 	EndpointUsers      = EndpointAPI + "users/"
@@ -71,7 +71,6 @@ var (
 	EndpointUserNotes          = func(uID string) string { return EndpointUsers + "@me/notes/" + uID }
 
 	EndpointGuild                = func(gID string) string { return EndpointGuilds + gID }
-	EndpointGuildInivtes         = func(gID string) string { return EndpointGuilds + gID + "/invites" }
 	EndpointGuildChannels        = func(gID string) string { return EndpointGuilds + gID + "/channels" }
 	EndpointGuildMembers         = func(gID string) string { return EndpointGuilds + gID + "/members" }
 	EndpointGuildMember          = func(gID, uID string) string { return EndpointGuilds + gID + "/members/" + uID }
