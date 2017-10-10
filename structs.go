@@ -207,12 +207,13 @@ func (e *Emoji) APIName() string {
 // VerificationLevel type defination
 type VerificationLevel int
 
-// Constants for VerificationLevel levels from 0 to 3 inclusive
+// Constants for VerificationLevel levels from 0 to 4 inclusive
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
 	VerificationLevelMedium
 	VerificationLevelHigh
+	VerificationLevelExtreme
 )
 
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
