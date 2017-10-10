@@ -816,6 +816,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		if s.TrackMembers {
 			err = s.MemberRemove(t.Member)
 		}
+	case *GuildMembersChunk:
+		if s.TrackMembers {
+			for i := range t.Members {
+				t.Members[i].GuildID = t.GuildID
+				err = s.MemberAdd(t.Members[i])
+			}
+		}
 	case *GuildRoleCreate:
 		if s.TrackRoles {
 			err = s.RoleAdd(t.GuildID, t.Role)
