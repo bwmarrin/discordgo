@@ -291,7 +291,7 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 		}
 		usd.Game = &Game{
 			Name: game,
-			Type: int(gameType),
+			Type: gameType,
 			URL:  url,
 		}
 	}
