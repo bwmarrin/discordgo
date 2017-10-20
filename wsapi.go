@@ -249,7 +249,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 }
 
-type updateStatusData struct {
+type UpdateStatusData struct {
 	IdleSince *int   `json:"since"`
 	Game      *Game  `json:"game"`
 	AFK       bool   `json:"afk"`
@@ -258,7 +258,7 @@ type updateStatusData struct {
 
 type updateStatusOp struct {
 	Op   int              `json:"op"`
-	Data updateStatusData `json:"d"`
+	Data UpdateStatusData `json:"d"`
 }
 
 // UpdateStreamingStatus is used to update the user's streaming status.
@@ -300,7 +300,7 @@ func (s *Session) UpdateOnlineStreamingStatus(status string, afk bool, idle int,
 		return ErrWSNotFound
 	}
 
-	usd := updateStatusData{
+	usd := UpdateStatusData{
 		Status: status,
 		AFK:    afk,
 	}
