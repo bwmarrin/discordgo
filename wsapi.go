@@ -321,10 +321,14 @@ func (s *Session) UpdateOnlineStreamingStatus(status string, afk bool, idle int,
 		}
 	}
 
+	return s.UpdateStatusComplex(usd)
+}
+
+// UpdateStatusComplex allows for sending the raw status update data untouched by discordgo.
+func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(updateStatusOp{3, usd})
 	s.wsMutex.Unlock()
-
 	return
 }
 
