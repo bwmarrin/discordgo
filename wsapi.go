@@ -316,7 +316,7 @@ func (s *Session) UpdateOnlineStreamingStatus(status string, afk bool, idle int,
 		}
 		usd.Game = &Game{
 			Name: game,
-			Type: gameType,
+			Type: int(gameType),
 			URL:  url,
 		}
 	}
