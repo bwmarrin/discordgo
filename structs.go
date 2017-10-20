@@ -323,9 +323,9 @@ const (
 
 // A Game struct holds the name of the "playing .." game for a user
 type Game struct {
-	Name string `json:"name"`
-	Type int    `json:"type"`
-	URL  string `json:"url,omitempty"`
+	Name          string     `json:"name"`
+	Type          int        `json:"type"`
+	URL           string     `json:"url,omitempty"`
 	Details       string     `json:"details,omitempty"`
 	State         string     `json:"state,omitempty"`
 	TimeStamps    TimeStamps `json:"timestamps,omitempty"`
