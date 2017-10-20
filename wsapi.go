@@ -267,30 +267,6 @@ type updateStatusOp struct {
 // If game!="" and url!="" then set the status type to streaming with the URL set.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err error) {
-	return s.UpdateOnlineStreamingStatus("online", false, idle, game, url)
-}
-
-// UpdateStatus is used to update the user's status.
-// If idle>0 then set status to idle.
-// If game!="" then set game.
-// if otherwise, set status to active, and no game.
-func (s *Session) UpdateStatus(idle int, game string) (err error) {
-	return s.UpdateStreamingStatus(idle, game, "")
-}
-
-// UpdateOnlineStatus is used to update the user's online status
-// If idle>0 and status=="online" then set status to idle
-// If otherwise, set status to the given value and no game
-func (s *Session) UpdateOnlineStatus(status string, afk bool, idle int) (err error) {
-	return s.UpdateOnlineStreamingStatus(status, afk, idle, "", "")
-}
-
-// UpdateOnlineStreamingStatus is used to update the user's online status and game/streaming status
-// If idle>0 and status=="online" then set status to idle
-// If game!="" then set game
-// If game!="" and url!="" then set the status type to streaming with the URL set.
-// If otherwise, set status to the given value and no game
-func (s *Session) UpdateOnlineStreamingStatus(status string, afk bool, idle int, game string, url string) (err error) {
 
 	s.log(LogInformational, "called")
 
@@ -301,8 +277,7 @@ func (s *Session) UpdateOnlineStreamingStatus(status string, afk bool, idle int,
 	}
 
 	usd := UpdateStatusData{
-		Status: status,
-		AFK:    afk,
+		Status: "online",
 	}
 
 	if idle > 0 {
@@ -329,7 +304,16 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(updateStatusOp{3, usd})
 	s.wsMutex.Unlock()
+
 	return
+}
+
+// UpdateStatus is used to update the user's status.
+// If idle>0 then set status to idle.
+// If game!="" then set game.
+// if otherwise, set status to active, and no game.
+func (s *Session) UpdateStatus(idle int, game string) (err error) {
+	return s.UpdateStreamingStatus(idle, game, "")
 }
 
 type requestGuildMembersData struct {
