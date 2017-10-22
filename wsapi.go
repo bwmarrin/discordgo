@@ -270,12 +270,6 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 
 	s.log(LogInformational, "called")
 
-	s.RLock()
-	defer s.RUnlock()
-	if s.wsConn == nil {
-		return ErrWSNotFound
-	}
-
 	usd := UpdateStatusData{
 		Status: "online",
 	}
@@ -301,6 +295,13 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 
 // UpdateStatusComplex allows for sending the raw status update data untouched by discordgo.
 func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return ErrWSNotFound
+	}
+
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(updateStatusOp{3, usd})
 	s.wsMutex.Unlock()
