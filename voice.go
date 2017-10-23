@@ -13,7 +13,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync"
@@ -104,7 +103,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	defer v.Unlock()
 	if err != nil {
 		v.speaking = false
-		log.Println("Speaking() write json error:", err)
+		v.log(LogError, "Speaking() write json error:", err)
 		return
 	}
 
@@ -181,7 +180,7 @@ func (v *VoiceConnection) Close() {
 		v.log(LogInformational, "closing udp")
 		err := v.udpConn.Close()
 		if err != nil {
-			log.Println("error closing udp connection: ", err)
+			v.log(LogError, "error closing udp connection: ", err)
 		}
 		v.udpConn = nil
 	}
