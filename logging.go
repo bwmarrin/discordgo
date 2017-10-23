@@ -47,7 +47,7 @@ func msglog(msgL, caller int, format string, a ...interface{}) {
 
 	if Logger != nil {
 		Logger(msgL, caller, format, a)
-	} else { 
+	} else {
 
 		pc, file, line, _ := runtime.Caller(caller)
 
