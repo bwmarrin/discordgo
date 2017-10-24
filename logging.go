@@ -23,7 +23,7 @@ const (
 	LogError int = iota
 
 	// LogWarning level is used for very abnormal events and errors that are
-	// also returend to a calling function.
+	// also returned to a calling function.
 	LogWarning
 
 	// LogInformational level is used for normal non-error activity
