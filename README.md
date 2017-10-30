@@ -98,8 +98,8 @@ that information in a nice format.
 Below is a list of examples and other projects using DiscordGo.  Please submit 
 an issue if you would like your project added or removed from this list 
 
-- [DiscordGo Examples](https://github.com/bwmarrin/discordgo/tree/master/examples) A collection of example programs written with DiscordGo
-- [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) A curated list of high quality projects using DiscordGo
+- [DiscordGo Examples](https://github.com/bwmarrin/discordgo/tree/master/examples) - A collection of example programs written with DiscordGo
+- [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) - A curated list of high quality projects using DiscordGo
 
 ## Troubleshooting
 For help with common problems please reference the 
@@ -114,7 +114,7 @@ Contributions are very welcomed, however please follow the below guidelines.
 discussed.  
 - Fork the develop branch and make your changes.  
 - Try to match current naming conventions as closely as possible.  
-- This package is intended to be a low level direct mapping of the Discord API 
+- This package is intended to be a low level direct mapping of the Discord API, 
 so please avoid adding enhancements outside of that scope without first 
 discussing it.
 - Create a Pull Request with your changes against the develop branch.
