@@ -337,8 +337,8 @@ type Game struct {
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
 type TimeStamps struct {
-	EndTimestamp   uint `json:"end,omitempty"`
-	StartTimestamp uint `json:"start,omitempty"`
+	EndTimestamp   float64 `json:"end,omitempty"`
+	StartTimestamp float64 `json:"start,omitempty"`
 }
 
 // An Assets struct contains assets and labels used in the rich presence "playing .." Game
