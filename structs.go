@@ -241,6 +241,39 @@ type Guild struct {
 	Unavailable                 bool              `json:"unavailable"`
 }
 
+// FindRole returns a role from the Guild.Roles slice with the given id
+func (g *Guild) FindRole(roleID string) *Role {
+	for _, r := range g.Roles {
+		if r.ID == roleID {
+			return r
+		}
+	}
+
+	return nil
+}
+
+// FindPresence returns a presence from the Guild.Presences slice with the given userID
+func (g *Guild) FindPresence(userID string) *Presence {
+	for _, p := range g.Presences {
+		if p.User.ID == userID {
+			return p
+		}
+	}
+
+	return nil
+}
+
+// FindVoiceState returns a voice state from the Guild.VoiceStates slice with the given userID
+func (g *Guild) FindVoiceState(userID string) *VoiceState {
+	for _, vs := range g.VoiceStates {
+		if vs.UserID == userID {
+			return vs
+		}
+	}
+
+	return nil
+}
+
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
 	ID          string `json:"id"`
