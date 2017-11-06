@@ -274,6 +274,17 @@ func (g *Guild) FindVoiceState(userID string) *VoiceState {
 	return nil
 }
 
+// FindEmoji returns a emoji from the Guild.Emojis slice with the given emojiID
+func (g *Guild) FindEmoji(emojiID string) *Emoji {
+	for _, e := range g.Emojis {
+		if e.ID == emojiID {
+			return e
+		}
+	}
+
+	return nil
+}
+
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
 	ID          string `json:"id"`
