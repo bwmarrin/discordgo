@@ -285,6 +285,28 @@ func (g *Guild) FindEmoji(emojiID string) *Emoji {
 	return nil
 }
 
+// FindMember returns a member from the Guild.Members slice with the given userID
+func (g *Guild) FindMember(userID string) *Member {
+	for _, m := range g.Members {
+		if m.User.ID == userID {
+			return m
+		}
+	}
+
+	return nil
+}
+
+// FindChannel returns a channel from the Guild.Channels slice with the given channlID
+func (g *Guild) FindChannel(channelID string) *Channel {
+	for _, c := range g.Channels {
+		if c.ID == channelID {
+			return c
+		}
+	}
+
+	return nil
+}
+
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
 	ID          string `json:"id"`
