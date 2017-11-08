@@ -313,9 +313,10 @@ type Presence struct {
 	Since  *int     `json:"since"`
 }
 
-// A game type
+// GameType is the type of "game" (see GameType* consts) in the Game struct
 type GameType int
 
+// Valid GameType values
 const (
 	GameTypeGame GameType = iota
 	GameTypeStreaming

@@ -67,6 +67,8 @@ func (r *RateLimiter) GetBucket(key string) *Bucket {
 	r.buckets[key] = b
 	return b
 }
+
+// GetWaitTime returns the duration you should wait for a Bucket
 func (r *RateLimiter) GetWaitTime(b *Bucket, minRemaining int) time.Duration {
 	// If we ran out of calls and the reset time is still ahead of us
 	// then we need to take it easy and relax a little
