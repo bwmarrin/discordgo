@@ -249,6 +249,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 }
 
+// UpdateStatusData ia provided to UpdateStatusComplex()
 type UpdateStatusData struct {
 	IdleSince *int   `json:"since"`
 	Game      *Game  `json:"game"`
