@@ -39,9 +39,9 @@ func (u *User) AvatarURL(size string) string {
 	} else {
 		URL = EndpointUserAvatar(u.ID, u.Avatar)
 	}
-	
+
 	if size != "" {
-		return URL + "?size=" + size	
+		return URL + "?size=" + size
 	}
 	return URL
 }
