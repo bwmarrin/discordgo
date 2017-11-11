@@ -1575,9 +1575,9 @@ func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, err error) {
 
 	data := struct {
-		MaxAge    int    `json:"max_age"`
-		MaxUses   int    `json:"max_uses"`
-		Temporary bool   `json:"temporary"`
+		MaxAge    int  `json:"max_age"`
+		MaxUses   int  `json:"max_uses"`
+		Temporary bool `json:"temporary"`
 	}{i.MaxAge, i.MaxUses, i.Temporary}
 
 	body, err := s.RequestWithBucketID("POST", EndpointChannelInvites(channelID), data, EndpointChannelInvites(channelID))
