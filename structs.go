@@ -142,7 +142,6 @@ type Invite struct {
 	MaxAge    int       `json:"max_age"`
 	Uses      int       `json:"uses"`
 	MaxUses   int       `json:"max_uses"`
-	XkcdPass  string    `json:"xkcdpass"`
 	Revoked   bool      `json:"revoked"`
 	Temporary bool      `json:"temporary"`
 }
