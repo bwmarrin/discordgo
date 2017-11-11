@@ -107,7 +107,7 @@ func (s *Session) Open() error {
 		return err
 	}
 	if e.Operation != 10 {
-		err = fmt.Errorf("Expecting Op 10, got Op %d instead.", e.Operation)
+		err = fmt.Errorf("expecting Op 10, got Op %d instead", e.Operation)
 		return err
 	}
 	s.log(LogInformational, "Op 10 Hello Packet received from Discord")
