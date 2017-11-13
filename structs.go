@@ -110,9 +110,12 @@ type Session struct {
 	wsMutex sync.Mutex
 
 	// websocket dialer
+	// if not defined, it falls back to the global websocket dialer
 	Dialer *websocket.Dialer
 
 	// voice websocket dialer
+	// if not defined, it falls back to the normal websocket dialer.
+	// if the normal websocket dialer isn't defined either, it falls back to the global one
 	VoiceDialer *websocket.Dialer
 }
 
