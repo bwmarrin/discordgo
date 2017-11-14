@@ -12,9 +12,7 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
@@ -85,6 +83,9 @@ type Session struct {
 	// Stores the last HeartbeatAck that was recieved (in UTC)
 	LastHeartbeatAck time.Time
 
+	// used to deal with rate limits
+	Ratelimiter *RateLimiter
+
 	// Event handlers
 	handlersMu   sync.RWMutex
 	handlers     map[string][]*eventHandlerInstance
@@ -95,9 +96,6 @@ type Session struct {
 
 	// When nil, the session is not listening.
 	listening chan interface{}
-
-	// used to deal with rate limits
-	ratelimiter *RateLimiter
 
 	// sequence tracks the current gateway api websocket sequence number
 	sequence *int64
@@ -110,6 +108,15 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	// websocket dialer
+	// if not defined, it falls back to the global websocket dialer
+	Dialer *websocket.Dialer
+
+	// voice websocket dialer
+	// if not defined, it falls back to the normal websocket dialer.
+	// if the normal websocket dialer isn't defined either, it falls back to the global one
+	VoiceDialer *websocket.Dialer
 }
 
 // A VoiceRegion stores data for a specific voice region server.
@@ -171,9 +178,10 @@ type Channel struct {
 	NSFW                 bool                   `json:"nsfw"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate"`
-	Recipients           []*User                `json:"recipient"`
+	Recipients           []*User                `json:"recipients"`
 	Messages             []*Message             `json:"-"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
+	ParentID             string                 `json:"parent_id"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
@@ -314,43 +322,40 @@ type Presence struct {
 	Since  *int     `json:"since"`
 }
 
+// A game type
+type GameType int
+
+const (
+	GameTypeGame GameType = iota
+	GameTypeStreaming
+)
+
 // A Game struct holds the name of the "playing .." game for a user
 type Game struct {
-	Name string `json:"name"`
-	Type int    `json:"type"`
-	URL  string `json:"url,omitempty"`
+	Name          string     `json:"name"`
+	Type          GameType   `json:"type"`
+	URL           string     `json:"url,omitempty"`
+	Details       string     `json:"details,omitempty"`
+	State         string     `json:"state,omitempty"`
+	TimeStamps    TimeStamps `json:"timestamps,omitempty"`
+	Assets        Assets     `json:"assets,omitempty"`
+	ApplicationID string     `json:"application_id,omitempty"`
+	Instance      int8       `json:"instance,omitempty"`
+	// TODO: Party and Secrets (unknown structure)
 }
 
-// UnmarshalJSON unmarshals json to Game struct
-func (g *Game) UnmarshalJSON(bytes []byte) error {
-	temp := &struct {
-		Name json.Number     `json:"name"`
-		Type json.RawMessage `json:"type"`
-		URL  string          `json:"url"`
-	}{}
-	err := json.Unmarshal(bytes, temp)
-	if err != nil {
-		return err
-	}
-	g.URL = temp.URL
-	g.Name = temp.Name.String()
+// A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
+type TimeStamps struct {
+	EndTimestamp   uint `json:"end,omitempty"`
+	StartTimestamp uint `json:"start,omitempty"`
+}
 
-	if temp.Type != nil {
-		err = json.Unmarshal(temp.Type, &g.Type)
-		if err == nil {
-			return nil
-		}
-
-		s := ""
-		err = json.Unmarshal(temp.Type, &s)
-		if err == nil {
-			g.Type, err = strconv.Atoi(s)
-		}
-
-		return err
-	}
-
-	return nil
+// An Assets struct contains assets and labels used in the rich presence "playing .." Game
+type Assets struct {
+	LargeImageID string `json:"large_image,omitempty"`
+	SmallImageID string `json:"small_image,omitempty"`
+	LargeText    string `json:"large_text,omitempty"`
+	SmallText    string `json:"small_text,omitempty"`
 }
 
 // A Member stores user information for Guild members.

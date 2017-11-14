@@ -65,9 +65,11 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
+	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
+}
 
-	bucket := s.ratelimiter.LockBucket(bucketID)
-
+// RequestWithLockedBucket makes a request using a bucket that's already been locked
+func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -139,7 +141,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 		if sequence < s.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.request(method, urlStr, contentType, b, bucketID, sequence+1)
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
@@ -158,7 +160,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
-		response, err = s.request(method, urlStr, contentType, b, bucketID, sequence)
+		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
 
 	default: // Error condition
 		err = newRestError(req, resp, response)
@@ -585,7 +587,7 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 		Name string `json:"name"`
 	}{name}
 
-	body, err := s.RequestWithBucketID("POST", EndpointGuilds, data, EndpointGuilds)
+	body, err := s.RequestWithBucketID("POST", EndpointGuildCreate, data, EndpointGuildCreate)
 	if err != nil {
 		return
 	}
@@ -907,7 +909,7 @@ func (s *Session) GuildChannelsReorder(guildID string, channels []*Channel) (err
 // GuildInvites returns an array of Invite structures for the given guild
 // guildID   : The ID of a Guild.
 func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointGuildInvites(guildID), nil, EndpointGuildInivtes(guildID))
+	body, err := s.RequestWithBucketID("GET", EndpointGuildInvites(guildID), nil, EndpointGuildInvites(guildID))
 	if err != nil {
 		return
 	}

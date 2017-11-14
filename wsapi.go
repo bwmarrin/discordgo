@@ -93,7 +93,11 @@ func (s *Session) Open() (err error) {
 	header.Add("accept-encoding", "zlib")
 
 	s.log(LogInformational, "connecting to gateway %s", s.gateway)
-	s.wsConn, _, err = websocket.DefaultDialer.Dial(s.gateway, header)
+	dialer := s.Dialer
+	if dialer == nil {
+		dialer = websocket.DefaultDialer
+	}
+	s.wsConn, _, err = dialer.Dial(s.gateway, header)
 	if err != nil {
 		s.log(LogWarning, "error connecting to gateway %s, %s", s.gateway, err)
 		s.gateway = "" // clear cached gateway
@@ -249,7 +253,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 }
 
-type updateStatusData struct {
+type UpdateStatusData struct {
 	IdleSince *int   `json:"since"`
 	Game      *Game  `json:"game"`
 	AFK       bool   `json:"afk"`
@@ -258,7 +262,7 @@ type updateStatusData struct {
 
 type updateStatusOp struct {
 	Op   int              `json:"op"`
-	Data updateStatusData `json:"d"`
+	Data UpdateStatusData `json:"d"`
 }
 
 // UpdateStreamingStatus is used to update the user's streaming status.
@@ -270,13 +274,7 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 
 	s.log(LogInformational, "called")
 
-	s.RLock()
-	defer s.RUnlock()
-	if s.wsConn == nil {
-		return ErrWSNotFound
-	}
-
-	usd := updateStatusData{
+	usd := UpdateStatusData{
 		Status: "online",
 	}
 
@@ -285,15 +283,27 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 	}
 
 	if game != "" {
-		gameType := 0
+		gameType := GameTypeGame
 		if url != "" {
-			gameType = 1
+			gameType = GameTypeStreaming
 		}
 		usd.Game = &Game{
 			Name: game,
 			Type: gameType,
 			URL:  url,
 		}
+	}
+
+	return s.UpdateStatusComplex(usd)
+}
+
+// UpdateStatusComplex allows for sending the raw status update data untouched by discordgo.
+func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return ErrWSNotFound
 	}
 
 	s.wsMutex.Lock()

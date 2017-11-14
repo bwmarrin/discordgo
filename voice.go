@@ -13,7 +13,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync"
@@ -104,7 +103,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	defer v.Unlock()
 	if err != nil {
 		v.speaking = false
-		log.Println("Speaking() write json error:", err)
+		v.log(LogError, "Speaking() write json error:", err)
 		return
 	}
 
@@ -181,7 +180,7 @@ func (v *VoiceConnection) Close() {
 		v.log(LogInformational, "closing udp")
 		err := v.udpConn.Close()
 		if err != nil {
-			log.Println("error closing udp connection: ", err)
+			v.log(LogError, "error closing udp connection: ", err)
 		}
 		v.udpConn = nil
 	}
@@ -302,7 +301,15 @@ func (v *VoiceConnection) open() (err error) {
 	// Connect to VoiceConnection Websocket
 	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
 	v.log(LogInformational, "connecting to voice endpoint %s", vg)
-	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
+	dialer := v.session.VoiceDialer
+	if dialer == nil {
+		if v.session.Dialer != nil {
+			dialer = v.session.Dialer
+		} else {
+			dialer = websocket.DefaultDialer
+		}
+	}
+	v.wsConn, _, err = dialer.Dial(vg, nil)
 	if err != nil {
 		v.log(LogWarning, "error connecting to voice endpoint %s, %s", vg, err)
 		v.log(LogDebug, "voice struct: %#v\n", v)
