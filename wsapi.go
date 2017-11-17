@@ -323,12 +323,11 @@ type updateStatusOp struct {
 	Data UpdateStatusData `json:"d"`
 }
 
-// UpdateStreamingStatus is used to update the user's streaming status.
+// UpdateRawStatus is used to update the user's status.
 // If idle>0 then set status to idle.
 // If game!="" then set game.
-// If game!="" and url!="" then set the status type to streaming with the URL set.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err error) {
+func (s *Session) UpdateRawStatus(idle int, game string, url string, gType GameType) (err error) {
 
 	s.log(LogInformational, "called")
 
@@ -342,9 +341,11 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 
 	if game != "" {
 		gameType := GameTypeGame
-		if url != "" {
-			gameType = GameTypeStreaming
+
+		if gType != GameTypeGame {
+			gameType = gType
 		}
+
 		usd.Game = &Game{
 			Name: game,
 			Type: gameType,
@@ -376,7 +377,31 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 // If game!="" then set game.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStatus(idle int, game string) (err error) {
-	return s.UpdateStreamingStatus(idle, game, "")
+	return s.UpdateRawStatus(idle, game, "", GameTypeGame)
+}
+
+// UpdateStreamingStatus is used to update the user's streaming status.
+// If idle>0 then set status to idle.
+// If game!="" & url!="" then set streaming status.
+// if otherwise, set status to active, and no game.
+func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err error) {
+	return s.UpdateRawStatus(idle, game, url, GameTypeStreaming)
+}
+
+// UpdateListeningStatus is used to update the user's listening status.
+// If idle>0 then set status to idle.
+// If game!="" then set game.
+// if otherwise, set status to active, and no game.
+func (s *Session) UpdateListeningStatus(idle int, game string) (err error) {
+	return s.UpdateRawStatus(idle, game, "", GameTypeListening)
+}
+
+// UpdateWatchingStatus is used to update the user's watching status.
+// If idle>0 then set status to idle.
+// If game!="" then set game.
+// if otherwise, set status to active, and no game.
+func (s *Session) UpdateWatchingStatus(idle int, game string) (err error) {
+	return s.UpdateRawStatus(idle, game, "", GameTypeWatching)
 }
 
 type requestGuildMembersData struct {
