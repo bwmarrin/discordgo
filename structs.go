@@ -320,6 +320,8 @@ type GameType int
 const (
 	GameTypeGame GameType = iota
 	GameTypeStreaming
+	GameTypeListening
+	GameTypeWatching
 )
 
 // A Game struct holds the name of the "playing .." game for a user
