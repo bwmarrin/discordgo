@@ -42,7 +42,7 @@ var Logger func(msgL, caller int, format string, a ...interface{})
 //   msgL   : LogLevel of the message
 //   caller : 1 + the number of callers away from the message source
 //   format : Printf style message format
-//   a ...  : comma seperated list of values to pass
+//   a ...  : comma separated list of values to pass
 func msglog(msgL, caller int, format string, a ...interface{}) {
 
 	if Logger != nil {
