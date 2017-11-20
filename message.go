@@ -13,6 +13,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // MessageType is the type of Message
@@ -168,7 +169,7 @@ type MessageEmbed struct {
 	Type        string                 `json:"type,omitempty"`
 	Title       string                 `json:"title,omitempty"`
 	Description string                 `json:"description,omitempty"`
-	Timestamp   string                 `json:"timestamp,omitempty"`
+	Timestamp   time.Time              `json:"timestamp,omitempty"`
 	Color       int                    `json:"color,omitempty"`
 	Footer      *MessageEmbedFooter    `json:"footer,omitempty"`
 	Image       *MessageEmbedImage     `json:"image,omitempty"`
