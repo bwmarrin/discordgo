@@ -203,7 +203,7 @@ func (e *Emoji) APIName() string {
 	return e.ID
 }
 
-// VerificationLevel type defination
+// VerificationLevel type definition
 type VerificationLevel int
 
 // Constants for VerificationLevel levels from 0 to 3 inclusive
@@ -395,7 +395,7 @@ type Settings struct {
 	DeveloperMode          bool               `json:"developer_mode"`
 }
 
-// Status type defination
+// Status type definition
 type Status string
 
 // Constants for Status with the different current available status

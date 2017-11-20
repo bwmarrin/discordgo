@@ -673,7 +673,7 @@ func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 	voice.GuildID = st.GuildID
 	voice.Unlock()
 
-	// Open a conenction to the voice server
+	// Open a connection to the voice server
 	err := voice.open()
 	if err != nil {
 		s.log(LogError, "onVoiceServerUpdate voice.open, %s", err)
