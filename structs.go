@@ -144,6 +144,7 @@ type Invite struct {
 	MaxUses   int       `json:"max_uses"`
 	Revoked   bool      `json:"revoked"`
 	Temporary bool      `json:"temporary"`
+	Unique    bool      `json:"unique"`
 }
 
 // ChannelType is the type of a Channel
