@@ -531,7 +531,7 @@ func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 	return s.Channel(channelID)
 }
 
-// Channel gets a channel by ID, it will look in all guilds an private channels.
+// Channel gets a channel by ID, it will look in all guilds and private channels.
 func (s *State) Channel(channelID string) (*Channel, error) {
 	if s == nil {
 		return nil, ErrNilState
