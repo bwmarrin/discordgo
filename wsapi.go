@@ -85,6 +85,10 @@ func (s *Session) Open() error {
 		s.wsConn = nil // Just to be safe.
 		return err
 	}
+	
+	s.wsConn.SetCloseHandler(func(code int, text string) error {
+		return nil
+	})
 
 	defer func() {
 		// because of this, all code below must set err to the error
