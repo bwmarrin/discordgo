@@ -1218,14 +1218,10 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 
 // ChannelEdit edits the given channel
 // channelID  : The ID of a Channel
-// name       : The new name to assign the channel.
-func (s *Session) ChannelEdit(channelID, name string) (st *Channel, err error) {
+// c : ChannelParams object with feilds to be updated.
+func (s *Session) ChannelEdit(channelID string, c ChannelParams) (st *Channel, err error) {
 
-	data := struct {
-		Name string `json:"name"`
-	}{name}
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(channelID), data, EndpointChannel(channelID))
+	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(channelID), c, EndpointChannel(channelID))
 	if err != nil {
 		return
 	}
