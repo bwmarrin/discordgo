@@ -176,6 +176,14 @@ type Channel struct {
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 }
 
+// A ChannelParams holds Channel Feild data for a channel edit.
+type ChannelParams struct {
+	Name 		string 	`json:"name,omitempty"`
+	Topic 		string 	`json:"topic,omitempty"`
+	NSFW 		bool	`json:"nsfw,omitempty"`
+	Bitrate 	int 	`json:"bitrate,omitempty"`
+}
+
 // A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
 	ID    string `json:"id"`
