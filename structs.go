@@ -177,14 +177,14 @@ type Channel struct {
 }
 
 // A ChannelEdit holds Channel Feild data for a channel edit.
- type ChannelEdit struct {
- 	Name 		string 	`json:"name,omitempty"`
- 	Topic 		string 	`json:"topic,omitempty"`
- 	NSFW 		bool	`json:"nsfw,omitempty"`
- 	Bitrate 	int 	`json:"bitrate,omitempty"`
- 	
- 	ID      	string
- }
+type ChannelEdit struct {
+	Name    string `json:"name,omitempty"`
+	Topic   string `json:"topic,omitempty"`
+	NSFW    bool   `json:"nsfw,omitempty"`
+	Bitrate int    `json:"bitrate,omitempty"`
+
+	ID string
+}
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
