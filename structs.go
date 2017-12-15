@@ -176,6 +176,18 @@ type Channel struct {
 	ParentID             string                 `json:"parent_id"`
 }
 
+// A ChannelEdit holds Channel Feild data for a channel edit.
+type ChannelEdit struct {
+	Name                 string                 `json:"name,omitempty"`
+	Topic                string                 `json:"topic,omitempty"`
+	NSFW                 bool                   `json:"nsfw,omitempty"`
+	Position             int                    `json:"position"`
+	Bitrate              int                    `json:"bitrate,omitempty"`
+	UserLimit            int                    `json:"user_limit,omitempty"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID             string                 `json:"parent_id,omitempty"`
+}
+
 // A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
 	ID    string `json:"id"`
