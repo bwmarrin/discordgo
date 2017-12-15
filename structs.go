@@ -186,8 +186,6 @@ type ChannelEdit struct {
 	UserLimit            int                    `json:"user_limit,omitempty"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             string                 `json:"parent_id,omitempty"`
-
-	ID string
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
