@@ -203,6 +203,7 @@ type Emoji struct {
 	Roles         []string `json:"roles"`
 	Managed       bool     `json:"managed"`
 	RequireColons bool     `json:"require_colons"`
+	Animated      bool     `json:"animated"`
 }
 
 // APIName returns an correctly formatted API name for use in the MessageReactions endpoints.
