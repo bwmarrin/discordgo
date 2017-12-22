@@ -2,7 +2,6 @@ package discordgo
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -36,8 +35,7 @@ func (u *User) Mention() string {
 func (u *User) AvatarURL(size string) string {
 	var URL string
 	if u.Avatar == "" {
-		discriminatorInt, _ := strconv.Atoi(u.Discriminator)
-		URL = EndpointDefaultUserAvatar(discriminatorInt)
+		URL = EndpointDefaultUserAvatar(u.Discriminator)
 	} else if strings.HasPrefix(u.Avatar, "a_") {
 		URL = EndpointUserAvatarAnimated(u.ID, u.Avatar)
 	} else {

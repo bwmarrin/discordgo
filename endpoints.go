@@ -63,8 +63,9 @@ var (
 	EndpointUser               = func(uID string) string { return EndpointUsers + uID }
 	EndpointUserAvatar         = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".png" }
 	EndpointUserAvatarAnimated = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".gif" }
-	EndpointDefaultUserAvatar  = func(uDiscriminator int) string {
-		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminator%5) + ".png"
+	EndpointDefaultUserAvatar  = func(uDiscriminator string) string {
+		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
+		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
 	}
 	EndpointUserSettings      = func(uID string) string { return EndpointUsers + uID + "/settings" }
 	EndpointUserGuilds        = func(uID string) string { return EndpointUsers + uID + "/guilds" }
