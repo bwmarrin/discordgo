@@ -959,6 +959,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 	// Prevent sending a color int that is too big.
 	if color > 0xFFFFFF {
 		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
+		return nil, err
 	}
 
 	data := struct {
@@ -1022,6 +1023,9 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 
 	uri := EndpointGuildPrune(guildID) + fmt.Sprintf("?days=%d", days)
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildPrune(guildID))
+	if err != nil {
+		return
+	}
 
 	err = unmarshal(body, &p)
 	if err != nil {
