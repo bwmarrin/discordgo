@@ -1,6 +1,7 @@
 package discordgo
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 	"sync/atomic"
@@ -14,29 +15,25 @@ var (
 	dg    *Session // Stores a global discordgo user session
 	dgBot *Session // Stores a global discordgo bot session
 
-	envToken    = os.Getenv("DG_TOKEN")    // Token to use when authenticating the user account
-	envBotToken = os.Getenv("DGB_TOKEN")   // Token to use when authenticating the bot account
-	envEmail    = os.Getenv("DG_EMAIL")    // Email to use when authenticating
-	envPassword = os.Getenv("DG_PASSWORD") // Password to use when authenticating
-	envGuild    = os.Getenv("DG_GUILD")    // Guild ID to use for tests
-	envChannel  = os.Getenv("DG_CHANNEL")  // Channel ID to use for tests
-	//	envUser     = os.Getenv("DG_USER")     // User ID to use for tests
-	envAdmin = os.Getenv("DG_ADMIN") // User ID of admin user to use for tests
+	envToken    = os.Getenv("DGU_TOKEN")  // Token to use when authenticating the user account
+	envBotToken = os.Getenv("DGB_TOKEN")  // Token to use when authenticating the bot account
+	envGuild    = os.Getenv("DG_GUILD")   // Guild ID to use for tests
+	envChannel  = os.Getenv("DG_CHANNEL") // Channel ID to use for tests
+	envAdmin    = os.Getenv("DG_ADMIN")   // User ID of admin user to use for tests
 )
 
 func init() {
+	fmt.Println("Init is being called.")
 	if envBotToken != "" {
 		if d, err := New(envBotToken); err == nil {
 			dgBot = d
 		}
 	}
 
-	if envEmail == "" || envPassword == "" || envToken == "" {
-		return
-	}
-
-	if d, err := New(envEmail, envPassword, envToken); err == nil {
+	if d, err := New(envToken); err == nil {
 		dg = d
+	} else {
+		fmt.Println("dg is nil, error", err)
 	}
 }
 
@@ -67,58 +64,11 @@ func TestInvalidToken(t *testing.T) {
 	}
 }
 
-// TestInvalidUserPass tests the New() function with an invalid Email and Pass
-func TestInvalidEmailPass(t *testing.T) {
-
-	_, err := New("invalidemail", "invalidpassword")
-	if err == nil {
-		t.Errorf("New(InvalidEmail, InvalidPass) returned nil error.")
-	}
-
-}
-
-// TestInvalidPass tests the New() function with an invalid Password
-func TestInvalidPass(t *testing.T) {
-
-	if envEmail == "" {
-		t.Skip("Skipping New(username,InvalidPass), DG_EMAIL not set")
-		return
-	}
-	_, err := New(envEmail, "invalidpassword")
-	if err == nil {
-		t.Errorf("New(Email, InvalidPass) returned nil error.")
-	}
-}
-
-// TestNewUserPass tests the New() function with a username and password.
-// This should return a valid Session{}, a valid Session.Token.
-func TestNewUserPass(t *testing.T) {
-
-	if envEmail == "" || envPassword == "" {
-		t.Skip("Skipping New(username,password), DG_EMAIL or DG_PASSWORD not set")
-		return
-	}
-
-	d, err := New(envEmail, envPassword)
-	if err != nil {
-		t.Fatalf("New(user,pass) returned error: %+v", err)
-	}
-
-	if d == nil {
-		t.Fatal("New(user,pass), d is nil, should be Session{}")
-	}
-
-	if d.Token == "" {
-		t.Fatal("New(user,pass), d.Token is empty, should be a valid Token.")
-	}
-}
-
-// TestNewToken tests the New() function with a Token.  This should return
-// the same as the TestNewUserPass function.
+// TestNewToken tests the New() function with a Token.
 func TestNewToken(t *testing.T) {
 
 	if envToken == "" {
-		t.Skip("Skipping New(token), DG_TOKEN not set")
+		t.Skip("Skipping New(token), DGU_TOKEN not set")
 	}
 
 	d, err := New(envToken)
@@ -135,32 +85,9 @@ func TestNewToken(t *testing.T) {
 	}
 }
 
-// TestNewUserPassToken tests the New() function with a username, password and token.
-// This should return the same as the TestNewUserPass function.
-func TestNewUserPassToken(t *testing.T) {
-
-	if envEmail == "" || envPassword == "" || envToken == "" {
-		t.Skip("Skipping New(username,password,token), DG_EMAIL, DG_PASSWORD or DG_TOKEN not set")
-		return
-	}
-
-	d, err := New(envEmail, envPassword, envToken)
-	if err != nil {
-		t.Fatalf("New(user,pass,token) returned error: %+v", err)
-	}
-
-	if d == nil {
-		t.Fatal("New(user,pass,token), d is nil, should be Session{}")
-	}
-
-	if d.Token == "" {
-		t.Fatal("New(user,pass,token), d.Token is empty, should be a valid Token.")
-	}
-}
-
 func TestOpenClose(t *testing.T) {
 	if envToken == "" {
-		t.Skip("Skipping TestClose, DG_TOKEN not set")
+		t.Skip("Skipping TestClose, DGU_TOKEN not set")
 	}
 
 	d, err := New(envToken)
