@@ -1206,6 +1206,38 @@ func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string)
 	return
 }
 
+// GuildAuditLog returns the audit log for a Guild.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildAuditLogs(guildID, userID, beforeID string, actionType, limit int) (st *GuildAuditLog, err error) {
+
+	uri := EndpointGuildAuditLogs(guildID)
+
+	v := url.Values{}
+	if userID != "" {
+		v.Set("user_id", userID)
+	}
+	if beforeID != "" {
+		v.Set("before", beforeID)
+	}
+	if actionType > 0 {
+		v.Set("action_type", strconv.Itoa(actionType))
+	}
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildAuditLogs(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------

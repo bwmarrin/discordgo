@@ -494,6 +494,82 @@ type GuildEmbed struct {
 	ChannelID string `json:"channel_id"`
 }
 
+// A GuildAuditLog stores data for a guild audit log.
+type GuildAuditLog struct {
+	Webhooks []struct {
+		ChannelID string `json:"channel_id"`
+		GuildID   string `json:"guild_id"`
+		ID        string `json:"id"`
+		Avatar    string `json:"avatar"`
+		Name      string `json:"name"`
+	} `json:"webhooks,omitempty"`
+	Users []struct {
+		Username      string `json:"username"`
+		Discriminator string `json:"discriminator"`
+		Bot           bool   `json:"bot"`
+		ID            string `json:"id"`
+		Avatar        string `json:"avatar"`
+	} `json:"users,omitempty"`
+	AuditLogEntries []struct {
+		TargetID string `json:"target_id"`
+		Changes  []struct {
+			NewValue interface{} `json:"new_value"`
+			OldValue interface{} `json:"old_value"`
+			Key      string      `json:"key"`
+		} `json:"changes,omitempty"`
+		UserID     string `json:"user_id"`
+		ID         string `json:"id"`
+		ActionType int    `json:"action_type"`
+		Options    struct {
+			DeleteMembersDay string `json:"delete_member_days"`
+			MembersRemoved   string `json:"members_removed"`
+			ChannelID        string `json:"channel_id"`
+			Count            string `json:"count"`
+			ID               string `json:"id"`
+			Type             string `json:"type"`
+			RoleName         string `json:"role_name"`
+		} `json:"options,omitempty"`
+		Reason string `json:"reason"`
+	} `json:"audit_log_entries"`
+}
+
+// Block contains Discord Audit Log Action  Types
+const (
+	AuditLogActionGuildUpdate = 1
+
+	AuditLogActionChannelCreate          = 10
+	AuditLogActionChannelUpdate          = 11
+	AuditLogActionChannelDelete          = 12
+	AuditLogActionChannelOverwriteCreate = 13
+	AuditLogActionChannelOverwriteUpdate = 14
+	AuditLogActionChannelOverwriteDelete = 15
+
+	AuditLogActionMemberKick       = 20
+	AuditLogActionMemberPrune      = 21
+	AuditLogActionMemberBanAdd     = 22
+	AuditLogActionMemberBanRemove  = 23
+	AuditLogActionMemberUpdate     = 24
+	AuditLogActionMemberRoleUpdate = 25
+
+	AuditLogActionRoleCreate = 30
+	AuditLogActionRoleUpdate = 31
+	AuditLogActionRoleDelete = 32
+
+	AuditLogActionInviteCreate = 40
+	AuditLogActionInviteUpdate = 41
+	AuditLogActionInviteDelete = 42
+
+	AuditLogActionWebhookCreate = 50
+	AuditLogActionWebhookUpdate = 51
+	AuditLogActionWebhookDelete = 52
+
+	AuditLogActionEmojiCreate = 60
+	AuditLogActionEmojiUpdate = 61
+	AuditLogActionEmojiDelete = 62
+
+	AuditLogActionMessageDelete = 72
+)
+
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
 type UserGuildSettingsChannelOverride struct {
 	Muted                bool   `json:"muted"`
