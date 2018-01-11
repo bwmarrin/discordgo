@@ -533,7 +533,7 @@ type GuildAuditLog struct {
 	} `json:"audit_log_entries"`
 }
 
-// Block contains Discord Audit Log Action  Types
+// Block contains Discord Audit Log Action Types
 const (
 	AuditLogActionGuildUpdate = 1
 

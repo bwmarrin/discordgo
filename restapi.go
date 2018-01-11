@@ -1207,8 +1207,12 @@ func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string)
 }
 
 // GuildAuditLog returns the audit log for a Guild.
-// guildID   : The ID of a Guild.
-func (s *Session) GuildAuditLogs(guildID, userID, beforeID string, actionType, limit int) (st *GuildAuditLog, err error) {
+// guildID     : The ID of a Guild.
+// userID      : If provided the log will be filtered for the given ID.
+// beforeID    : If provided all log entries returned will be before the given ID.
+// actionType  : If provided the log will be filtered for the given Action Type.
+// limit       : The number messages that can be returned. (default 50, min 1, max 100)
+func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, limit int) (st *GuildAuditLog, err error) {
 
 	uri := EndpointGuildAuditLogs(guildID)
 
