@@ -1206,6 +1206,42 @@ func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string)
 	return
 }
 
+// GuildAuditLog returns the audit log for a Guild.
+// guildID     : The ID of a Guild.
+// userID      : If provided the log will be filtered for the given ID.
+// beforeID    : If provided all log entries returned will be before the given ID.
+// actionType  : If provided the log will be filtered for the given Action Type.
+// limit       : The number messages that can be returned. (default 50, min 1, max 100)
+func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, limit int) (st *GuildAuditLog, err error) {
+
+	uri := EndpointGuildAuditLogs(guildID)
+
+	v := url.Values{}
+	if userID != "" {
+		v.Set("user_id", userID)
+	}
+	if beforeID != "" {
+		v.Set("before", beforeID)
+	}
+	if actionType > 0 {
+		v.Set("action_type", strconv.Itoa(actionType))
+	}
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+	if len(v) > 0 {
+		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildAuditLogs(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------
