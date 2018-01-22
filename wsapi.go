@@ -732,11 +732,8 @@ func (s *Session) identify() error {
 	s.wsMutex.Lock()
 	err := s.wsConn.WriteJSON(op)
 	s.wsMutex.Unlock()
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (s *Session) reconnect() {
