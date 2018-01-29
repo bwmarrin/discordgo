@@ -13,6 +13,7 @@ package discordgo
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -287,6 +288,11 @@ type Role struct {
 	Color       int    `json:"color"`
 	Position    int    `json:"position"`
 	Permissions int    `json:"permissions"`
+}
+
+// Mention returns a string which mentions the role
+func (r *Role) Mention() string {
+	return fmt.Sprintf("<@&%s>", r.ID)
 }
 
 // Roles are a collection of Role
