@@ -328,7 +328,7 @@ type updateStatusOp struct {
 // If game!="" then set game.
 // If game!="" and url!="" then set the status type to streaming with the URL set.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStreamingStatus(idle int, game string, url string, isSong bool) (err error) {
+func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err error) {
 
 	s.log(LogInformational, "called")
 
@@ -354,14 +354,6 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string, isSon
 	if game == "" {
 		usd.Game = nil
 	}
-	if isSong {
-		gameType := GameTypeListening
-		usd.Game = &Game{
-			Name: game,
-			Type: gameType,
-			URL:  url,
-		}
-	}
 
 	return s.UpdateStatusComplex(usd)
 }
@@ -386,8 +378,24 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 // If idle>0 then set status to idle.
 // If game!="" then set game.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStatus(idle int, game string, isSong bool) (err error) {
-	return s.UpdateStreamingStatus(idle, game, "", isSong)
+func (s *Session) UpdateStatus(idle int, game string) (err error) {
+	return s.UpdateStreamingStatus(idle, game, "")
+}
+
+//UpdateListeningStatus is used to set the user to "Listening to..."
+//If game!="" then set to what user is listening to
+//Else, set user to active and no game.
+func (s *Session) UpdateListeningStatus(idle int, game string) (err error) {
+	gameType := GameTypeListening
+	usd := UpdateStatusData{
+		Status: "online",
+	}
+	usd.Game = &Game{
+		Name: game,
+		Type: gameType,
+		URL:  "",
+	}
+	return s.UpdateStatusComplex(usd)
 }
 
 type requestGuildMembersData struct {
