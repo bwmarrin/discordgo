@@ -328,7 +328,7 @@ type updateStatusOp struct {
 // If game!="" then set game.
 // If game!="" and url!="" then set the status type to streaming with the URL set.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStreamingStatus(idle int, game string, url string, song bool) (err error) {
+func (s *Session) UpdateStreamingStatus(idle int, game string, url string, isSong bool) (err error) {
 
 	s.log(LogInformational, "called")
 
@@ -354,7 +354,7 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string, song 
 	if game == "" {
 		usd.Game = nil
 	}
-	if song == true {
+	if isSong {
 		gameType := GameTypeListening
 		usd.Game = &Game{
 			Name: game,
@@ -386,8 +386,8 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 // If idle>0 then set status to idle.
 // If game!="" then set game.
 // if otherwise, set status to active, and no game.
-func (s *Session) UpdateStatus(idle int, game string, song bool) (err error) {
-	return s.UpdateStreamingStatus(idle, game, "", song)
+func (s *Session) UpdateStatus(idle int, game string, isSong bool) (err error) {
+	return s.UpdateStreamingStatus(idle, game, "", isSong)
 }
 
 type requestGuildMembersData struct {
