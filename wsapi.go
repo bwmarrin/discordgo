@@ -386,14 +386,20 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 //If game!="" then set to what user is listening to
 //Else, set user to active and no game.
 func (s *Session) UpdateListeningStatus(idle int, game string) (err error) {
-	return s.UpdateStatusComplex(UpdateStatusData{
+	usd := UpdateStatusData{
 		Status: "online",
-		Game: &Game{
+	}
+	if game != "" {
+		usd.Game = &Game{
 			Name: game,
 			Type: GameTypeListening,
 			URL:  "",
-		},
-	})
+		}
+	}
+	if game == "" {
+		usd.Game = nil
+	}
+	return s.UpdateStatusComplex(usd)
 }
 
 type requestGuildMembersData struct {
