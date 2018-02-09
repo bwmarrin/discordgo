@@ -379,9 +379,9 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 	return s.UpdateStreamingStatus(idle, game, "")
 }
 
-//UpdateListeningStatus is used to set the user to "Listening to..."
-//If game!="" then set to what user is listening to
-//Else, set user to active and no game.
+// UpdateListeningStatus is used to set the user to "Listening to..."
+// If game!="" then set to what user is listening to
+// Else, set user to active and no game.
 func (s *Session) UpdateListeningStatus(idle int, game string) (err error) {
 	usd := UpdateStatusData{
 		Status: "online",
