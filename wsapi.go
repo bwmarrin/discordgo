@@ -351,9 +351,6 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 			URL:  url,
 		}
 	}
-	if game == "" {
-		usd.Game = nil
-	}
 
 	return s.UpdateStatusComplex(usd)
 }
@@ -395,9 +392,6 @@ func (s *Session) UpdateListeningStatus(idle int, game string) (err error) {
 			Type: GameTypeListening,
 			URL:  "",
 		}
-	}
-	if game == "" {
-		usd.Game = nil
 	}
 	return s.UpdateStatusComplex(usd)
 }
