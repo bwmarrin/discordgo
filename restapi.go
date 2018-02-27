@@ -708,7 +708,7 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 	return s.GuildBanDeleteWithReason(guildID, userID, "")
 }
 
-// GuildBanDelete removes the given user from the guild bans
+// GuildBanDeleteWithReason removes the given user from the guild bans
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
 // reason    : The reason for this unban
@@ -789,7 +789,7 @@ func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err e
 	return s.GuildMemberEditWithReason(guildID, userID, "", roles)
 }
 
-// GuildMemberEdit edits the roles of a member.
+// GuildMemberEditWithReason edits the roles of a member.
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
 // roles    : A list of role ID's to set on the member.
@@ -836,7 +836,7 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 	return s.GuildMemberNicknameWithReason(guildID, userID, nickname, "")
 }
 
-// GuildMemberNickname updates the nickname of a guild member
+// GuildMemberNicknameWithReason updates the nickname of a guild member
 // guildID   : The ID of a guild
 // userID    : The ID of a user
 // userID    : The ID of a user or "@me" which is a shortcut of the current user ID
@@ -863,7 +863,7 @@ func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error)
 	return s.GuildMemberRoleAddWithReason(guildID, userID, roleID, "")
 }
 
-// GuildMemberRoleAdd adds the specified role to a given member
+// GuildMemberRoleAddWithReason adds the specified role to a given member
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be assigned to the user.
@@ -883,7 +883,7 @@ func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err err
 	return s.GuildMemberRoleRemoveWithReason(guildID, userID, roleID, "")
 }
 
-// GuildMemberRoleRemove removes the specified role to a given member
+// GuildMemberRoleRemoveWithReason removes the specified role to a given member
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be removed from the user.
@@ -918,7 +918,7 @@ func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, 
 	return s.GuildChannelCreateWithReason(guildID, name, ctype, "")
 }
 
-// GuildChannelCreate creates a new channel in the given guild
+// GuildChannelCreateWithReason creates a new channel in the given guild
 // guildID   : The ID of a Guild.
 // name      : Name of the channel (2-100 chars length)
 // ctype     : Tpye of the channel (voice or text)
@@ -946,7 +946,7 @@ func (s *Session) GuildChannelsReorder(guildID string, channels []*Channel) (err
 	return s.GuildChannelsReorderWithReason(guildID, channels, "")
 }
 
-// GuildChannelsReorder updates the order of channels in a guild
+// GuildChannelsReorderWithReason updates the order of channels in a guild
 // guildID   : The ID of a Guild.
 // channels  : Updated channels.
 // reason    : The reason the Channels were reordered.
@@ -988,7 +988,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	return s.GuildRoleCreateWithReason(guildID, "")
 }
 
-// GuildRoleCreate returns a new Guild Role.
+// GuildRoleCreateWithReason returns a new Guild Role.
 // guildID: The ID of a Guild.
 // reason:  The reason the Role was created.
 func (s *Session) GuildRoleCreateWithReason(guildID, reason string) (st *Role, err error) {
@@ -1015,7 +1015,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 	return s.GuildRoleEditWithReason(guildID, roleID, name, color, hoist, perm, mention, "")
 }
 
-// GuildRoleEdit updates an existing Guild Role with new values
+// GuildRoleEditWithReason updates an existing Guild Role with new values
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
 // name      : The name of the Role.
@@ -1057,7 +1057,7 @@ func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, e
 	return s.GuildRoleReorderWithReason(guildID, roles, "")
 }
 
-// GuildRoleReorder reoders guild roles
+// GuildRoleReorderWithReason reoders guild roles
 // guildID   : The ID of a Guild.
 // roles     : A list of ordered roles.
 // reason    : The reason the roles were reordered
@@ -1080,7 +1080,7 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 	return s.GuildRoleDeleteWithReason(guildID, roleID, "")
 }
 
-// GuildRoleDelete deletes an existing role.
+// GuildRoleDeleteWithReason deletes an existing role.
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
 // reason    : The reason the role was deleted.
@@ -1131,7 +1131,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 	return s.GuildPruneWithReason(guildID, days, "")
 }
 
-// GuildPrune Begin as prune operation. Requires the 'KICK_MEMBERS' permission.
+// GuildPruneWithReason Begin as prune operation. Requires the 'KICK_MEMBERS' permission.
 // Returns an object with one 'pruned' key indicating the number of members that were removed in the prune operation.
 // guildID	: The ID of a Guild.
 // days		: The number of days to count prune for (1 or more).
@@ -1190,7 +1190,7 @@ func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID
 	return s.GuildIntegrationCreateWithReason(guildID, integrationType, integrationID, "")
 }
 
-// GuildIntegrationCreate creates a Guild Integration.
+// GuildIntegrationCreateWithReason creates a Guild Integration.
 // guildID          : The ID of a Guild.
 // integrationType  : The Integration type.
 // integrationID    : The ID of an integration.
@@ -1217,7 +1217,7 @@ func (s *Session) GuildIntegrationEdit(guildID, integrationID string, expireBeha
 	return s.GuildIntegrationEditWithReason(guildID, integrationID, expireBehavior, expireGracePeriod, enableEmoticons, "")
 }
 
-// GuildIntegrationEdit edits a Guild Integration.
+// GuildIntegrationEditWithReason edits a Guild Integration.
 // guildID              : The ID of a Guild.
 // integrationType      : The Integration type.
 // integrationID        : The ID of an integration.
@@ -1244,7 +1244,7 @@ func (s *Session) GuildIntegrationDelete(guildID, integrationID string) (err err
 	return s.GuildIntegrationDeleteWithReason(guildID, integrationID, "")
 }
 
-// GuildIntegrationDelete removes the given integration from the Guild.
+// GuildIntegrationDeleteWithReason removes the given integration from the Guild.
 // guildID          : The ID of a Guild.
 // integrationID    : The ID of an integration.
 // reason           : The reason the integration was deleted
@@ -1387,7 +1387,7 @@ func (s *Session) ChannelEdit(channelID, name string) (*Channel, error) {
 	return s.ChannelEditWithReason(channelID, name, "")
 }
 
-// ChannelEdit edits the given channel
+// ChannelEditWithReason edits the given channel
 // channelID  : The ID of a Channel
 // name       : The new name to assign the channel.
 // reason     : The reason the channel was edited
@@ -1404,7 +1404,7 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *C
 	return s.ChannelEditComplexWithReason(channelID, data, "")
 }
 
-// ChannelEditComplex edits an existing channel, replacing the parameters entirely with ChannelEdit struct
+// ChannelEditComplexWithReason edits an existing channel, replacing the parameters entirely with ChannelEdit struct
 // channelID  : The ID of a Channel
 // data       : The channel struct to send
 // reason     : The reason the channel was edited
@@ -1424,7 +1424,7 @@ func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
 	return s.ChannelDeleteWithReason(channelID, "")
 }
 
-// ChannelDelete deletes the given channel
+// ChannelDeleteWithReason deletes the given channel
 // channelID  : The ID of a Channel
 // reason     : The reason the channel was deleted
 func (s *Session) ChannelDeleteWithReason(channelID, reason string) (st *Channel, err error) {
@@ -1666,7 +1666,7 @@ func (s *Session) ChannelMessageDelete(channelID, messageID string) (err error) 
 	return s.ChannelMessageDeleteWithReason(channelID, messageID, "")
 }
 
-// ChannelMessageDelete deletes a message from the Channel.
+// ChannelMessageDeleteWithReason deletes a message from the Channel.
 // channelID : The ID of a channel
 // messageID : The ID of a message
 // reason    : The reason the message was deleted
@@ -1774,7 +1774,7 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 	return s.ChannelInviteCreateWithReason(channelID, i, "")
 }
 
-// ChannelInviteCreate creates a new invite for the given channel.
+// ChannelInviteCreateWithReason creates a new invite for the given channel.
 // channelID   : The ID of a Channel
 // i           : An Invite struct with the values MaxAge, MaxUses and Temporary defined.
 // reason      : The reason the invite was created
@@ -1802,7 +1802,7 @@ func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, a
 	return s.ChannelPermissionSetWithReason(channelID, targetID, targetType, allow, deny, "")
 }
 
-// ChannelPermissionSet creates a Permission Override for the given channel.
+// ChannelPermissionSetWithReason creates a Permission Override for the given channel.
 // NOTE: This func name may changed.  Using Set instead of Create because
 // you can both create a new override or update an override with this function.
 func (s *Session) ChannelPermissionSetWithReason(channelID, targetID, targetType string, allow, deny int, reason string) (err error) {
@@ -1824,7 +1824,7 @@ func (s *Session) ChannelPermissionDelete(channelID, targetID string) (err error
 	return s.ChannelPermissionDeleteWithReason(channelID, targetID, "")
 }
 
-// ChannelPermissionDelete deletes a specific permission override for the given channel.
+// ChannelPermissionDeleteWithReason deletes a specific permission override for the given channel.
 func (s *Session) ChannelPermissionDeleteWithReason(channelID, targetID, reason string) (err error) {
 
 	_, err = s.RequestWithHeaders("DELETE", EndpointChannelPermission(channelID, targetID), nil, EndpointChannelPermission(channelID, ""), OptionalRequestHeaders{AuditLogReason: reason})
@@ -1854,7 +1854,7 @@ func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 	return s.InviteDeleteWithReason(inviteID, "")
 }
 
-// InviteDelete deletes an existing invite
+// InviteDeleteWithReason deletes an existing invite
 // inviteID   : the code of an invite
 // reason     : the reason the invite was deleted
 func (s *Session) InviteDeleteWithReason(inviteID, reason string) (st *Invite, err error) {
@@ -1973,7 +1973,7 @@ func (s *Session) WebhookCreate(channelID, name, avatar string) (st *Webhook, er
 	return s.WebhookCreateWithReason(channelID, name, avatar, "")
 }
 
-// WebhookCreate returns a new Webhook.
+// WebhookCreateWithReason returns a new Webhook.
 // channelID: The ID of a Channel.
 // name     : The name of the webhook.
 // avatar   : The avatar of the webhook.
@@ -2060,7 +2060,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar string) (st *Role, err err
 	return s.WebhookEditWithReason(webhookID, name, avatar, "")
 }
 
-// WebhookEdit updates an existing Webhook.
+// WebhookEditWithReason updates an existing Webhook.
 // webhookID: The ID of a webhook.
 // name     : The name of the webhook.
 // avatar   : The avatar of the webhook.

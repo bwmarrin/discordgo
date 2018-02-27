@@ -647,7 +647,7 @@ type GatewayBotResponse struct {
 
 // OptionalRequestHeaders is a struct for applied headers when making requests
 type OptionalRequestHeaders struct {
-	AuditLogReason	string	
+	AuditLogReason string
 }
 
 // Constants for the different bit offsets of text channel permissions
