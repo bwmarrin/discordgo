@@ -645,6 +645,11 @@ type GatewayBotResponse struct {
 	Shards int    `json:"shards"`
 }
 
+// OptionalRequestHeaders is a struct for applied headers when making requests
+type OptionalRequestHeaders struct {
+	AuditLogReason	string	
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	PermissionReadMessages = 1 << (iota + 10)
