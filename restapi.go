@@ -699,7 +699,7 @@ func (s *Session) GuildBanCreateWithReason(guildID, userID string, days int, rea
 
 	uri := EndpointGuildBan(guildID, userID)
 	if days > 0 {
-	  uri += "?delete-message-days=" + strconv.Itoa(days)
+		uri += "?delete-message-days=" + strconv.Itoa(days)
 	}
 
 	_, err = s.RequestWithHeaders("PUT", uri, nil, EndpointGuildBan(guildID, ""), OptionalRequestHeaders{AuditLogReason: reason})
