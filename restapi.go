@@ -697,7 +697,12 @@ func (s *Session) GuildBanCreate(guildID, userID string, days int) (err error) {
 // days      : The number of days of previous comments to delete.
 func (s *Session) GuildBanCreateWithReason(guildID, userID string, days int, reason string) (err error) {
 
-	_, err = s.RequestWithHeaders("PUT", EndpointGuildBan(guildID, userID), nil, EndpointGuildBan(guildID, ""), OptionalRequestHeaders{AuditLogReason: reason})
+	uri := EndpointGuildBan(guildID, userID)
+	if days > 0 {
+	  uri += "?delete-message-days=" + strconv.Itoa(days)
+	}
+
+	_, err = s.RequestWithHeaders("PUT", uri, nil, EndpointGuildBan(guildID, ""), OptionalRequestHeaders{AuditLogReason: reason})
 	return
 }
 
