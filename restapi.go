@@ -698,8 +698,17 @@ func (s *Session) GuildBanCreate(guildID, userID string, days int) (err error) {
 func (s *Session) GuildBanCreateWithReason(guildID, userID string, days int, reason string) (err error) {
 
 	uri := EndpointGuildBan(guildID, userID)
+
+	queryParams := url.Values{}
 	if days > 0 {
-		uri += "?delete-message-days=" + strconv.Itoa(days)
+		queryParams.Set("delete-message-days", strconv.Itoa(days))
+	}
+	if reason != "" {
+		queryParams.Set("reason", reason)
+	}
+
+	if len(queryParams) > 0 {
+		uri += "?" + queryParams.Encode()
 	}
 
 	_, err = s.RequestWithHeaders("PUT", uri, nil, EndpointGuildBan(guildID, ""), OptionalRequestHeaders{AuditLogReason: reason})
@@ -782,7 +791,11 @@ func (s *Session) GuildMemberDelete(guildID, userID string) (err error) {
 // reason    : The reason for the kick
 func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (err error) {
 
-	_, err = s.RequestWithHeaders("DELETE", EndpointGuildMember(guildID, userID), nil, EndpointGuildMember(guildID, ""), OptionalRequestHeaders{AuditLogReason: reason})
+	uri := EndpointGuildMember(guildID, userID)
+	if reason != "" {
+		uri += "?reason=" + url.QueryEscape(reason)
+	}
+	_, err = s.RequestWithHeaders("DELETE", uri, nil, EndpointGuildMember(guildID, ""), OptionalRequestHeaders{AuditLogReason: reason})
 	return
 }
 
