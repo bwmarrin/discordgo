@@ -112,6 +112,37 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+// Connection is a Connection returned from the UserConnections endpoint
+type Connection struct {
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Type         string         `json:"type"`
+	Revoked      bool           `json:"revoked"`
+	Integrations []*Integration `json:"integrations"`
+}
+
+// Integration stores integration information
+type Integration struct {
+	ID                string             `json:"id"`
+	Name              string             `json:"name"`
+	Type              string             `json:"type"`
+	Enabled           bool               `json:"enabled"`
+	Syncing           bool               `json:"syncing"`
+	RoleID            string             `json:"role_id"`
+	ExpireBehavior    int                `json:"expire_behavior"`
+	ExpireGracePeriod int                `json:"expire_grace_period"`
+	User              *User              `json:"user"`
+	Account           IntegrationAccount `json:"account"`
+	SyncedAt          Timestamp          `json:"synced_at"`
+}
+
+// IntegrationAccount is integration account information
+// sent by the UserConnections endpoint
+type IntegrationAccount struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
 	ID       string `json:"id"`

@@ -361,6 +361,21 @@ func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 	return
 }
 
+// UserConnections returns the user's connections
+func (s *Session) UserConnections() (conn []*Connection, err error) {
+	response, err := s.RequestWithBucketID("GET", EndpointUserConnections("@me"), nil, EndpointUserConnections("@me"))
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(response, &conn)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 // UserChannels returns an array of Channel structures for all private
 // channels.
 func (s *Session) UserChannels() (st []*Channel, err error) {
