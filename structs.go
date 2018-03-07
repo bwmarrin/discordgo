@@ -112,6 +112,37 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+// UserConnection is a Connection returned from the UserConnections endpoint
+type UserConnection struct {
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Type         string         `json:"type"`
+	Revoked      bool           `json:"revoked"`
+	Integrations []*Integration `json:"integrations"`
+}
+
+// Integration stores integration information
+type Integration struct {
+	ID                string             `json:"id"`
+	Name              string             `json:"name"`
+	Type              string             `json:"type"`
+	Enabled           bool               `json:"enabled"`
+	Syncing           bool               `json:"syncing"`
+	RoleID            string             `json:"role_id"`
+	ExpireBehavior    int                `json:"expire_behavior"`
+	ExpireGracePeriod int                `json:"expire_grace_period"`
+	User              *User              `json:"user"`
+	Account           IntegrationAccount `json:"account"`
+	SyncedAt          Timestamp          `json:"synced_at"`
+}
+
+// IntegrationAccount is integration account information
+// sent by the UserConnections endpoint
+type IntegrationAccount struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
 	ID       string `json:"id"`
@@ -473,27 +504,6 @@ type GuildRole struct {
 type GuildBan struct {
 	Reason string `json:"reason"`
 	User   *User  `json:"user"`
-}
-
-// A GuildIntegration stores data for a guild integration.
-type GuildIntegration struct {
-	ID                string                   `json:"id"`
-	Name              string                   `json:"name"`
-	Type              string                   `json:"type"`
-	Enabled           bool                     `json:"enabled"`
-	Syncing           bool                     `json:"syncing"`
-	RoleID            string                   `json:"role_id"`
-	ExpireBehavior    int                      `json:"expire_behavior"`
-	ExpireGracePeriod int                      `json:"expire_grace_period"`
-	User              *User                    `json:"user"`
-	Account           *GuildIntegrationAccount `json:"account"`
-	SyncedAt          int                      `json:"synced_at"`
-}
-
-// A GuildIntegrationAccount stores data for a guild integration account.
-type GuildIntegrationAccount struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }
 
 // A GuildEmbed stores data for a guild embed.
