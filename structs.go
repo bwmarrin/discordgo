@@ -112,8 +112,8 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
-// Connection is a Connection returned from the UserConnections endpoint
-type Connection struct {
+// UserConnection is a Connection returned from the UserConnections endpoint
+type UserConnection struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
 	Type         string         `json:"type"`

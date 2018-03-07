@@ -362,7 +362,7 @@ func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 }
 
 // UserConnections returns the user's connections
-func (s *Session) UserConnections() (conn []*Connection, err error) {
+func (s *Session) UserConnections() (conn []*UserConnection, err error) {
 	response, err := s.RequestWithBucketID("GET", EndpointUserConnections("@me"), nil, EndpointUserConnections("@me"))
 	if err != nil {
 		return nil, err
