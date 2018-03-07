@@ -1090,7 +1090,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 
 // GuildIntegrations returns an array of Integrations for a guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildIntegrations(guildID string) (st []*GuildIntegration, err error) {
+func (s *Session) GuildIntegrations(guildID string) (st []*Integration, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointGuildIntegrations(guildID), nil, EndpointGuildIntegrations(guildID))
 	if err != nil {

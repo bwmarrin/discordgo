@@ -506,11 +506,6 @@ type GuildBan struct {
 	User   *User  `json:"user"`
 }
 
-// A GuildIntegration stores data for a guild integration.
-type GuildIntegration struct {
-	Integration
-}
-
 // A GuildEmbed stores data for a guild embed.
 type GuildEmbed struct {
 	Enabled   bool   `json:"enabled"`
