@@ -30,7 +30,7 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		ID:      "channel",
 	})
 	m := &Message{
-		Content:      "<&role> <@!user> <@user> <#channel>",
+		Content:      "<@&role> <@!user> <@user> <#channel>",
 		ChannelID:    "channel",
 		MentionRoles: []string{"role"},
 		Mentions:     []*User{user},
