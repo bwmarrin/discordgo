@@ -13,9 +13,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -70,7 +68,7 @@ type VoiceConnection struct {
 	voiceSpeakingUpdateHandlers []VoiceSpeakingUpdateHandler
 }
 
-// VoiceSpeakingUpdateHandler type provides a function defination for the
+// VoiceSpeakingUpdateHandler type provides a function definition for the
 // VoiceSpeakingUpdate event
 type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdate)
 
@@ -105,7 +103,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	defer v.Unlock()
 	if err != nil {
 		v.speaking = false
-		log.Println("Speaking() write json error:", err)
+		v.log(LogError, "Speaking() write json error:", err)
 		return
 	}
 
@@ -182,7 +180,7 @@ func (v *VoiceConnection) Close() {
 		v.log(LogInformational, "closing udp")
 		err := v.udpConn.Close()
 		if err != nil {
-			log.Println("error closing udp connection: ", err)
+			v.log(LogError, "error closing udp connection: ", err)
 		}
 		v.udpConn = nil
 	}
@@ -248,7 +246,7 @@ type voiceOP2 struct {
 }
 
 // WaitUntilConnected waits for the Voice Connection to
-// become ready, if it does not become ready it retuns an err
+// become ready, if it does not become ready it returns an err
 func (v *VoiceConnection) waitUntilConnected() error {
 
 	v.log(LogInformational, "called")
@@ -659,8 +657,6 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		return
 	}
 
-	runtime.LockOSThread()
-
 	// VoiceConnection is now ready to receive audio packets
 	// TODO: this needs reviewed as I think there must be a better way.
 	v.Lock()
@@ -861,7 +857,7 @@ func (v *VoiceConnection) reconnect() {
 		}
 
 		if v.session.DataReady == false || v.session.wsConn == nil {
-			v.log(LogInformational, "cannot reconenct to channel %s with unready session", v.ChannelID)
+			v.log(LogInformational, "cannot reconnect to channel %s with unready session", v.ChannelID)
 			continue
 		}
 

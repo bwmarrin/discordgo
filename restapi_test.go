@@ -227,7 +227,7 @@ func TestGuildMemberNicknameMe(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	err := dg.GuildMemberNicknameMe(envGuild, "testnickname")
+	err := dg.GuildMemberNickname(envGuild, "@me/nick", "B1nzyRocks")
 	if err != nil {
 		t.Errorf("GuildNickname returned error: %+v", err)
 	}

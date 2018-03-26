@@ -29,12 +29,14 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		GuildID: 10,
 		ID:      30,
 	})
+
 	m := &Message{
-		Content:      "<&20> <@!1> <@1> <#30>",
+		Content:      "<@&20> <@!1> <@1> <#30>",
 		ChannelID:    30,
 		MentionRoles: []int64{20},
 		Mentions:     []*User{user},
 	}
+
 	if result, _ := m.ContentWithMoreMentionsReplaced(s); result != "@Role Name @User Nick @User Name #Channel Name" {
 		t.Error(result)
 	}

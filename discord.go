@@ -22,7 +22,7 @@ import (
 )
 
 // VERSION of DiscordGo, follows Semantic Versioning. (http://semver.org/)
-const VERSION = "0.17.0-dev"
+const VERSION = "0.18.0-alpha"
 
 // ErrMFA will be risen by New when the user has 2FA.
 var ErrMFA = errors.New("account has 2FA enabled")
@@ -51,7 +51,7 @@ func New(args ...interface{}) (s *Session, err error) {
 	// Create an empty Session interface.
 	s = &Session{
 		State:                  NewState(),
-		ratelimiter:            NewRatelimiter(),
+		Ratelimiter:            NewRatelimiter(),
 		StateEnabled:           true,
 		Compress:               true,
 		ShouldReconnectOnError: true,

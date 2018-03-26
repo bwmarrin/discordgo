@@ -11,8 +11,10 @@
 
 package discordgo
 
-// The Discord API version used for the REST and Websocket API.
-var ApiVersion = "6"
+import "strconv"
+
+// APIVersion is the Discord API version used for the REST and Websocket API.
+var APIVersion = "6"
 
 // Known Discord API Endpoints.
 var (
@@ -22,7 +24,7 @@ var (
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
 	EndpointDiscord    = "https://discordapp.com/"
-	EndpointAPI        = EndpointDiscord + "api/v" + ApiVersion + "/"
+	EndpointAPI        = EndpointDiscord + "api/v" + APIVersion + "/"
 	EndpointGuilds     = EndpointAPI + "guilds/"
 	EndpointChannels   = EndpointAPI + "channels/"
 	EndpointUsers      = EndpointAPI + "users/"
@@ -71,7 +73,6 @@ var (
 	EndpointUserNotes          = func(uID int64) string { return EndpointUsers + "@me/notes/" + StrID(uID) }
 
 	EndpointGuild           = func(gID int64) string { return EndpointGuilds + StrID(gID) }
-	EndpointGuildInivtes    = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/invites" }
 	EndpointGuildChannels   = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/channels" }
 	EndpointGuildMembers    = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/members" }
 	EndpointGuildMember     = func(gID int64, uID int64) string { return EndpointGuilds + StrID(gID) + "/members/" + StrID(uID) }
@@ -86,14 +87,15 @@ var (
 	EndpointGuildIntegrationSync = func(gID, iID int64) string {
 		return EndpointGuilds + StrID(gID) + "/integrations/" + StrID(iID) + "/sync"
 	}
-	EndpointGuildRoles    = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/roles" }
-	EndpointGuildRole     = func(gID, rID int64) string { return EndpointGuilds + StrID(gID) + "/roles/" + StrID(rID) }
-	EndpointGuildInvites  = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/invites" }
-	EndpointGuildEmbed    = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/embed" }
-	EndpointGuildPrune    = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/prune" }
-	EndpointGuildIcon     = func(gID int64, hash string) string { return EndpointCDNIcons + StrID(gID) + "/" + hash + ".png" }
-	EndpointGuildSplash   = func(gID int64, hash string) string { return EndpointCDNSplashes + StrID(gID) + "/" + hash + ".png" }
-	EndpointGuildWebhooks = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/webhooks" }
+	EndpointGuildRoles     = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/roles" }
+	EndpointGuildRole      = func(gID, rID int64) string { return EndpointGuilds + StrID(gID) + "/roles/" + StrID(rID) }
+	EndpointGuildInvites   = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/invites" }
+	EndpointGuildEmbed     = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/embed" }
+	EndpointGuildPrune     = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/prune" }
+	EndpointGuildIcon      = func(gID int64, hash string) string { return EndpointCDNIcons + StrID(gID) + "/" + hash + ".png" }
+	EndpointGuildSplash    = func(gID int64, hash string) string { return EndpointCDNSplashes + StrID(gID) + "/" + hash + ".png" }
+	EndpointGuildWebhooks  = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/webhooks" }
+	EndpointGuildAuditLogs = func(gID int64) string { return EndpointGuilds + StrID(gID) + "/audit-logs" }
 
 	EndpointChannel                   = func(cID int64) string { return EndpointChannels + StrID(cID) }
 	EndpointChannelPermissions        = func(cID int64) string { return EndpointChannels + StrID(cID) + "/permissions" }
@@ -103,7 +105,7 @@ var (
 	EndpointChannelMessages           = func(cID int64) string { return EndpointChannels + StrID(cID) + "/messages" }
 	EndpointChannelMessage            = func(cID, mID int64) string { return EndpointChannels + StrID(cID) + "/messages/" + StrID(mID) }
 	EndpointChannelMessageAck         = func(cID, mID int64) string { return EndpointChannels + StrID(cID) + "/messages/" + StrID(mID) + "/ack" }
-	EndpointChannelMessagesBulkDelete = func(cID int64) string { return EndpointChannel(cID) + "/messages/bulk_delete" }
+	EndpointChannelMessagesBulkDelete = func(cID int64) string { return EndpointChannel(cID) + "/messages/bulk-delete" }
 	EndpointChannelMessagesPins       = func(cID int64) string { return EndpointChannel(cID) + "/pins" }
 	EndpointChannelMessagePin         = func(cID, mID int64) string { return EndpointChannel(cID) + "/pins/" + StrID(mID) }
 
@@ -112,6 +114,11 @@ var (
 	EndpointChannelWebhooks = func(cID int64) string { return EndpointChannel(cID) + "/webhooks" }
 	EndpointWebhook         = func(wID int64) string { return EndpointWebhooks + StrID(wID) }
 	EndpointWebhookToken    = func(wID int64, token string) string { return EndpointWebhooks + StrID(wID) + "/" + token }
+
+	EndpointDefaultUserAvatar = func(uDiscriminator string) string {
+		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
+		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
+	}
 
 	EndpointMessageReactionsAll = func(cID, mID int64) string {
 		return EndpointChannelMessage(cID, mID) + "/reactions"
@@ -126,6 +133,8 @@ var (
 	EndpointRelationships       = func() string { return EndpointUsers + "@me" + "/relationships" }
 	EndpointRelationship        = func(uID int64) string { return EndpointRelationships() + "/" + StrID(uID) }
 	EndpointRelationshipsMutual = func(uID int64) string { return EndpointUsers + StrID(uID) + "/relationships" }
+
+	EndpointGuildCreate = EndpointAPI + "guilds"
 
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invite/" + iID }
 

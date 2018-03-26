@@ -32,6 +32,7 @@ type State struct {
 	sync.RWMutex
 	Ready
 
+	// MaxMessageCount represents how many messages per channel the state will store.
 	MaxMessageCount int
 	TrackChannels   bool
 	TrackEmojis     bool
@@ -531,7 +532,7 @@ func (s *State) PrivateChannel(channelID int64) (*Channel, error) {
 	return s.Channel(channelID)
 }
 
-// Channel gets a channel by ID, it will look in all guilds an private channels.
+// Channel gets a channel by ID, it will look in all guilds and private channels.
 func (s *State) Channel(channelID int64) (*Channel, error) {
 	if s == nil {
 		return nil, ErrNilState
@@ -607,7 +608,7 @@ func (s *State) EmojisAdd(guildID int64, emojis []*Emoji) error {
 
 // MessageAdd adds a message to the current world state, or updates it if it exists.
 // If the channel cannot be found, the message is discarded.
-// Messages are kept in state up to s.MaxMessageCount
+// Messages are kept in state up to s.MaxMessageCount per channel.
 func (s *State) MessageAdd(message *Message) error {
 	if s == nil {
 		return ErrNilState
@@ -782,7 +783,7 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 	return nil
 }
 
-// onInterface handles all events related to states.
+// OnInterface handles all events related to states.
 func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	if s == nil {
 		return ErrNilState
@@ -815,6 +816,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *GuildMemberRemove:
 		if s.TrackMembers {
 			err = s.MemberRemove(t.Member)
+		}
+	case *GuildMembersChunk:
+		if s.TrackMembers {
+			for i := range t.Members {
+				t.Members[i].GuildID = t.GuildID
+				err = s.MemberAdd(t.Members[i])
+			}
 		}
 	case *GuildRoleCreate:
 		if s.TrackRoles {
