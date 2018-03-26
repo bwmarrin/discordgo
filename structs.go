@@ -269,12 +269,12 @@ type Emoji struct {
 // APIName returns an correctly formatted API name for use in the MessageReactions endpoints.
 func (e *Emoji) APIName() string {
 	if e.ID != 0 && e.Name != "" {
-		return e.Name + ":" + strconv.FormatInt(e.ID, 10)
+		return e.Name + ":" + StrID(e.ID)
 	}
 	if e.Name != "" {
 		return e.Name
 	}
-	return strconv.FormatInt(e.ID, 10)
+	return StrID(e.ID)
 }
 
 // VerificationLevel type definition

@@ -1248,16 +1248,16 @@ func (s *Session) GuildEmbedEdit(guildID int64, enabled bool, channelID int64) (
 // beforeID    : If provided all log entries returned will be before the given ID.
 // actionType  : If provided the log will be filtered for the given Action Type.
 // limit       : The number messages that can be returned. (default 50, min 1, max 100)
-func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, limit int) (st *GuildAuditLog, err error) {
+func (s *Session) GuildAuditLog(guildID, userID, beforeID int64, actionType, limit int) (st *GuildAuditLog, err error) {
 
 	uri := EndpointGuildAuditLogs(guildID)
 
 	v := url.Values{}
-	if userID != "" {
-		v.Set("user_id", userID)
+	if userID != 0 {
+		v.Set("user_id", StrID(userID))
 	}
-	if beforeID != "" {
-		v.Set("before", beforeID)
+	if beforeID != 0 {
+		v.Set("before", StrID(beforeID))
 	}
 	if actionType > 0 {
 		v.Set("action_type", strconv.Itoa(actionType))
@@ -1944,12 +1944,6 @@ func (s *Session) WebhookEditWithToken(webhookID int64, token, name, avatar stri
 // WebhookDelete deletes a webhook for a given ID
 // webhookID: The ID of a webhook.
 func (s *Session) WebhookDelete(webhookID int64) (err error) {
-
-	body, err := s.RequestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks)
-	if err != nil {
-		return
-	}
-
 	_, err = s.RequestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks)
 
 	return

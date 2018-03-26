@@ -186,7 +186,7 @@ func (s *Session) Open() error {
 	// XXX: can this be moved to when opening a voice connection?
 	if s.VoiceConnections == nil {
 		s.log(LogInformational, "creating new VoiceConnections map")
-		s.VoiceConnections = make(map[string]*VoiceConnection)
+		s.VoiceConnections = make(map[int64]*VoiceConnection)
 	}
 
 	// Create listening chan outside of listen, as it needs to happen inside the

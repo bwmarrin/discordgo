@@ -53,7 +53,7 @@ type Message struct {
 	EditedTimestamp Timestamp `json:"edited_timestamp"`
 
 	// The roles mentioned in the message.
-	MentionRoles []string `json:"mention_roles"`
+	MentionRoles IDSlice `json:"mention_roles,string"`
 
 	// Whether the message is text-to-speech.
 	Tts bool `json:"tts"`
