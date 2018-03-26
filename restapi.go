@@ -1345,7 +1345,7 @@ func (s *Session) ChannelTyping(channelID int64) (err error) {
 // beforeID  : If provided all messages returned will be before given ID.
 // afterID   : If provided all messages returned will be after given ID.
 // aroundID  : If provided all messages returned will be around given ID.
-func (s *Session) ChannelMessages(channelID int64, limit int, beforeID, afterID, aroundID string) (st []*Message, err error) {
+func (s *Session) ChannelMessages(channelID int64, limit int, beforeID, afterID, aroundID int64) (st []*Message, err error) {
 
 	uri := EndpointChannelMessages(channelID)
 
@@ -1353,14 +1353,14 @@ func (s *Session) ChannelMessages(channelID int64, limit int, beforeID, afterID,
 	if limit > 0 {
 		v.Set("limit", strconv.Itoa(limit))
 	}
-	if afterID != "" {
-		v.Set("after", afterID)
+	if afterID != 0 {
+		v.Set("after", StrID(afterID))
 	}
-	if beforeID != "" {
-		v.Set("before", beforeID)
+	if beforeID != 0 {
+		v.Set("before", StrID(beforeID))
 	}
-	if aroundID != "" {
-		v.Set("around", aroundID)
+	if aroundID != 0 {
+		v.Set("around", StrID(aroundID))
 	}
 	if len(v) > 0 {
 		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
