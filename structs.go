@@ -463,12 +463,12 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User   *User    `json:"user"`
-	Status Status   `json:"status"`
-	Game   *Game    `json:"game"`
-	Nick   string   `json:"nick"`
-	Roles  []string `json:"roles"`
-	Since  *int     `json:"since"`
+	User   *User     `json:"user"`
+	Status Status    `json:"status"`
+	Game   *Game     `json:"game"`
+	Nick   string    `json:"nick"`
+	Roles  []IDSlice `json:"roles,string"`
+	Since  *int      `json:"since"`
 }
 
 // GameType is the type of "game" (see GameType* consts) in the Game struct
