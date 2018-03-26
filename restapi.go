@@ -747,14 +747,14 @@ func (s *Session) GuildBanDelete(guildID, userID int64) (err error) {
 //  guildID  : The ID of a Guild.
 //  after    : The id of the member to return members after
 //  limit    : max number of members to return (max 1000)
-func (s *Session) GuildMembers(guildID int64, after string, limit int) (st []*Member, err error) {
+func (s *Session) GuildMembers(guildID int64, after int64, limit int) (st []*Member, err error) {
 
 	uri := EndpointGuildMembers(guildID)
 
 	v := url.Values{}
 
-	if after != "" {
-		v.Set("after", after)
+	if after != 0 {
+		v.Set("after", StrID(after))
 	}
 
 	if limit > 0 {
