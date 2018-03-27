@@ -69,7 +69,7 @@ type ChannelDelete struct {
 // ChannelPinsUpdate stores data for a ChannelPinsUpdate event.
 type ChannelPinsUpdate struct {
 	LastPinTimestamp string `json:"last_pin_timestamp"`
-	ChannelID        string `json:"channel_id"`
+	ChannelID        int64  `json:"channel_id,string"`
 }
 
 // GuildCreate is the data for a GuildCreate event.
@@ -89,14 +89,14 @@ type GuildDelete struct {
 
 // GuildBanAdd is the data for a GuildBanAdd event.
 type GuildBanAdd struct {
-	User    *User  `json:"user"`
-	GuildID string `json:"guild_id"`
+	User    *User `json:"user"`
+	GuildID int64 `json:"guild_id,string"`
 }
 
 // GuildBanRemove is the data for a GuildBanRemove event.
 type GuildBanRemove struct {
-	User    *User  `json:"user"`
-	GuildID string `json:"guild_id"`
+	User    *User `json:"user"`
+	GuildID int64 `json:"guild_id,string"`
 }
 
 // GuildMemberAdd is the data for a GuildMemberAdd event.
