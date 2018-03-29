@@ -1983,9 +1983,9 @@ func (s *Session) WebhookExecute(webhookID int64, token string, wait bool, data 
 // channelID : The channel ID.
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
-func (s *Session) MessageReactionAdd(channelID, messageID, emojiID int64) error {
+func (s *Session) MessageReactionAdd(channelID, messageID int64, emojiID string) error {
 
-	_, err := s.RequestWithBucketID("PUT", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, 0, 0, ""))
+	_, err := s.RequestWithBucketID("PUT", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, 0, "", ""))
 
 	return err
 }
@@ -1995,9 +1995,9 @@ func (s *Session) MessageReactionAdd(channelID, messageID, emojiID int64) error 
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 // userID	 : The ID of the user to delete the reaction for.
-func (s *Session) MessageReactionRemove(channelID, messageID, emojiID, userID int64) error {
+func (s *Session) MessageReactionRemove(channelID, messageID int64, emojiID string, userID int64) error {
 
-	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, StrID(userID)), nil, EndpointMessageReaction(channelID, 0, 0, ""))
+	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, StrID(userID)), nil, EndpointMessageReaction(channelID, 0, "", ""))
 
 	return err
 }
@@ -2006,9 +2006,9 @@ func (s *Session) MessageReactionRemove(channelID, messageID, emojiID, userID in
 // channelID : The channel ID.
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
-func (s *Session) MessageReactionRemoveMe(channelID, messageID, emojiID int64) error {
+func (s *Session) MessageReactionRemoveMe(channelID, messageID int64, emojiID string) error {
 
-	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, 0, 0, ""))
+	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, 0, "", ""))
 
 	return err
 }
@@ -2028,7 +2028,7 @@ func (s *Session) MessageReactionsRemoveAll(channelID, messageID int64) error {
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 // limit    : max number of users to return (max 100)
-func (s *Session) MessageReactions(channelID, messageID, emojiID int64, limit int) (st []*User, err error) {
+func (s *Session) MessageReactions(channelID, messageID int64, emojiID string, limit int) (st []*User, err error) {
 	uri := EndpointMessageReactions(channelID, messageID, emojiID)
 
 	v := url.Values{}
@@ -2041,7 +2041,7 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID int64, limit in
 		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
 	}
 
-	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointMessageReaction(channelID, 0, 0, ""))
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointMessageReaction(channelID, 0, "", ""))
 	if err != nil {
 		return
 	}

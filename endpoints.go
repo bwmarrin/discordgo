@@ -123,10 +123,10 @@ var (
 	EndpointMessageReactionsAll = func(cID, mID int64) string {
 		return EndpointChannelMessage(cID, mID) + "/reactions"
 	}
-	EndpointMessageReactions = func(cID, mID, eID int64) string {
-		return EndpointChannelMessage(cID, mID) + "/reactions/" + StrID(eID)
+	EndpointMessageReactions = func(cID, mID int64, eID string) string {
+		return EndpointChannelMessage(cID, mID) + "/reactions/" + eID
 	}
-	EndpointMessageReaction = func(cID, mID, eID int64, uID string) string {
+	EndpointMessageReaction = func(cID, mID int64, eID string, uID string) string {
 		return EndpointMessageReactions(cID, mID, eID) + "/" + uID
 	}
 
