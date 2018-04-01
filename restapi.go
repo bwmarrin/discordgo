@@ -361,6 +361,21 @@ func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 	return
 }
 
+// UserConnections returns the user's connections
+func (s *Session) UserConnections() (conn []*UserConnection, err error) {
+	response, err := s.RequestWithBucketID("GET", EndpointUserConnections("@me"), nil, EndpointUserConnections("@me"))
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(response, &conn)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 // UserChannels returns an array of Channel structures for all private
 // channels.
 func (s *Session) UserChannels() (st []*Channel, err error) {
@@ -1075,7 +1090,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 
 // GuildIntegrations returns an array of Integrations for a guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildIntegrations(guildID string) (st []*GuildIntegration, err error) {
+func (s *Session) GuildIntegrations(guildID string) (st []*Integration, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointGuildIntegrations(guildID), nil, EndpointGuildIntegrations(guildID))
 	if err != nil {
