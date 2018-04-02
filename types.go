@@ -96,6 +96,10 @@ func (ids IDSlice) MarshalJSON() ([]byte, error) {
 	//    18 characters currently, but 1 extra added for the future,
 	//    1 comma
 	//    2 quotes
+	if len(ids) < 1 {
+		return []byte("[]"), nil
+	}
+
 	outPut := make([]byte, 1, 2+(len(ids)*22))
 	outPut[0] = '['
 
@@ -109,6 +113,5 @@ func (ids IDSlice) MarshalJSON() ([]byte, error) {
 	}
 
 	outPut = append(outPut, '"', ']')
-	fmt.Println(string(outPut))
 	return outPut, nil
 }
