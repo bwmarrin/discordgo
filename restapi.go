@@ -921,12 +921,12 @@ func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 // GuildChannelCreate creates a new channel in the given guild
 // guildID   : The ID of a Guild.
 // name      : Name of the channel (2-100 chars length)
-// ctype     : Tpye of the channel (voice or text)
-func (s *Session) GuildChannelCreate(guildID, name, ctype string) (st *Channel, err error) {
+// ctype     : Type of the channel
+func (s *Session) GuildChannelCreate(guildID, name string, ctype ChannelType) (st *Channel, err error) {
 
 	data := struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
+		Name string      `json:"name"`
+		Type ChannelType `json:"type"`
 	}{name, ctype}
 
 	body, err := s.RequestWithBucketID("POST", EndpointGuildChannels(guildID), data, EndpointGuildChannels(guildID))
