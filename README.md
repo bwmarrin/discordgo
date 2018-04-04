@@ -73,7 +73,7 @@ Construct a new Discord client which can be used to access the variety of
 Discord API functions and to set callback functions for Discord events.
 
 ```go
-discord, err := discordgo.New("authentication token")
+discord, err := discordgo.New("Bot " + "authentication token")
 ```
 
 See Documentation and Examples below for more detailed information.
