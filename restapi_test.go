@@ -10,7 +10,7 @@ import (
 // TestChannelMessageSend tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend(t *testing.T) {
 
-	if envChannel == "" {
+	if envChannel == 0 {
 		t.Skip("Skipping, DG_CHANNEL not set.")
 	}
 
@@ -86,7 +86,7 @@ func TestUserChannelCreate(t *testing.T) {
 		t.Skip("Cannot TestUserChannelCreate, dg not set.")
 	}
 
-	if envAdmin == "" {
+	if envAdmin == 0 {
 		t.Skip("Skipped, DG_ADMIN not set.")
 	}
 
@@ -114,7 +114,7 @@ func TestUserGuilds(t *testing.T) {
 		t.Skip("Cannot TestUserGuilds, dg not set.")
 	}
 
-	_, err := dg.UserGuilds(10, "", "")
+	_, err := dg.UserGuilds(10, 0, 0)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -202,7 +202,7 @@ func TestVoiceRegions(t *testing.T) {
 }
 func TestGuildRoles(t *testing.T) {
 
-	if envGuild == "" {
+	if envGuild == 0 {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}
 
@@ -217,9 +217,9 @@ func TestGuildRoles(t *testing.T) {
 
 }
 
-func TestGuildMemberNickname(t *testing.T) {
+func TestGuildMemberNicknameMe(t *testing.T) {
 
-	if envGuild == "" {
+	if envGuild == 0 {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}
 
@@ -227,7 +227,7 @@ func TestGuildMemberNickname(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	err := dg.GuildMemberNickname(envGuild, "@me/nick", "B1nzyRocks")
+	err := dg.GuildMemberNicknameMe(envGuild, "B1nzyRocks")
 	if err != nil {
 		t.Errorf("GuildNickname returned error: %+v", err)
 	}
@@ -236,7 +236,7 @@ func TestGuildMemberNickname(t *testing.T) {
 // TestChannelMessageSend2 tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend2(t *testing.T) {
 
-	if envChannel == "" {
+	if envChannel == 0 {
 		t.Skip("Skipping, DG_CHANNEL not set.")
 	}
 
@@ -253,7 +253,7 @@ func TestChannelMessageSend2(t *testing.T) {
 // TestGuildPruneCount tests GuildPruneCount() function. This should not return an error.
 func TestGuildPruneCount(t *testing.T) {
 
-	if envGuild == "" {
+	if envGuild == 0 {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}
 
@@ -271,7 +271,7 @@ func TestGuildPruneCount(t *testing.T) {
 // TestGuildPrune tests GuildPrune() function. This should not return an error.
 func TestGuildPrune(t *testing.T) {
 
-	if envGuild == "" {
+	if envGuild == 0 {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}
 

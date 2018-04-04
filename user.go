@@ -8,7 +8,7 @@ import (
 // A User stores all data for an individual Discord user.
 type User struct {
 	// The ID of the user.
-	ID string `json:"id"`
+	ID int64 `json:"id,string"`
 
 	// The email of the user. This is only present when
 	// the application possesses the email scope for the user.
@@ -45,7 +45,7 @@ func (u *User) String() string {
 
 // Mention return a string which mentions the user
 func (u *User) Mention() string {
-	return fmt.Sprintf("<@%s>", u.ID)
+	return fmt.Sprintf("<@%d>", u.ID)
 }
 
 // AvatarURL returns a URL to the user's avatar.

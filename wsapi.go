@@ -186,7 +186,7 @@ func (s *Session) Open() error {
 	// XXX: can this be moved to when opening a voice connection?
 	if s.VoiceConnections == nil {
 		s.log(LogInformational, "creating new VoiceConnections map")
-		s.VoiceConnections = make(map[string]*VoiceConnection)
+		s.VoiceConnections = make(map[int64]*VoiceConnection)
 	}
 
 	// Create listening chan outside of listen, as it needs to happen inside the
@@ -388,7 +388,7 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildID string `json:"guild_id"`
+	GuildID int64  `json:"guild_id,string"`
 	Query   string `json:"query"`
 	Limit   int    `json:"limit"`
 }
@@ -403,7 +403,7 @@ type requestGuildMembersOp struct {
 // guildID  : The ID of the guild to request members of
 // query    : String that username starts with, leave empty to return all members
 // limit    : Max number of items to return, or 0 to request all members matched
-func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
+func (s *Session) RequestGuildMembers(guildID int64, query string, limit int) (err error) {
 	s.log(LogInformational, "called")
 
 	s.RLock()
@@ -563,10 +563,10 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 // ------------------------------------------------------------------------------------------------
 
 type voiceChannelJoinData struct {
-	GuildID   *string `json:"guild_id"`
-	ChannelID *string `json:"channel_id"`
-	SelfMute  bool    `json:"self_mute"`
-	SelfDeaf  bool    `json:"self_deaf"`
+	GuildID   *int64 `json:"guild_id,string"`
+	ChannelID *int64 `json:"channel_id,string"`
+	SelfMute  bool   `json:"self_mute"`
+	SelfDeaf  bool   `json:"self_deaf"`
 }
 
 type voiceChannelJoinOp struct {
@@ -580,7 +580,7 @@ type voiceChannelJoinOp struct {
 //    cID     : Channel ID of the channel to join.
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
-func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
+func (s *Session) ChannelVoiceJoin(gID, cID int64, mute, deaf bool) (voice *VoiceConnection, err error) {
 
 	s.log(LogInformational, "called")
 
@@ -627,7 +627,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 
 	// If we don't have a connection for the channel, don't bother
-	if st.ChannelID == "" {
+	if st.ChannelID == 0 {
 		return
 	}
 
