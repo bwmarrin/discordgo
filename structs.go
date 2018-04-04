@@ -288,6 +288,25 @@ const (
 	VerificationLevelHigh
 )
 
+// ExplicitContentFilterLevel type definition
+type ExplicitContentFilterLevel int
+
+// Constants for ExplicitContentFilterLevel levels from 0 to 2 inclusive
+const (
+	ExplicitContentFilterDisabled ExplicitContentFilterLevel = iota
+	ExplicitContentFilterMembersWithoutRoles
+	ExplicitContentFilterAllMembers
+)
+
+// MfaLevel type definition
+type MfaLevel int
+
+// Constants for MfaLevel levels from 0 to 1 inclusive
+const (
+	MfaLevelNone MfaLevel = iota
+	MfaLevelElevated
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
@@ -374,6 +393,24 @@ type Guild struct {
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
 	Unavailable bool `json:"unavailable"`
+
+	// The explicit content filter level
+	ExplicitContentFilter ExplicitContentFilterLevel `json:"explicit_content_filter"`
+
+	// The list of enabled guild features
+	Features []string `json:"features"`
+
+	// Required MFA level for the guild
+	MfaLevel MfaLevel `json:"mfa_level"`
+
+	// Whether or not the Server Widget is enabled
+	WidgetEnabled bool `json:"widget_enabled"`
+
+	// The Channel ID for the Server Widget
+	WidgetChannelID string `json:"widget_channel_id"`
+
+	// The Channel ID to which system messages are sent (eg join and leave messages)
+	SystemChannelID string `json:"system_channel_id"`
 }
 
 // A UserGuild holds a brief version of a Guild
