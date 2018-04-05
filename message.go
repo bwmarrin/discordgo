@@ -10,9 +10,16 @@
 package discordgo
 
 import (
+	"errors"
 	"io"
 	"regexp"
 	"strings"
+)
+
+// errors
+var (
+	ErrMessageDoesNotMentionSomeone                           = errors.New("Message does not mention someone")
+	ErrSomeoneMentioningMessageDoesNotHaveGuildMemberNickname = errors.New("Message does not contain nickname")
 )
 
 // MessageType is the type of Message
@@ -231,6 +238,29 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 		).Replace(content)
 	}
 	return
+}
+
+var mentionsSomeoneRegex = regexp.MustCompile(`\*\*\*\(.+\)\*\*\*`)
+
+// FindSomeoneNickname finds the mentioned nickname
+func (m *Message) FindSomeoneNickname() (string, error) {
+	if !m.MentionsSomeone() {
+		return "", ErrMessageDoesNotMentionSomeone
+	}
+	str := mentionsSomeoneRegex.FindString(m.Content)
+	if str == "" {
+		return "", ErrSomeoneMentioningMessageDoesNotHaveGuildMemberNickname
+	}
+	return strings.TrimSuffix(strings.TrimPrefix(str, "***("), ")***"), nil
+}
+
+// MentionsSomeone returns true if a message mentions someone
+func (m *Message) MentionsSomeone() bool {
+	if strings.Contains(m.Content, "@someone") {
+		return true // returns true
+	} else { // ignore linter errors, it doesn't know what its talking about
+		return false // returns false
+	}
 }
 
 var patternChannels = regexp.MustCompile("<#[^>]*>")
