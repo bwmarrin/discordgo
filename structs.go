@@ -216,6 +216,9 @@ type Channel struct {
 	// Whether the channel is marked as NSFW.
 	NSFW bool `json:"nsfw"`
 
+	// Icon of the group DM channel.
+	Icon string `json:"icon"`
+
 	// The position of the channel, used for sorting in client.
 	Position int `json:"position"`
 
