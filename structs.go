@@ -239,6 +239,11 @@ type Channel struct {
 	ParentID string `json:"parent_id"`
 }
 
+// Mention returns a string which mentions the channel
+func (c *Channel) Mention() string {
+	return fmt.Sprintf("<#%s>", c.ID)
+}
+
 // A ChannelEdit holds Channel Feild data for a channel edit.
 type ChannelEdit struct {
 	Name                 string                 `json:"name,omitempty"`
