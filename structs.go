@@ -241,7 +241,7 @@ type Channel struct {
 
 // Mention returns a string which mentions the channel
 func (c *Channel) Mention() string {
-	return fmt.Sprintf("<#%s>", r.ID)
+	return fmt.Sprintf("<#%s>", c.ID)
 }
 
 // A ChannelEdit holds Channel Feild data for a channel edit.
