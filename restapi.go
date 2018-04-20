@@ -935,7 +935,17 @@ func (s *Session) GuildChannelCreate(guildID, name string, ctype ChannelType) (s
 // channels  : Updated channels.
 func (s *Session) GuildChannelsReorder(guildID string, channels []*Channel) (err error) {
 
-	_, err = s.RequestWithBucketID("PATCH", EndpointGuildChannels(guildID), channels, EndpointGuildChannels(guildID))
+	data := make([]struct {
+		ID       string `json:"id"`
+		Position int    `json:"position"`
+	}, len(channels))
+
+	for i, c := range channels {
+		data[i].ID = c.ID
+		data[i].Position = c.Position
+	}
+
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildChannels(guildID), data, EndpointGuildChannels(guildID))
 	return
 }
 
