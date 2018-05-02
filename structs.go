@@ -813,6 +813,7 @@ type MessageReaction struct {
 	MessageID string `json:"message_id"`
 	Emoji     Emoji  `json:"emoji"`
 	ChannelID string `json:"channel_id"`
+	GuildID   string `json:"guild_id,omitempty"`
 }
 
 // GatewayBotResponse stores the data for the gateway/bot response
