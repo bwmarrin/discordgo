@@ -1285,6 +1285,56 @@ func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, li
 	return
 }
 
+// GuildEmojiCreate creates a new emoji
+// guildID : The ID of a Guild.
+// image   : the base64 encoded emoji image, has to be smaller than 256KB
+// roles   : roles for which this emoji will be whitelisted, can be nil
+func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) (emoji *Emoji, err error) {
+
+	data := struct {
+		Name  string   `json:"name"`
+		Image string   `json:"image"`
+		Roles []string `json:"roles,omitempty"`
+	}{name, image, roles}
+
+	body, err := s.RequestWithBucketID("POST", EndpointGuildEmojis(guildID), data, EndpointGuildEmojis(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emoji)
+	return
+}
+
+// GuildEmojiEdit modifies an emoji
+// guildID : The ID of a Guild.
+// image   : the base64 encoded emoji image, has to be smaller than 256KB
+// roles   : roles for which this emoji will be whitelisted, can be nil
+func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) (emoji *Emoji, err error) {
+
+	data := struct {
+		Name  string   `json:"name"`
+		Roles []string `json:"roles,omitempty"`
+	}{name, roles}
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointGuildEmoji(guildID, emojiID), data, EndpointGuildEmojis(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emoji)
+	return
+}
+
+// GuildEmojiDelete deletes an Emoji.
+// guildID : The ID of a Guild.
+// emojiID : The ID of the Emoji.
+func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
+
+	_, err = s.RequestWithBucketID("DELETE", EndpointGuildEmoji(guildID, emojiID), nil, EndpointGuildEmojis(guildID))
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------
