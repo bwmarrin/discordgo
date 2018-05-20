@@ -1287,8 +1287,9 @@ func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, li
 
 // GuildEmojiCreate creates a new emoji
 // guildID : The ID of a Guild.
-// image   : the base64 encoded emoji image, has to be smaller than 256KB
-// roles   : roles for which this emoji will be whitelisted, can be nil
+// name    : The Name of the Emoji.
+// image   : The base64 encoded emoji image, has to be smaller than 256KB.
+// roles   : The roles for which this emoji will be whitelisted, can be nil.
 func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) (emoji *Emoji, err error) {
 
 	data := struct {
@@ -1308,8 +1309,9 @@ func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) 
 
 // GuildEmojiEdit modifies an emoji
 // guildID : The ID of a Guild.
-// image   : the base64 encoded emoji image, has to be smaller than 256KB
-// roles   : roles for which this emoji will be whitelisted, can be nil
+// emojiID : The ID of an Emoji.
+// name    : The Name of the Emoji.
+// roles   : The roles for which this emoji will be whitelisted, can be nil.
 func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) (emoji *Emoji, err error) {
 
 	data := struct {
@@ -1328,7 +1330,7 @@ func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) 
 
 // GuildEmojiDelete deletes an Emoji.
 // guildID : The ID of a Guild.
-// emojiID : The ID of the Emoji.
+// emojiID : The ID of an Emoji.
 func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
 
 	_, err = s.RequestWithBucketID("DELETE", EndpointGuildEmoji(guildID, emojiID), nil, EndpointGuildEmojis(guildID))
