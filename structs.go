@@ -316,6 +316,15 @@ const (
 	MfaLevelElevated
 )
 
+// DefaultMessageNotificationLevel type definition
+type DefaultMessageNotificationLevel int
+
+// Constants for DefaultMessageNotificationLevel levels from 0 to 1 inclusive
+const (
+	DefaultMessageNotificationLevelAllMessages DefaultMessageNotificationLevel = iota
+	DefaultMessageNotificationLevelOnlyMentions
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
@@ -369,8 +378,7 @@ type Guild struct {
 	Large bool `json:"large"`
 
 	// The default message notification setting for the guild.
-	// 0 == all messages, 1 == mentions only.
-	DefaultMessageNotifications int `json:"default_message_notifications"`
+	DefaultMessageNotifications DefaultMessageNotificationLevel `json:"default_message_notifications"`
 
 	// A list of roles in the guild.
 	Roles []*Role `json:"roles"`
@@ -433,15 +441,15 @@ type UserGuild struct {
 
 // A GuildParams stores all the data needed to update discord guild settings
 type GuildParams struct {
-	Name                        string             `json:"name,omitempty"`
-	Region                      string             `json:"region,omitempty"`
-	VerificationLevel           *VerificationLevel `json:"verification_level,omitempty"`
-	DefaultMessageNotifications int                `json:"default_message_notifications,omitempty"` // TODO: Separate type?
-	AfkChannelID                string             `json:"afk_channel_id,omitempty"`
-	AfkTimeout                  int                `json:"afk_timeout,omitempty"`
-	Icon                        string             `json:"icon,omitempty"`
-	OwnerID                     string             `json:"owner_id,omitempty"`
-	Splash                      string             `json:"splash,omitempty"`
+	Name                        string                           `json:"name,omitempty"`
+	Region                      string                           `json:"region,omitempty"`
+	VerificationLevel           *VerificationLevel               `json:"verification_level,omitempty"`
+	DefaultMessageNotifications *DefaultMessageNotificationLevel `json:"default_message_notifications,omitempty"`
+	AfkChannelID                string                           `json:"afk_channel_id"`
+	AfkTimeout                  int                              `json:"afk_timeout"`
+	Icon                        string                           `json:"icon,omitempty"`
+	OwnerID                     string                           `json:"owner_id,omitempty"`
+	Splash                      string                           `json:"splash,omitempty"`
 }
 
 // A Role stores information about Discord guild member roles.
