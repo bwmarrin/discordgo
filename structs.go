@@ -177,6 +177,10 @@ type Invite struct {
 	Revoked   bool      `json:"revoked"`
 	Temporary bool      `json:"temporary"`
 	Unique    bool      `json:"unique"`
+
+	// will only be filled when using InviteWithCounts
+	ApproximatePresenceCount int `json:"approximate_presence_count"`
+	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
 
 // ChannelType is the type of a Channel
