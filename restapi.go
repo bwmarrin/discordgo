@@ -38,6 +38,7 @@ var (
 	ErrPruneDaysBounds         = errors.New("the number of days should be more than or equal to 1")
 	ErrGuildNoIcon             = errors.New("guild does not have an icon set")
 	ErrGuildNoSplash           = errors.New("guild does not have a splash set")
+	ErrUnauthorized            = errors.New("HTTP request was unauthorized. This could be because the provided token was not a bot token. Please add \"Bot \" to the start of your token. https://discordapp.com/developers/docs/reference#authentication-example-bot-token-authorization-header")
 )
 
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
@@ -129,13 +130,9 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	}
 
 	switch resp.StatusCode {
-
 	case http.StatusOK:
 	case http.StatusCreated:
 	case http.StatusNoContent:
-
-		// TODO check for 401 response, invalidate token if we get one.
-
 	case http.StatusBadGateway:
 		// Retry sending request if possible
 		if sequence < s.MaxRestRetries {
@@ -145,7 +142,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
-
 	case 429: // TOO MANY REQUESTS - Rate limiting
 		rl := TooManyRequests{}
 		err = json.Unmarshal(response, &rl)
@@ -161,7 +157,12 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		// this method can cause longer delays than required
 
 		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
-
+	case http.StatusUnauthorized:
+		if strings.Index(s.Token, "Bot ") != 0 {
+			s.log(LogInformational, ErrUnauthorized.Error())
+			err = ErrUnauthorized
+		}
+		fallthrough
 	default: // Error condition
 		err = newRestError(req, resp, response)
 	}
