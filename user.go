@@ -21,6 +21,9 @@ type User struct {
 	// to retrieve the avatar itself.
 	Avatar string `json:"avatar"`
 
+	// The user's chosen language option.
+	Locale string `json:"locale"`
+
 	// The discriminator of the user (4 numbers after name).
 	Discriminator string `json:"discriminator"`
 
