@@ -239,6 +239,9 @@ type Channel struct {
 	// A list of permission overwrites present for the channel.
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 
+	// The user limit of the voice channel.
+	UserLimit int `json:"user_limit"`
+
 	// The ID of the parent channel, if the channel is under a category
 	ParentID string `json:"parent_id"`
 }
