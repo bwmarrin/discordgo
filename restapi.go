@@ -1718,7 +1718,8 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 		MaxAge    int  `json:"max_age"`
 		MaxUses   int  `json:"max_uses"`
 		Temporary bool `json:"temporary"`
-	}{i.MaxAge, i.MaxUses, i.Temporary}
+		Unique    bool `json:"unique"`
+	}{i.MaxAge, i.MaxUses, i.Temporary, i.Unique}
 
 	body, err := s.RequestWithBucketID("POST", EndpointChannelInvites(channelID), data, EndpointChannelInvites(channelID))
 	if err != nil {
