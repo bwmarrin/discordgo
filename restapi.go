@@ -1946,13 +1946,22 @@ func (s *Session) MessageReactionsRemoveAll(channelID, messageID string) error {
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 // limit    : max number of users to return (max 100)
-func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit int) (st []*User, err error) {
+// beforeID  : If provided all reactions returned will be before given ID.
+// afterID   : If provided all reactions returned will be after given ID.
+func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit int, beforeID, afterID string) (st []*User, err error) {
 	uri := EndpointMessageReactions(channelID, messageID, emojiID)
 
 	v := url.Values{}
 
 	if limit > 0 {
 		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if afterID != "" {
+		v.Set("after", afterID)
+	}
+	if beforeID != "" {
+		v.Set("before", beforeID)
 	}
 
 	if len(v) > 0 {
