@@ -6,8 +6,8 @@
 // license that can be found in the LICENSE file.
 
 // This file contains high level helper functions and easy entry points for the
-// entire discordgo package.  These functions are beling developed and are very
-// experimental at this point.  They will most likley change so please use the
+// entire discordgo package.  These functions are being developed and are very
+// experimental at this point.  They will most likely change so please use the
 // low level functions if that's a problem.
 
 // Package discordgo provides Discord binding for Go
