@@ -254,3 +254,9 @@ type MessageDeleteBulk struct {
 	ChannelID string   `json:"channel_id"`
 	GuildID   string   `json:"guild_id"`
 }
+
+// WebhooksUpdate is the data for a WebhooksUpdate event
+type WebhooksUpdate struct {
+	GuildID   string `json:"guild_id"`
+	ChannelID string `json:"channel_id"`
+}
