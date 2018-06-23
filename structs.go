@@ -602,6 +602,11 @@ type Member struct {
 	Roles []string `json:"roles"`
 }
 
+// Mention creates a member mention
+func (m *Member) Mention() string {
+	return "<@!" + m.User.ID + ">"
+}
+
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
 	RenderEmbeds           bool               `json:"render_embeds"`
