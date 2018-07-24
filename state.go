@@ -99,6 +99,9 @@ func (s *State) GuildAdd(guild *Guild) error {
 	if g, ok := s.guildMap[guild.ID]; ok {
 		// We are about to replace `g` in the state with `guild`, but first we need to
 		// make sure we preserve any fields that the `guild` doesn't contain from `g`.
+		if guild.MemberCount == 0 {
+			guild.MemberCount = g.MemberCount
+		}
 		if guild.Roles == nil {
 			guild.Roles = g.Roles
 		}
