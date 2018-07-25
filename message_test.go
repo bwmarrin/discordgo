@@ -12,7 +12,6 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		Username: "User Name",
 	}
 
-	s.StateEnabled = true
 	s.State.GuildAdd(&Guild{ID: "guild"})
 	s.State.RoleAdd("guild", &Role{
 		ID:          "role",
