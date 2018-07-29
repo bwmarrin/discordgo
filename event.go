@@ -119,6 +119,22 @@ func (s *Session) AddHandler(handler interface{}) func() {
 	return s.addEventHandler(eh)
 }
 
+// AddHandlers Is the variadic version of AddHandler.
+// eg:
+//     Session.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+//     }, func(s *discordgo.Session, m *discordgo.Ready) {})
+// The return value of this method is a slice of function, each for every added
+// handler that when called will remove the event handler asociated.
+func (s *Session) AddHandlers(handlers ...interface{}) []func() {
+	removeFuncs := []func(){}
+
+	for handler := range handlers {
+		removeFuncs = append(removeFuncs, s.addEventHandler(handler))
+	}
+
+	return removeFuncs
+}
+
 // AddHandlerOnce allows you to add an event handler that will be fired the next time
 // the Discord WSAPI event that matches the function fires.
 // See AddHandler for more details.
