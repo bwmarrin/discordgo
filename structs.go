@@ -281,6 +281,19 @@ type Emoji struct {
 	Animated      bool     `json:"animated"`
 }
 
+// ChatName returns a correctly formatted Emoji for use in Message content and embeds
+func (e *Emoji) ChatName() string {
+	if e.ID != "" && e.Name != "" {
+		if e.Animated {
+			return "<a:" + e.APIName() + ">"
+		} else {
+			return "<:" + e.APIName() + ">"
+		}
+	}
+
+	return e.APIName()
+}
+
 // APIName returns an correctly formatted API name for use in the MessageReactions endpoints.
 func (e *Emoji) APIName() string {
 	if e.ID != "" && e.Name != "" {
