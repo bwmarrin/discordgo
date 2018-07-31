@@ -281,8 +281,8 @@ type Emoji struct {
 	Animated      bool     `json:"animated"`
 }
 
-// ChatName returns a correctly formatted Emoji for use in Message content and embeds
-func (e *Emoji) ChatName() string {
+// MessageFormat returns a correctly formatted Emoji for use in Message content and embeds
+func (e *Emoji) MessageFormat() string {
 	if e.ID != "" && e.Name != "" {
 		if e.Animated {
 			return "<a:" + e.APIName() + ">"
