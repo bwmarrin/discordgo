@@ -286,9 +286,9 @@ func (e *Emoji) MessageFormat() string {
 	if e.ID != "" && e.Name != "" {
 		if e.Animated {
 			return "<a:" + e.APIName() + ">"
-		} else {
-			return "<:" + e.APIName() + ">"
 		}
+
+		return "<:" + e.APIName() + ">"
 	}
 
 	return e.APIName()
