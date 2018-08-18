@@ -929,6 +929,7 @@ const (
 	ErrCodeUnknownToken       = 10012
 	ErrCodeUnknownUser        = 10013
 	ErrCodeUnknownEmoji       = 10014
+	ErrCodeUnknownWebhook     = 10015
 
 	ErrCodeBotsCannotUseEndpoint  = 20001
 	ErrCodeOnlyBotsCanUseEndpoint = 20002
