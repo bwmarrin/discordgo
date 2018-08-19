@@ -51,6 +51,11 @@ type Ready struct {
 	Notes             map[string]string    `json:"notes"`
 }
 
+// Resumed is the data for a Resumed event.
+type Resumed struct {
+	Trace []string `json:"_trace"`
+}
+
 // ChannelCreate is the data for a ChannelCreate event.
 type ChannelCreate struct {
 	*Channel
@@ -99,8 +104,24 @@ type GuildBanRemove struct {
 	GuildID string `json:"guild_id"`
 }
 
+// A GuildEmojisUpdate is the data for a guild emoji update event.
+type GuildEmojisUpdate struct {
+	GuildID string   `json:"guild_id"`
+	Emojis  []*Emoji `json:"emojis"`
+}
+
+// GuildIntegrationsUpdate is the data for a GuildIntegrationsUpdate event.
+type GuildIntegrationsUpdate struct {
+	GuildID string `json:"guild_id"`
+}
+
 // GuildMemberAdd is the data for a GuildMemberAdd event.
 type GuildMemberAdd struct {
+	*Member
+}
+
+// GuildMemberRemove is the data for a GuildMemberRemove event.
+type GuildMemberRemove struct {
 	*Member
 }
 
@@ -109,9 +130,10 @@ type GuildMemberUpdate struct {
 	*Member
 }
 
-// GuildMemberRemove is the data for a GuildMemberRemove event.
-type GuildMemberRemove struct {
-	*Member
+// A GuildMembersChunk is the data for a GuildMembersChunk event.
+type GuildMembersChunk struct {
+	GuildID string    `json:"guild_id"`
+	Members []*Member `json:"members"`
 }
 
 // GuildRoleCreate is the data for a GuildRoleCreate event.
@@ -127,23 +149,6 @@ type GuildRoleUpdate struct {
 // A GuildRoleDelete is the data for a GuildRoleDelete event.
 type GuildRoleDelete struct {
 	RoleID  string `json:"role_id"`
-	GuildID string `json:"guild_id"`
-}
-
-// A GuildEmojisUpdate is the data for a guild emoji update event.
-type GuildEmojisUpdate struct {
-	GuildID string   `json:"guild_id"`
-	Emojis  []*Emoji `json:"emojis"`
-}
-
-// A GuildMembersChunk is the data for a GuildMembersChunk event.
-type GuildMembersChunk struct {
-	GuildID string    `json:"guild_id"`
-	Members []*Member `json:"members"`
-}
-
-// GuildIntegrationsUpdate is the data for a GuildIntegrationsUpdate event.
-type GuildIntegrationsUpdate struct {
 	GuildID string `json:"guild_id"`
 }
 
@@ -166,6 +171,12 @@ type MessageUpdate struct {
 // MessageDelete is the data for a MessageDelete event.
 type MessageDelete struct {
 	*Message
+}
+
+// MessageDeleteBulk is the data for a MessageDeleteBulk event
+type MessageDeleteBulk struct {
+	Messages  []string `json:"ids"`
+	ChannelID string   `json:"channel_id"`
 }
 
 // MessageReactionAdd is the data for a MessageReactionAdd event.
@@ -191,11 +202,6 @@ type PresenceUpdate struct {
 	Presence
 	GuildID string   `json:"guild_id"`
 	Roles   []string `json:"roles"`
-}
-
-// Resumed is the data for a Resumed event.
-type Resumed struct {
-	Trace []string `json:"_trace"`
 }
 
 // RelationshipAdd is the data for a RelationshipAdd event.
@@ -234,20 +240,14 @@ type UserNoteUpdate struct {
 	Note string `json:"note"`
 }
 
-// VoiceServerUpdate is the data for a VoiceServerUpdate event.
-type VoiceServerUpdate struct {
-	Token    string `json:"token"`
-	GuildID  string `json:"guild_id"`
-	Endpoint string `json:"endpoint"`
-}
-
 // VoiceStateUpdate is the data for a VoiceStateUpdate event.
 type VoiceStateUpdate struct {
 	*VoiceState
 }
 
-// MessageDeleteBulk is the data for a MessageDeleteBulk event
-type MessageDeleteBulk struct {
-	Messages  []string `json:"ids"`
-	ChannelID string   `json:"channel_id"`
+// VoiceServerUpdate is the data for a VoiceServerUpdate event.
+type VoiceServerUpdate struct {
+	Token    string `json:"token"`
+	GuildID  string `json:"guild_id"`
+	Endpoint string `json:"endpoint"`
 }
