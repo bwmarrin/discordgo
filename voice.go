@@ -135,7 +135,6 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 
 // Disconnect disconnects from this voice channel and closes the websocket
 // and udp connections to Discord.
-// !!! NOTE !!! this function may be removed in favour of ChannelVoiceLeave
 func (v *VoiceConnection) Disconnect() (err error) {
 
 	// Send a OP4 with a nil channel to disconnect
