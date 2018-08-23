@@ -103,7 +103,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	defer v.Unlock()
 	if err != nil {
 		v.speaking = false
-		v.log(LogError, "Speaking() write json error:", err)
+		v.log(LogError, "Speaking() write json errorR, %s", err)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (v *VoiceConnection) Close() {
 		v.log(LogInformational, "closing udp")
 		err := v.udpConn.Close()
 		if err != nil {
-			v.log(LogError, "error closing udp connection: ", err)
+			v.log(LogError, "error closing udp connection, %s", err)
 		}
 		v.udpConn = nil
 	}
