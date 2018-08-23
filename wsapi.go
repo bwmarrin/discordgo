@@ -623,6 +623,30 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	return
 }
 
+// ChannelVoiceJoinManual initiates a voice session to a voice channel, but does not complete it.
+//
+// This should only be used when the VoiceServerUpdate will be intercepted and used elsewhere.
+//
+//    gID     : Guild ID of the channel to join.
+//    cID     : Channel ID of the channel to join.
+//    mute    : If true, you will be set to muted upon joining.
+//    deaf    : If true, you will be set to deafened upon joining.
+func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
+
+	s.log(LogInformational, "called")
+
+	// Send the request to Discord that we want to join the voice channel
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(data)
+	s.wsMutex.Unlock()
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 // onVoiceStateUpdate handles Voice State Update events on the data websocket.
 func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 
