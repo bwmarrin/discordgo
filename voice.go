@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -298,7 +299,7 @@ func (v *VoiceConnection) open() (err error) {
 	}
 
 	// Connect to VoiceConnection Websocket
-	vg := fmt.Sprintf("wss://%s", strings.TrimSuffix(v.endpoint, ":80"))
+	vg := "wss://" + strings.TrimSuffix(v.endpoint, ":80")
 	v.log(LogInformational, "connecting to voice endpoint %s", vg)
 	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
 	if err != nil {
@@ -541,7 +542,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return fmt.Errorf("empty endpoint")
 	}
 
-	host := fmt.Sprintf("%s:%d", strings.TrimSuffix(v.endpoint, ":80"), v.op2.Port)
+	host := strings.TrimSuffix(v.endpoint, ":80") + ":" + strconv.Itoa(v.op2.Port)
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
 		v.log(LogWarning, "error resolving udp host %s, %s", host, err)
