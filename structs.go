@@ -597,7 +597,7 @@ type Member struct {
 	GuildID string `json:"guild_id"`
 
 	// The time at which the member joined the guild, in ISO8601.
-	JoinedAt string `json:"joined_at"`
+	JoinedAt Timestamp `json:"joined_at"`
 
 	// The nickname of the member, if they have one.
 	Nick string `json:"nick"`
