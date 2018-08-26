@@ -659,6 +659,8 @@ func (s *State) MessageAdd(message *Message) error {
 		}
 	}
 
+	c.LastMessageID = message.ID
+
 	c.Messages = append(c.Messages, message)
 
 	if len(c.Messages) > s.MaxMessageCount {
@@ -668,7 +670,7 @@ func (s *State) MessageAdd(message *Message) error {
 }
 
 // MessageRemove removes a message from the world state.
-func (s *State) MessageRemove(message *Message) error {
+func (s *State) MessageRemove(message *Message, se *Session) error {
 	if s == nil {
 		return ErrNilState
 	}
@@ -689,6 +691,18 @@ func (s *State) messageRemoveByID(channelID, messageID string) error {
 	for i, m := range c.Messages {
 		if m.ID == messageID {
 			c.Messages = append(c.Messages[:i], c.Messages[i+1:]...)
+			if c.LastMessageID == message.ID {
+				if c.Messages != nil {
+					c.LastMessageID = message.ID
+				} else {
+					lastMessage, err := se.ChannelMessages(c.ID, 1, "", "")
+					if lastMessage != nil && err != nil {
+						c.LastMessageID = lastMessage[0].ID
+					} else {
+						c.LastMessageID = ""
+					}
+				}
+			}
 			return nil
 		}
 	}
@@ -870,7 +884,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *MessageDelete:
 		if s.MaxMessageCount != 0 {
-			err = s.MessageRemove(t.Message)
+			err = s.MessageRemove(t.Message, se)
 		}
 	case *MessageDeleteBulk:
 		if s.MaxMessageCount != 0 {
