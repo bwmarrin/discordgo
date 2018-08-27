@@ -104,7 +104,7 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	defer v.Unlock()
 	if err != nil {
 		v.speaking = false
-		v.log(LogError, "Speaking() write json errorR, %s", err)
+		v.log(LogError, "Speaking() write json error, %s", err)
 		return
 	}
 
