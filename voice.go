@@ -50,7 +50,7 @@ type VoiceConnection struct {
 	udpConn *net.UDPConn
 	session *Session
 
-	sessionID string
+	SessionID string
 	token     string
 	endpoint  string
 
