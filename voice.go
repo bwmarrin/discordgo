@@ -138,6 +138,14 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 // and udp connections to Discord.
 func (v *VoiceConnection) Disconnect() (err error) {
 
+	// Close websocket and udp connections
+	v.Close()
+	v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
+
+	v.session.Lock()
+	delete(v.session.VoiceConnections, v.GuildID)
+	v.session.Unlock()
+
 	// Send a OP4 with a nil channel to disconnect
 	if v.sessionID != "" {
 		data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, nil, true, true}}
@@ -146,15 +154,6 @@ func (v *VoiceConnection) Disconnect() (err error) {
 		v.session.wsMutex.Unlock()
 		v.sessionID = ""
 	}
-
-	// Close websocket and udp connections
-	v.Close()
-
-	v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
-
-	v.session.Lock()
-	delete(v.session.VoiceConnections, v.GuildID)
-	v.session.Unlock()
 
 	return
 }
