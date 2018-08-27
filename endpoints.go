@@ -136,7 +136,8 @@ var (
 
 	EndpointIntegrationsJoin = func(iID string) string { return EndpointAPI + "integrations/" + iID + "/join" }
 
-	EndpointEmoji = func(eID string) string { return EndpointAPI + "emojis/" + eID + ".png" }
+	EndpointEmoji         = func(eID string) string { return EndpointAPI + "emojis/" + eID + ".png" }
+	EndpointEmojiAnimated = func(eID string) string { return EndpointAPI + "emojis/" + eID + ".gif" }
 
 	EndpointOauth2          = EndpointAPI + "oauth2/"
 	EndpointApplications    = EndpointOauth2 + "applications"

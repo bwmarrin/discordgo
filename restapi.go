@@ -90,7 +90,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 
 	req.Header.Set("Content-Type", contentType)
 	// TODO: Make a configurable static variable.
-	req.Header.Set("User-Agent", fmt.Sprintf("DiscordBot (https://github.com/bwmarrin/discordgo, v%s)", VERSION))
+	req.Header.Set("User-Agent", "DiscordBot (https://github.com/bwmarrin/discordgo, v"+VERSION+")")
 
 	if s.Debug {
 		for k, v := range req.Header {
@@ -250,7 +250,7 @@ func (s *Session) Register(username string) (token string, err error) {
 // even use.
 func (s *Session) Logout() (err error) {
 
-	//  _, err = s.Request("POST", LOGOUT, fmt.Sprintf(`{"token": "%s"}`, s.Token))
+	//  _, err = s.Request("POST", LOGOUT, `{"token": "` + s.Token + `"}`)
 
 	if s.Token == "" {
 		return
@@ -428,7 +428,7 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string) (st []*UserGui
 	uri := EndpointUserGuilds("@me")
 
 	if len(v) > 0 {
-		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+		uri += "?" + v.Encode()
 	}
 
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointUserGuilds(""))
@@ -743,7 +743,7 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 	}
 
 	if len(v) > 0 {
-		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+		uri += "?" + v.Encode()
 	}
 
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildMembers(guildID))
@@ -1065,7 +1065,7 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 		Pruned uint32 `json:"pruned"`
 	}{}
 
-	uri := EndpointGuildPrune(guildID) + fmt.Sprintf("?days=%d", days)
+	uri := EndpointGuildPrune(guildID) + "?days=" + strconv.FormatUint(uint64(days), 10)
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildPrune(guildID))
 	if err != nil {
 		return
@@ -1423,7 +1423,7 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 		v.Set("around", aroundID)
 	}
 	if len(v) > 0 {
-		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+		uri += "?" + v.Encode()
 	}
 
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointChannelMessages(channelID))
@@ -2103,7 +2103,7 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 	}
 
 	if len(v) > 0 {
-		uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+		uri += "?" + v.Encode()
 	}
 
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointMessageReaction(channelID, "", "", ""))

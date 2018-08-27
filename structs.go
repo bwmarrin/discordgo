@@ -597,7 +597,7 @@ type Member struct {
 	GuildID string `json:"guild_id"`
 
 	// The time at which the member joined the guild, in ISO8601.
-	JoinedAt string `json:"joined_at"`
+	JoinedAt Timestamp `json:"joined_at"`
 
 	// The nickname of the member, if they have one.
 	Nick string `json:"nick"`
@@ -613,6 +613,11 @@ type Member struct {
 
 	// A list of IDs of the roles which are possessed by the member.
 	Roles []string `json:"roles"`
+}
+
+// Mention creates a member mention
+func (m *Member) Mention() string {
+	return "<@!" + m.User.ID + ">"
 }
 
 // A Settings stores data for a specific users Discord client settings.
@@ -929,6 +934,7 @@ const (
 	ErrCodeUnknownToken       = 10012
 	ErrCodeUnknownUser        = 10013
 	ErrCodeUnknownEmoji       = 10014
+	ErrCodeUnknownWebhook     = 10015
 
 	ErrCodeBotsCannotUseEndpoint  = 20001
 	ErrCodeOnlyBotsCanUseEndpoint = 20002
