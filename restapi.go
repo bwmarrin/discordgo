@@ -911,17 +911,22 @@ func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 	return
 }
 
-// GuildChannelCreate creates a new channel in the given guild
-// guildID   : The ID of a Guild.
-// name      : Name of the channel (2-100 chars length)
-// ctype     : Type of the channel
-func (s *Session) GuildChannelCreate(guildID, name string, ctype ChannelType) (st *Channel, err error) {
+// GuildChannelCreateData is provided to GuildChannelCreateComplex
+type GuildChannelCreateData struct {
+	Name                 string                 `json:"name"`
+	Type                 ChannelType            `json:"type"`
+	Topic                string                 `json:"topic,omitempty"`
+	Bitrate              int                    `json:"bitrate,omitempty"`
+	UserLimit            int                    `json:"user_limit,omitempty"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID             string                 `json:"parent_id,omitempty"`
+	NSFW                 bool                   `json:"nsfw,omitempty"`
+}
 
-	data := struct {
-		Name string      `json:"name"`
-		Type ChannelType `json:"type"`
-	}{name, ctype}
-
+// GuildChannelCreateComplex creates a new channel in the given guild
+// guildID      : The ID of a Guild
+// data         : A data struct describing the new Channel, Name and Type are mandatory, other fields depending on the type
+func (s *Session) GuildChannelCreateComplex(guildID string, data GuildChannelCreateData) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildChannels(guildID), data, EndpointGuildChannels(guildID))
 	if err != nil {
 		return
@@ -929,6 +934,17 @@ func (s *Session) GuildChannelCreate(guildID, name string, ctype ChannelType) (s
 
 	err = unmarshal(body, &st)
 	return
+}
+
+// GuildChannelCreate creates a new channel in the given guild
+// guildID   : The ID of a Guild.
+// name      : Name of the channel (2-100 chars length)
+// ctype     : Type of the channel
+func (s *Session) GuildChannelCreate(guildID, name string, ctype ChannelType) (st *Channel, err error) {
+	return s.GuildChannelCreateComplex(guildID, GuildChannelCreateData{
+		Name: name,
+		Type: ctype,
+	})
 }
 
 // GuildChannelsReorder updates the order of channels in a guild
