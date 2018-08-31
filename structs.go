@@ -915,7 +915,9 @@ const (
 		PermissionKickMembers |
 		PermissionBanMembers |
 		PermissionManageServer |
-		PermissionAdministrator
+		PermissionAdministrator |
+		PermissionManageWebhooks |
+		PermissionManageEmojis
 )
 
 // Block contains Discord JSON Error Response codes
