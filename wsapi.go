@@ -85,7 +85,7 @@ func (s *Session) Open() error {
 		s.wsConn = nil // Just to be safe.
 		return err
 	}
-	
+
 	s.wsConn.SetCloseHandler(func(code int, text string) error {
 		return nil
 	})
@@ -287,7 +287,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 		last := s.LastHeartbeatAck
 		s.RUnlock()
 		sequence := atomic.LoadInt64(s.sequence)
-		s.log(LogInformational, "sending gateway websocket heartbeat seq %d", sequence)
+		s.log(LogDebug, "sending gateway websocket heartbeat seq %d", sequence)
 		s.wsMutex.Lock()
 		err = wsConn.WriteJSON(heartbeatOp{1, sequence})
 		s.wsMutex.Unlock()
@@ -520,7 +520,7 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 		s.Lock()
 		s.LastHeartbeatAck = time.Now().UTC()
 		s.Unlock()
-		s.log(LogInformational, "got heartbeat ACK")
+		s.log(LogDebug, "got heartbeat ACK")
 		return e, nil
 	}
 
