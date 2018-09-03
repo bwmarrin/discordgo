@@ -241,7 +241,7 @@ type Guild struct {
 	Unavailable                 bool              `json:"unavailable"`
 }
 
-// Role returns a role from the Guild.Roles slice with the given id
+// Role returns a role from the Guild.Roles slice with the given id.
 func (g *Guild) Role(roleID string) *Role {
 	for _, r := range g.Roles {
 		if r.ID == roleID {
@@ -252,7 +252,7 @@ func (g *Guild) Role(roleID string) *Role {
 	return nil
 }
 
-// PresenceForUser returns a presence from the Guild.Presences slice with the given userID
+// PresenceForUser returns a presence from the Guild.Presences slice with the given userID.
 func (g *Guild) PresenceForUser(userID string) *Presence {
 	for _, p := range g.Presences {
 		if p.User.ID == userID {
@@ -263,7 +263,7 @@ func (g *Guild) PresenceForUser(userID string) *Presence {
 	return nil
 }
 
-// VoiceState returns a voice state from the Guild.VoiceStates slice with the given userID
+// VoiceState returns a voice state from the Guild.VoiceStates slice with the given userID.
 func (g *Guild) VoiceState(userID string) *VoiceState {
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == userID {
@@ -274,7 +274,7 @@ func (g *Guild) VoiceState(userID string) *VoiceState {
 	return nil
 }
 
-// Emoji returns a emoji from the Guild.Emojis slice with the given emojiID
+// Emoji returns a emoji from the Guild.Emojis slice with the given emojiID.
 func (g *Guild) Emoji(emojiID string) *Emoji {
 	for _, e := range g.Emojis {
 		if e.ID == emojiID {
@@ -285,7 +285,7 @@ func (g *Guild) Emoji(emojiID string) *Emoji {
 	return nil
 }
 
-// Member returns a member from the Guild.Members slice with the given userID
+// Member returns a member from the Guild.Members slice with the given userID.
 func (g *Guild) Member(userID string) *Member {
 	for _, m := range g.Members {
 		if m.User.ID == userID {
@@ -296,7 +296,7 @@ func (g *Guild) Member(userID string) *Member {
 	return nil
 }
 
-// Channel returns a channel from the Guild.Channels slice with the given channlID
+// Channel returns a channel from the Guild.Channels slice with the given channelID.
 func (g *Guild) Channel(channelID string) *Channel {
 	for _, c := range g.Channels {
 		if c.ID == channelID {
