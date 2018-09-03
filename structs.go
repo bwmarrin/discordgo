@@ -241,8 +241,8 @@ type Guild struct {
 	Unavailable                 bool              `json:"unavailable"`
 }
 
-// FindRole returns a role from the Guild.Roles slice with the given id
-func (g *Guild) FindRole(roleID string) *Role {
+// Role returns a role from the Guild.Roles slice with the given id
+func (g *Guild) Role(roleID string) *Role {
 	for _, r := range g.Roles {
 		if r.ID == roleID {
 			return r
@@ -252,8 +252,8 @@ func (g *Guild) FindRole(roleID string) *Role {
 	return nil
 }
 
-// FindPresence returns a presence from the Guild.Presences slice with the given userID
-func (g *Guild) FindPresence(userID string) *Presence {
+// PresenceForUser returns a presence from the Guild.Presences slice with the given userID
+func (g *Guild) PresenceForUser(userID string) *Presence {
 	for _, p := range g.Presences {
 		if p.User.ID == userID {
 			return p
@@ -263,8 +263,8 @@ func (g *Guild) FindPresence(userID string) *Presence {
 	return nil
 }
 
-// FindVoiceState returns a voice state from the Guild.VoiceStates slice with the given userID
-func (g *Guild) FindVoiceState(userID string) *VoiceState {
+// VoiceState returns a voice state from the Guild.VoiceStates slice with the given userID
+func (g *Guild) VoiceState(userID string) *VoiceState {
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == userID {
 			return vs
@@ -274,8 +274,8 @@ func (g *Guild) FindVoiceState(userID string) *VoiceState {
 	return nil
 }
 
-// FindEmoji returns a emoji from the Guild.Emojis slice with the given emojiID
-func (g *Guild) FindEmoji(emojiID string) *Emoji {
+// Emoji returns a emoji from the Guild.Emojis slice with the given emojiID
+func (g *Guild) Emoji(emojiID string) *Emoji {
 	for _, e := range g.Emojis {
 		if e.ID == emojiID {
 			return e
@@ -285,8 +285,8 @@ func (g *Guild) FindEmoji(emojiID string) *Emoji {
 	return nil
 }
 
-// FindMember returns a member from the Guild.Members slice with the given userID
-func (g *Guild) FindMember(userID string) *Member {
+// Member returns a member from the Guild.Members slice with the given userID
+func (g *Guild) Member(userID string) *Member {
 	for _, m := range g.Members {
 		if m.User.ID == userID {
 			return m
@@ -296,8 +296,8 @@ func (g *Guild) FindMember(userID string) *Member {
 	return nil
 }
 
-// FindChannel returns a channel from the Guild.Channels slice with the given channlID
-func (g *Guild) FindChannel(channelID string) *Channel {
+// Channel returns a channel from the Guild.Channels slice with the given channlID
+func (g *Guild) Channel(channelID string) *Channel {
 	for _, c := range g.Channels {
 		if c.ID == channelID {
 			return c
