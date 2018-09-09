@@ -966,7 +966,7 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	return
 }
 
-// Get a single role for a given guild identified by roleID
+// GuildRole gets a single role for a given guild; identified by roleID
 // guildID   : The ID of a Guild
 // roleID    : The role id we are looking for
 func (s *Session) GuildRole(guildID string, roleID string) (role *Role, err error) {
