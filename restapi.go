@@ -911,18 +911,6 @@ func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 	return
 }
 
-// GuildChannelCreateData is provided to GuildChannelCreateComplex
-type GuildChannelCreateData struct {
-	Name                 string                 `json:"name"`
-	Type                 ChannelType            `json:"type"`
-	Topic                string                 `json:"topic,omitempty"`
-	Bitrate              int                    `json:"bitrate,omitempty"`
-	UserLimit            int                    `json:"user_limit,omitempty"`
-	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             string                 `json:"parent_id,omitempty"`
-	NSFW                 bool                   `json:"nsfw,omitempty"`
-}
-
 // GuildChannelCreateComplex creates a new channel in the given guild
 // guildID      : The ID of a Guild
 // data         : A data struct describing the new Channel, Name and Type are mandatory, other fields depending on the type
@@ -978,6 +966,24 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	return
 }
 
+// Get a single role for a given guild identified by roleID
+// guildID   : The ID of a Guild
+// roleID    : The role id we are looking for
+func (s *Session) GuildRole(guildID string, roleID string) (role *Role, err error) {
+	roles, err := s.GuildRoles(guildID)
+	if err != nil {
+		return
+	}
+
+	for _, r := range roles {
+		if r.ID == roleID {
+			return r, nil
+		}
+	}
+
+	return nil, errors.New("Unable to find role with specified ID")
+}
+
 // GuildRoles returns all roles for a given guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
@@ -992,17 +998,42 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 	return // TODO return pointer
 }
 
-// GuildRoleCreate returns a new Guild Role.
-// guildID: The ID of a Guild.
-func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
-
-	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
+// GuildRoleCreateComplex creates a new role in the given guild
+// guildID      : The ID of a Guild
+// data         : A data struct describing the new Role, all fields are optional
+func (s *Session) GuildRoleCreateComplex(guildID string, data *GuildRoleCreateData) (st *Role, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), data, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(body, &st)
+	return
+}
 
+// GuildRoleCreate returns a new Guild Role.
+// guildID: The ID of a Guild.
+func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
+	return s.GuildRoleCreateComplex(guildID, &GuildRoleCreateData{})
+}
+
+// GuildRoleEditComplex edits an existing role with id roleID in the given guild
+// guildID      : The ID of the Guild
+// roleID       : The role to edit
+// data         : A data struct for the new role data, all fields are optional
+func (s *Session) GuildRoleEditComplex(guildID string, roleID string, data *GuildRoleEditData) (st *Role, err error) {
+	// Prevent sending a color int that is too big.
+	if data.Color > 0xFFFFFF {
+		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
+		return nil, err
+	}
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, roleID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
 	return
 }
 
@@ -1014,30 +1045,14 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // hoist     : Whether to display the role's users separately.
 // perm      : The permissions for the role.
 // mention   : Whether this role is mentionable
-func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
-
-	// Prevent sending a color int that is too big.
-	if color > 0xFFFFFF {
-		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
-		return nil, err
-	}
-
-	data := struct {
-		Name        string `json:"name"`        // The role's name (overwrites existing)
-		Color       int    `json:"color"`       // The color the role should have (as a decimal, not hex)
-		Hoist       bool   `json:"hoist"`       // Whether to display the role's users separately
-		Permissions int    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
-		Mentionable bool   `json:"mentionable"` // Whether this role is mentionable
-	}{name, color, hoist, perm, mention}
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-
-	return
+func (s *Session) GuildRoleEdit(guildID string, roleID string, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
+	return s.GuildRoleEditComplex(guildID, roleID, &GuildRoleEditData{
+		Name:        name,
+		Color:       color,
+		Hoist:       hoist,
+		Permissions: perm,
+		Mentionable: mention,
+	})
 }
 
 // GuildRoleReorder reoders guild roles

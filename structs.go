@@ -251,7 +251,19 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// A ChannelEdit holds Channel Feild data for a channel edit.
+// GuildChannelCreateData is provided to GuildChannelCreateComplex
+type GuildChannelCreateData struct {
+	Name                 string                 `json:"name"`
+	Type                 ChannelType            `json:"type"`
+	Topic                string                 `json:"topic,omitempty"`
+	Bitrate              int                    `json:"bitrate,omitempty"`
+	UserLimit            int                    `json:"user_limit,omitempty"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID             string                 `json:"parent_id,omitempty"`
+	NSFW                 bool                   `json:"nsfw,omitempty"`
+}
+
+// A ChannelEdit holds Channel Field data for a channel edit.
 type ChannelEdit struct {
 	Name                 string                 `json:"name,omitempty"`
 	Topic                string                 `json:"topic,omitempty"`
@@ -261,6 +273,24 @@ type ChannelEdit struct {
 	UserLimit            int                    `json:"user_limit,omitempty"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             string                 `json:"parent_id,omitempty"`
+}
+
+// GuildRoleCreateData is provided to GuildRoleCreateComplex
+type GuildRoleCreateData struct {
+	Name        string `json:"name,omitempty"`
+	Permissions int    `json:"permissions,omitempty"`
+	Color       int    `json:"color,omitempty"`
+	Hoist       bool   `json:"hoist,omitempty"`
+	Mentionable bool   `json:"mentionable,omitempty"`
+}
+
+// GuildRoleEditData is provided to GuildRoleEditComplex
+type GuildRoleEditData struct {
+	Name        string `json:"name,omitempty"`
+	Permissions int    `json:"permissions,omitempty"`
+	Color       int    `json:"color,omitempty"`
+	Hoist       bool   `json:"hoist,omitempty"`
+	Mentionable bool   `json:"mentionable,omitempty"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
