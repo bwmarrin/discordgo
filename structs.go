@@ -251,7 +251,7 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// A ChannelEdit holds Channel Feild data for a channel edit.
+// A ChannelEdit holds Channel Field data for a channel edit.
 type ChannelEdit struct {
 	Name                 string                 `json:"name,omitempty"`
 	Topic                string                 `json:"topic,omitempty"`
@@ -261,6 +261,7 @@ type ChannelEdit struct {
 	UserLimit            int                    `json:"user_limit,omitempty"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             string                 `json:"parent_id,omitempty"`
+	RateLimitPerUser     int                    `json:"rate_limit_per_user,omitempty"`
 }
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
