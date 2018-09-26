@@ -267,7 +267,7 @@ type helloOp struct {
 // FailedHeartbeatAcks is the Number of heartbeat intervals to wait until forcing a connection restart.
 const FailedHeartbeatAcks time.Duration = 5 * time.Millisecond
 
-// HeartbeatLatency returns the latency between heartbeat acknowledgement and heartbeat send
+// HeartbeatLatency returns the latency between heartbeat acknowledgement and heartbeat send.
 func (s *Session) HeartbeatLatency() time.Duration {
 
 	return s.LastHeartbeatAck.Sub(s.LastHeartbeatSent)
@@ -276,7 +276,7 @@ func (s *Session) HeartbeatLatency() time.Duration {
 
 // heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
-// disconnect the websocket connection after a few seconds
+// disconnect the websocket connection after a few seconds.
 func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, heartbeatIntervalMsec time.Duration) {
 
 	s.log(LogInformational, "called")
