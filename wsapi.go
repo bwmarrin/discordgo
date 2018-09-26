@@ -267,7 +267,7 @@ type helloOp struct {
 // FailedHeartbeatAcks is the Number of heartbeat intervals to wait until forcing a connection restart.
 const FailedHeartbeatAcks time.Duration = 5 * time.Millisecond
 
-// latency returns the latency between heartbeat acknowledgement and heartbeat send
+// Latency returns the latency between heartbeat acknowledgement and heartbeat send
 func (s *Session) Latency() int64 {
 
 	return s.LastHeartbeatAck.Sub(s.LastHeartbeatSent).Nanoseconds() / 1000000
