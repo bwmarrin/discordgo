@@ -202,6 +202,12 @@ func (s *Session) Open() error {
 	return nil
 }
 
+func (s *Session) Latency() int64 {
+
+	return s.LastHeartbeatAck.Sub(s.LastSend).Nanoseconds() / 1000000
+	
+}
+
 // listen polls the websocket connection for events, it will stop when the
 // listening channel is closed, or an error occurs.
 func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
