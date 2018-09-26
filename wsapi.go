@@ -268,9 +268,9 @@ type helloOp struct {
 const FailedHeartbeatAcks time.Duration = 5 * time.Millisecond
 
 // HeartbeatLatency returns the latency between heartbeat acknowledgement and heartbeat send
-func (s *Session) HeartbeatLatency() int64 {
+func (s *Session) HeartbeatLatency() time.Time {
 
-	return s.LastHeartbeatAck.Sub(s.LastHeartbeatSent).Nanoseconds() / 1000000
+	return s.LastHeartbeatAck.Sub(s.LastHeartbeatSent)
 
 }
 
