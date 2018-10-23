@@ -174,6 +174,7 @@ type Channel struct {
 	Messages             []*Message             `json:"-"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
 	ParentID             string                 `json:"parent_id"`
+	UserLimit            int                    `json:"user_limit"`
 }
 
 // A ChannelEdit holds Channel Feild data for a channel edit.
