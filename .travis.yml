@@ -10,5 +10,5 @@ install:
 script:
     - diff <(gofmt -d .) <(echo -n)
     - go vet -x ./...
-    - golint -set_exit_status ./... > /dev/null
+    - golint -set_exit_status ./... > /dev/null 2>&1
     - go test -v -race ./...
