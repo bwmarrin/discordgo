@@ -814,6 +814,14 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *GuildDelete:
 		err = s.GuildRemove(t.Guild)
 	case *GuildMemberAdd:
+		// Updates the MemberCount of the guild.
+		guild, err := s.Guild(t.Member.GuildID)
+		if err != nil {
+			return err
+		}
+		guild.MemberCount++
+
+		// Caches member if tracking is enabled.
 		if s.TrackMembers {
 			err = s.MemberAdd(t.Member)
 		}
@@ -822,6 +830,14 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 			err = s.MemberAdd(t.Member)
 		}
 	case *GuildMemberRemove:
+		// Updates the MemberCount of the guild.
+		guild, err := s.Guild(t.Member.GuildID)
+		if err != nil {
+			return err
+		}
+		guild.MemberCount--
+
+		// Removes member from the cache if tracking is enabled.
 		if s.TrackMembers {
 			err = s.MemberRemove(t.Member)
 		}
