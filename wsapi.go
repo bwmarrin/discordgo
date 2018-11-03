@@ -649,6 +649,17 @@ func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err 
 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, &cID, mute, deaf}}
+	
+	// If a empty string is sent the session will temporarily disconnect, unless it's null(nil)
+	if cID == "" {
+		data.Data.ChannelID = nil
+	}
+	
+	// If the gID is empty the session will temporarily dissconnect, returning prevents this.  
+	if gID == "" {
+		return
+	}
+	
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(data)
 	s.wsMutex.Unlock()
