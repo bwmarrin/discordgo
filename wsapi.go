@@ -655,7 +655,7 @@ func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err 
 		data.Data.ChannelID = nil
 	}
 	
-	// If the gID is empty the session will temporarily dissconnect, returning prevents this.  
+	// If the gID is empty the session will temporarily disconnect, returning prevents this.  
 	if gID == "" {
 		return
 	}
