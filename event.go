@@ -1,5 +1,7 @@
 package discordgo
 
+import "context"
+
 // EventHandler is an interface for Discord events.
 type EventHandler interface {
 	// Type returns the type of event this handler belongs to.
@@ -8,7 +10,7 @@ type EventHandler interface {
 	// Handle is called whenever an event of Type() happens.
 	// It is the receivers responsibility to type assert that the interface
 	// is the expected struct.
-	Handle(*Session, interface{})
+	Handle(context.Context, *Session, interface{})
 }
 
 // EventInterfaceProvider is an interface for providing empty interfaces for
@@ -27,7 +29,7 @@ type EventInterfaceProvider interface {
 const interfaceEventType = "__INTERFACE__"
 
 // interfaceEventHandler is an event handler for interface{} events.
-type interfaceEventHandler func(*Session, interface{})
+type interfaceEventHandler func(context.Context, *Session, interface{})
 
 // Type returns the event type for interface{} events.
 func (eh interfaceEventHandler) Type() string {
@@ -35,8 +37,8 @@ func (eh interfaceEventHandler) Type() string {
 }
 
 // Handle is the handler for an interface{} event.
-func (eh interfaceEventHandler) Handle(s *Session, i interface{}) {
-	eh(s, i)
+func (eh interfaceEventHandler) Handle(ctx context.Context, s *Session, i interface{}) {
+	eh(ctx, s, i)
 }
 
 var registeredInterfaceProviders = map[string]EventInterfaceProvider{}
@@ -163,21 +165,21 @@ func (s *Session) removeEventHandlerInstance(t string, ehi *eventHandlerInstance
 }
 
 // Handles calling permanent and once handlers for an event type.
-func (s *Session) handle(t string, i interface{}) {
+func (s *Session) handle(ctx context.Context, t string, i interface{}) {
 	for _, eh := range s.handlers[t] {
 		if s.SyncEvents {
-			eh.eventHandler.Handle(s, i)
+			eh.eventHandler.Handle(ctx, s, i)
 		} else {
-			go eh.eventHandler.Handle(s, i)
+			go eh.eventHandler.Handle(ctx, s, i)
 		}
 	}
 
 	if len(s.onceHandlers[t]) > 0 {
 		for _, eh := range s.onceHandlers[t] {
 			if s.SyncEvents {
-				eh.eventHandler.Handle(s, i)
+				eh.eventHandler.Handle(ctx, s, i)
 			} else {
-				go eh.eventHandler.Handle(s, i)
+				go eh.eventHandler.Handle(ctx, s, i)
 			}
 		}
 		s.onceHandlers[t] = nil
@@ -194,10 +196,10 @@ func (s *Session) handleEvent(t string, i interface{}) {
 	s.onInterface(i)
 
 	// Then they are dispatched to anyone handling interface{} events.
-	s.handle(interfaceEventType, i)
+	s.handle(context.Background(), interfaceEventType, i)
 
 	// Finally they are dispatched to any typed handlers.
-	s.handle(t, i)
+	s.handle(context.Background(), t, i)
 }
 
 // setGuildIds will set the GuildID on all the members of a guild.
