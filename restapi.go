@@ -39,6 +39,8 @@ var (
 	ErrGuildNoIcon             = errors.New("guild does not have an icon set")
 	ErrGuildNoSplash           = errors.New("guild does not have a splash set")
 	ErrUnauthorized            = errors.New("HTTP request was unauthorized. This could be because the provided token was not a bot token. Please add \"Bot \" to the start of your token. https://discordapp.com/developers/docs/reference#authentication-example-bot-token-authorization-header")
+	
+	HTTPUserAgent = "DiscordBot (https://github.com/bwmarrin/discordgo, v"+VERSION+")"
 )
 
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
@@ -90,7 +92,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 
 	req.Header.Set("Content-Type", contentType)
 	// TODO: Make a configurable static variable.
-	req.Header.Set("User-Agent", "DiscordBot (https://github.com/bwmarrin/discordgo, v"+VERSION+")")
+	req.Header.Set("User-Agent", HTTPUserAgent)
 
 	if s.Debug {
 		for k, v := range req.Header {
