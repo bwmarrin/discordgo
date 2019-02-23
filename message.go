@@ -81,7 +81,7 @@ type Message struct {
 	Reactions []*MessageReactions `json:"reactions"`
 
 	// Whether the message is pinned or not.
-	Pinned bool `json"pinned"`
+	Pinned bool `json:"pinned"`
 	
 	// The type of the message.
 	Type MessageType `json:"type"`
