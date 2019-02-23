@@ -82,7 +82,7 @@ type Message struct {
 
 	// Whether the message is pinned or not.
 	Pinned bool `json:"pinned"`
-	
+
 	// The type of the message.
 	Type MessageType `json:"type"`
 
