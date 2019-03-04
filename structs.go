@@ -458,7 +458,7 @@ type UserGuild struct {
 type GuildParams struct {
 	Name                        string             `json:"name,omitempty"`
 	Region                      string             `json:"region,omitempty"`
-	VerificationLevel           VerificationLevel `json:"verification_level,omitempty"`
+	VerificationLevel           VerificationLevel  `json:"verification_level,omitempty"`
 	DefaultMessageNotifications int                `json:"default_message_notifications,omitempty"` // TODO: Separate type?
 	AfkChannelID                string             `json:"afk_channel_id,omitempty"`
 	AfkTimeout                  int                `json:"afk_timeout,omitempty"`
