@@ -162,6 +162,8 @@ type MessageCreate struct {
 // MessageUpdate is the data for a MessageUpdate event.
 type MessageUpdate struct {
 	*Message
+	// BeforeUpdate will be nil if the Message was not previously cached in the state cache.
+	BeforeUpdate *Message `json:"-"`
 }
 
 // MessageDelete is the data for a MessageDelete event.
