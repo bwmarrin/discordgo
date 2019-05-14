@@ -33,6 +33,11 @@ type Application struct {
 //   appID : The ID of an Application
 func (s *Session) Application(appID string) (st *Application, err error) {
 
+	// If the app ID is for the current bot, use @me as the ID to allow the bot to fetch its application.
+	if appID == s.State.User.ID && s.State.User.Bot {
+		appID = "@me"
+	}
+
 	body, err := s.RequestWithBucketID("GET", EndpointApplication(appID), nil, EndpointApplication(""))
 	if err != nil {
 		return
