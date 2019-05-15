@@ -349,6 +349,26 @@ func (s *State) MemberRemove(member *Member) error {
 	return ErrStateNotFound
 }
 
+// Members returns a deep copy of all members in all guilds
+func (s *State) Members() map[string]map[string]Member {
+	s.RLock()
+	defer s.RUnlock()
+
+	memberMap := make(map[string]map[string]Member)
+
+	for guildID, memberList := range s.memberMap {
+		a := make(map[string]Member)
+
+		for memberID, member := range memberList {
+			a[memberID] = *member
+		}
+
+		memberMap[guildID] = a
+	}
+
+	return memberMap
+}
+
 // Member gets a member by ID from a guild.
 func (s *State) Member(guildID, userID string) (*Member, error) {
 	if s == nil {
