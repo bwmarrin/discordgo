@@ -1310,6 +1310,22 @@ func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, li
 	return
 }
 
+// GuildEmojis returns an array of Emoji structures for all emojis of a
+// given guild.
+// guildID : The ID of a Guild.
+// name    : The Name of the Emoji.
+// image   : The base64 encoded emoji image, has to be smaller than 256KB.
+// roles   : The roles for which this emoji will be whitelisted, can be nil.
+func (s *Session) GuildEmojis(guildID string) (emojis []*Emoji, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildEmojis(guildID), nil, EndpointGuildEmojis(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emojis)
+	return
+}
+
 // GuildEmojiCreate creates a new emoji
 // guildID : The ID of a Guild.
 // name    : The Name of the Emoji.
