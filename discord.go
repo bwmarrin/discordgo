@@ -26,6 +26,17 @@ const VERSION = "0.19.0"
 // ErrMFA will be risen by New when the user has 2FA.
 var ErrMFA = errors.New("account has 2FA enabled")
 
+// Auth represents authentication options to use with new.
+type Auth struct {
+	Email    string // Email to use when authenticating to a user account.
+	Password string // Password to use when authenticating to a user account.
+
+	// Token to use when authenticating with discord.
+	// If the token is for a bot then the token must be prefixed with "Bot"
+	// eg "Bot <token>"
+	Token string
+}
+
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
 // arguments and it will return an empty Discord session.
@@ -74,6 +85,20 @@ func New(args ...interface{}) (s *Session, err error) {
 	for _, arg := range args {
 
 		switch v := arg.(type) {
+
+		case Auth:
+			s.Token = v.Token
+			auth = v.Email
+			pass = v.Password
+			err = s.Login(auth, pass)
+			if err != nil || s.Token == "" {
+				if s.MFA {
+					err = ErrMFA
+				} else {
+					err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
+				}
+			}
+			return
 
 		case []string:
 			if len(v) > 3 {
