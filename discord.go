@@ -60,6 +60,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		Client:                 &http.Client{Timeout: (20 * time.Second)},
 		sequence:               new(int64),
 		LastHeartbeatAck:       time.Now().UTC(),
+		Logger:                 DefaultLogger(LogError),
 	}
 
 	// If no arguments are passed return the empty Session interface.

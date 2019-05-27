@@ -32,8 +32,7 @@ type Session struct {
 	MFA   bool
 
 	// Debug for printing JSON request/responses
-	Debug    bool // Deprecated, will be removed.
-	LogLevel int
+	Debug bool // Deprecated, will be removed.
 
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
@@ -113,6 +112,9 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	// used to inject a custom logger
+	Logger Logger
 }
 
 // UserConnection is a Connection returned from the UserConnections endpoint
