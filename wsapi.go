@@ -261,7 +261,6 @@ type heartbeatOp struct {
 
 type helloOp struct {
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	Trace             []string      `json:"_trace"`
 }
 
 // FailedHeartbeatAcks is the Number of heartbeat intervals to wait until forcing a connection restart.
