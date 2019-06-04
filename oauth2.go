@@ -32,10 +32,14 @@ type Application struct {
 // Application returns an Application structure of a specific Application
 //   appID : The ID of an Application
 func (s *Session) Application(appID string) (st *Application, err error) {
-
-	// If the app ID is for the current bot, use @me as the ID to allow the bot to fetch its application.
-	if appID == s.State.User.ID && s.State.User.Bot {
-		appID = "@me"
+	
+	// If the application is a bot, Discord requires the user ID to be @me to allow the bot
+	// to fetch its oauth application.
+	// https://discordapp.com/developers/docs/topics/oauth2#get-current-application-information
+	if s.State != nil {
+		if appID == s.State.User.ID && s.State.User.Bot {
+			appID = "@me"
+		}
 	}
 
 	body, err := s.RequestWithBucketID("GET", EndpointApplication(appID), nil, EndpointApplication(""))
