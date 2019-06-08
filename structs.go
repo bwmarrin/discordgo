@@ -342,6 +342,17 @@ const (
 	MfaLevelElevated
 )
 
+// PremiumTier type definition
+type PremiumTier int
+
+// Constants for PremiumTier levels from 0 to 3 inclusive
+const (
+	PremiumTierNone PremiumTier = iota
+	PremiumTier1
+	PremiumTier2
+	PremiumTier3
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
@@ -446,6 +457,21 @@ type Guild struct {
 
 	// The Channel ID to which system messages are sent (eg join and leave messages)
 	SystemChannelID string `json:"system_channel_id"`
+
+	// the vanity url code for the guild
+	VanityURLCode string `json:"vanity_url_code"`
+
+	// the description for the guild
+	Description string `json:"description"`
+
+	// The hash of the guild's banner
+	Banner string `json:"banner"`
+
+	// The premium tier of the guild
+	PremiumTier PremiumTier `json:"premium_tier"`
+
+	// The total number of users currently boosting this server
+	PremiumSubscriptionCount int `json:"premium_subscription_count"`
 }
 
 // A UserGuild holds a brief version of a Guild
@@ -620,6 +646,9 @@ type Member struct {
 
 	// A list of IDs of the roles which are possessed by the member.
 	Roles []string `json:"roles"`
+
+	// When the user used their Nitro boost on the server
+	PremiumSince Timestamp `json:"premium_since"`
 }
 
 // Mention creates a member mention
