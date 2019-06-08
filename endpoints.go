@@ -38,7 +38,7 @@ var (
 	EndpointCDNIcons        = EndpointCDN + "icons/"
 	EndpointCDNSplashes     = EndpointCDN + "splashes/"
 	EndpointCDNChannelIcons = EndpointCDN + "channel-icons/"
-	EndpointCDNBanners     = EndpointCDN + "banners/"
+	EndpointCDNBanners      = EndpointCDN + "banners/"
 
 	EndpointAuth           = EndpointAPI + "auth/"
 	EndpointLogin          = EndpointAuth + "login"
