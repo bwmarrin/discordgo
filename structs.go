@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -472,6 +473,19 @@ type Guild struct {
 
 	// The total number of users currently boosting this server
 	PremiumSubscriptionCount int `json:"premium_subscription_count"`
+}
+
+// IconURL returns a URL to the guild's icon.
+func (g *Guild) IconURL() string {
+	if g.Icon == "" {
+		return ""
+	}
+
+	if strings.HasPrefix(g.Icon, "a_") {
+		return EndpointGuildIconAnimated(g.ID, g.Icon)
+	}
+
+	return EndpointGuildIcon(g.ID, g.Icon)
 }
 
 // A UserGuild holds a brief version of a Guild
