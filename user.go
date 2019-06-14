@@ -36,6 +36,9 @@ type User struct {
 
 	// Whether the user is a bot.
 	Bot bool `json:"bot"`
+
+	// The Session to call the API and retrieve other objects
+	Session *Session `json:"session"`
 }
 
 // String returns a unique identifier of the form username#discriminator
@@ -46,6 +49,10 @@ func (u *User) String() string {
 // Mention return a string which mentions the user
 func (u *User) Mention() string {
 	return "<@" + u.ID + ">"
+}
+
+func (u *User) GetID() string {
+	return u.ID
 }
 
 // AvatarURL returns a URL to the user's avatar.

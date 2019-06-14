@@ -281,17 +281,6 @@ func (s *Session) User(userID string) (st *User, err error) {
 	return
 }
 
-// UserAvatar is deprecated. Please use UserAvatarDecode
-// userID    : A user ID or "@me" which is a shortcut of current user ID
-func (s *Session) UserAvatar(userID string) (img image.Image, err error) {
-	u, err := s.User(userID)
-	if err != nil {
-		return
-	}
-	img, err = s.UserAvatarDecode(u)
-	return
-}
-
 // UserAvatarDecode returns an image.Image of a user's Avatar
 // user : The user which avatar should be retrieved
 func (s *Session) UserAvatarDecode(u *User) (img image.Image, err error) {
@@ -304,46 +293,9 @@ func (s *Session) UserAvatarDecode(u *User) (img image.Image, err error) {
 	return
 }
 
-// UserUpdate updates a users settings.
-func (s *Session) UserUpdate(email, password, username, avatar, newPassword string) (st *User, err error) {
-
-	// NOTE: Avatar must be either the hash/id of existing Avatar or
-	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
-	// to set a new avatar.
-	// If left blank, avatar will be set to null/blank
-
-	data := struct {
-		Email       string `json:"email,omitempty"`
-		Password    string `json:"password,omitempty"`
-		Username    string `json:"username,omitempty"`
-		Avatar      string `json:"avatar,omitempty"`
-		NewPassword string `json:"new_password,omitempty"`
-	}{email, password, username, avatar, newPassword}
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointUser("@me"), data, EndpointUsers)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// UserSettings returns the settings for a given user
-func (s *Session) UserSettings() (st *Settings, err error) {
-
-	body, err := s.RequestWithBucketID("GET", EndpointUserSettings("@me"), nil, EndpointUserSettings(""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
 // UserUpdateStatus update the user status
 // status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
-func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
+func (s *Session) UserUpdateStatus(status Status) (err error) {
 	if status == StatusOffline {
 		err = ErrStatusOffline
 		return
@@ -353,27 +305,7 @@ func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 		Status Status `json:"status"`
 	}{status}
 
-	body, err := s.RequestWithBucketID("PATCH", EndpointUserSettings("@me"), data, EndpointUserSettings(""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// UserConnections returns the user's connections
-func (s *Session) UserConnections() (conn []*UserConnection, err error) {
-	response, err := s.RequestWithBucketID("GET", EndpointUserConnections("@me"), nil, EndpointUserConnections("@me"))
-	if err != nil {
-		return nil, err
-	}
-
-	err = unmarshal(response, &conn)
-	if err != nil {
-		return
-	}
-
+	_, err = s.RequestWithBucketID("PATCH", EndpointUserSettings("@me"), data, EndpointUserSettings(""))
 	return
 }
 
@@ -387,6 +319,9 @@ func (s *Session) UserChannels() (st []*Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	for _, c := range st {
+		c.Session = s
+	}
 	return
 }
 
@@ -404,6 +339,7 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -432,20 +368,6 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string) (st []*UserGui
 	}
 
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointUserGuilds(""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// UserGuildSettingsEdit Edits the users notification settings for a guild
-// guildID   : The ID of the guild to edit the settings on
-// settings  : The settings to update
-func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSettingsEdit) (st *UserGuildSettings, err error) {
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointUserGuildSettings("@me", guildID), settings, EndpointUserGuildSettings("", guildID))
 	if err != nil {
 		return
 	}
@@ -592,6 +514,7 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -609,6 +532,7 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -651,19 +575,7 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 	}
 
 	err = unmarshal(body, &st)
-	return
-}
-
-// GuildDelete deletes a Guild.
-// guildID   : The ID of a Guild
-func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
-
-	body, err := s.RequestWithBucketID("DELETE", EndpointGuild(guildID), nil, EndpointGuild(guildID))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -760,6 +672,9 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 	}
 
 	err = unmarshal(body, &st)
+	for _, m := range st {
+		m.User.Session = s
+	}
 	return
 }
 
@@ -774,6 +689,7 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	st.User.Session = s
 	return
 }
 
@@ -915,7 +831,9 @@ func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
-
+	for _, c := range st {
+		c.Session = s
+	}
 	return
 }
 
@@ -941,6 +859,7 @@ func (s *Session) GuildChannelCreateComplex(guildID string, data GuildChannelCre
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -996,7 +915,9 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 	}
 
 	err = unmarshal(body, &st)
-
+	for _, r := range st {
+		r.Session = s
+	}
 	return // TODO return pointer
 }
 
@@ -1010,6 +931,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 
 	return
 }
@@ -1044,6 +966,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 
 	return
 }
@@ -1059,6 +982,9 @@ func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, e
 	}
 
 	err = unmarshal(body, &st)
+	for _, r := range st {
+		r.Session = s
+	}
 
 	return
 }
@@ -1151,7 +1077,7 @@ func (s *Session) GuildIntegrations(guildID string) (st []*Integration, err erro
 	}
 
 	err = unmarshal(body, &st)
-
+	// TODO: replace user from cache if possible
 	return
 }
 
@@ -1375,6 +1301,7 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -1397,6 +1324,7 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *C
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -1410,6 +1338,7 @@ func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	st.Session = s
 	return
 }
 
@@ -1470,6 +1399,7 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 	}
 
 	err = unmarshal(response, &st)
+	st.Session = s
 	return
 }
 
@@ -1579,6 +1509,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 	}
 
 	err = unmarshal(response, &st)
+	st.Session = s
 	return
 }
 
@@ -1623,6 +1554,7 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit) (st *Message, err er
 	}
 
 	err = unmarshal(response, &st)
+	st.Session = s
 	return
 }
 
@@ -1699,6 +1631,9 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 	}
 
 	err = unmarshal(body, &st)
+	for _, m := range st {
+		m.Session = s
+	}
 	return
 }
 
@@ -1792,6 +1727,7 @@ func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	// TODO: replace inviter, guild and channel from cache if possible
 	return
 }
 
@@ -1805,6 +1741,7 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	// TODO: replace inviter, guild and channel from cache if possible
 	return
 }
 
@@ -1818,6 +1755,7 @@ func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	// TODO: replace inviter, guild and channel from cache if possible
 	return
 }
 
@@ -1831,6 +1769,7 @@ func (s *Session) InviteAccept(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	// TODO: replace inviter, guild and channel from cache if possible
 	return
 }
 
@@ -1949,7 +1888,7 @@ func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
 	}
 
 	err = unmarshal(body, &st)
-
+	// TODO: replace user from cache if possible
 	return
 }
 
@@ -1963,7 +1902,7 @@ func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
 	}
 
 	err = unmarshal(body, &st)
-
+	// TODO: replace user from cache if possible
 	return
 }
 
@@ -1977,7 +1916,7 @@ func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
 	}
 
 	err = unmarshal(body, &st)
-
+	// TODO: replace user from cache if possible
 	return
 }
 
@@ -1992,7 +1931,7 @@ func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err er
 	}
 
 	err = unmarshal(body, &st)
-
+	// TODO: replace user from cache if possible
 	return
 }
 
@@ -2014,7 +1953,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Ro
 	}
 
 	err = unmarshal(body, &st)
-
+	st.Session = s
 	return
 }
 
@@ -2036,7 +1975,7 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 	}
 
 	err = unmarshal(body, &st)
-
+	st.Session = s
 	return
 }
 
@@ -2060,7 +1999,7 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 	}
 
 	err = unmarshal(body, &st)
-
+	// TODO: replace user from cache if possible
 	return
 }
 
@@ -2136,85 +2075,8 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 	}
 
 	err = unmarshal(body, &st)
-	return
-}
-
-// ------------------------------------------------------------------------------------------------
-// Functions specific to user notes
-// ------------------------------------------------------------------------------------------------
-
-// UserNoteSet sets the note for a specific user.
-func (s *Session) UserNoteSet(userID string, message string) (err error) {
-	data := struct {
-		Note string `json:"note"`
-	}{message}
-
-	_, err = s.RequestWithBucketID("PUT", EndpointUserNotes(userID), data, EndpointUserNotes(""))
-	return
-}
-
-// ------------------------------------------------------------------------------------------------
-// Functions specific to Discord Relationships (Friends list)
-// ------------------------------------------------------------------------------------------------
-
-// RelationshipsGet returns an array of all the relationships of the user.
-func (s *Session) RelationshipsGet() (r []*Relationship, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointRelationships(), nil, EndpointRelationships())
-	if err != nil {
-		return
+	for _, u := range st {
+		u.Session = s
 	}
-
-	err = unmarshal(body, &r)
-	return
-}
-
-// relationshipCreate creates a new relationship. (I.e. send or accept a friend request, block a user.)
-// relationshipType : 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
-func (s *Session) relationshipCreate(userID string, relationshipType int) (err error) {
-	data := struct {
-		Type int `json:"type"`
-	}{relationshipType}
-
-	_, err = s.RequestWithBucketID("PUT", EndpointRelationship(userID), data, EndpointRelationships())
-	return
-}
-
-// RelationshipFriendRequestSend sends a friend request to a user.
-// userID: ID of the user.
-func (s *Session) RelationshipFriendRequestSend(userID string) (err error) {
-	err = s.relationshipCreate(userID, 4)
-	return
-}
-
-// RelationshipFriendRequestAccept accepts a friend request from a user.
-// userID: ID of the user.
-func (s *Session) RelationshipFriendRequestAccept(userID string) (err error) {
-	err = s.relationshipCreate(userID, 1)
-	return
-}
-
-// RelationshipUserBlock blocks a user.
-// userID: ID of the user.
-func (s *Session) RelationshipUserBlock(userID string) (err error) {
-	err = s.relationshipCreate(userID, 2)
-	return
-}
-
-// RelationshipDelete removes the relationship with a user.
-// userID: ID of the user.
-func (s *Session) RelationshipDelete(userID string) (err error) {
-	_, err = s.RequestWithBucketID("DELETE", EndpointRelationship(userID), nil, EndpointRelationships())
-	return
-}
-
-// RelationshipsMutualGet returns an array of all the users both @me and the given user is friends with.
-// userID: ID of the user.
-func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointRelationshipsMutual(userID), nil, EndpointRelationshipsMutual(userID))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &mf)
 	return
 }

@@ -44,11 +44,7 @@ type Ready struct {
 	Guilds          []*Guild     `json:"guilds"`
 
 	// Undocumented fields
-	Settings          *Settings            `json:"user_settings"`
-	UserGuildSettings []*UserGuildSettings `json:"user_guild_settings"`
-	Relationships     []*Relationship      `json:"relationships"`
-	Presences         []*Presence          `json:"presences"`
-	Notes             map[string]string    `json:"notes"`
+	Presences []*Presence `json:"presences"`
 }
 
 // ChannelCreate is the data for a ChannelCreate event.
@@ -199,16 +195,6 @@ type Resumed struct {
 	Trace []string `json:"_trace"`
 }
 
-// RelationshipAdd is the data for a RelationshipAdd event.
-type RelationshipAdd struct {
-	*Relationship
-}
-
-// RelationshipRemove is the data for a RelationshipRemove event.
-type RelationshipRemove struct {
-	*Relationship
-}
-
 // TypingStart is the data for a TypingStart event.
 type TypingStart struct {
 	UserID    string `json:"user_id"`
@@ -220,14 +206,6 @@ type TypingStart struct {
 // UserUpdate is the data for a UserUpdate event.
 type UserUpdate struct {
 	*User
-}
-
-// UserSettingsUpdate is the data for a UserSettingsUpdate event.
-type UserSettingsUpdate map[string]interface{}
-
-// UserGuildSettingsUpdate is the data for a UserGuildSettingsUpdate event.
-type UserGuildSettingsUpdate struct {
-	*UserGuildSettings
 }
 
 // UserNoteUpdate is the data for a UserNoteUpdate event.
