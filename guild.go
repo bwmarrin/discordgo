@@ -1,5 +1,10 @@
 package discordgo
 
+import (
+	"errors"
+	"strings"
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
@@ -106,7 +111,7 @@ type Guild struct {
 	SystemChannelID string `json:"system_channel_id"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session"`
+	Session *Session `json:"session,omitempty"`
 }
 
 // A UserGuild holds a brief version of a Guild
@@ -129,4 +134,76 @@ type GuildParams struct {
 	Icon                        string             `json:"icon,omitempty"`
 	OwnerID                     string             `json:"owner_id,omitempty"`
 	Splash                      string             `json:"splash,omitempty"`
+}
+
+// gets the role with the given ID as it is sored in Guild.Roles
+func (g *Guild) GetRole(roleID string) (role *Role, err error) {
+	for _, role = range g.Roles {
+		if role.ID == roleID {
+			return role, nil
+		}
+	}
+
+	err = errors.New("no role found")
+	return
+}
+
+// gets the role with the given name as it is stored in Guild.Roles
+// It is semi-case-sensitive; if a name matches full, the first role with that name gets returned
+// if a name matches but with different capitalization, the last role with that name gets returned
+func (g *Guild) GetRoleNamed(name string) (role *Role, err error) {
+	var savedRole *Role
+	lowerCaseName := strings.ToLower(name)
+
+	for _, role = range g.Roles {
+		if role.Name == name {
+			return
+		} else if role.Name == lowerCaseName {
+			savedRole = role
+		}
+	}
+
+	if savedRole != nil {
+		role = savedRole
+		return
+	}
+
+	err = errors.New("no role found")
+	return
+}
+
+// gets the channel with the given ID as it is sored in Guild.Channels
+func (g *Guild) GetChannel(channelID string) (role *Channel, err error) {
+	for _, channel := range g.Channels {
+		if channel.ID == channelID {
+			return
+		}
+	}
+
+	err = errors.New("no channel found")
+	return
+}
+
+// gets the channel with the given name as it is stored in Guild.Channels
+// It is semi-case-sensitive; if a name matches full, the first channel with that name gets returned
+// if a name matches but with different capitalization, the last channel with that name gets returned
+func (g *Guild) GetChannelNamed(name string) (channel *Channel, err error) {
+	var savedChannel *Channel
+	lowerCaseName := strings.ToLower(name)
+
+	for _, channel = range g.Channels {
+		if channel.Name == name {
+			return
+		} else if strings.ToLower(channel.Name) == lowerCaseName {
+			savedChannel = channel
+		}
+	}
+
+	if savedChannel != nil {
+		channel = savedChannel
+		return
+	}
+
+	err = errors.New("no channel found")
+	return
 }

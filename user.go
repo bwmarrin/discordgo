@@ -38,7 +38,7 @@ type User struct {
 	Bot bool `json:"bot"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session"`
+	Session *Session `json:"session,omitempty"`
 }
 
 // String returns a unique identifier of the form username#discriminator

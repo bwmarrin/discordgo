@@ -53,7 +53,7 @@ type Channel struct {
 	ParentID string `json:"parent_id"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session"`
+	Session *Session `json:"session,omitempty"`
 }
 
 // Mention returns a string which mentions the channel

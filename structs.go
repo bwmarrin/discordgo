@@ -176,6 +176,29 @@ type Invite struct {
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
 
+func (i *Invite) build(s *Session) {
+	guild, GErr := s.State.Guild(i.Guild.ID)
+	if GErr == nil {
+		i.Guild = guild
+	} else {
+		i.Guild.Session = s
+	}
+
+	user, UErr := s.User(i.Inviter.ID)
+	if UErr == nil {
+		i.Inviter = user
+	} else {
+		i.Inviter.Session = s
+	}
+
+	channel, CErr := s.State.Channel(i.Channel.ID)
+	if CErr == nil {
+		i.Channel = channel
+	} else {
+		i.Channel.Session = s
+	}
+}
+
 // ChannelType is the type of a Channel
 type ChannelType int
 

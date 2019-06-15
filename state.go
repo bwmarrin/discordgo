@@ -75,7 +75,7 @@ func (s *State) createMemberMap(guild *Guild) {
 
 // GuildAdd adds a guild to the current world state, or
 // updates it if it already exists.
-func (s *State) GuildAdd(guild *Guild) error {
+func (s *State) GuildAdd(guild *Guild, se *Session) error {
 	if s == nil {
 		return ErrNilState
 	}
@@ -123,6 +123,8 @@ func (s *State) GuildAdd(guild *Guild) error {
 		*g = *guild
 		return nil
 	}
+
+	se.setSession(guild)
 
 	s.Guilds = append(s.Guilds, guild)
 	s.guildMap[guild.ID] = guild
@@ -280,7 +282,7 @@ func (s *State) Presence(guildID, userID string) (*Presence, error) {
 
 // MemberAdd adds a member to the current world state, or
 // updates it if it already exists.
-func (s *State) MemberAdd(member *Member) error {
+func (s *State) MemberAdd(member *Member, se *Session) error {
 	if s == nil {
 		return ErrNilState
 	}
@@ -298,6 +300,7 @@ func (s *State) MemberAdd(member *Member) error {
 		return ErrStateNotFound
 	}
 
+	member.User.Session = se
 	m, ok := members[member.User.ID]
 	if !ok {
 		members[member.User.ID] = member
@@ -808,9 +811,9 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 	switch t := i.(type) {
 	case *GuildCreate:
-		err = s.GuildAdd(t.Guild)
+		err = s.GuildAdd(t.Guild, se)
 	case *GuildUpdate:
-		err = s.GuildAdd(t.Guild)
+		err = s.GuildAdd(t.Guild, se)
 	case *GuildDelete:
 		err = s.GuildRemove(t.Guild)
 	case *GuildMemberAdd:
@@ -823,11 +826,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 		// Caches member if tracking is enabled.
 		if s.TrackMembers {
-			err = s.MemberAdd(t.Member)
+			err = s.MemberAdd(t.Member, se)
 		}
 	case *GuildMemberUpdate:
 		if s.TrackMembers {
-			err = s.MemberAdd(t.Member)
+			err = s.MemberAdd(t.Member, se)
 		}
 	case *GuildMemberRemove:
 		// Updates the MemberCount of the guild.
@@ -845,15 +848,17 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		if s.TrackMembers {
 			for i := range t.Members {
 				t.Members[i].GuildID = t.GuildID
-				err = s.MemberAdd(t.Members[i])
+				err = s.MemberAdd(t.Members[i], se)
 			}
 		}
 	case *GuildRoleCreate:
 		if s.TrackRoles {
+			t.Role.Session = se
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleUpdate:
 		if s.TrackRoles {
+			t.Role.Session = se
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleDelete:
@@ -866,10 +871,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *ChannelCreate:
 		if s.TrackChannels {
+			t.Channel.Session = se
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ChannelUpdate:
 		if s.TrackChannels {
+			t.Channel.Session = se
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ChannelDelete:
@@ -934,7 +941,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 			}
 
-			err = s.MemberAdd(m)
+			err = s.MemberAdd(m, se)
 		}
 
 	}

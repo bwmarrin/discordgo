@@ -278,6 +278,11 @@ func (s *Session) User(userID string) (st *User, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
+	st.Session = s
 	return
 }
 
@@ -319,6 +324,10 @@ func (s *Session) UserChannels() (st []*Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	for _, c := range st {
 		c.Session = s
 	}
@@ -339,6 +348,10 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -514,6 +527,10 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -532,6 +549,10 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -575,6 +596,10 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -672,6 +697,10 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	for _, m := range st {
 		m.User.Session = s
 	}
@@ -689,6 +718,10 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.User.Session = s
 	return
 }
@@ -831,6 +864,10 @@ func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	for _, c := range st {
 		c.Session = s
 	}
@@ -859,6 +896,10 @@ func (s *Session) GuildChannelCreateComplex(guildID string, data GuildChannelCre
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -915,6 +956,10 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	for _, r := range st {
 		r.Session = s
 	}
@@ -931,8 +976,11 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	st.Session = s
+	if err != nil {
+		return
+	}
 
+	st.Session = s
 	return
 }
 
@@ -966,8 +1014,11 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 	}
 
 	err = unmarshal(body, &st)
-	st.Session = s
+	if err != nil {
+		return
+	}
 
+	st.Session = s
 	return
 }
 
@@ -982,10 +1033,13 @@ func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, e
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	for _, r := range st {
 		r.Session = s
 	}
-
 	return
 }
 
@@ -1301,6 +1355,10 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1324,6 +1382,10 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *C
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1338,6 +1400,10 @@ func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1399,6 +1465,10 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 	}
 
 	err = unmarshal(response, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1509,6 +1579,10 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 	}
 
 	err = unmarshal(response, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1554,6 +1628,10 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit) (st *Message, err er
 	}
 
 	err = unmarshal(response, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1631,6 +1709,10 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	for _, m := range st {
 		m.Session = s
 	}
@@ -1727,7 +1809,11 @@ func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace inviter, guild and channel from cache if possible
+	if err != nil {
+		return
+	}
+
+	st.build(s)
 	return
 }
 
@@ -1741,7 +1827,11 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace inviter, guild and channel from cache if possible
+	if err != nil {
+		return
+	}
+
+	st.build(s)
 	return
 }
 
@@ -1755,7 +1845,11 @@ func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace inviter, guild and channel from cache if possible
+	if err != nil {
+		return
+	}
+
+	st.build(s)
 	return
 }
 
@@ -1769,7 +1863,11 @@ func (s *Session) InviteAccept(inviteID string) (st *Invite, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace inviter, guild and channel from cache if possible
+	if err != nil {
+		return
+	}
+
+	st.build(s)
 	return
 }
 
@@ -1888,7 +1986,19 @@ func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace user from cache if possible
+	if err != nil {
+		return
+	}
+
+	for _, r := range st {
+		user, UErr := s.User(r.User.ID)
+		if UErr == nil {
+			r.User = user
+		} else {
+			r.User.Session = s
+		}
+	}
+
 	return
 }
 
@@ -1902,7 +2012,18 @@ func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace user from cache if possible
+	if err != nil {
+		return
+	}
+
+	for _, r := range st {
+		user, UErr := s.User(r.User.ID)
+		if UErr == nil {
+			r.User = user
+		} else {
+			r.User.Session = s
+		}
+	}
 	return
 }
 
@@ -1916,7 +2037,17 @@ func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace user from cache if possible
+	if err != nil {
+		return
+	}
+
+	user, UErr := s.User(st.User.ID)
+	if UErr == nil {
+		st.User = user
+	} else {
+		st.User.Session = s
+	}
+
 	return
 }
 
@@ -1931,7 +2062,17 @@ func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err er
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace user from cache if possible
+	if err != nil {
+		return
+	}
+
+	user, UErr := s.User(st.User.ID)
+	if UErr == nil {
+		st.User = user
+	} else {
+		st.User.Session = s
+	}
+
 	return
 }
 
@@ -1953,6 +2094,10 @@ func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Ro
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1975,6 +2120,10 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
 	st.Session = s
 	return
 }
@@ -1999,7 +2148,17 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 	}
 
 	err = unmarshal(body, &st)
-	// TODO: replace user from cache if possible
+	if err != nil {
+		return
+	}
+
+	user, UErr := s.User(st.User.ID)
+	if UErr == nil {
+		st.User = user
+	} else {
+		st.User.Session = s
+	}
+
 	return
 }
 

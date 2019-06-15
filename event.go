@@ -216,12 +216,28 @@ func setGuildIds(g *Guild) {
 	}
 }
 
+func (s *Session) setSession(g *Guild) {
+	g.Session = s
+	for _, c := range g.Channels {
+		c.Session = s
+	}
+
+	for _, m := range g.Members {
+		m.User.Session = s
+	}
+
+	for _, r := range g.Roles {
+		r.Session = s
+	}
+}
+
 // onInterface handles all internal events and routes them to the appropriate internal handler.
 func (s *Session) onInterface(i interface{}) {
 	switch t := i.(type) {
 	case *Ready:
 		for _, g := range t.Guilds {
 			setGuildIds(g)
+			s.setSession(g)
 		}
 		s.onReady(t)
 	case *GuildCreate:

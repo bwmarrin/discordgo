@@ -32,7 +32,7 @@ type Role struct {
 	Permissions int `json:"permissions"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session"`
+	Session *Session `json:"session,omitempty"`
 }
 
 // returns the ID
