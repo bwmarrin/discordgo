@@ -9,6 +9,7 @@ import (
 
 // TestChannelMessageSend tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend(t *testing.T) {
+	t.Log("running message send tests")
 
 	if envChannel == "" {
 		t.Skip("Skipping, DG_CHANNEL not set.")
@@ -24,8 +25,6 @@ func TestChannelMessageSend(t *testing.T) {
 	}
 }
 
-/*
-// removed for now, only works on BOT accounts now
 func TestUserAvatar(t *testing.T) {
 
 	if dg == nil {
@@ -37,7 +36,7 @@ func TestUserAvatar(t *testing.T) {
 		t.Error("error fetching @me user,", err)
 	}
 
-	a, err := dg.UserAvatar(u.ID)
+	a, err := dg.UserAvatarDecode(u)
 	if err != nil {
 		if err.Error() == `HTTP 404 NOT FOUND, {"code": 0, "message": "404: Not Found"}` {
 			t.Skip("Skipped, @me doesn't have an Avatar")
@@ -49,37 +48,6 @@ func TestUserAvatar(t *testing.T) {
 		t.Errorf("a == nil, should be image.Image")
 	}
 }
-*/
-
-/* Running this causes an error due to 2/hour rate limit on username changes
-func TestUserUpdate(t *testing.T) {
-	if dg == nil {
-		t.Skip("Cannot test logout, dg not set.")
-	}
-
-	u, err := dg.User("@me")
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	s, err := dg.UserUpdate(envEmail, envPassword, "testname", u.Avatar, "")
-	if err != nil {
-		t.Error(err.Error())
-	}
-	if s.Username != "testname" {
-		t.Error("Username != testname")
-	}
-	s, err = dg.UserUpdate(envEmail, envPassword, u.Username, u.Avatar, "")
-	if err != nil {
-		t.Error(err.Error())
-	}
-	if s.Username != u.Username {
-		t.Error("Username != " + u.Username)
-	}
-}
-*/
-
-//func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
 
 func TestUserChannelCreate(t *testing.T) {
 	if dg == nil {
@@ -120,41 +88,6 @@ func TestUserGuilds(t *testing.T) {
 	}
 }
 
-func TestUserSettings(t *testing.T) {
-	if dg == nil {
-		t.Skip("Cannot TestUserSettings, dg not set.")
-	}
-
-	_, err := dg.UserSettings()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-}
-
-func TestUserUpdateStatus(t *testing.T) {
-	if dg == nil {
-		t.Skip("Cannot TestUserSettings, dg not set.")
-	}
-
-	_, err := dg.UserUpdateStatus(StatusDoNotDisturb)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-}
-
-// TestLogout tests the Logout() function. This should not return an error.
-func TestLogout(t *testing.T) {
-
-	if dg == nil {
-		t.Skip("Cannot TestLogout, dg not set.")
-	}
-
-	err := dg.Logout()
-	if err != nil {
-		t.Errorf("Logout() returned error: %+v", err)
-	}
-}
-
 func TestGateway(t *testing.T) {
 
 	if dg == nil {
@@ -168,24 +101,12 @@ func TestGateway(t *testing.T) {
 
 func TestGatewayBot(t *testing.T) {
 
-	if dgBot == nil {
-		t.Skip("Skipping, dgBot not set.")
-	}
-	_, err := dgBot.GatewayBot()
-	if err != nil {
-		t.Errorf("GatewayBot() returned error: %+v", err)
-	}
-}
-
-func TestVoiceICE(t *testing.T) {
-
 	if dg == nil {
 		t.Skip("Skipping, dg not set.")
 	}
-
-	_, err := dg.VoiceICE()
+	_, err := dg.GatewayBot()
 	if err != nil {
-		t.Errorf("VoiceICE() returned error: %+v", err)
+		t.Errorf("GatewayBot() returned error: %+v", err)
 	}
 }
 
@@ -227,26 +148,9 @@ func TestGuildMemberNickname(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	err := dg.GuildMemberNickname(envGuild, "@me/nick", "B1nzyRocks")
+	err := dg.GuildMemberNickname(envGuild, "@me/nick", "Auttaja=BestBot")
 	if err != nil {
 		t.Errorf("GuildNickname returned error: %+v", err)
-	}
-}
-
-// TestChannelMessageSend2 tests the ChannelMessageSend() function. This should not return an error.
-func TestChannelMessageSend2(t *testing.T) {
-
-	if envChannel == "" {
-		t.Skip("Skipping, DG_CHANNEL not set.")
-	}
-
-	if dg == nil {
-		t.Skip("Skipping, dg not set.")
-	}
-
-	_, err := dg.ChannelMessageSend(envChannel, "All done running REST API Tests!")
-	if err != nil {
-		t.Errorf("ChannelMessageSend returned error: %+v", err)
 	}
 }
 

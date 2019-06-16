@@ -66,7 +66,11 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
+	if s == nil {
+		log.Printf("Session is nil!")
+	}
+	bucket := s.Ratelimiter.LockBucket(bucketID)
+	return s.RequestWithLockedBucket(method, urlStr, contentType, b, bucket, sequence)
 }
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked
@@ -177,91 +181,6 @@ func unmarshal(data []byte, v interface{}) error {
 	}
 
 	return nil
-}
-
-// ------------------------------------------------------------------------------------------------
-// Functions specific to Discord Sessions
-// ------------------------------------------------------------------------------------------------
-
-// Login asks the Discord server for an authentication token.
-//
-// NOTE: While email/pass authentication is supported by DiscordGo it is
-// HIGHLY DISCOURAGED by Discord. Please only use email/pass to obtain a token
-// and then use that authentication token for all future connections.
-// Also, doing any form of automation with a user (non Bot) account may result
-// in that account being permanently banned from Discord.
-func (s *Session) Login(email, password string) (err error) {
-
-	data := struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}{email, password}
-
-	response, err := s.RequestWithBucketID("POST", EndpointLogin, data, EndpointLogin)
-	if err != nil {
-		return
-	}
-
-	temp := struct {
-		Token string `json:"token"`
-		MFA   bool   `json:"mfa"`
-	}{}
-
-	err = unmarshal(response, &temp)
-	if err != nil {
-		return
-	}
-
-	s.Token = temp.Token
-	s.MFA = temp.MFA
-	return
-}
-
-// Register sends a Register request to Discord, and returns the authentication token
-// Note that this account is temporary and should be verified for future use.
-// Another option is to save the authentication token external, but this isn't recommended.
-func (s *Session) Register(username string) (token string, err error) {
-
-	data := struct {
-		Username string `json:"username"`
-	}{username}
-
-	response, err := s.RequestWithBucketID("POST", EndpointRegister, data, EndpointRegister)
-	if err != nil {
-		return
-	}
-
-	temp := struct {
-		Token string `json:"token"`
-	}{}
-
-	err = unmarshal(response, &temp)
-	if err != nil {
-		return
-	}
-
-	token = temp.Token
-	return
-}
-
-// Logout sends a logout request to Discord.
-// This does not seem to actually invalidate the token.  So you can still
-// make API calls even after a Logout.  So, it seems almost pointless to
-// even use.
-func (s *Session) Logout() (err error) {
-
-	//  _, err = s.Request("POST", LOGOUT, `{"token": "` + s.Token + `"}`)
-
-	if s.Token == "" {
-		return
-	}
-
-	data := struct {
-		Token string `json:"token"`
-	}{s.Token}
-
-	_, err = s.RequestWithBucketID("POST", EndpointLogout, data, EndpointLogout)
-	return
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -623,7 +542,13 @@ func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
 
+	for _, b := range st {
+		b.User.Session = se
+	}
 	return
 }
 

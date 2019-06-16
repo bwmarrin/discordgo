@@ -1,6 +1,11 @@
 package discordgo
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrNotATextChannel = errors.New("not a text or dm channel")
 
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
@@ -85,4 +90,74 @@ type PermissionOverwrite struct {
 	Type  string `json:"type"`
 	Deny  int    `json:"deny"`
 	Allow int    `json:"allow"`
+}
+
+func (c *Channel) SendMessage(content string, embed *MessageEmbed, files []*File) (message *Message, err error) {
+	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
+		err = ErrNotATextChannel
+		return
+	}
+
+	data := &MessageSend{
+		Content: content,
+		Embed:   embed,
+		Files:   files,
+	}
+
+	return c.SendMessageComplex(data)
+}
+
+func (c *Channel) SendMessageComplex(data *MessageSend) (message *Message, err error) {
+	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
+		err = ErrNotATextChannel
+		return
+	}
+
+	return c.Session.ChannelMessageSendComplex(c.ID, data)
+}
+
+func (c *Channel) EditMessage(message *Message) (edited *Message, err error) {
+	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
+		err = ErrNotATextChannel
+		return
+	}
+
+	data := &MessageEdit{
+		ID:      message.ID,
+		Channel: c.ID,
+		Content: &message.Content,
+	}
+	if len(message.Embeds) > 0 {
+		data.SetEmbed(message.Embeds[0])
+	}
+
+	return c.EditMessageComplex(data)
+}
+
+func (c *Channel) EditMessageComplex(data *MessageEdit) (edited *Message, err error) {
+	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
+		err = ErrNotATextChannel
+		return
+	}
+
+	data.Channel = c.ID
+	return c.Session.ChannelMessageEditComplex(data)
+}
+
+func (c *Channel) FetchMessage(ID string) (message *Message, err error) {
+	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
+		err = ErrNotATextChannel
+		return
+	}
+
+	return c.Session.ChannelMessage(c.ID, ID)
+}
+
+func (c *Channel) GetHistory(limit int, beforeID, afterID, aroundID string) (st []*Message, err error) {
+	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
+		err = ErrNotATextChannel
+		return
+	}
+
+	return c.Session.ChannelMessages(c.ID, limit, beforeID, afterID, aroundID)
 }

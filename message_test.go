@@ -12,7 +12,7 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		Username: "User Name",
 	}
 
-	s.State.GuildAdd(&Guild{ID: "guild"})
+	s.State.GuildAdd(&Guild{ID: "guild"}, s)
 	s.State.RoleAdd("guild", &Role{
 		ID:          "role",
 		Name:        "Role Name",
@@ -22,7 +22,7 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		User:    user,
 		Nick:    "User Nick",
 		GuildID: "guild",
-	})
+	}, s)
 	s.State.ChannelAdd(&Channel{
 		Name:    "Channel Name",
 		GuildID: "guild",

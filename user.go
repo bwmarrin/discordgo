@@ -37,6 +37,9 @@ type User struct {
 	// Whether the user is a bot.
 	Bot bool `json:"bot"`
 
+	// dm channel with the user, call CreateDM if it doesn't exist
+	DMChannel *Channel `json:"dm_channel,omitempty"`
+
 	// The Session to call the API and retrieve other objects
 	Session *Session `json:"session,omitempty"`
 }
@@ -48,7 +51,7 @@ func (u *User) String() string {
 
 // Mention return a string which mentions the user
 func (u *User) Mention() string {
-	return "<@" + u.ID + ">"
+	return "<@!" + u.ID + ">"
 }
 
 func (u *User) GetID() string {
@@ -73,4 +76,67 @@ func (u *User) AvatarURL(size string) string {
 		return URL + "?size=" + size
 	}
 	return URL
+}
+
+func (u *User) CreateDM() (err error) {
+	channel, err := u.Session.UserChannelCreate(u.ID)
+	if err == nil {
+		u.DMChannel = channel
+	}
+	return
+}
+
+func (u *User) SendMessage(content string, embed *MessageEmbed, files []*File) (message *Message, err error) {
+	if u.DMChannel == nil {
+		err = u.CreateDM()
+		if err != nil {
+			return
+		}
+	}
+
+	return u.DMChannel.SendMessage(content, embed, files)
+}
+
+func (u *User) SendMessageComplex(data *MessageSend) (message *Message, err error) {
+	if u.DMChannel == nil {
+		err = u.CreateDM()
+		if err != nil {
+			return
+		}
+	}
+
+	return u.DMChannel.SendMessageComplex(data)
+}
+
+func (u *User) EditMessage(message *Message) (edited *Message, err error) {
+	if u.DMChannel == nil {
+		err = u.CreateDM()
+		if err != nil {
+			return
+		}
+	}
+
+	return u.DMChannel.EditMessage(message)
+}
+
+func (u *User) EditMessageComplex(data *MessageEdit) (edited *Message, err error) {
+	if u.DMChannel == nil {
+		err = u.CreateDM()
+		if err != nil {
+			return
+		}
+	}
+
+	return u.DMChannel.EditMessageComplex(data)
+}
+
+func (u *User) FetchMessage(id string) (message *Message, err error) {
+	if u.DMChannel == nil {
+		err = u.CreateDM()
+		if err != nil {
+			return
+		}
+	}
+
+	return u.DMChannel.FetchMessage(id)
 }

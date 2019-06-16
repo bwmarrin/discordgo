@@ -83,6 +83,8 @@ func (s *State) GuildAdd(guild *Guild, se *Session) error {
 	s.Lock()
 	defer s.Unlock()
 
+	se.setSession(guild)
+
 	// Update the channels to point to the right guild, adding them to the channelMap as we go
 	for _, c := range guild.Channels {
 		s.channelMap[c.ID] = c
@@ -123,8 +125,6 @@ func (s *State) GuildAdd(guild *Guild, se *Session) error {
 		*g = *guild
 		return nil
 	}
-
-	se.setSession(guild)
 
 	s.Guilds = append(s.Guilds, guild)
 	s.guildMap[guild.ID] = guild
@@ -885,10 +885,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *MessageCreate:
 		if s.MaxMessageCount != 0 {
+			t.Message.Session = se
 			err = s.MessageAdd(t.Message)
 		}
 	case *MessageUpdate:
 		if s.MaxMessageCount != 0 {
+			t.Message.Session = se
 			err = s.MessageAdd(t.Message)
 		}
 	case *MessageDelete:

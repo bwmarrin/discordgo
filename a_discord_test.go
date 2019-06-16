@@ -12,28 +12,21 @@ import (
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////// VARS NEEDED FOR TESTING
 var (
-	dg    *Session // Stores a global discordgo user session
-	dgBot *Session // Stores a global discordgo bot session
+	dg *Session // Stores a global discordgo bot session
 
-	envToken    = os.Getenv("DGU_TOKEN")  // Token to use when authenticating the user account
-	envBotToken = os.Getenv("DGB_TOKEN")  // Token to use when authenticating the bot account
-	envGuild    = os.Getenv("DG_GUILD")   // Guild ID to use for tests
-	envChannel  = os.Getenv("DG_CHANNEL") // Channel ID to use for tests
-	envAdmin    = os.Getenv("DG_ADMIN")   // User ID of admin user to use for tests
+	envToken   = os.Getenv("DG_TOKEN")   // Token to use when authenticating the bot account
+	envGuild   = os.Getenv("DG_GUILD")   // Guild ID to use for tests
+	envChannel = os.Getenv("DG_CHANNEL") // Channel ID to use for tests
+	envAdmin   = os.Getenv("DG_ADMIN")   // User ID of admin user to use for tests
+	envRole    = os.Getenv("DG_ROLE")    // Role ID of role to use for tests
 )
 
 func init() {
 	fmt.Println("Init is being called.")
-	if envBotToken != "" {
-		if d, err := New(envBotToken); err == nil {
-			dgBot = d
+	if envToken != "" {
+		if d, err := New(envToken); err == nil {
+			dg = d
 		}
-	}
-
-	if d, err := New(envToken); err == nil {
-		dg = d
-	} else {
-		fmt.Println("dg is nil, error", err)
 	}
 }
 
@@ -52,15 +45,9 @@ func TestNew(t *testing.T) {
 
 // TestInvalidToken tests the New() function with an invalid token
 func TestInvalidToken(t *testing.T) {
-	d, err := New("asjkldhflkjasdh")
+	_, err := New("asjkldhflkjasdh")
 	if err != nil {
 		t.Fatalf("New(InvalidToken) returned error: %+v", err)
-	}
-
-	// New with just a token does not do any communication, so attempt an api call.
-	_, err = d.UserSettings()
-	if err == nil {
-		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
 	}
 }
 
@@ -68,7 +55,7 @@ func TestInvalidToken(t *testing.T) {
 func TestNewToken(t *testing.T) {
 
 	if envToken == "" {
-		t.Skip("Skipping New(token), DGU_TOKEN not set")
+		t.Skip("Skipping New(token), DG_TOKEN not set")
 	}
 
 	d, err := New(envToken)
@@ -87,7 +74,7 @@ func TestNewToken(t *testing.T) {
 
 func TestOpenClose(t *testing.T) {
 	if envToken == "" {
-		t.Skip("Skipping TestClose, DGU_TOKEN not set")
+		t.Skip("Skipping TestClose, DG_TOKEN not set")
 	}
 
 	d, err := New(envToken)
@@ -131,6 +118,11 @@ func TestOpenClose(t *testing.T) {
 
 	if err = d.Close(); err != nil {
 		t.Fatalf("TestClose, d.Close failed: %+v", err)
+	}
+
+	err = dg.Open()
+	if err != nil {
+		t.Fatal("Opening of actual connection with discord failed")
 	}
 }
 

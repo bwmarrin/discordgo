@@ -1,12 +1,6 @@
 package discordgo_test
 
-import (
-	"log"
-	"os"
-
-	"github.com/bwmarrin/discordgo"
-)
-
+/*
 func ExampleApplication() {
 
 	// Authentication Token pulled from environment variable DGU_TOKEN
@@ -55,3 +49,4 @@ func ExampleApplication() {
 
 	return
 }
+*/

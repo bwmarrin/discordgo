@@ -136,7 +136,7 @@ type GuildParams struct {
 	Splash                      string             `json:"splash,omitempty"`
 }
 
-// gets the role with the given ID as it is sored in Guild.Roles
+// gets the role with the given ID as it is stored in Guild.Roles
 func (g *Guild) GetRole(roleID string) (role *Role, err error) {
 	for _, role = range g.Roles {
 		if role.ID == roleID {
@@ -172,7 +172,8 @@ func (g *Guild) GetRoleNamed(name string) (role *Role, err error) {
 	return
 }
 
-// gets the channel with the given ID as it is sored in Guild.Channels
+// gets the channel with the given ID as it is stored in Guild.Channels
+// channelID    : The ID of the channel to search for
 func (g *Guild) GetChannel(channelID string) (role *Channel, err error) {
 	for _, channel := range g.Channels {
 		if channel.ID == channelID {
@@ -187,6 +188,7 @@ func (g *Guild) GetChannel(channelID string) (role *Channel, err error) {
 // gets the channel with the given name as it is stored in Guild.Channels
 // It is semi-case-sensitive; if a name matches full, the first channel with that name gets returned
 // if a name matches but with different capitalization, the last channel with that name gets returned
+// name    : The name of the channel to search for
 func (g *Guild) GetChannelNamed(name string) (channel *Channel, err error) {
 	var savedChannel *Channel
 	lowerCaseName := strings.ToLower(name)
@@ -206,4 +208,88 @@ func (g *Guild) GetChannelNamed(name string) (channel *Channel, err error) {
 
 	err = errors.New("no channel found")
 	return
+}
+
+// gets the member with the given ID from the guild.
+// userID   : The ID of the member to search for
+func (g *Guild) GetMember(userID string) (member *Member, err error) {
+	for _, member = range g.Members {
+		if member.User.ID == userID {
+			return member, nil
+		}
+	}
+
+	err = errors.New("no role found")
+	return
+}
+
+// fetches count members of this guild from discord and adds them to the state.
+// limit   : The max amount of members to fetch (max 1000)
+// after   : The id of the member to return members after
+func (g *Guild) FetchMembers(max int, after string) (err error) {
+	members, err := g.Session.GuildMembers(g.ID, after, max)
+	if err != nil {
+		return
+	}
+
+	for _, m := range members {
+		err = g.Session.State.MemberAdd(m, g.Session)
+		if err != nil {
+			return
+		}
+	}
+
+	return nil
+}
+
+// bans the given user from the guild.
+// user      : The User
+// reason    : The reason for this ban
+// days      : The number of days of previous comments to delete.
+func (g *Guild) Ban(user *User, reason string, days int) error {
+	return g.Session.GuildBanCreateWithReason(g.ID, user.ID, reason, days)
+}
+
+// unbans the given user
+// user    : The User
+func (g *Guild) UnBan(user *User) error {
+	return g.Session.GuildBanDelete(g.ID, user.ID)
+}
+
+// kicks the given user from the guild.
+// userID    : The ID of a User
+// reason    : The reason for the kick
+func (g *Guild) Kick(user *User, reason string) error {
+	return g.Session.GuildMemberDeleteWithReason(g.ID, user.ID, reason)
+}
+
+// returns an array of GuildBan structures for all bans of the guild
+func (g *Guild) GetBans() (bans []*GuildBan, err error) {
+	return g.Session.GuildBans(g.ID)
+}
+
+// returns an array of Invite structures for the guild
+func (g *Guild) GetInvites() (invites []*Invite, err error) {
+	return g.Session.GuildInvites(g.ID)
+}
+
+// returns the audit log of the Guild.
+// userID      : If provided the log will be filtered for the given ID.
+// beforeID    : If provided all log entries returned will be before the given ID.
+// actionType  : If provided the log will be filtered for the given Action Type.
+// limit       : The number messages that can be returned. (default 50, min 1, max 100)
+func (g *Guild) AuditLogs(userID, beforeID string, actionType, limit int) (log *GuildAuditLog, err error) {
+	return g.Session.GuildAuditLog(g.ID, userID, beforeID, actionType, limit)
+}
+
+// creates and then returns a new Guild Role.
+func (g *Guild) CreateRole() (role *Role, err error) {
+	return g.Session.GuildRoleCreate(g.ID)
+}
+
+// creates and returns a new channel in the guild
+// name            : Name of the channel (2-100 chars length)
+// channelType     : Type of the channel
+func (g *Guild) CreateChannel(name string, channelType ChannelType) (channel *Channel, err error) {
+	return g.Session.GuildChannelCreate(g.ID, name, channelType)
 }
