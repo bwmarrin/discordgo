@@ -547,7 +547,7 @@ func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 	}
 
 	for _, b := range st {
-		b.User.Session = se
+		b.User.Session = s
 	}
 	return
 }
