@@ -2067,14 +2067,20 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 // WebhookExecute executes a webhook.
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook
-func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (err error) {
+// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
+func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
 	if wait {
 		uri += "?wait=true"
 	}
 
-	_, err = s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken("", ""))
+	response, err := s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken("", ""))
+	if !wait || err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
 
 	return
 }
