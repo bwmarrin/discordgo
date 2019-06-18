@@ -854,11 +854,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *GuildRoleCreate:
 		if s.TrackRoles {
 			t.Role.Session = se
+			t.Role.GuildID = t.GuildID
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleUpdate:
 		if s.TrackRoles {
 			t.Role.Session = se
+			t.Role.GuildID = t.GuildID
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleDelete:

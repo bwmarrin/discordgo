@@ -887,6 +887,7 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 
 	for _, r := range st {
 		r.Session = s
+		r.GuildID = guildID
 	}
 	return // TODO return pointer
 }
@@ -906,6 +907,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	}
 
 	st.Session = s
+	st.GuildID = guildID
 	return
 }
 
@@ -918,20 +920,21 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // perm      : The permissions for the role.
 // mention   : Whether this role is mentionable
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
+	data := &RoleEdit{name, color, hoist, perm, mention}
 
+	return s.GuildRoleEditComplex(guildID, roleID, data)
+}
+
+// GuildRoleEditComplex updates an existing Guild Role with new values
+// guildID   : The ID of a Guild.
+// roleID    : The ID of a Role.
+// data      : data to send to the API
+func (s *Session) GuildRoleEditComplex(guildID, roleID string, data *RoleEdit) (st *Role, err error) {
 	// Prevent sending a color int that is too big.
-	if color > 0xFFFFFF {
+	if data.Color > 0xFFFFFF {
 		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
 		return nil, err
 	}
-
-	data := struct {
-		Name        string `json:"name"`        // The role's name (overwrites existing)
-		Color       int    `json:"color"`       // The color the role should have (as a decimal, not hex)
-		Hoist       bool   `json:"hoist"`       // Whether to display the role's users separately
-		Permissions int    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
-		Mentionable bool   `json:"mentionable"` // Whether this role is mentionable
-	}{name, color, hoist, perm, mention}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""))
 	if err != nil {
@@ -944,6 +947,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 	}
 
 	st.Session = s
+	st.GuildID = guildID
 	return
 }
 
@@ -964,6 +968,7 @@ func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, e
 
 	for _, r := range st {
 		r.Session = s
+		r.GuildID = guildID
 	}
 	return
 }
@@ -2005,7 +2010,7 @@ func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err er
 // webhookID: The ID of a webhook.
 // name     : The name of the webhook.
 // avatar   : The avatar of the webhook.
-func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Role, err error) {
+func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Webhook, err error) {
 
 	data := struct {
 		Name      string `json:"name,omitempty"`
@@ -2023,7 +2028,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Ro
 		return
 	}
 
-	st.Session = s
+	st.User.Session = s
 	return
 }
 
@@ -2032,7 +2037,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Ro
 // token    : The auth token for the webhook.
 // name     : The name of the webhook.
 // avatar   : The avatar of the webhook.
-func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (st *Role, err error) {
+func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (st *Webhook, err error) {
 
 	data := struct {
 		Name   string `json:"name,omitempty"`
@@ -2049,7 +2054,6 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 		return
 	}
 
-	st.Session = s
 	return
 }
 
@@ -2065,24 +2069,9 @@ func (s *Session) WebhookDelete(webhookID string) (err error) {
 // WebhookDeleteWithToken deletes a webhook for a given ID with an auth token.
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook.
-func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, err error) {
+func (s *Session) WebhookDeleteWithToken(webhookID, token string) (err error) {
 
-	body, err := s.RequestWithBucketID("DELETE", EndpointWebhookToken(webhookID, token), nil, EndpointWebhookToken("", ""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	if err != nil {
-		return
-	}
-
-	user, UErr := s.User(st.User.ID)
-	if UErr == nil {
-		st.User = user
-	} else {
-		st.User.Session = s
-	}
+	_, err = s.RequestWithBucketID("DELETE", EndpointWebhookToken(webhookID, token), nil, EndpointWebhookToken("", ""))
 
 	return
 }

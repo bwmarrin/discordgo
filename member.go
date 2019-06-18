@@ -41,6 +41,9 @@ func (m *Member) GetID() string {
 
 // Mention creates a member mention
 func (m *Member) Mention() string {
+	if m.Nick != "" {
+		return "<@!" + m.User.ID + ">"
+	}
 	return m.User.Mention()
 }
 

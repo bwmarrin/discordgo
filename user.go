@@ -51,7 +51,7 @@ func (u *User) String() string {
 
 // Mention return a string which mentions the user
 func (u *User) Mention() string {
-	return "<@!" + u.ID + ">"
+	return "<@" + u.ID + ">"
 }
 
 func (u *User) GetID() string {
