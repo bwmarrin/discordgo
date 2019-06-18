@@ -67,6 +67,10 @@ type Message struct {
 	// valid user (webhook-sent messages do not possess a full author).
 	Author *User `json:"author"`
 
+	// The author of the message as a Member object
+	// if the message was send in a guild
+	Member *Member `json:"member,omitempty"`
+
 	// A list of attachments present in the message.
 	Attachments []*MessageAttachment `json:"attachments"`
 

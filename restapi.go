@@ -1403,6 +1403,21 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return
+	}
+
+	for _, m := range st {
+		m.Session = s
+		m.Author.Session = s
+		if m.Member != nil {
+			m.Member.User.Session = s
+		}
+		for _, u := range m.Mentions {
+			u.Session = s
+		}
+	}
+
 	return
 }
 
@@ -1422,6 +1437,14 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 	}
 
 	st.Session = s
+	st.Author.Session = s
+	if st.Member != nil {
+		st.Member.User.Session = s
+	}
+	for _, u := range st.Mentions {
+		u.Session = s
+	}
+
 	return
 }
 
@@ -1536,6 +1559,14 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 	}
 
 	st.Session = s
+	st.Author.Session = s
+	if st.Member != nil {
+		st.Member.User.Session = s
+	}
+	for _, u := range st.Mentions {
+		u.Session = s
+	}
+
 	return
 }
 
@@ -1585,6 +1616,14 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit) (st *Message, err er
 	}
 
 	st.Session = s
+	st.Author.Session = s
+	if st.Member != nil {
+		st.Member.User.Session = s
+	}
+	for _, u := range st.Mentions {
+		u.Session = s
+	}
+
 	return
 }
 
@@ -1667,6 +1706,13 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 
 	for _, m := range st {
 		m.Session = s
+		m.Author.Session = s
+		if m.Member != nil {
+			m.Member.User.Session = s
+		}
+		for _, u := range m.Mentions {
+			u.Session = s
+		}
 	}
 	return
 }

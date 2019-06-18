@@ -620,7 +620,7 @@ func (s *State) EmojisAdd(guildID string, emojis []*Emoji) error {
 // MessageAdd adds a message to the current world state, or updates it if it exists.
 // If the channel cannot be found, the message is discarded.
 // Messages are kept in state up to s.MaxMessageCount per channel.
-func (s *State) MessageAdd(message *Message) error {
+func (s *State) MessageAdd(message *Message, se *Session) error {
 	if s == nil {
 		return ErrNilState
 	}
@@ -628,6 +628,15 @@ func (s *State) MessageAdd(message *Message) error {
 	c, err := s.Channel(message.ChannelID)
 	if err != nil {
 		return err
+	}
+
+	message.Session = se
+	message.Author.Session = se
+	if message.Member != nil {
+		message.Member.User.Session = se
+	}
+	for _, u := range message.Mentions {
+		u.Session = se
 	}
 
 	s.Lock()
@@ -887,13 +896,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *MessageCreate:
 		if s.MaxMessageCount != 0 {
-			t.Message.Session = se
-			err = s.MessageAdd(t.Message)
+			err = s.MessageAdd(t.Message, se)
 		}
 	case *MessageUpdate:
 		if s.MaxMessageCount != 0 {
-			t.Message.Session = se
-			err = s.MessageAdd(t.Message)
+			err = s.MessageAdd(t.Message, se)
 		}
 	case *MessageDelete:
 		if s.MaxMessageCount != 0 {
