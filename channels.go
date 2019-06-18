@@ -5,7 +5,13 @@ import (
 	"fmt"
 )
 
+// ErrNotATextChannel gets returned when an action gets called on a channel
+// that does not support sending messages to them
 var ErrNotATextChannel = errors.New("not a text or dm channel")
+
+// ErrNotAVoiceChannel gets thrown when an action gets called on a channel
+// that is not a Guild Voice channel
+var ErrNotAVoiceChannel = errors.New("not a voice channel")
 
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
@@ -92,6 +98,10 @@ type PermissionOverwrite struct {
 	Allow int    `json:"allow"`
 }
 
+// SendMessage sends a message to the channel
+// content         : message content to send if provided
+// embed           : embed to attach to the message if provided
+// files           : files to attach to the message if provided
 func (c *Channel) SendMessage(content string, embed *MessageEmbed, files []*File) (message *Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
@@ -107,6 +117,8 @@ func (c *Channel) SendMessage(content string, embed *MessageEmbed, files []*File
 	return c.SendMessageComplex(data)
 }
 
+// SendMessageComplex sends a message to the channel
+// data          : MessageSend object with the data to send
 func (c *Channel) SendMessageComplex(data *MessageSend) (message *Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
@@ -116,6 +128,8 @@ func (c *Channel) SendMessageComplex(data *MessageSend) (message *Message, err e
 	return c.Session.ChannelMessageSendComplex(c.ID, data)
 }
 
+// EditMessage edits a message, replacing it entirely with the corresponding
+// fields in the given message struct
 func (c *Channel) EditMessage(message *Message) (edited *Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
@@ -134,6 +148,8 @@ func (c *Channel) EditMessage(message *Message) (edited *Message, err error) {
 	return c.EditMessageComplex(data)
 }
 
+// EditMessageComplex edits an existing message, replacing it entirely with
+// the given MessageEdit struct
 func (c *Channel) EditMessageComplex(data *MessageEdit) (edited *Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
@@ -144,6 +160,8 @@ func (c *Channel) EditMessageComplex(data *MessageEdit) (edited *Message, err er
 	return c.Session.ChannelMessageEditComplex(data)
 }
 
+// FetchMessage fetches a message with the given ID from the channel
+// ID        : ID of the message to fetch
 func (c *Channel) FetchMessage(ID string) (message *Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
@@ -153,6 +171,11 @@ func (c *Channel) FetchMessage(ID string) (message *Message, err error) {
 	return c.Session.ChannelMessage(c.ID, ID)
 }
 
+// GetHistory fetches up to limit messages from the channel
+// limit     : The number messages that can be returned. (max 100)
+// beforeID  : If provided all messages returned will be before given ID.
+// afterID   : If provided all messages returned will be after given ID.
+// aroundID  : If provided all messages returned will be around given ID.
 func (c *Channel) GetHistory(limit int, beforeID, afterID, aroundID string) (st []*Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
