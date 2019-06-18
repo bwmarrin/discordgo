@@ -217,6 +217,28 @@ func (s *Session) UserAvatarDecode(u *User) (img image.Image, err error) {
 	return
 }
 
+// UserUpdate updates a users settings.
+func (s *Session) UserUpdate(username, avatar string) (st *User, err error) {
+
+	// NOTE: Avatar must be either the hash/id of existing Avatar or
+	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
+	// to set a new avatar.
+	// If left blank, avatar will be set to null/blank
+
+	data := struct {
+		Username string `json:"username,omitempty"`
+		Avatar   string `json:"avatar,omitempty"`
+	}{username, avatar}
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointUser("@me"), data, EndpointUsers)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // UserUpdateStatus update the user status
 // status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
 func (s *Session) UserUpdateStatus(status Status) (err error) {

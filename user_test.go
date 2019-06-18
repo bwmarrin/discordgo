@@ -15,7 +15,7 @@ func TestUser(t *testing.T) {
 		t.Errorf("user.String() == %v", user.String())
 	}
 
-	if user.Mention() != "<@!123456789>" {
+	if user.Mention() != "<@123456789>" {
 		t.Errorf("user.Mention() == %v", user.Mention())
 	}
 }

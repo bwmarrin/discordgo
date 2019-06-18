@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/auttaja/discordgo"
 )
 
 // Variables used for command line parameters
@@ -82,7 +82,7 @@ func main() {
 	// Now lets format our base64 image into the proper format Discord wants
 	// and then call UserUpdate to set it as our user's Avatar.
 	avatar := fmt.Sprintf("data:%s;base64,%s", contentType, base64img)
-	_, err = dg.UserUpdate("", "", "", avatar, "")
+	_, err = dg.UserUpdate("", avatar)
 	if err != nil {
 		fmt.Println(err)
 	}
