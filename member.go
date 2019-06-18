@@ -56,9 +56,8 @@ func (m *Member) AvatarURL(size string) string {
 func (m *Member) GetDisplayName() string {
 	if m.Nick != "" {
 		return m.Nick
-	} else {
-		return m.User.Username
 	}
+	return m.User.Username
 }
 
 // GetGuild returns the guild object where the Member belongs to
