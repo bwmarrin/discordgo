@@ -1,6 +1,9 @@
 package discordgo
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 // A User stores all data for an individual Discord user.
 type User struct {
@@ -54,8 +57,14 @@ func (u *User) Mention() string {
 	return "<@" + u.ID + ">"
 }
 
+// GetID returns the users ID
 func (u *User) GetID() string {
 	return u.ID
+}
+
+// CreatedAt returns the users creation time in UTC
+func (u *User) CreatedAt() (creation time.Time, err error) {
+	return SnowflakeToTime(u.ID)
 }
 
 // AvatarURL returns a URL to the user's avatar.
@@ -76,6 +85,27 @@ func (u *User) AvatarURL(size string) string {
 		return URL + "?size=" + size
 	}
 	return URL
+}
+
+// IsAvatarAnimated indicates if the user has an animated avatar
+func (u *User) IsAvatarAnimated() bool {
+	return strings.HasPrefix(u.Avatar, "a_")
+}
+
+// IsMentionedIn checks if the user is mentioned in the given message
+// message      : message to check for mentions
+func (u *User) IsMentionedIn(message *Message) bool {
+	if message.MentionEveryone {
+		return true
+	}
+
+	for _, user := range message.Mentions {
+		if user.ID == u.ID {
+			return true
+		}
+	}
+
+	return false
 }
 
 // CreateDM creates a DM channel between the client and the user,

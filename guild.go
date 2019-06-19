@@ -3,6 +3,7 @@ package discordgo
 import (
 	"errors"
 	"strings"
+	"time"
 )
 
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
@@ -134,6 +135,16 @@ type GuildParams struct {
 	Icon                        string             `json:"icon,omitempty"`
 	OwnerID                     string             `json:"owner_id,omitempty"`
 	Splash                      string             `json:"splash,omitempty"`
+}
+
+// GetID returns the guilds ID
+func (g *Guild) GetID() string {
+	return g.ID
+}
+
+// CreatedAt returns the guilds creation time in UTC
+func (g *Guild) CreatedAt() (creation time.Time, err error) {
+	return SnowflakeToTime(g.ID)
 }
 
 // GetRole gets the role with the given ID as it is stored in Guild.Roles

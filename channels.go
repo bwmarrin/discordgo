@@ -3,6 +3,7 @@ package discordgo
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 // ErrNotATextChannel gets returned when an action gets called on a channel
@@ -72,9 +73,14 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// returns the ID
+// returns the ID of the channel
 func (c *Channel) GetID() string {
 	return c.ID
+}
+
+// CreatedAt returns the channels creation time in UTC
+func (c *Channel) CreatedAt() (creation time.Time, err error) {
+	return SnowflakeToTime(c.ID)
 }
 
 // A ChannelEdit holds Channel Field data for a channel edit.

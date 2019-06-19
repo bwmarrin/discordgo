@@ -66,3 +66,30 @@ func TestGuild_CreateDeleteRole(t *testing.T) {
 		t.Fatalf("Failed at deleteing role; %s", err)
 	}
 }
+
+func TestRole_Move(t *testing.T) {
+	g := getGuild(t)
+
+	r, err := g.CreateRole()
+	if err != nil {
+		t.Fatalf("Role failed to create in Guild; %s", err)
+	}
+
+	editData := &RoleEdit{
+		Name:        "OwO a moving role",
+		Hoist:       false,
+		Color:       0x6600ff,
+		Permissions: r.Permissions,
+		Mentionable: false,
+	}
+
+	r, err = r.EditComplex(editData)
+	if err != nil {
+		t.Fatalf("Failed at editing role; %s", err)
+	}
+
+	err = r.Move(6)
+	if err != nil {
+		t.Fatalf("failed at moving role; %s", err)
+	}
+}

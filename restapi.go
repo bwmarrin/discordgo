@@ -975,8 +975,8 @@ func (s *Session) GuildRoleEditComplex(guildID, roleID string, data *RoleEdit) (
 
 // GuildRoleReorder reoders guild roles
 // guildID   : The ID of a Guild.
-// roles     : A list of ordered roles.
-func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, err error) {
+// roles     : A list of RoleMove objects.
+func (s *Session) GuildRoleReorder(guildID string, roles []*RoleMove) (st []*Role, err error) {
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRoles(guildID), roles, EndpointGuildRoles(guildID))
 	if err != nil {

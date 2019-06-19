@@ -1,5 +1,7 @@
 package discordgo
 
+import "time"
+
 type Messageable interface {
 	// Sends a message to the channel
 	SendMessage(content string, embed *MessageEmbed, files []*File) (message *Message, err error)
@@ -23,6 +25,7 @@ type Messageable interface {
 
 type IDGettable interface {
 	GetID() string
+	CreatedAt() (creation time.Time, err error)
 }
 
 type Mentionable interface {

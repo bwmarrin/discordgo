@@ -2,6 +2,7 @@ package discordgo
 
 import (
 	"sort"
+	"time"
 )
 
 // A Member stores user information for Guild members. A guild
@@ -39,12 +40,39 @@ func (m *Member) GetID() string {
 	return m.User.ID
 }
 
+// CreatedAt returns the members creation time in UTC
+func (m *Member) CreatedAt() (creation time.Time, err error) {
+	return m.User.CreatedAt()
+}
+
 // Mention creates a member mention
 func (m *Member) Mention() string {
 	if m.Nick != "" {
 		return "<@!" + m.User.ID + ">"
 	}
 	return m.User.Mention()
+}
+
+// IsMentionedIn checks if the member is mentioned in the given message
+// message      : message to check for mentions
+func (m *Member) IsMentionedIn(message *Message) bool {
+	if m.User.IsMentionedIn(message) {
+		return true
+	}
+
+	roles, err := m.GetRoles()
+	if err != nil {
+		return false
+	}
+	roles = Roles(roles)
+
+	for _, roleID := range message.MentionRoles {
+		if roles.ContainsID(roleID) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // AvatarURL returns a URL to the user's avatar.
