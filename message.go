@@ -251,7 +251,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		return
 	}
 
-	channel, err := s.State.Channel(m.ChannelID)
+	channel, err := s.state.Channel(m.ChannelID)
 	if err != nil {
 		content = m.ContentWithMentionsReplaced()
 		return
@@ -260,7 +260,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	for _, user := range m.Mentions {
 		nick := user.Username
 
-		member, err := s.State.Member(channel.GuildID, user.ID)
+		member, err := s.state.Member(channel.GuildID, user.ID)
 		if err == nil && member.Nick != "" {
 			nick = member.Nick
 		}
@@ -271,7 +271,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		).Replace(content)
 	}
 	for _, roleID := range m.MentionRoles {
-		role, err := s.State.Role(channel.GuildID, roleID)
+		role, err := s.state.Role(channel.GuildID, roleID)
 		if err != nil || !role.Mentionable {
 			continue
 		}
@@ -280,7 +280,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	}
 
 	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
-		channel, err := s.State.Channel(mention[2 : len(mention)-1])
+		channel, err := s.state.Channel(mention[2 : len(mention)-1])
 		if err != nil || channel.Type == ChannelTypeGuildVoice {
 			return mention
 		}

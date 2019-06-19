@@ -5,25 +5,25 @@ import (
 )
 
 func TestContentWithMoreMentionsReplaced(t *testing.T) {
-	s := &Session{StateEnabled: true, State: NewState()}
+	s := &Session{StateEnabled: true, state: NewState()}
 
 	user := &User{
 		ID:       "user",
 		Username: "User Name",
 	}
 
-	s.State.GuildAdd(&Guild{ID: "guild"})
-	s.State.RoleAdd("guild", &Role{
+	s.state.GuildAdd(&Guild{ID: "guild"})
+	s.state.RoleAdd("guild", &Role{
 		ID:          "role",
 		Name:        "Role Name",
 		Mentionable: true,
 	})
-	s.State.MemberAdd(&Member{
+	s.state.MemberAdd(&Member{
 		User:    user,
 		Nick:    "User Nick",
 		GuildID: "guild",
 	})
-	s.State.ChannelAdd(&Channel{
+	s.state.ChannelAdd(&Channel{
 		Name:    "Channel Name",
 		GuildID: "guild",
 		ID:      "channel",

@@ -462,13 +462,13 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 // Please see the same function inside state.go
 func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
 	// Try to just get permissions from state.
-	apermissions, err = s.State.UserChannelPermissions(userID, channelID)
+	apermissions, err = s.state.UserChannelPermissions(userID, channelID)
 	if err == nil {
 		return
 	}
 
 	// Otherwise try get as much data from state as possible, falling back to the network.
-	channel, err := s.State.Channel(channelID)
+	channel, err := s.state.Channel(channelID)
 	if err != nil || channel == nil {
 		channel, err = s.Channel(channelID)
 		if err != nil {
@@ -476,7 +476,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	guild, err := s.State.Guild(channel.GuildID)
+	guild, err := s.state.Guild(channel.GuildID)
 	if err != nil || guild == nil {
 		guild, err = s.Guild(channel.GuildID)
 		if err != nil {
@@ -489,7 +489,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		return
 	}
 
-	member, err := s.State.Member(guild.ID, userID)
+	member, err := s.state.Member(guild.ID, userID)
 	if err != nil || member == nil {
 		member, err = s.GuildMember(guild.ID, userID)
 		if err != nil {
@@ -580,7 +580,7 @@ func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermiss
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	if s.StateEnabled {
 		// Attempt to grab the guild from State first.
-		st, err = s.State.Guild(guildID)
+		st, err = s.state.Guild(guildID)
 		if err == nil && !st.Unavailable {
 			return
 		}

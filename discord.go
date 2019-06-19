@@ -49,7 +49,7 @@ func New(args ...interface{}) (s *Session, err error) {
 
 	// Create an empty Session interface.
 	s = &Session{
-		State:                  NewState(),
+		state:                  NewState(),
 		Ratelimiter:            NewRatelimiter(),
 		StateEnabled:           true,
 		Compress:               true,

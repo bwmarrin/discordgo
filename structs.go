@@ -77,7 +77,7 @@ type Session struct {
 
 	// Managed state object, updated internally with events when
 	// StateEnabled is true.
-	State *State
+	state *State
 
 	// The http client used for REST requests
 	Client *http.Client
@@ -117,6 +117,9 @@ type Session struct {
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
 }
+
+// State returns the inner state that's updated when StateEnabled is true.
+func (s *Session) State() *State { return s.state }
 
 // UserConnection is a Connection returned from the UserConnections endpoint
 type UserConnection struct {

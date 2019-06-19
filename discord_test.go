@@ -137,17 +137,17 @@ func TestOpenClose(t *testing.T) {
 func TestAddHandler(t *testing.T) {
 
 	testHandlerCalled := int32(0)
-	testHandler := func(s *Session, m *MessageCreate) {
+	testHandler := func(s Sessioner, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
 	}
 
 	interfaceHandlerCalled := int32(0)
-	interfaceHandler := func(s *Session, i interface{}) {
+	interfaceHandler := func(s Sessioner, i interface{}) {
 		atomic.AddInt32(&interfaceHandlerCalled, 1)
 	}
 
 	bogusHandlerCalled := int32(0)
-	bogusHandler := func(s *Session, se *Session) {
+	bogusHandler := func(s Sessioner, se *Session) {
 		atomic.AddInt32(&bogusHandlerCalled, 1)
 	}
 
@@ -181,7 +181,7 @@ func TestAddHandler(t *testing.T) {
 func TestRemoveHandler(t *testing.T) {
 
 	testHandlerCalled := int32(0)
-	testHandler := func(s *Session, m *MessageCreate) {
+	testHandler := func(s Sessioner, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
 	}
 

@@ -71,7 +71,7 @@ func main() {
 
 // This function will be called (due to AddHandler above) when the bot receives
 // the "ready" event from Discord.
-func ready(s *discordgo.Session, event *discordgo.Ready) {
+func ready(s discordgo.Sessioner, event *discordgo.Ready) {
 
 	// Set the playing status.
 	s.UpdateStatus(0, "!airhorn")
@@ -79,11 +79,11 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
 
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the autenticated bot has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func messageCreate(s discordgo.Sessioner, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
+	if m.Author.ID == s.State().User.ID {
 		return
 	}
 
@@ -91,14 +91,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, "!airhorn") {
 
 		// Find the channel that the message came from.
-		c, err := s.State.Channel(m.ChannelID)
+		c, err := s.State().Channel(m.ChannelID)
 		if err != nil {
 			// Could not find channel.
 			return
 		}
 
 		// Find the guild for that channel.
-		g, err := s.State.Guild(c.GuildID)
+		g, err := s.State().Guild(c.GuildID)
 		if err != nil {
 			// Could not find guild.
 			return
@@ -120,7 +120,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // This function will be called (due to AddHandler above) every time a new
 // guild is joined.
-func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
+func guildCreate(s discordgo.Sessioner, event *discordgo.GuildCreate) {
 
 	if event.Guild.Unavailable {
 		return
@@ -179,7 +179,7 @@ func loadSound() error {
 }
 
 // playSound plays the current buffer to the provided channel.
-func playSound(s *discordgo.Session, guildID, channelID string) (err error) {
+func playSound(s discordgo.Sessioner, guildID, channelID string) (err error) {
 
 	// Join the provided voice channel.
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)

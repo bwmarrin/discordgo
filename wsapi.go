@@ -158,14 +158,14 @@ func (s *Session) Open() error {
 	// We create it here so the below READY/RESUMED packet can populate
 	// the state :)
 	// XXX: Move to New() func?
-	if s.State == nil {
+	if s.state == nil {
 		state := NewState()
 		state.TrackChannels = false
 		state.TrackEmojis = false
 		state.TrackMembers = false
 		state.TrackRoles = false
 		state.TrackVoice = false
-		s.State = state
+		s.state = state
 	}
 
 	// Now Discord should send us a READY or RESUMED packet.
@@ -667,7 +667,7 @@ func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 	}
 
 	// We only care about events that are about us.
-	if s.State.User.ID != st.UserID {
+	if s.state.User.ID != st.UserID {
 		return
 	}
 

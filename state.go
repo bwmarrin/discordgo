@@ -19,7 +19,7 @@ import (
 )
 
 // ErrNilState is returned when the state is nil.
-var ErrNilState = errors.New("state not instantiated, please use discordgo.New() or assign Session.State")
+var ErrNilState = errors.New("state not instantiated, please use discordgo.New()")
 
 // ErrStateNotFound is returned when the state cache
 // requested is not found
@@ -158,7 +158,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 // Guild gets a guild by ID.
 // Useful for querying if @me is in a guild:
-//     _, err := discordgo.Session.State.Guild(guildID)
+//     _, err := discordgo.Session.State().Guild(guildID)
 //     isInGuild := err == nil
 func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {

@@ -8,7 +8,7 @@ type EventHandler interface {
 	// Handle is called whenever an event of Type() happens.
 	// It is the receivers responsibility to type assert that the interface
 	// is the expected struct.
-	Handle(*Session, interface{})
+	Handle(Sessioner, interface{})
 }
 
 // EventInterfaceProvider is an interface for providing empty interfaces for
@@ -27,7 +27,7 @@ type EventInterfaceProvider interface {
 const interfaceEventType = "__INTERFACE__"
 
 // interfaceEventHandler is an event handler for interface{} events.
-type interfaceEventHandler func(*Session, interface{})
+type interfaceEventHandler func(Sessioner, interface{})
 
 // Type returns the event type for interface{} events.
 func (eh interfaceEventHandler) Type() string {
@@ -35,7 +35,7 @@ func (eh interfaceEventHandler) Type() string {
 }
 
 // Handle is the handler for an interface{} event.
-func (eh interfaceEventHandler) Handle(s *Session, i interface{}) {
+func (eh interfaceEventHandler) Handle(s Sessioner, i interface{}) {
 	eh(s, i)
 }
 
@@ -233,7 +233,7 @@ func (s *Session) onInterface(i interface{}) {
 	case *VoiceStateUpdate:
 		go s.onVoiceStateUpdate(t)
 	}
-	err := s.State.OnInterface(s, i)
+	err := s.state.OnInterface(s, i)
 	if err != nil {
 		s.log(LogDebug, "error dispatching internal event, %s", err)
 	}
