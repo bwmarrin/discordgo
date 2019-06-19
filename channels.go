@@ -73,7 +73,7 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// returns the ID of the channel
+// GetID returns the ID of the channel
 func (c *Channel) GetID() string {
 	return c.ID
 }

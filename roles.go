@@ -86,6 +86,7 @@ func (r *Role) Mention() string {
 	return fmt.Sprintf("<@&%s>", r.ID)
 }
 
+// IsDefault checks if the Role is the default (@everyone) role
 func (r *Role) IsDefault() bool {
 	return r.ID == r.GuildID
 }

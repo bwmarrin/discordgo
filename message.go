@@ -123,7 +123,7 @@ type MessageEdit struct {
 	Channel string
 }
 
-// returns the ID of the message
+// GetID returns the ID of the message
 func (m *Message) GetID() string {
 	return m.ID
 }
