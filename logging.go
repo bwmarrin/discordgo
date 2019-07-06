@@ -12,6 +12,8 @@ package discordgo
 import (
 	"fmt"
 	"log"
+    "io"
+    "os"
 	"runtime"
 	"strings"
 )
@@ -37,6 +39,41 @@ const (
 // Logger can be used to replace the standard logging for discordgo
 var Logger func(msgL, caller int, format string, a ...interface{})
 
+// outfiles is used for granular control of logging output paths.
+// The keyspace consists of the 4 log level constants defined above.
+// LogLevel, LogWarning, LogInformational, and LogDebug. Each corresponding 
+// value is an output file for the logger.
+// defaults to stderr
+var outfiles = map[int]io.Writer{
+    LogError : os.Stderr,
+    LogWarning : os.Stderr,
+    LogInformational : os.Stderr,
+    LogDebug : os.Stderr,
+}
+
+// SetOutFile is used to change the output file of a specific log level
+//   level : LogLevel of messages to redirect
+//   file  : file to redirect new messages of LogLevel to
+func SetOutFile(level int, file io.Writer) {
+    if level < 0 || level > 3 {
+        log.Println("Error setting loglevel output file. level must be between 0 and 3.")
+        return;
+    }
+    outfiles[level] = file
+}
+
+// SetLogFlags is synonymous with log.SetFlags
+// https://golang.org/pkg/log/#SetFlags
+func SetLogFlags(flags int) {
+    log.SetFlags(flags)
+}
+
+// SetLogPrefix is synonymous with log.SetPrefix
+// https://golang.org/pkg/log/#SetPrefix
+func SetLogPrefix(prefix string) {
+    log.SetPrefix(prefix)
+}
+
 // msglog provides package wide logging consistancy for discordgo
 // the format, a...  portion this command follows that of fmt.Printf
 //   msgL   : LogLevel of the message
@@ -59,6 +96,8 @@ func msglog(msgL, caller int, format string, a ...interface{}) {
 		name = fns[len(fns)-1]
 
 		msg := fmt.Sprintf(format, a...)
+
+        log.SetOutput(outfiles[msgL])
 
 		log.Printf("[DG%d] %s:%d:%s() %s\n", msgL, file, line, name, msg)
 	}
