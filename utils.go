@@ -1,9 +1,23 @@
 package discordgo
 
 import (
+	"sort"
 	"strconv"
 	"time"
 )
+
+// Contains checks if a slice of strings contains the string to search for
+// haystack      : slice of strings to search in
+// needle        : string to search for
+func Contains(haystack []string, needle string) bool {
+	sort.Strings(haystack)
+	pos := sort.SearchStrings(haystack, needle)
+
+	if pos == len(haystack) {
+		return false
+	}
+	return haystack[pos] == needle
+}
 
 // ContainsIDObject checks if the haystack IDGettable contains the needle IDGettable
 // haystack      : slice of IDGettables to search in

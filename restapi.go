@@ -1482,6 +1482,10 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		data.Embed.Type = "rich"
 	}
 
+	if !data.noEveryoneSanitization {
+		// TODO: sanitize the content
+	}
+
 	endpoint := EndpointChannelMessages(channelID)
 
 	// TODO: Remove this when compatibility is not required.

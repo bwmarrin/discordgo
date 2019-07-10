@@ -384,6 +384,17 @@ type Ack struct {
 	Token string `json:"token"`
 }
 
+// PremiumTier type definition
+type PremiumTier int
+
+// Constants for PremiumTier levels from 0 to 3 inclusive
+const (
+	PremiumTierNone PremiumTier = iota
+	PremiumTier1
+	PremiumTier2
+	PremiumTier3
+)
+
 // A GuildRole stores data for guild roles.
 type GuildRole struct {
 	Role    *Role  `json:"role"`

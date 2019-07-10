@@ -111,6 +111,9 @@ type MessageSend struct {
 
 	// TODO: Remove this when compatibility is not required.
 	File *File `json:"-"`
+
+	// to make us sanitize the text so no everyone/here pings
+	noEveryoneSanitization bool `json:"-"`
 }
 
 // MessageEdit is used to chain parameters via ChannelMessageEditComplex, which

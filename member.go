@@ -28,6 +28,9 @@ type Member struct {
 
 	// A list of IDs of the roles which are possessed by the member.
 	Roles []string `json:"roles"`
+
+	// When the user used their Nitro boost on the server
+	PremiumSince Timestamp `json:"premium_since"`
 }
 
 // String returns a unique identifier of the form username#discriminator

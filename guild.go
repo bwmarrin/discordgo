@@ -111,6 +111,21 @@ type Guild struct {
 	// The Channel ID to which system messages are sent (eg join and leave messages)
 	SystemChannelID string `json:"system_channel_id"`
 
+	// the vanity url code for the guild
+	VanityURLCode string `json:"vanity_url_code"`
+
+	// the description for the guild
+	Description string `json:"description"`
+
+	// The hash of the guild's banner
+	Banner string `json:"banner"`
+
+	// The premium tier of the guild
+	PremiumTier PremiumTier `json:"premium_tier"`
+
+	// The total number of users currently boosting this server
+	PremiumSubscriptionCount int `json:"premium_subscription_count"`
+
 	// The Session to call the API and retrieve other objects
 	Session *Session `json:"session,omitempty"`
 }
@@ -135,6 +150,12 @@ type GuildParams struct {
 	Icon                        string             `json:"icon,omitempty"`
 	OwnerID                     string             `json:"owner_id,omitempty"`
 	Splash                      string             `json:"splash,omitempty"`
+}
+
+type GuildLimit struct {
+	Emoji    Emoji
+	Bitrate  int
+	FileSize int
 }
 
 // GetID returns the guilds ID
@@ -234,6 +255,11 @@ func (g *Guild) GetMember(userID string) (member *Member, err error) {
 	return
 }
 
+// Me retrieves the member object representing this client in the guild
+func (g *Guild) Me() (member *Member, err error) {
+	return g.GetMember(g.Session.State.User.ID)
+}
+
 // FetchMembers fetches count members of this guild from discord and adds them to the state.
 // limit   : The max amount of members to fetch (max 1000)
 // after   : The id of the member to return members after
@@ -304,4 +330,57 @@ func (g *Guild) CreateRole() (role *Role, err error) {
 // channelType     : Type of the channel
 func (g *Guild) CreateChannel(name string, channelType ChannelType) (channel *Channel, err error) {
 	return g.Session.GuildChannelCreate(g.ID, name, channelType)
+}
+
+// EmojiLimit returns the maximum amount of emojis that this guild can have
+func (g *Guild) EmojiLimit() int {
+	moreEmojis := Contains(g.Features, "MORE_EMOJI")
+
+	switch g.PremiumTier {
+	case PremiumTier1:
+		if moreEmojis {
+			return 200
+		}
+		return 100
+	case PremiumTier2:
+		if moreEmojis {
+			return 200
+		}
+		return 150
+	case PremiumTier3:
+		return 250
+	default:
+		if moreEmojis {
+			return 200
+		}
+		return 50
+	}
+}
+
+// BitrateLimit returns the maximum bitrate for voice channels this guild can have
+func (g *Guild) BitrateLimit() int {
+	switch g.PremiumTier {
+	case PremiumTier1:
+		return 128000
+	case PremiumTier2:
+		return 256000
+	case PremiumTier3:
+		return 384000
+	default:
+		return 96000
+	}
+}
+
+// FileSizeLimit returns the maximum number of bytes files can have when uploaded to this guild
+func (g *Guild) FileSizeLimit() int {
+	switch g.PremiumTier {
+	case PremiumTier1:
+		return 8388608
+	case PremiumTier2:
+		return 52428800
+	case PremiumTier3:
+		return 104857600
+	default:
+		return 8388608
+	}
 }
