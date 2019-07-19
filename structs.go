@@ -254,7 +254,7 @@ type Channel struct {
 
 // Mention returns a string which mentions the channel
 func (c *Channel) Mention() string {
-	return fmt.Sprintf("<#%s>", c.ID)
+	return fmt.Sprintf("<#%s-%s-%s>", c.ID, c.GuildID, c.Name)
 }
 
 // A ChannelEdit holds Channel Field data for a channel edit.
