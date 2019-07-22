@@ -286,6 +286,7 @@ type Emoji struct {
 	Managed       bool     `json:"managed"`
 	RequireColons bool     `json:"require_colons"`
 	Animated      bool     `json:"animated"`
+	Available     bool     `json:"available"`
 }
 
 // MessageFormat returns a correctly formatted Emoji for use in Message content and embeds
