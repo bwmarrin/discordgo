@@ -593,7 +593,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	}
 
 	// Grab port from position 68 and 69
-	port := binary.LittleEndian.Uint16(rb[68:70])
+	port := binary.BigEndian.Uint16(rb[68:70])
 
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
