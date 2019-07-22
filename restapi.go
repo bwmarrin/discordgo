@@ -2091,6 +2091,8 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
 
+	// emoji such as  #⃣ need to have # escaped
+	emojiID = strings.Replace(emojiID, "#", "%23", -1)
 	_, err := s.RequestWithBucketID("PUT", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, "", "", ""))
 
 	return err
@@ -2103,6 +2105,8 @@ func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error
 // userID	 : @me or ID of the user to delete the reaction for.
 func (s *Session) MessageReactionRemove(channelID, messageID, emojiID, userID string) error {
 
+	// emoji such as  #⃣ need to have # escaped
+	emojiID = strings.Replace(emojiID, "#", "%23", -1)
 	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReaction(channelID, messageID, emojiID, userID), nil, EndpointMessageReaction(channelID, "", "", ""))
 
 	return err
@@ -2124,6 +2128,8 @@ func (s *Session) MessageReactionsRemoveAll(channelID, messageID string) error {
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
 // limit    : max number of users to return (max 100)
 func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit int) (st []*User, err error) {
+	// emoji such as  #⃣ need to have # escaped
+	emojiID = strings.Replace(emojiID, "#", "%23", -1)
 	uri := EndpointMessageReactions(channelID, messageID, emojiID)
 
 	v := url.Values{}
