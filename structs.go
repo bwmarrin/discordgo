@@ -312,12 +312,13 @@ func (e *Emoji) APIName() string {
 // VerificationLevel type definition
 type VerificationLevel int
 
-// Constants for VerificationLevel levels from 0 to 3 inclusive
+// Constants for VerificationLevel levels from 0 to 4 inclusive
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
 	VerificationLevelMedium
 	VerificationLevelHigh
+	VerificationLevelVeryHigh
 )
 
 // ExplicitContentFilterLevel type definition
