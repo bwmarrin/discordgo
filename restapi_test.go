@@ -1,6 +1,7 @@
 package discordgo
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -247,6 +248,27 @@ func TestChannelMessageSend2(t *testing.T) {
 	_, err := dg.ChannelMessageSend(envChannel, "All done running REST API Tests!")
 	if err != nil {
 		t.Errorf("ChannelMessageSend returned error: %+v", err)
+	}
+}
+
+// TestChannelMessageSendComplex_files tests sending files via
+// ChannelMessageSendComplex() function. This should not return an error.
+func TestChannelMessageSendComplex_files(t * testing.T) {
+
+	if envChannel == "" {
+		t.Skip("Skipping, DG_CHANNEL not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	_, err := dg.ChannelMessageSendComplex(envChannel, &MessageSend{
+		Content: "Test sending files with message",
+		File: &File{Name: "test.txt", Reader: strings.NewReader("file content")},
+	})
+	if err != nil {
+		t.Errorf("ChannelMessageSendComplex returned error: %+v", err)
 	}
 }
 
