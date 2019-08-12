@@ -2068,6 +2068,9 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook
 // wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
+//
+// If `wait` is `false`, the returned *Message is always empty, because server
+// does not provide the response data.
 func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
@@ -2075,13 +2078,69 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 		uri += "?wait=true"
 	}
 
-	response, err := s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken("", ""))
-	if !wait || err != nil {
+	var response []byte
+	if data.File != nil {
+		body := &bytes.Buffer{}
+		bodywriter := multipart.NewWriter(body)
+
+		var payload []byte
+		payload, err = json.Marshal(data)
+		if err != nil {
+			return
+		}
+
+		var p io.Writer
+
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", `form-data; name="payload_json"`)
+		h.Set("Content-Type", "application/json")
+
+		p, err = bodywriter.CreatePart(h)
+		if err != nil {
+			return
+		}
+
+		if _, err = p.Write(payload); err != nil {
+			return
+		}
+
+		{
+			file := data.File
+			h := make(textproto.MIMEHeader)
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, quoteEscaper.Replace(file.Name)))
+			contentType := file.ContentType
+			if contentType == "" {
+				contentType = "application/octet-stream"
+			}
+			h.Set("Content-Type", contentType)
+
+			p, err = bodywriter.CreatePart(h)
+			if err != nil {
+				return
+			}
+
+			if _, err = io.Copy(p, file.Reader); err != nil {
+				return
+			}
+		}
+
+		err = bodywriter.Close()
+		if err != nil {
+			return
+		}
+
+		response, err = s.request("POST", uri, bodywriter.FormDataContentType(), body.Bytes(), EndpointWebhookToken("", ""), 0)
+	} else {
+		response, err = s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken("", ""))
+	}
+	if err != nil {
+		return
+	}
+	if !wait {
 		return
 	}
 
 	err = unmarshal(response, &st)
-
 	return
 }
 
