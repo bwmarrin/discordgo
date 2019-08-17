@@ -42,6 +42,8 @@ type VoiceConnection struct {
 	speaking     bool
 	reconnecting bool // If true, voice connection is trying to reconnect
 
+	opusRate int          // Sample rate for opus, default is 48000
+	opusSize int          // Sample size for opus, default is 960
 	OpusSend chan []byte  // Chan for sending opus audio
 	OpusRecv chan *Packet // Chan for receiving opus audio
 
@@ -404,11 +406,18 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		}
 
 		// Start the opusSender.
-		// TODO: Should we allow 48000/960 values to be user defined?
 		if v.OpusSend == nil {
 			v.OpusSend = make(chan []byte, 2)
 		}
-		go v.opusSender(v.udpConn, v.close, v.OpusSend, 48000, 960)
+		rate := v.opusRate
+		if rate == 0 {
+			rate = 48000
+		}
+		size := v.opusSize
+		if size == 0 {
+			size = 960
+		}
+		go v.opusSender(v.udpConn, v.close, v.OpusSend, rate, size)
 
 		// Start the opusReceiver
 		if !v.deaf {
@@ -863,7 +872,14 @@ func (v *VoiceConnection) reconnect() {
 
 		v.log(LogInformational, "trying to reconnect to channel %s", v.ChannelID)
 
-		_, err := v.session.ChannelVoiceJoin(v.GuildID, v.ChannelID, v.mute, v.deaf)
+		_, err := v.session.ChannelVoiceJoinV2(&ChannelVoiceJoinOptions{
+			GuildID:   v.GuildID,
+			ChannelID: v.ChannelID,
+			Mute:      v.mute,
+			Deaf:      v.deaf,
+			OpusRate:  v.opusRate,
+			OpusSize:  v.opusSize,
+		})
 		if err == nil {
 			v.log(LogInformational, "successfully reconnected to channel %s", v.ChannelID)
 			return

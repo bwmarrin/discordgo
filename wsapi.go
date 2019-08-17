@@ -585,36 +585,65 @@ type voiceChannelJoinOp struct {
 	Data voiceChannelJoinData `json:"d"`
 }
 
+// ChannelVoiceJoinOptions options for voice channel connection
+type ChannelVoiceJoinOptions struct {
+	GuildID   string // Guild ID of the channel to join.
+	ChannelID string // Channel ID of the channel to join.
+	Mute      bool   // If true, you will be set to muted upon joining.
+	Deaf      bool   // If true, you will be set to deafened upon joining.
+	OpusRate  int    // Opus sample rate (default 48000)
+	OpusSize  int    // Opus sample size (default 960)
+}
+
 // ChannelVoiceJoin joins the session user to a voice channel.
+// This method is Deprecated, use ChannelVoiceJoinV2(options) instead
 //
 //    gID     : Guild ID of the channel to join.
 //    cID     : Channel ID of the channel to join.
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
+	return s.ChannelVoiceJoinV2(&ChannelVoiceJoinOptions{
+		GuildID:   gID,
+		ChannelID: cID,
+		Mute:      mute,
+		Deaf:      deaf,
+	})
+}
 
+// ChannelVoiceJoinV2 joins the session user to a voice channel.
+func (s *Session) ChannelVoiceJoinV2(opts *ChannelVoiceJoinOptions) (voice *VoiceConnection, err error) {
 	s.log(LogInformational, "called")
 
 	s.RLock()
-	voice, _ = s.VoiceConnections[gID]
+	voice, _ = s.VoiceConnections[opts.GuildID]
 	s.RUnlock()
 
 	if voice == nil {
 		voice = &VoiceConnection{}
 		s.Lock()
-		s.VoiceConnections[gID] = voice
+		s.VoiceConnections[opts.GuildID] = voice
 		s.Unlock()
 	}
 
 	voice.Lock()
-	voice.GuildID = gID
-	voice.ChannelID = cID
-	voice.deaf = deaf
-	voice.mute = mute
+	voice.GuildID = opts.GuildID
+	voice.ChannelID = opts.ChannelID
+	voice.deaf = opts.Deaf
+	voice.mute = opts.Mute
+	voice.opusRate = opts.OpusRate
+	voice.opusSize = opts.OpusSize
 	voice.session = s
 	voice.Unlock()
 
-	err = s.ChannelVoiceJoinManual(gID, cID, mute, deaf)
+	err = s.ChannelVoiceJoinManualV2(&ChannelVoiceJoinOptions{
+		GuildID:   voice.GuildID,
+		ChannelID: voice.ChannelID,
+		Deaf:      voice.deaf,
+		Mute:      voice.mute,
+		OpusRate:  voice.opusRate,
+		OpusSize:  voice.opusSize,
+	})
 	if err != nil {
 		return
 	}
@@ -631,6 +660,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 }
 
 // ChannelVoiceJoinManual initiates a voice session to a voice channel, but does not complete it.
+// This method is Deprecated, use ChannelVoiceJoinManualV2(opts) instead
 //
 // This should only be used when the VoiceServerUpdate will be intercepted and used elsewhere.
 //
@@ -639,18 +669,27 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
+	return s.ChannelVoiceJoinManualV2(&ChannelVoiceJoinOptions{
+		GuildID:   gID,
+		ChannelID: cID,
+		Mute:      mute,
+		Deaf:      deaf,
+	})
+}
 
+// ChannelVoiceJoinManualV2 initiates a voice session to a voice channel, but does not complete it.
+func (s *Session) ChannelVoiceJoinManualV2(opts *ChannelVoiceJoinOptions) (err error) {
 	s.log(LogInformational, "called")
 
 	var channelID *string
-	if cID == "" {
+	if opts.ChannelID == "" {
 		channelID = nil
 	} else {
-		channelID = &cID
+		channelID = &opts.ChannelID
 	}
 
 	// Send the request to Discord that we want to join the voice channel
-	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, channelID, mute, deaf}}
+	data := voiceChannelJoinOp{4, voiceChannelJoinData{&opts.GuildID, channelID, opts.Mute, opts.Deaf}}
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(data)
 	s.wsMutex.Unlock()
