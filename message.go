@@ -28,6 +28,10 @@ const (
 	MessageTypeChannelIconChange
 	MessageTypeChannelPinnedMessage
 	MessageTypeGuildMemberJoin
+	MessageTypeUserPremiumGuildSubscriptionTierOne
+	MessageTypeUserPremiumGuildSubscriptionTierTwo
+	MessageTypeUserPremiumGuildSubscriptionTierThree
+	MessageTypeChannelFollowAdd
 )
 
 // A Message stores all data related to a specific Discord message.
