@@ -1378,6 +1378,25 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	return
 }
 
+// VoiceChannelUsers returns IDS of users present in given channelID
+func (s *Session) VoiceChannelUsers(channelID, guildID string) (st []string, err error) {
+	g, err := s.Guild(guildID)
+	if err != nil {
+		return
+	}
+
+	st = make([]string, 0)
+
+	for _, voiceStates := range g.VoiceStates {
+
+		if channelID == voiceStates.ChannelID {
+			st = append(st, voiceStates.UserID)
+		}
+	}
+
+	return
+}
+
 // ChannelEdit edits the given channel
 // channelID  : The ID of a Channel
 // name       : The new name to assign the channel.
