@@ -617,10 +617,10 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 // g 		 : A GuildParams struct with the values Name, Region and VerificationLevel defined.
 func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error) {
 
-	// Bounds checking for VerificationLevel, interval: [0, 3]
+	// Bounds checking for VerificationLevel, interval: [0, 4]
 	if g.VerificationLevel != nil {
 		val := *g.VerificationLevel
-		if val < 0 || val > 3 {
+		if val < 0 || val > 4 {
 			err = ErrVerificationLevelBounds
 			return
 		}
