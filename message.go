@@ -10,6 +10,7 @@
 package discordgo
 
 import (
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
@@ -29,6 +30,11 @@ const (
 	MessageTypeChannelIconChange
 	MessageTypeChannelPinnedMessage
 	MessageTypeGuildMemberJoin
+	MessageTypeUserPremiumGuildSubscription
+	MessageTypeUserPremiumGuildSubscriptionTierOne
+	MessageTypeUserPremiumGuildSubscriptionTierTwo
+	MessageTypeUserPremiumGuildSubscriptionTierThree
+	MessageTypeChannelFollowAdd
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -92,7 +98,7 @@ type Message struct {
 	WebhookID string `json:"webhook_id"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session"`
+	Session *Session `json:"-"`
 }
 
 // File stores info about files you e.g. send in messages.
@@ -136,12 +142,21 @@ func (m *Message) CreatedAt() (creation time.Time, err error) {
 	return SnowflakeToTime(m.ID)
 }
 
-// NewMessageEdit returns a MessageEdit struct, initialized
-// with the Channel and ID.
+// NewMessageEdit returns a MessageEdit struct,
+// given a Channel ID and message ID.
 func NewMessageEdit(channelID string, messageID string) *MessageEdit {
 	return &MessageEdit{
 		Channel: channelID,
 		ID:      messageID,
+	}
+}
+
+// NewMessageEdit returns a MessageEdit struct, initialized
+// with the Channel and message ID.
+func (m *Message) NewMessageEdit() *MessageEdit {
+	return &MessageEdit{
+		Channel: m.ChannelID,
+		ID:      m.ID,
 	}
 }
 
@@ -159,6 +174,28 @@ func (m *MessageEdit) SetEmbed(embed *MessageEmbed) *MessageEdit {
 	return m
 }
 
+// Channel returns the channel object that the message was posted in,
+// this should only ever be nil right after a RESUME or the initial connection
+func (m *Message) Channel() *Channel {
+	c, _ := m.Session.State.Channel(m.ChannelID)
+	return c
+}
+
+// Guild returns the guild a message was posted in if applicable, else guild is nil
+func (m *Message) Guild() *Guild {
+	g, _ := m.Session.State.Guild(m.GuildID)
+	return g
+}
+
+// JumpURL returns the url to jump to the message
+func (m *Message) JumpURL() string {
+	g := m.GuildID
+	if g == "" {
+		g = "@me"
+	}
+	return fmt.Sprintf("https://discordapp.com/channels/%s/%s/%s", g, m.ChannelID, m.ID)
+}
+
 // A MessageAttachment stores data for message attachments.
 type MessageAttachment struct {
 	ID       string `json:"id"`
@@ -168,75 +205,6 @@ type MessageAttachment struct {
 	Width    int    `json:"width"`
 	Height   int    `json:"height"`
 	Size     int    `json:"size"`
-}
-
-// MessageEmbedFooter is a part of a MessageEmbed struct.
-type MessageEmbedFooter struct {
-	Text         string `json:"text,omitempty"`
-	IconURL      string `json:"icon_url,omitempty"`
-	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
-}
-
-// MessageEmbedImage is a part of a MessageEmbed struct.
-type MessageEmbedImage struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
-}
-
-// MessageEmbedThumbnail is a part of a MessageEmbed struct.
-type MessageEmbedThumbnail struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
-}
-
-// MessageEmbedVideo is a part of a MessageEmbed struct.
-type MessageEmbedVideo struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
-}
-
-// MessageEmbedProvider is a part of a MessageEmbed struct.
-type MessageEmbedProvider struct {
-	URL  string `json:"url,omitempty"`
-	Name string `json:"name,omitempty"`
-}
-
-// MessageEmbedAuthor is a part of a MessageEmbed struct.
-type MessageEmbedAuthor struct {
-	URL          string `json:"url,omitempty"`
-	Name         string `json:"name,omitempty"`
-	IconURL      string `json:"icon_url,omitempty"`
-	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
-}
-
-// MessageEmbedField is a part of a MessageEmbed struct.
-type MessageEmbedField struct {
-	Name   string `json:"name,omitempty"`
-	Value  string `json:"value,omitempty"`
-	Inline bool   `json:"inline,omitempty"`
-}
-
-// An MessageEmbed stores data for message embeds.
-type MessageEmbed struct {
-	URL         string                 `json:"url,omitempty"`
-	Type        string                 `json:"type,omitempty"`
-	Title       string                 `json:"title,omitempty"`
-	Description string                 `json:"description,omitempty"`
-	Timestamp   string                 `json:"timestamp,omitempty"`
-	Color       int                    `json:"color,omitempty"`
-	Footer      *MessageEmbedFooter    `json:"footer,omitempty"`
-	Image       *MessageEmbedImage     `json:"image,omitempty"`
-	Thumbnail   *MessageEmbedThumbnail `json:"thumbnail,omitempty"`
-	Video       *MessageEmbedVideo     `json:"video,omitempty"`
-	Provider    *MessageEmbedProvider  `json:"provider,omitempty"`
-	Author      *MessageEmbedAuthor    `json:"author,omitempty"`
-	Fields      []*MessageEmbedField   `json:"fields,omitempty"`
 }
 
 // MessageReactions holds a reactions object for a message.
@@ -264,16 +232,16 @@ var patternChannels = regexp.MustCompile("<#[^>]*>")
 
 // ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
 // username of the mention, but also role IDs and more.
-func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, err error) {
+func (m *Message) ContentWithMoreMentionsReplaced() (content string, err error) {
 	content = m.Content
 
-	if !s.StateEnabled {
+	if !m.Session.StateEnabled {
 		content = m.ContentWithMentionsReplaced()
 		return
 	}
 
-	channel, err := s.State.Channel(m.ChannelID)
-	if err != nil {
+	channel := m.Channel()
+	if channel == nil {
 		content = m.ContentWithMentionsReplaced()
 		return
 	}
@@ -281,7 +249,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	for _, user := range m.Mentions {
 		nick := user.Username
 
-		member, err := s.State.Member(channel.GuildID, user.ID)
+		member, err := m.Session.State.Member(channel.GuildID, user.ID)
 		if err == nil && member.Nick != "" {
 			nick = member.Nick
 		}
@@ -292,7 +260,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		).Replace(content)
 	}
 	for _, roleID := range m.MentionRoles {
-		role, err := s.State.Role(channel.GuildID, roleID)
+		role, err := m.Session.State.Role(channel.GuildID, roleID)
 		if err != nil || !role.Mentionable {
 			continue
 		}
@@ -301,7 +269,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	}
 
 	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
-		channel, err := s.State.Channel(mention[2 : len(mention)-1])
+		channel, err := m.Session.State.Channel(mention[2 : len(mention)-1])
 		if err != nil || channel.Type == ChannelTypeGuildVoice {
 			return mention
 		}
@@ -309,4 +277,47 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		return "#" + channel.Name
 	})
 	return
+}
+
+// Edit edits the message, replacing it entirely with
+// the given MessageEdit struct
+func (m *Message) Edit(data *MessageEdit) (edited *Message, err error) {
+	return m.Session.ChannelMessageEditComplex(data)
+}
+
+// Delete deletes the message
+func (m *Message) Delete() (err error) {
+	return m.Session.ChannelMessageDelete(m.ChannelID, m.ID)
+}
+
+// Pin pins the message
+func (m *Message) Pin() (err error) {
+	return m.Session.ChannelMessagePin(m.ChannelID, m.ID)
+}
+
+// Unpin unpins the message
+func (m *Message) UnPin() (err error) {
+	return m.Session.ChannelMessageUnpin(m.ChannelID, m.ID)
+}
+
+// AddReaction adds a reaction to the current message
+// emoji : the emoji to add
+func (m *Message) AddReaction(emoji *Emoji) (err error) {
+	return m.Session.MessageReactionAdd(m.ChannelID, m.ID, emoji.APIName())
+}
+
+// RemoveReaction removes the reaction added by user from the message
+// emoji : the emoji to remove
+// user : the user or member who added the reaction
+func (m *Message) RemoveReaction(emoji *Emoji, user IDGettable) (err error) {
+	id := user.GetID()
+	if id == m.Session.State.User.ID {
+		id = "@me"
+	}
+	return m.Session.MessageReactionRemove(m.ChannelID, m.ID, emoji.APIName(), user.GetID())
+}
+
+// RemoveAllReactions removes all the reactions from the message
+func (m *Message) RemoveAllReactions() (err error) {
+	return m.Session.MessageReactionsRemoveAll(m.ChannelID, m.ID)
 }

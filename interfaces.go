@@ -6,8 +6,7 @@ type Messageable interface {
 	// Sends a message to the channel
 	SendMessage(content string, embed *MessageEmbed, files []*File) (message *Message, err error)
 	SendMessageComplex(data *MessageSend) (message *Message, err error)
-	EditMessage(message *Message) (edited *Message, err error)
-	EditMessageComplex(data *MessageEdit) (edited *Message, err error)
+	EditMessage(data *MessageEdit) (edited *Message, err error)
 
 	// gets a single message by ID from the channel
 	// ID : the ID of a Message

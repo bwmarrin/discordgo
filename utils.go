@@ -44,7 +44,7 @@ func SnowflakeToTime(snowflake string) (returnTime time.Time, err error) {
 		return
 	}
 
-	timestamp := (n >> 22) + 1420070400000
+	timestamp := ((n >> 22) + 1420070400000) * 1000000
 	returnTime = time.Unix(timestamp, 0).UTC()
 	return
 }

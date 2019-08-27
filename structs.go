@@ -199,61 +199,21 @@ func (i *Invite) build(s *Session) {
 	}
 }
 
-// ChannelType is the type of a Channel
-type ChannelType int
-
-// Block contains known ChannelType values
-const (
-	ChannelTypeGuildText ChannelType = iota
-	ChannelTypeDM
-	ChannelTypeGuildVoice
-	ChannelTypeGroupDM
-	ChannelTypeGuildCategory
-)
-
-// Emoji struct holds data related to Emoji's
-type Emoji struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name"`
-	Roles         []string `json:"roles"`
-	Managed       bool     `json:"managed"`
-	RequireColons bool     `json:"require_colons"`
-	Animated      bool     `json:"animated"`
-}
-
-// MessageFormat returns a correctly formatted Emoji for use in Message content and embeds
-func (e *Emoji) MessageFormat() string {
-	if e.ID != "" && e.Name != "" {
-		if e.Animated {
-			return "<a:" + e.APIName() + ">"
-		}
-
-		return "<:" + e.APIName() + ">"
-	}
-
-	return e.APIName()
-}
-
-// APIName returns an correctly formatted API name for use in the MessageReactions endpoints.
-func (e *Emoji) APIName() string {
-	if e.ID != "" && e.Name != "" {
-		return e.Name + ":" + e.ID
-	}
-	if e.Name != "" {
-		return e.Name
-	}
-	return e.ID
+func (i *Invite) Delete() (err error) {
+	_, err = i.Guild.DeleteInvite(i.Code)
+	return
 }
 
 // VerificationLevel type definition
 type VerificationLevel int
 
-// Constants for VerificationLevel levels from 0 to 3 inclusive
+// Constants for VerificationLevel levels from 0 to 4 inclusive
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
 	VerificationLevelMedium
 	VerificationLevelHigh
+	VerificationLevelVeryHigh
 )
 
 // ExplicitContentFilterLevel type definition
@@ -514,15 +474,6 @@ type WebhookParams struct {
 	TTS       bool            `json:"tts,omitempty"`
 	File      string          `json:"file,omitempty"`
 	Embeds    []*MessageEmbed `json:"embeds,omitempty"`
-}
-
-// MessageReaction stores the data for a message reaction.
-type MessageReaction struct {
-	UserID    string `json:"user_id"`
-	MessageID string `json:"message_id"`
-	Emoji     Emoji  `json:"emoji"`
-	ChannelID string `json:"channel_id"`
-	GuildID   string `json:"guild_id,omitempty"`
 }
 
 // GatewayBotResponse stores the data for the gateway/bot response

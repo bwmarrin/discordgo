@@ -228,7 +228,12 @@ func (s *Session) setSession(g *Guild) {
 
 	for _, r := range g.Roles {
 		r.Session = s
-		r.GuildID = g.ID
+		r.Guild = g
+	}
+
+	for _, e := range g.Emojis {
+		e.Session = s
+		e.Guild = g
 	}
 }
 

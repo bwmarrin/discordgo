@@ -38,10 +38,10 @@ type Role struct {
 	Permissions int `json:"permissions"`
 
 	// ID of the guild this role belongs to
-	GuildID string `json:"guild_id,omitempty"`
+	Guild *Guild `json:"-"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session,omitempty"`
+	Session *Session `json:"-"`
 }
 
 // A RoleEdit stores information used to edit a Role
@@ -88,22 +88,12 @@ func (r *Role) Mention() string {
 
 // IsDefault checks if the Role is the default (@everyone) role
 func (r *Role) IsDefault() bool {
-	return r.ID == r.GuildID
-}
-
-// GetGuild returns the Guild struct this role belongs to
-func (r *Role) GetGuild() (g *Guild, err error) {
-	return r.Session.State.Guild(r.GuildID)
+	return r.ID == r.Guild.ID
 }
 
 // GetMembers returns a slice with all members in the guild with this role
 func (r *Role) GetMembers() (members []*Member, err error) {
-	g, err := r.GetGuild()
-	if err != nil {
-		return
-	}
-
-	allMembers := g.Members
+	allMembers := r.Guild.Members
 	for _, m := range allMembers {
 		for _, roleID := range m.Roles {
 			if roleID == r.ID {
@@ -121,13 +111,13 @@ func (r *Role) GetMembers() (members []*Member, err error) {
 // perm      : The permissions for the role.
 // mention   : Whether this role is mentionable
 func (r *Role) Edit(name string, color int, hoist bool, perm int, mention bool) (edited *Role, err error) {
-	return r.Session.GuildRoleEdit(r.GuildID, r.ID, name, color, hoist, perm, mention)
+	return r.Session.GuildRoleEdit(r.Guild.ID, r.ID, name, color, hoist, perm, mention)
 }
 
 // EditComplex updates the Role with new values
 // data      : data to send to the API
 func (r *Role) EditComplex(data *RoleEdit) (edited *Role, err error) {
-	return r.Session.GuildRoleEditComplex(r.GuildID, r.ID, data)
+	return r.Session.GuildRoleEditComplex(r.Guild.ID, r.ID, data)
 }
 
 // Move changes the position of the role in the role hierarchy
@@ -141,17 +131,12 @@ func (r *Role) Move(position int) (err error) {
 		return errors.New("can't move the default role")
 	}
 
-	g, err := r.GetGuild()
-	if err != nil {
-		return
-	}
-
 	var editedRoles Roles
 	var edits []*RoleMove
 	min := int(math.Min(float64(position), float64(r.Position)))
 	max := int(math.Max(float64(position), float64(r.Position)))
 
-	for _, role := range g.Roles {
+	for _, role := range r.Guild.Roles {
 		if role.ID != r.ID && role.Position <= max && role.Position >= min {
 			editedRoles = append(editedRoles, role)
 		}
@@ -165,12 +150,12 @@ func (r *Role) Move(position int) (err error) {
 		editedRoles = append(editedRoles, r)
 	}
 
-	for p, i := min, 0; p <= max; p, i = p+1, i+1 {
+	for p, i := min, 0; p <= max && i < len(editedRoles); p, i = p+1, i+1 {
 		editedRoles[i].Position = p
 		edits = append(edits, &RoleMove{editedRoles[i].ID, editedRoles[i].Position})
 	}
 
-	_, err = r.Session.GuildRoleReorder(r.GuildID, edits)
+	_, err = r.Session.GuildRoleReorder(r.Guild.ID, edits)
 	if err != nil {
 		return
 	}
@@ -179,7 +164,7 @@ func (r *Role) Move(position int) (err error) {
 
 // Delete deletes the role
 func (r *Role) Delete() (err error) {
-	return r.Session.GuildRoleDelete(r.GuildID, r.ID)
+	return r.Session.GuildRoleDelete(r.Guild.ID, r.ID)
 }
 
 // Roles are a collection of Role

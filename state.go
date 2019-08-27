@@ -83,8 +83,6 @@ func (s *State) GuildAdd(guild *Guild, se *Session) error {
 	s.Lock()
 	defer s.Unlock()
 
-	se.setSession(guild)
-
 	// Update the channels to point to the right guild, adding them to the channelMap as we go
 	for _, c := range guild.Channels {
 		s.channelMap[c.ID] = c
@@ -123,8 +121,12 @@ func (s *State) GuildAdd(guild *Guild, se *Session) error {
 			guild.VoiceStates = g.VoiceStates
 		}
 		*g = *guild
+
+		se.setSession(g)
 		return nil
 	}
+
+	se.setSession(guild)
 
 	s.Guilds = append(s.Guilds, guild)
 	s.guildMap[guild.ID] = guild
@@ -861,15 +863,17 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 			}
 		}
 	case *GuildRoleCreate:
+		t.Role.Session = se
+		g, _ := se.State.Guild(t.GuildID)
+		t.Role.Guild = g
 		if s.TrackRoles {
-			t.Role.Session = se
-			t.Role.GuildID = t.GuildID
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleUpdate:
+		t.Role.Session = se
+		g, _ := se.State.Guild(t.GuildID)
+		t.Role.Guild = g
 		if s.TrackRoles {
-			t.Role.Session = se
-			t.Role.GuildID = t.GuildID
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleDelete:
@@ -877,17 +881,22 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 			err = s.RoleRemove(t.GuildID, t.RoleID)
 		}
 	case *GuildEmojisUpdate:
+		g, _ := se.State.Guild(t.GuildID)
+		for _, e := range t.Emojis {
+			e.Session = se
+			e.Guild = g
+		}
 		if s.TrackEmojis {
 			err = s.EmojisAdd(t.GuildID, t.Emojis)
 		}
 	case *ChannelCreate:
+		t.Channel.Session = se
 		if s.TrackChannels {
-			t.Channel.Session = se
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ChannelUpdate:
+		t.Channel.Session = se
 		if s.TrackChannels {
-			t.Channel.Session = se
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ChannelDelete:
@@ -954,6 +963,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 			err = s.MemberAdd(m, se)
 		}
+
+	// The following events are just to insert the session and/or other objects
+
+	case *MessageReactionAdd:
+		t.Session = se
 
 	}
 

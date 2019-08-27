@@ -151,22 +151,9 @@ func (u *User) SendMessageComplex(data *MessageSend) (message *Message, err erro
 	return u.DMChannel.SendMessageComplex(data)
 }
 
-// EditMessage edits a message, replacing it entirely with the corresponding
-// fields in the given message struct
-func (u *User) EditMessage(message *Message) (edited *Message, err error) {
-	if u.DMChannel == nil {
-		err = u.CreateDM()
-		if err != nil {
-			return
-		}
-	}
-
-	return u.DMChannel.EditMessage(message)
-}
-
 // EditMessageComplex edits an existing message, replacing it entirely with
 // the given MessageEdit struct
-func (u *User) EditMessageComplex(data *MessageEdit) (edited *Message, err error) {
+func (u *User) EditMessage(data *MessageEdit) (edited *Message, err error) {
 	if u.DMChannel == nil {
 		err = u.CreateDM()
 		if err != nil {
@@ -174,7 +161,7 @@ func (u *User) EditMessageComplex(data *MessageEdit) (edited *Message, err error
 		}
 	}
 
-	return u.DMChannel.EditMessageComplex(data)
+	return u.DMChannel.EditMessage(data)
 }
 
 // FetchMessage fetches a message with the given ID from the channel

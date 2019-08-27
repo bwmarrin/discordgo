@@ -14,6 +14,20 @@ var ErrNotATextChannel = errors.New("not a text or dm channel")
 // that is not a Guild Voice channel
 var ErrNotAVoiceChannel = errors.New("not a voice channel")
 
+// ChannelType is the type of a Channel
+type ChannelType int
+
+// Block contains known ChannelType values
+const (
+	ChannelTypeGuildText ChannelType = iota
+	ChannelTypeDM
+	ChannelTypeGuildVoice
+	ChannelTypeGroupDM
+	ChannelTypeGuildCategory
+	ChannelTypeGuildNews
+	ChannelTypeGuildStore
+)
+
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
 	// The ID of the channel.
@@ -35,6 +49,10 @@ type Channel struct {
 	// The ID of the last message sent in the channel. This is not
 	// guaranteed to be an ID of a valid message.
 	LastMessageID string `json:"last_message_id"`
+
+	// The timestamp of the last pinned message in the channel.
+	// Empty if the channel has no pinned messages.
+	LastPinTimestamp Timestamp `json:"last_pin_timestamp"`
 
 	// Whether the channel is marked as NSFW.
 	NSFW bool `json:"nsfw"`
@@ -65,7 +83,7 @@ type Channel struct {
 	ParentID string `json:"parent_id"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session,omitempty"`
+	Session *Session `json:"-"`
 }
 
 // Mention returns a string which mentions the channel
@@ -81,6 +99,11 @@ func (c *Channel) GetID() string {
 // CreatedAt returns the channels creation time in UTC
 func (c *Channel) CreatedAt() (creation time.Time, err error) {
 	return SnowflakeToTime(c.ID)
+}
+
+func (c *Channel) Guild() *Guild {
+	g, _ := c.Session.State.Guild(c.GuildID)
+	return g
 }
 
 // A ChannelEdit holds Channel Field data for a channel edit.
@@ -134,29 +157,9 @@ func (c *Channel) SendMessageComplex(data *MessageSend) (message *Message, err e
 	return c.Session.ChannelMessageSendComplex(c.ID, data)
 }
 
-// EditMessage edits a message, replacing it entirely with the corresponding
-// fields in the given message struct
-func (c *Channel) EditMessage(message *Message) (edited *Message, err error) {
-	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
-		err = ErrNotATextChannel
-		return
-	}
-
-	data := &MessageEdit{
-		ID:      message.ID,
-		Channel: c.ID,
-		Content: &message.Content,
-	}
-	if len(message.Embeds) > 0 {
-		data.SetEmbed(message.Embeds[0])
-	}
-
-	return c.EditMessageComplex(data)
-}
-
 // EditMessageComplex edits an existing message, replacing it entirely with
 // the given MessageEdit struct
-func (c *Channel) EditMessageComplex(data *MessageEdit) (edited *Message, err error) {
+func (c *Channel) EditMessage(data *MessageEdit) (edited *Message, err error) {
 	if c.Type == ChannelTypeGuildVoice || c.Type == ChannelTypeGuildCategory {
 		err = ErrNotATextChannel
 		return
@@ -189,4 +192,96 @@ func (c *Channel) GetHistory(limit int, beforeID, afterID, aroundID string) (st 
 	}
 
 	return c.Session.ChannelMessages(c.ID, limit, beforeID, afterID, aroundID)
+}
+
+// HasPins returns a bool indicating if a channel has pinned messages
+func (c *Channel) HasPins() bool {
+	return c.LastPinTimestamp != ""
+}
+
+// FetchPins fetches all pinned messages in the channel from the discord api
+func (c *Channel) FetchPins() ([]*Message, error) {
+	return c.Session.ChannelMessagesPinned(c.ID)
+}
+
+// DeleteMessage deletes a message from the channel
+// message        : message to delete
+func (c *Channel) DeleteMessage(message *Message) (err error) {
+	return c.Session.ChannelMessageDelete(c.ID, message.ID)
+}
+
+// DeleteMessageByID deletes a message with the given ID from the channel
+// ID        : ID of the message to delete
+func (c *Channel) DeleteMessageByID(ID string) (err error) {
+	return c.Session.ChannelMessageDelete(c.ID, ID)
+}
+
+// ChannelMessagesBulkDelete bulk deletes the messages from the channel for the provided message objects.
+// messages  : The messages to be deleted. A slice of message objects. A maximum of 100 messages.
+func (c *Channel) MessagesBulkDelete(messages []*Message) (err error) {
+	if len(messages) == 0 {
+		return
+	}
+
+	if len(messages) == 1 {
+		err = messages[0].Delete()
+		return
+	}
+
+	if len(messages) > 100 {
+		messages = messages[:100]
+	}
+
+	twoWeeks := time.Now().Add(-(time.Hour * 24 * 14))
+	var toDelete []string
+	var tooOld []*Message
+
+	for _, message := range messages {
+		age, _ := message.CreatedAt()
+		if age.Before(twoWeeks) {
+			tooOld = append(tooOld, message)
+		} else {
+			toDelete = append(toDelete, message.ID)
+		}
+	}
+
+	err = c.MessagesBulkDeleteByID(toDelete)
+	if err != nil {
+		return
+	}
+
+	for _, oldMessage := range tooOld {
+		err = oldMessage.Delete()
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+// ChannelMessagesBulkDelete bulk deletes the messages from the channel for the provided messageIDs.
+// If only one messageID is in the slice call channelMessageDelete function.
+// If the slice is empty do nothing.
+// messages  : The IDs of the messages to be deleted. A slice of string IDs. A maximum of 100 messages.
+func (c *Channel) MessagesBulkDeleteByID(messages []string) (err error) {
+
+	if len(messages) == 0 {
+		return
+	}
+
+	if len(messages) == 1 {
+		err = c.Session.ChannelMessageDelete(c.ID, messages[0])
+		return
+	}
+
+	if len(messages) > 100 {
+		messages = messages[:100]
+	}
+
+	data := struct {
+		Messages []string `json:"messages"`
+	}{messages}
+
+	_, err = c.Session.RequestWithBucketID("POST", EndpointChannelMessagesBulkDelete(c.ID), data, EndpointChannelMessagesBulkDelete(c.ID))
+	return
 }

@@ -193,3 +193,37 @@ func TestRemoveHandler(t *testing.T) {
 		t.Fatalf("testHandler was not called once.")
 	}
 }
+
+func TestHandlerSessionInserter(t *testing.T) {
+	if envGuild == "" {
+		t.Skip("Skipping, DG_GUILD not set.")
+	}
+
+	if dg == nil {
+		t.Skip("Skipping, dg not set.")
+	}
+
+	g, err := dg.State.Guild(envGuild)
+	if err != nil {
+		t.Fatalf("Guild not found, id: %s; %s", envGuild, err)
+	}
+
+	if g.Unavailable {
+		t.Fatalf("Guild %s is still unavailable", envGuild)
+	}
+
+	testHandler := func(s *Session, c *ChannelCreate) {
+		_, _ = c.SendMessage("OwO A new channel was made", nil, nil)
+	}
+
+	r := dg.AddHandler(testHandler)
+
+	_, err = g.CreateChannel("TestChannel", ChannelTypeGuildText)
+	if err != nil {
+		r()
+		return
+	}
+
+	<-time.After(1000 * time.Millisecond)
+	r()
+}

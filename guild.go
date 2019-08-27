@@ -127,7 +127,7 @@ type Guild struct {
 	PremiumSubscriptionCount int `json:"premium_subscription_count"`
 
 	// The Session to call the API and retrieve other objects
-	Session *Session `json:"session,omitempty"`
+	Session *Session `json:"-"`
 }
 
 // A UserGuild holds a brief version of a Guild
@@ -251,7 +251,7 @@ func (g *Guild) GetMember(userID string) (member *Member, err error) {
 		}
 	}
 
-	err = errors.New("no role found")
+	err = errors.New("no member found")
 	return
 }
 
@@ -383,4 +383,8 @@ func (g *Guild) FileSizeLimit() int {
 	default:
 		return 8388608
 	}
+}
+
+func (g *Guild) DeleteInvite(inviteID string) (*Invite, error) {
+	return g.Session.InviteDelete(inviteID)
 }
