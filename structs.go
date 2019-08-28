@@ -583,22 +583,22 @@ type VoiceState struct {
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
 	// The user the presence updated for.
-	User         *User         `json:"user"`
+	User *User `json:"user"`
 
 	// Roles the user is in.
-	Roles        []string      `json:"roles"`
+	Roles []string `json:"roles"`
 
 	// The status of the user.
-	Status       Status        `json:"status"`
+	Status Status `json:"status"`
 
     	// Either nil or the user's current activity.
-	Game         *Activity     `json:"game"`
+	Game *Activity `json:"game"`
 
 	// The user's platform-dependent status.
 	ClientStatus *ClientStatus `json:"client_status"`
 
 	// User's current activities.
-	Activities   []*Activity   `json:"activities"`
+	Activities []*Activity `json:"activities"`
 }
 
 // ActivityType is the type of "activity" (see ActivityType* consts) in the Activity struct
@@ -614,40 +614,40 @@ const (
 // A Activity struct holds the name of the "playing .." game for a user
 type Activity struct {
 	// Name of the activity.
-	Name          string       `json:"name"`
+	Name string `json:"name"`
 
 	// Activity type.
-	Type          ActivityType `json:"type"`
+	Type ActivityType `json:"type"`
 
 	// Stream URL, this is validated when Type is 1.
-	URL           string       `json:"url,omitempty"`
+	URL string `json:"url,omitempty"`
 
 	// Unix timestamps for start and/or end of the game.
-	TimeStamps    TimeStamps   `json:"timestamps,omitempty"`
+	TimeStamps TimeStamps `json:"timestamps,omitempty"`
 
 	// Application ID for the game.
-	ApplicationID string       `json:"application_id,omitempty"`
+	ApplicationID string  `json:"application_id,omitempty"`
 
 	// What the user is currently doing.
-	Details       string       `json:"details,omitempty"`
+	Details string `json:"details,omitempty"`
     
 	// The user's current party status.
-	State         string       `json:"state,omitempty"`
+	State string `json:"state,omitempty"`
 
 	// Information for the current party of the user.
-	Party         Party        `json:"party,omitempty"`
+	Party Party `json:"party,omitempty"`
 
 	// Images for the presence and their hover texts.
-	Assets        Assets       `json:"assets,omitempty"`
+	Assets Assets `json:"assets,omitempty"`
 
 	// Secrets for the Rich Presence joining and spectating.
-	Secrets       Secrets      `json:"secrets,omitempty"`
+	Secrets Secrets `json:"secrets,omitempty"`
 
 	// Whether or the activity is an instanced game session.
-	Instance      bool         `json:"instance,omitempty"`
+	Instance bool `json:"instance,omitempty"`
 
 	// Activity flags OR'd together, describes what the payload includes.
-	Flags         int          `json:"flags,omitempty"`
+	Flags int `json:"flags,omitempty"`
 }
 
 // A ClientStatus struct holds the user's status per platfrom.
