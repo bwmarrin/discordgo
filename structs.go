@@ -613,48 +613,48 @@ const (
 
 // A Activity struct holds the name of the "playing .." game for a user
 type Activity struct {
-    // Name of the activity.
-    Name          string       `json:"name"`
+	// Name of the activity.
+	Name          string       `json:"name"`
 
-    // Activity type.
-    Type          ActivityType `json:"type"`
+	// Activity type.
+	Type          ActivityType `json:"type"`
 
-    // Stream URL, this is validated when Type is 1.
-    URL           string       `json:"url,omitempty"`
+	// Stream URL, this is validated when Type is 1.
+	URL           string       `json:"url,omitempty"`
 
-    // Unix timestamps for start and/or end of the game.
-    TimeStamps    TimeStamps   `json:"timestamps,omitempty"`
+	// Unix timestamps for start and/or end of the game.
+	TimeStamps    TimeStamps   `json:"timestamps,omitempty"`
 
-    // Application ID for the game.
-    ApplicationID string       `json:"application_id,omitempty"`
+	// Application ID for the game.
+	ApplicationID string       `json:"application_id,omitempty"`
 
-    // What the user is currently doing.
-    Details       string       `json:"details,omitempty"`
+	// What the user is currently doing.
+	Details       string       `json:"details,omitempty"`
     
-    // The user's current party status.
-    State         string       `json:"state,omitempty"`
+	// The user's current party status.
+	State         string       `json:"state,omitempty"`
 
-    // Information for the current party of the user.
-    Party         Party        `json:"party,omitempty"`
+	// Information for the current party of the user.
+	Party         Party        `json:"party,omitempty"`
 
-    // Images for the presence and their hover texts.
-    Assets        Assets       `json:"assets,omitempty"`
+	// Images for the presence and their hover texts.
+	Assets        Assets       `json:"assets,omitempty"`
 
-    // Secrets for the Rich Presence joining and spectating.
-    Secrets       Secrets      `json:"secrets,omitempty"`
+	// Secrets for the Rich Presence joining and spectating.
+	Secrets       Secrets      `json:"secrets,omitempty"`
 
-    // Whether or the activity is an instanced game session.
-    Instance      bool         `json:"instance,omitempty"`
+	// Whether or the activity is an instanced game session.
+	Instance      bool         `json:"instance,omitempty"`
 
-    // Activity flags OR'd together, describes what the payload includes.
-    Flags         int          `json:"flags,omitempty"`
+	// Activity flags OR'd together, describes what the payload includes.
+	Flags         int          `json:"flags,omitempty"`
 }
 
 // A ClientStatus struct holds the user's status per platfrom.
 type ClientStatus struct {
-    Desktop string `json:"desktop,omitempty"`
-    Mobile  string `json:"mobile,omitempty"`
-    Web     string `json:"web,omitempty"`
+	Desktop string `json:"desktop,omitempty"`
+	Mobile  string `json:"mobile,omitempty"`
+	Web     string `json:"web,omitempty"`
 }
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
@@ -680,8 +680,8 @@ func (t *TimeStamps) UnmarshalJSON(b []byte) error {
 
 // A Party struct contains the ID and the minimum and maximum size of the party.
 type Party struct {
-    ID   string `json:"id,omitempty"`
-    Size []int  `json:"size,omitempty"`
+	ID   string `json:"id,omitempty"`
+	Size []int  `json:"size,omitempty"`
 }
 
 // An Assets struct contains assets and labels used in the rich presence "playing .." Game
