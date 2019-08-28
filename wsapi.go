@@ -323,10 +323,10 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 
 // UpdateStatusData ia provided to UpdateStatusComplex()
 type UpdateStatusData struct {
-	IdleSince *int   `json:"since"`
-	Game      *Game  `json:"game"`
-	AFK       bool   `json:"afk"`
-	Status    string `json:"status"`
+	IdleSince *int      `json:"since"`
+	Game      *Activity `json:"game"`
+	AFK       bool      `json:"afk"`
+	Status    string    `json:"status"`
 }
 
 type updateStatusOp struct {
@@ -334,7 +334,7 @@ type updateStatusOp struct {
 	Data UpdateStatusData `json:"d"`
 }
 
-func newUpdateStatusData(idle int, gameType GameType, game, url string) *UpdateStatusData {
+func newUpdateStatusData(idle int, gameType ActivityType, game, url string) *UpdateStatusData {
 	usd := &UpdateStatusData{
 		Status: "online",
 	}
@@ -344,7 +344,7 @@ func newUpdateStatusData(idle int, gameType GameType, game, url string) *UpdateS
 	}
 
 	if game != "" {
-		usd.Game = &Game{
+		usd.Game = &Activity{
 			Name: game,
 			Type: gameType,
 			URL:  url,
@@ -359,7 +359,7 @@ func newUpdateStatusData(idle int, gameType GameType, game, url string) *UpdateS
 // If game!="" then set game.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStatus(idle int, game string) (err error) {
-	return s.UpdateStatusComplex(*newUpdateStatusData(idle, GameTypeGame, game, ""))
+	return s.UpdateStatusComplex(*newUpdateStatusData(idle, ActivityTypeGame, game, ""))
 }
 
 // UpdateStreamingStatus is used to update the user's streaming status.
@@ -368,9 +368,9 @@ func (s *Session) UpdateStatus(idle int, game string) (err error) {
 // If game!="" and url!="" then set the status type to streaming with the URL set.
 // if otherwise, set status to active, and no game.
 func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err error) {
-	gameType := GameTypeGame
+	gameType := ActivityTypeGame
 	if url != "" {
-		gameType = GameTypeStreaming
+		gameType = ActivityTypeStreaming
 	}
 	return s.UpdateStatusComplex(*newUpdateStatusData(idle, gameType, game, url))
 }
@@ -379,7 +379,7 @@ func (s *Session) UpdateStreamingStatus(idle int, game string, url string) (err 
 // If game!="" then set to what user is listening to
 // Else, set user to active and no game.
 func (s *Session) UpdateListeningStatus(game string) (err error) {
-	return s.UpdateStatusComplex(*newUpdateStatusData(0, GameTypeListening, game, ""))
+	return s.UpdateStatusComplex(*newUpdateStatusData(0, ActivityTypeListening, game, ""))
 }
 
 // UpdateStatusComplex allows for sending the raw status update data untouched by discordgo.
