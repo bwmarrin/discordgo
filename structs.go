@@ -591,7 +591,7 @@ type Presence struct {
 	// The status of the user.
 	Status Status `json:"status"`
 
-    	// Either nil or the user's current activity.
+	// Either nil or the user's current activity.
 	Game *Activity `json:"game"`
 
 	// The user's platform-dependent status.
@@ -626,11 +626,11 @@ type Activity struct {
 	TimeStamps TimeStamps `json:"timestamps,omitempty"`
 
 	// Application ID for the game.
-	ApplicationID string  `json:"application_id,omitempty"`
+	ApplicationID string `json:"application_id,omitempty"`
 
 	// What the user is currently doing.
 	Details string `json:"details,omitempty"`
-    
+
 	// The user's current party status.
 	State string `json:"state,omitempty"`
 
@@ -705,7 +705,7 @@ const (
 	ActivityFlagJoin
 	ActivityFlagSpectate
 	ActivityFlagJoinRequest
-	ActivityFlagSync          
+	ActivityFlagSync
 	ActivityFlagPlay
 )
 
