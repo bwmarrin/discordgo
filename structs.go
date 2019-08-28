@@ -582,37 +582,76 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User   *User    `json:"user"`
-	Status Status   `json:"status"`
-	Game   *Game    `json:"game"`
-	Nick   string   `json:"nick"`
-	Roles  []string `json:"roles"`
-	Since  *int     `json:"since"`
+    // The user the presence updated for.
+    User         *User         `json:"user"`
+    
+    // The status of the user.
+    Status       Status        `json:"status"`
+    
+    // Either nil or the user's current activity.
+    Game         *Activity     `json:"game"`
+    
+    // The user's platform-dependent status.
+    ClientStatus *ClientStatus `json:"client_status"`
+
+    // User's current activities.
+    Activities   []*Activity   `json:"activities"`
 }
 
-// GameType is the type of "game" (see GameType* consts) in the Game struct
-type GameType int
+// ActivityType is the type of "activity" (see ActivityType* consts) in the Activity struct
+type ActivityType int
 
 // Valid GameType values
 const (
-	GameTypeGame GameType = iota
-	GameTypeStreaming
-	GameTypeListening
-	GameTypeWatching
+	ActivityTypeGame ActivityType = iota
+	ActivityTypeStreaming
+	ActivityTypeListening
 )
 
 // A Game struct holds the name of the "playing .." game for a user
-type Game struct {
-	Name          string     `json:"name"`
-	Type          GameType   `json:"type"`
-	URL           string     `json:"url,omitempty"`
-	Details       string     `json:"details,omitempty"`
-	State         string     `json:"state,omitempty"`
-	TimeStamps    TimeStamps `json:"timestamps,omitempty"`
-	Assets        Assets     `json:"assets,omitempty"`
-	ApplicationID string     `json:"application_id,omitempty"`
-	Instance      int8       `json:"instance,omitempty"`
-	// TODO: Party and Secrets (unknown structure)
+type Activity struct {
+    // Name of the activity.
+    Name          string       `json:"name"`
+    
+    // Activity type.
+    Type          ActivityType `json:"type"`
+    
+    // Stream URL, this is validated when Type is 1.
+    URL           string       `json:"url,omitempty"`
+    
+    // Unix timestamps for start and/or end of the game.
+    TimeStamps    TimeStamps   `json:"timestamps,omitempty"`
+    
+    // Application ID for the game.
+    ApplicationID string       `json:"application_id,omitempty"`
+    
+    // What the user is currently doing.
+    Details       string       `json:"details,omitempty"`
+    
+    // The user's current party status.
+    State         string       `json:"state,omitempty"`
+    
+    // Information for the current party of the user.
+    Party         Party        `json:"party,omitempty"`
+    
+    // Images for the presence and their hover texts.
+    Assets        Assets       `json:"assets,omitempty"`
+    
+    // Secrets for the Rich Presence joining and spectating.
+    Secrets       Secrets      `json:"secrets,omitempty"`
+    
+    // Whether or the activity is an instanced game session.
+    Instance      bool         `json:"instance,omitempty"`
+    
+    // Activity flags OR'd together, describes what the payload includes.
+    Flags         int          `json:"flags,omitempty"`
+}
+
+// A ClientStatus struct holds the user's status per platfrom.
+type ClientStatus struct {
+    Desktop string `json:"desktop,omitempty"`
+    Mobile  string `json:"mobile,omitempty"`
+    Web     string `json:"web,omitempty"`
 }
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
@@ -636,6 +675,12 @@ func (t *TimeStamps) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// A Party struct contains the ID and the minimum and maximum size of the party.
+type Party struct {
+    ID   string `json:"id,omitempty"`
+    Size []int  `json:"size,omitempty"`
+}
+
 // An Assets struct contains assets and labels used in the rich presence "playing .." Game
 type Assets struct {
 	LargeImageID string `json:"large_image,omitempty"`
@@ -643,6 +688,22 @@ type Assets struct {
 	LargeText    string `json:"large_text,omitempty"`
 	SmallText    string `json:"small_text,omitempty"`
 }
+
+// A Secrets struct contains the secrets discord uses to either join, spectate, or match.
+type Secrets struct {
+    Join     Status `json:"join,omitempty"`
+    Spectate Status `json:"spectate,omitempty"`
+    Match    Status `json:"match,omitempty"`
+}
+
+const (
+    ActivityFlagInstance int = 1 << iota
+    ActivityFlagJoin
+    ActivityFlagSpectate
+    ActivityFlagJoinRequest
+    ActivityFlagSync          
+    ActivityFlagPlay
+)
 
 // A Member stores user information for Guild members. A guild
 // member represents a certain user's presence in a guild.
