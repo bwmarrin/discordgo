@@ -582,20 +582,23 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-    // The user the presence updated for.
-    User         *User         `json:"user"`
+	// The user the presence updated for.
+	User         *User         `json:"user"`
+    	
+	// Roles the user is in.
+	Roles        []string      `json:"roles"`
+	
+	// The status of the user.
+	Status       Status        `json:"status"`
     
-    // The status of the user.
-    Status       Status        `json:"status"`
+    	// Either nil or the user's current activity.
+	Game         *Activity     `json:"game"`
     
-    // Either nil or the user's current activity.
-    Game         *Activity     `json:"game"`
-    
-    // The user's platform-dependent status.
-    ClientStatus *ClientStatus `json:"client_status"`
+	// The user's platform-dependent status.
+	ClientStatus *ClientStatus `json:"client_status"`
 
-    // User's current activities.
-    Activities   []*Activity   `json:"activities"`
+	// User's current activities.
+	Activities   []*Activity   `json:"activities"`
 }
 
 // ActivityType is the type of "activity" (see ActivityType* consts) in the Activity struct
