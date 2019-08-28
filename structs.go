@@ -611,7 +611,7 @@ const (
 	ActivityTypeListening
 )
 
-// A Game struct holds the name of the "playing .." game for a user
+// A Activity struct holds the name of the "playing .." game for a user
 type Activity struct {
     // Name of the activity.
     Name          string       `json:"name"`
@@ -699,6 +699,7 @@ type Secrets struct {
     Match    Status `json:"match,omitempty"`
 }
 
+// Valid ActivityFlag flags
 const (
     ActivityFlagInstance int = 1 << iota
     ActivityFlagJoin
