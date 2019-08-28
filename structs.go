@@ -584,16 +584,16 @@ type VoiceState struct {
 type Presence struct {
 	// The user the presence updated for.
 	User         *User         `json:"user"`
-    	
+
 	// Roles the user is in.
 	Roles        []string      `json:"roles"`
-	
+
 	// The status of the user.
 	Status       Status        `json:"status"`
-    
+
     	// Either nil or the user's current activity.
 	Game         *Activity     `json:"game"`
-    
+
 	// The user's platform-dependent status.
 	ClientStatus *ClientStatus `json:"client_status"`
 
@@ -615,37 +615,37 @@ const (
 type Activity struct {
     // Name of the activity.
     Name          string       `json:"name"`
-    
+
     // Activity type.
     Type          ActivityType `json:"type"`
-    
+
     // Stream URL, this is validated when Type is 1.
     URL           string       `json:"url,omitempty"`
-    
+
     // Unix timestamps for start and/or end of the game.
     TimeStamps    TimeStamps   `json:"timestamps,omitempty"`
-    
+
     // Application ID for the game.
     ApplicationID string       `json:"application_id,omitempty"`
-    
+
     // What the user is currently doing.
     Details       string       `json:"details,omitempty"`
     
     // The user's current party status.
     State         string       `json:"state,omitempty"`
-    
+
     // Information for the current party of the user.
     Party         Party        `json:"party,omitempty"`
-    
+
     // Images for the presence and their hover texts.
     Assets        Assets       `json:"assets,omitempty"`
-    
+
     // Secrets for the Rich Presence joining and spectating.
     Secrets       Secrets      `json:"secrets,omitempty"`
-    
+
     // Whether or the activity is an instanced game session.
     Instance      bool         `json:"instance,omitempty"`
-    
+
     // Activity flags OR'd together, describes what the payload includes.
     Flags         int          `json:"flags,omitempty"`
 }
@@ -694,19 +694,19 @@ type Assets struct {
 
 // A Secrets struct contains the secrets discord uses to either join, spectate, or match.
 type Secrets struct {
-    Join     Status `json:"join,omitempty"`
-    Spectate Status `json:"spectate,omitempty"`
-    Match    Status `json:"match,omitempty"`
+	Join     Status `json:"join,omitempty"`
+	Spectate Status `json:"spectate,omitempty"`
+	Match    Status `json:"match,omitempty"`
 }
 
 // Valid ActivityFlag flags
 const (
-    ActivityFlagInstance int = 1 << iota
-    ActivityFlagJoin
-    ActivityFlagSpectate
-    ActivityFlagJoinRequest
-    ActivityFlagSync          
-    ActivityFlagPlay
+	ActivityFlagInstance int = 1 << iota
+	ActivityFlagJoin
+	ActivityFlagSpectate
+	ActivityFlagJoinRequest
+	ActivityFlagSync          
+	ActivityFlagPlay
 )
 
 // A Member stores user information for Guild members. A guild
