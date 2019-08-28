@@ -582,42 +582,31 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	// The user the presence updated for.
-	User *User `json:"user"`
-
-	// Roles the user is in.
-	Roles []string `json:"roles"`
-
-	// The status of the user.
-	Status Status `json:"status"`
-
-	// Either nil or the user's current activity.
-	Game *Activity `json:"game"`
-
-	// The user's platform-dependent status.
+	User         *User         `json:"user"`
+	Roles        []string      `json:"roles"`
+	Status       Status        `json:"status"`
+	Game         *Game         `json:"game"`
 	ClientStatus *ClientStatus `json:"client_status"`
-
-	// User's current activities.
-	Activities []*Activity `json:"activities"`
+	Activities   []*Game       `json:"activities"`
 }
 
-// ActivityType is the type of "activity" (see ActivityType* consts) in the Activity struct
-type ActivityType int
+// GameType is the type of "activity" (see GameType* consts) in the Game struct
+type GameType int
 
 // Valid GameType values
 const (
-	ActivityTypeGame ActivityType = iota
-	ActivityTypeStreaming
-	ActivityTypeListening
+	GameTypeGame GameType = iota
+	GameTypeStreaming
+	GameTypeListening
 )
 
-// A Activity struct holds the name of the "playing .." game for a user
-type Activity struct {
+// A Game struct holds the name of the "playing .." game for a user.
+type Game struct {
 	// Name of the activity.
 	Name string `json:"name"`
 
-	// Activity type.
-	Type ActivityType `json:"type"`
+	// Game type.
+	Type GameType `json:"type"`
 
 	// Stream URL, this is validated when Type is 1.
 	URL string `json:"url,omitempty"`
