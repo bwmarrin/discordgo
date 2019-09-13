@@ -29,7 +29,7 @@ import (
 
 // A VoiceConnection struct holds all the data and functions related to a Discord Voice Connection.
 type VoiceConnection struct {
-	sync.RWMutex
+	mutex sync.RWMutex
 
 	Debug        bool // If true, print extra logging -- DEPRECATED
 	LogLevel     int
@@ -100,8 +100,8 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	err = v.wsConn.WriteJSON(data)
 	v.wsMutex.Unlock()
 
-	v.Lock()
-	defer v.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 	if err != nil {
 		v.speaking = false
 		v.log(LogError, "Speaking() write json error, %s", err)
@@ -164,8 +164,8 @@ func (v *VoiceConnection) Close() {
 
 	v.log(LogInformational, "called")
 
-	v.Lock()
-	defer v.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
 	v.Ready = false
 	v.speaking = false
@@ -212,8 +212,8 @@ func (v *VoiceConnection) Close() {
 
 // AddHandler adds a Handler for VoiceSpeakingUpdate events.
 func (v *VoiceConnection) AddHandler(h VoiceSpeakingUpdateHandler) {
-	v.Lock()
-	defer v.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
 	v.voiceSpeakingUpdateHandlers = append(v.voiceSpeakingUpdateHandlers, h)
 }
@@ -253,9 +253,9 @@ func (v *VoiceConnection) waitUntilConnected() error {
 
 	i := 0
 	for {
-		v.RLock()
+		v.mutex.RLock()
 		ready := v.Ready
-		v.RUnlock()
+		v.mutex.RUnlock()
 		if ready {
 			return nil
 		}
@@ -276,8 +276,8 @@ func (v *VoiceConnection) open() (err error) {
 
 	v.log(LogInformational, "called")
 
-	v.Lock()
-	defer v.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
 	// Don't open a websocket if one is already open
 	if v.wsConn != nil {
@@ -348,9 +348,9 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			// Detect if we have been closed manually. If a Close() has already
 			// happened, the websocket we are listening on will be different to the
 			// current session.
-			v.RLock()
+			v.mutex.RLock()
 			sameConnection := v.wsConn == wsConn
-			v.RUnlock()
+			v.mutex.RUnlock()
 			if sameConnection {
 
 				v.log(LogError, "voice endpoint %s websocket closed unexpectantly, %s", v.endpoint, err)
@@ -426,8 +426,8 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		return
 
 	case 4: // udp encryption secret key
-		v.Lock()
-		defer v.Unlock()
+		v.mutex.Lock()
+		defer v.mutex.Unlock()
 
 		v.op4 = voiceOP4{}
 		if err := json.Unmarshal(e.RawData, &v.op4); err != nil {
@@ -523,8 +523,8 @@ type voiceUDPOp struct {
 // from voice.wsEvent OP2
 func (v *VoiceConnection) udpOpen() (err error) {
 
-	v.Lock()
-	defer v.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
 	if v.wsConn == nil {
 		return fmt.Errorf("nil voice websocket")
@@ -659,13 +659,13 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 	// VoiceConnection is now ready to receive audio packets
 	// TODO: this needs reviewed as I think there must be a better way.
-	v.Lock()
+	v.mutex.Lock()
 	v.Ready = true
-	v.Unlock()
+	v.mutex.Unlock()
 	defer func() {
-		v.Lock()
+		v.mutex.Lock()
 		v.Ready = false
-		v.Unlock()
+		v.mutex.Unlock()
 	}()
 
 	var sequence uint16
@@ -696,9 +696,9 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 			// else, continue loop
 		}
 
-		v.RLock()
+		v.mutex.RLock()
 		speaking := v.speaking
-		v.RUnlock()
+		v.mutex.RUnlock()
 		if !speaking {
 			err := v.Speaking(true)
 			if err != nil {
@@ -712,9 +712,9 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 		// encrypt the opus data
 		copy(nonce[:], udpHeader)
-		v.RLock()
+		v.mutex.RLock()
 		sendbuf := secretbox.Seal(udpHeader, recvbuf, &nonce, &v.op4.SecretKey)
-		v.RUnlock()
+		v.mutex.RUnlock()
 
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
@@ -774,9 +774,9 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 			// Detect if we have been closed manually. If a Close() has already
 			// happened, the udp connection we are listening on will be different
 			// to the current session.
-			v.RLock()
+			v.mutex.RLock()
 			sameConnection := v.udpConn == udpConn
-			v.RUnlock()
+			v.mutex.RUnlock()
 			if sameConnection {
 
 				v.log(LogError, "udp read error, %s, %s", v.endpoint, err)
@@ -833,14 +833,14 @@ func (v *VoiceConnection) reconnect() {
 
 	v.log(LogInformational, "called")
 
-	v.Lock()
+	v.mutex.Lock()
 	if v.reconnecting {
 		v.log(LogInformational, "already reconnecting to channel %s, exiting", v.ChannelID)
-		v.Unlock()
+		v.mutex.Unlock()
 		return
 	}
 	v.reconnecting = true
-	v.Unlock()
+	v.mutex.Unlock()
 
 	defer func() { v.reconnecting = false }()
 

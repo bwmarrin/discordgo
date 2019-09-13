@@ -18,7 +18,7 @@ type customRateLimit struct {
 
 // RateLimiter holds all ratelimit buckets
 type RateLimiter struct {
-	sync.Mutex
+	mutex            sync.Mutex
 	global           *int64
 	buckets          map[string]*Bucket
 	globalRateLimit  time.Duration
@@ -43,8 +43,8 @@ func NewRatelimiter() *RateLimiter {
 
 // GetBucket retrieves or creates a bucket
 func (r *RateLimiter) GetBucket(key string) *Bucket {
-	r.Lock()
-	defer r.Unlock()
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 
 	if bucket, ok := r.buckets[key]; ok {
 		return bucket
@@ -92,7 +92,7 @@ func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 
 // LockBucketObject Locks an already resolved bucket until a request can be made
 func (r *RateLimiter) LockBucketObject(b *Bucket) *Bucket {
-	b.Lock()
+	b.mutex.Lock()
 
 	if wait := r.GetWaitTime(b, 1); wait > 0 {
 		time.Sleep(wait)
@@ -104,7 +104,7 @@ func (r *RateLimiter) LockBucketObject(b *Bucket) *Bucket {
 
 // Bucket represents a ratelimit bucket, each bucket gets ratelimited individually (-global ratelimits)
 type Bucket struct {
-	sync.Mutex
+	mutex     sync.Mutex
 	Key       string
 	Remaining int
 	limit     int
@@ -119,7 +119,7 @@ type Bucket struct {
 // Release unlocks the bucket and reads the headers to update the buckets ratelimit info
 // and locks up the whole thing in case if there's a global ratelimit.
 func (b *Bucket) Release(headers http.Header) error {
-	defer b.Unlock()
+	defer b.mutex.Unlock()
 
 	// Check if the bucket uses a custom ratelimiter
 	if rl := b.customRateLimit; rl != nil {

@@ -606,13 +606,13 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 		s.Unlock()
 	}
 
-	voice.Lock()
+	voice.mutex.Lock()
 	voice.GuildID = gID
 	voice.ChannelID = cID
 	voice.deaf = deaf
 	voice.mute = mute
 	voice.session = s
-	voice.Unlock()
+	voice.mutex.Unlock()
 
 	err = s.ChannelVoiceJoinManual(gID, cID, mute, deaf)
 	if err != nil {
@@ -679,11 +679,11 @@ func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 	}
 
 	// Store the SessionID for later use.
-	voice.Lock()
+	voice.mutex.Lock()
 	voice.UserID = st.UserID
 	voice.sessionID = st.SessionID
 	voice.ChannelID = st.ChannelID
-	voice.Unlock()
+	voice.mutex.Unlock()
 }
 
 // onVoiceServerUpdate handles the Voice Server Update data websocket event.
@@ -709,11 +709,11 @@ func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 	voice.Close()
 
 	// Store values for later use
-	voice.Lock()
+	voice.mutex.Lock()
 	voice.token = st.Token
 	voice.endpoint = st.Endpoint
 	voice.GuildID = st.GuildID
-	voice.Unlock()
+	voice.mutex.Unlock()
 
 	// Open a connection to the voice server
 	err := voice.open()
