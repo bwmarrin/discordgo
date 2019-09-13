@@ -55,8 +55,8 @@ func (s *Session) Open() error {
 
 	// Prevent Open or other major Session functions from
 	// being called while Open is still running.
-	s.Lock()
-	defer s.Unlock()
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
 	// If the websock is already open, bail out here.
 	if s.wsConn != nil {
@@ -188,9 +188,9 @@ func (s *Session) Open() error {
 
 	// A VoiceConnections map is a hard requirement for Voice.
 	// XXX: can this be moved to when opening a voice connection?
-	if s.VoiceConnections == nil {
+	if s.voiceConnections == nil {
 		s.log(LogInformational, "creating new VoiceConnections map")
-		s.VoiceConnections = make(map[string]*VoiceConnection)
+		s.voiceConnections = make(map[string]*VoiceConnection)
 	}
 
 	// Create listening chan outside of listen, as it needs to happen inside the
@@ -221,9 +221,9 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			// Detect if we have been closed manually. If a Close() has already
 			// happened, the websocket we are listening on will be different to
 			// the current session.
-			s.RLock()
+			s.mutex.RLock()
 			sameConnection := s.wsConn == wsConn
-			s.RUnlock()
+			s.mutex.RUnlock()
 
 			if sameConnection {
 
@@ -289,9 +289,9 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	defer ticker.Stop()
 
 	for {
-		s.RLock()
+		s.mutex.RLock()
 		last := s.LastHeartbeatAck
-		s.RUnlock()
+		s.mutex.RUnlock()
 		sequence := atomic.LoadInt64(s.sequence)
 		s.log(LogDebug, "sending gateway websocket heartbeat seq %d", sequence)
 		s.wsMutex.Lock()
@@ -308,9 +308,9 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 			s.reconnect()
 			return
 		}
-		s.Lock()
+		s.mutex.Lock()
 		s.DataReady = true
-		s.Unlock()
+		s.mutex.Unlock()
 
 		select {
 		case <-ticker.C:
@@ -385,8 +385,8 @@ func (s *Session) UpdateListeningStatus(game string) (err error) {
 // UpdateStatusComplex allows for sending the raw status update data untouched by discordgo.
 func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 
-	s.RLock()
-	defer s.RUnlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 	if s.wsConn == nil {
 		return ErrWSNotFound
 	}
@@ -417,8 +417,8 @@ type requestGuildMembersOp struct {
 func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
 	s.log(LogInformational, "called")
 
-	s.RLock()
-	defer s.RUnlock()
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 	if s.wsConn == nil {
 		return ErrWSNotFound
 	}
@@ -524,9 +524,9 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	}
 
 	if e.Operation == 11 {
-		s.Lock()
+		s.mutex.Lock()
 		s.LastHeartbeatAck = time.Now().UTC()
-		s.Unlock()
+		s.mutex.Unlock()
 		s.log(LogDebug, "got heartbeat ACK")
 		return e, nil
 	}
@@ -595,15 +595,15 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 
 	s.log(LogInformational, "called")
 
-	s.RLock()
-	voice, _ = s.VoiceConnections[gID]
-	s.RUnlock()
+	s.mutex.RLock()
+	voice, _ = s.voiceConnections[gID]
+	s.mutex.RUnlock()
 
 	if voice == nil {
 		voice = &VoiceConnection{}
-		s.Lock()
-		s.VoiceConnections[gID] = voice
-		s.Unlock()
+		s.mutex.Lock()
+		s.voiceConnections[gID] = voice
+		s.mutex.Unlock()
 	}
 
 	voice.mutex.Lock()
@@ -666,9 +666,9 @@ func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 	}
 
 	// Check if we have a voice connection to update
-	s.RLock()
-	voice, exists := s.VoiceConnections[st.GuildID]
-	s.RUnlock()
+	s.mutex.RLock()
+	voice, exists := s.voiceConnections[st.GuildID]
+	s.mutex.RUnlock()
 	if !exists {
 		return
 	}
@@ -695,9 +695,9 @@ func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 
 	s.log(LogInformational, "called")
 
-	s.RLock()
-	voice, exists := s.VoiceConnections[st.GuildID]
-	s.RUnlock()
+	s.mutex.RLock()
+	voice, exists := s.voiceConnections[st.GuildID]
+	s.mutex.RUnlock()
 
 	// If no VoiceConnection exists, just skip this
 	if !exists {
@@ -800,9 +800,9 @@ func (s *Session) reconnect() {
 				// However, there seems to be cases where something "weird"
 				// happens.  So we're doing this for now just to improve
 				// stability in those edge cases.
-				s.RLock()
-				defer s.RUnlock()
-				for _, v := range s.VoiceConnections {
+				s.mutex.RLock()
+				defer s.mutex.RUnlock()
+				for _, v := range s.voiceConnections {
 
 					s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
 					go v.reconnect()
@@ -838,7 +838,7 @@ func (s *Session) reconnect() {
 func (s *Session) Close() (err error) {
 
 	s.log(LogInformational, "called")
-	s.Lock()
+	s.mutex.Lock()
 
 	s.DataReady = false
 
@@ -875,7 +875,7 @@ func (s *Session) Close() (err error) {
 		s.wsConn = nil
 	}
 
-	s.Unlock()
+	s.mutex.Unlock()
 
 	s.log(LogInformational, "emit disconnect event")
 	s.handleEvent(disconnectEventType, &Disconnect{})

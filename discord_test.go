@@ -103,12 +103,12 @@ func TestOpenClose(t *testing.T) {
 	// this is totally gross.
 	start := time.Now()
 	for {
-		d.RLock()
+		d.mutex.RLock()
 		if d.DataReady {
-			d.RUnlock()
+			d.mutex.RUnlock()
 			break
 		}
-		d.RUnlock()
+		d.mutex.RUnlock()
 
 		if time.Since(start) > 10*time.Second {
 			t.Fatal("DataReady never became true.yy")

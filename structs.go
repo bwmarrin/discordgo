@@ -24,7 +24,7 @@ import (
 
 // A Session represents a connection to the Discord API.
 type Session struct {
-	sync.RWMutex
+	mutex sync.RWMutex
 
 	// General configurable settings.
 
@@ -74,7 +74,7 @@ type Session struct {
 	UDPReady bool // NOTE: Deprecated
 
 	// Stores a mapping of guild id's to VoiceConnections
-	VoiceConnections map[string]*VoiceConnection
+	voiceConnections map[string]*VoiceConnection
 
 	// Managed state object, updated internally with events when
 	// StateEnabled is true.
@@ -117,6 +117,18 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+}
+
+// VoiceConnections returns a map of guild id's to VoiceConnections
+func (s *Session) VoiceConnections() map[string]*VoiceConnection {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	voiceConnections := make(map[string]*VoiceConnection, len(s.voiceConnections))
+	for k, v := range s.voiceConnections {
+		voiceConnections[k] = v
+	}
+	return voiceConnections
 }
 
 // UserConnection is a Connection returned from the UserConnections endpoint
