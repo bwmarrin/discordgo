@@ -257,6 +257,10 @@ type Channel struct {
 
 	// The ID of the parent channel, if the channel is under a category
 	ParentID string `json:"parent_id"`
+
+	// Amount of seconds a user has to wait before sending another message (0-21600)
+	// bots, as well as users with the permission manage_messages or manage_channel, are unaffected
+	RateLimitPerUser int `json:"rate_limit_per_user"`
 }
 
 // Mention returns a string which mentions the channel
