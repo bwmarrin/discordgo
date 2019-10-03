@@ -267,6 +267,7 @@ type MessageActivity struct {
 // MessageActivityType is the type of message activity
 type MessageActivityType int
 
+// Constants for the different types of Message Activity
 const (
 	MessageActivityTypeJoin = iota + 1
 	MessageActivityTypeSpectate
