@@ -277,7 +277,7 @@ type ChannelEdit struct {
 	Bitrate              int                    `json:"bitrate,omitempty"`
 	UserLimit            int                    `json:"user_limit,omitempty"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             string                 `json:"parent_id,omitempty"`
+	ParentID             *NullString            `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                    `json:"rate_limit_per_user,omitempty"`
 }
 
@@ -1036,3 +1036,18 @@ const (
 
 	ErrCodeReactionBlocked = 90001
 )
+
+// NullString is a custom String type to allow for optional modifying strings that can be reset
+// the JSON Marshalling encoding is unique:
+// if the string is empty, it will be encoded as null
+// if the string is not empty, it will be encoded as a string
+type NullString string
+
+// MarshalJSON returns the JSON encoding of the NullString
+func (s NullString) MarshalJSON() ([]byte, error) {
+	if s == "" {
+		return json.Marshal(nil)
+	}
+
+	return json.Marshal(string(s))
+}
