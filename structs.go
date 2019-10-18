@@ -327,12 +327,13 @@ func (e *Emoji) APIName() string {
 // VerificationLevel type definition
 type VerificationLevel int
 
-// Constants for VerificationLevel levels from 0 to 3 inclusive
+// Constants for VerificationLevel levels from 0 to 4 inclusive
 const (
 	VerificationLevelNone VerificationLevel = iota
 	VerificationLevelLow
 	VerificationLevelMedium
 	VerificationLevelHigh
+	VerificationLevelVeryHigh
 )
 
 // ExplicitContentFilterLevel type definition
@@ -1015,7 +1016,7 @@ const (
 	ErrCodeMissingAccess                             = 50001
 	ErrCodeInvalidAccountType                        = 50002
 	ErrCodeCannotExecuteActionOnDMChannel            = 50003
-	ErrCodeEmbedCisabled                             = 50004
+	ErrCodeEmbedDisabled                             = 50004
 	ErrCodeCannotEditFromAnotherUser                 = 50005
 	ErrCodeCannotSendEmptyMessage                    = 50006
 	ErrCodeCannotSendMessagesToThisUser              = 50007
