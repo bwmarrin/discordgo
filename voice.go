@@ -243,7 +243,7 @@ type voiceOP2 struct {
 	Port              int           `json:"port"`
 	Modes             []string      `json:"modes"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	Ip                string        `json:"ip"`
+	IP                string        `json:"ip"`
 }
 
 // WaitUntilConnected waits for the Voice Connection to
@@ -543,7 +543,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return fmt.Errorf("empty endpoint")
 	}
 
-	host := v.op2.Ip + ":" + strconv.Itoa(v.op2.Port)
+	host := v.op2.IP + ":" + strconv.Itoa(v.op2.Port)
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
 		v.log(LogWarning, "error resolving udp host %s, %s", host, err)
