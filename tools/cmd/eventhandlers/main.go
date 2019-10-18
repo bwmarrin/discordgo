@@ -92,7 +92,7 @@ func main() {
 
 	err = ioutil.WriteFile(filepath.Join(dir, strings.ToLower("eventhandlers.go")), src, 0644)
 	if err != nil {
-		log.Fatal(buf, "writing output: %s", err)
+		log.Fatalf("%s\nCould not write output: %s", buf.Bytes(), err)
 	}
 }
 
