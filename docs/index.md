@@ -30,4 +30,4 @@ information and support for DiscordGo.  There's also a chance to make some
 friends :)
 
 * Join the [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP) chat server dedicated to Go programming.
-* Join the [Discord API](https://discord.gg/0SBTUU1wZTWT6sqd) chat server dedicated to the Discord API.
+* Join the [Discord API](https://discordapp.com/invite/discord-API) chat server dedicated to the Discord API.
