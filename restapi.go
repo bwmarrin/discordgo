@@ -41,6 +41,22 @@ var (
 	ErrUnauthorized            = errors.New("HTTP request was unauthorized. This could be because the provided token was not a bot token. Please add \"Bot \" to the start of your token. https://discordapp.com/developers/docs/reference#authentication-example-bot-token-authorization-header")
 )
 
+
+// NullString is a custom String type to allow for optional modifying strings that can be reset
+// the JSON Marshalling encoding is unique:
+// if the string is empty, it will be encoded as null
+// if the string is not empty, it will be encoded as a string
+type NullString string
+
+// MarshalJSON returns the JSON encoding of the NullString
+func (s NullString) MarshalJSON() ([]byte, error) {
+	if s == "" {
+		return json.Marshal(nil)
+	}
+
+	return json.Marshal(string(s))
+}
+
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
@@ -826,16 +842,20 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 	return
 }
 
+// GuildMemberEditData holds all optional parameters for the GuildMemberEdit function.
+type GuildMemberEditData struct {
+	Nick      string      `json:"nick,omitempty"`
+	Roles     []string    `json:"roles,omitempty"`
+	Mute      bool        `json:"mute,omitempty"`
+	Deaf      bool        `json:"deaf,omitempty"`
+	ChannelID *NullString `json:"channel_id,omitempty"`
+}
+
 // GuildMemberEdit edits the roles of a member.
-// guildID  : The ID of a Guild.
-// userID   : The ID of a User.
-// roles    : A list of role ID's to set on the member.
-func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
-
-	data := struct {
-		Roles []string `json:"roles"`
-	}{roles}
-
+// guildID : The ID of a Guild.
+// userID  : The ID of a User.
+// data    : A struct of data that can be changed with this endpoint.
+func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberEditData) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
 		return
@@ -851,10 +871,38 @@ func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err e
 // NOTE : I am not entirely set on the name of this function and it may change
 // prior to the final 1.0.0 release of Discordgo
 func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error) {
+	ns := NullString(channelID)
+	data := GuildMemberEditData{ChannelID:&ns}
 
-	data := struct {
-		ChannelID string `json:"channel_id"`
-	}{channelID}
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// GuildMemberMute either mutes or unmutes a user in a voice channel.
+//  guildID : The ID of a Guild.
+//  userID  : The ID of a User.
+//  mute    : Whether the user gets muted.
+func (s *Session) GuildMemberMute(guildID, userID string, mute bool) (err error) {
+	data := GuildMemberEditData{Mute:mute}
+
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// GuildMemberDeafen either deafens or undeafens a user in a voice channel.
+//  guildID : The ID of a Guild.
+//  userID  : The ID of a User.
+//  deaf    : Whether the user gets deafened.
+func (s *Session) GuildMemberDeafen(guildID, userID string, deaf bool) (err error) {
+	data := GuildMemberEditData{Deaf:deaf}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
