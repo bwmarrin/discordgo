@@ -41,7 +41,6 @@ var (
 	ErrUnauthorized            = errors.New("HTTP request was unauthorized. This could be because the provided token was not a bot token. Please add \"Bot \" to the start of your token. https://discordapp.com/developers/docs/reference#authentication-example-bot-token-authorization-header")
 )
 
-
 // NullString is a custom String type to allow for optional modifying strings that can be reset
 // the JSON Marshalling encoding is unique:
 // if the string is empty, it will be encoded as null
@@ -872,7 +871,7 @@ func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberEditDa
 // prior to the final 1.0.0 release of Discordgo
 func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error) {
 	ns := NullString(channelID)
-	data := GuildMemberEditData{ChannelID:&ns}
+	data := GuildMemberEditData{ChannelID: &ns}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -887,7 +886,7 @@ func (s *Session) GuildMemberMove(guildID, userID, channelID string) (err error)
 //  userID  : The ID of a User.
 //  mute    : Whether the user gets muted.
 func (s *Session) GuildMemberMute(guildID, userID string, mute bool) (err error) {
-	data := GuildMemberEditData{Mute:mute}
+	data := GuildMemberEditData{Mute: mute}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -902,7 +901,7 @@ func (s *Session) GuildMemberMute(guildID, userID string, mute bool) (err error)
 //  userID  : The ID of a User.
 //  deaf    : Whether the user gets deafened.
 func (s *Session) GuildMemberDeafen(guildID, userID string, deaf bool) (err error) {
-	data := GuildMemberEditData{Deaf:deaf}
+	data := GuildMemberEditData{Deaf: deaf}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
