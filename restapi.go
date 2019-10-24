@@ -42,7 +42,7 @@ var (
 )
 
 type requestHeader struct {
-    key, val string
+	key, val string
 }
 
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
