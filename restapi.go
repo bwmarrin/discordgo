@@ -46,8 +46,13 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
 }
 
-// RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
+// Request is the same as RequestWithBucketID without a reason.
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
+	return s.RequestWithBucketIDWithReason(method, urlStr, data, bucketID, "")
+}
+
+// RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
+func (s *Session) RequestWithBucketIDWithReason(method, urlStr string, data interface{}, bucketID, reason string) (response []byte, err error) {
 	var body []byte
 	if data != nil {
 		body, err = json.Marshal(data)
@@ -56,21 +61,21 @@ func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, b
 		}
 	}
 
-	return s.request(method, urlStr, "application/json", body, bucketID, 0)
+	return s.request(method, urlStr, "application/json", body, bucketID, 0, reason)
 }
 
 // request makes a (GET/POST/...) Requests to Discord REST API.
 // Sequence is the sequence number, if it fails with a 502 it will
 // retry with sequence+1 until it either succeeds or sequence >= session.MaxRestRetries
-func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID string, sequence int) (response []byte, err error) {
+func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID string, sequence int, reason string) (response []byte, err error) {
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
+	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence, reason)
 }
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked
-func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, reason string) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -90,8 +95,10 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 
 	req.Header.Set("Content-Type", contentType)
 	// TODO: Make a configurable static variable.
+	if reason != "" {
+		req.Header.Set("X-Audit-Log-Reason", reason)
+	}
 	req.Header.Set("User-Agent", s.UserAgent)
-
 	if s.Debug {
 		for k, v := range req.Header {
 			log.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
@@ -138,7 +145,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		if sequence < s.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1, reason)
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
@@ -156,7 +163,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
-		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence, reason)
 	case http.StatusUnauthorized:
 		if strings.Index(s.Token, "Bot ") != 0 {
 			s.log(LogInformational, ErrUnauthorized.Error())
@@ -887,9 +894,16 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be assigned to the user.
 func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error) {
+	return s.GuildMemberRoleAddWithReason(guildID, userID, roleID, "")
+}
 
-	_, err = s.RequestWithBucketID("PUT", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
-
+// GuildMemberRoleAddWithReason adds the specified role to a given member
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  roleID 	  : The ID of a Role to be assigned to the user.
+//  reason    : The reason for Role to be assigned. (Appears in Audit Log).
+func (s *Session) GuildMemberRoleAddWithReason(guildID, userID, roleID, reason string) (err error) {
+	_, err = s.RequestWithBucketIDWithReason("PUT", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""), reason)
 	return
 }
 
@@ -898,9 +912,17 @@ func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error)
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be removed from the user.
 func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err error) {
+	return s.GuildMemberRoleRemoveWithReason(guildID, userID, roleID, "")
+}
 
-	_, err = s.RequestWithBucketID("DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
 
+// GuildMemberRoleRemoveWithReason removes the specified role to a given member
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  roleID 	  : The ID of a Role to be removed from the user.
+//  reason    : The reason for Role to be removed. (Appears in Audit Log).
+func (s *Session) GuildMemberRoleRemoveWithReason(guildID, userID, roleID, reason string) (err error) {
+	_, err = s.RequestWithBucketIDWithReason("DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""), reason)
 	return
 }
 
@@ -909,7 +931,7 @@ func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err err
 // guildID   : The ID of a Guild.
 func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 
-	body, err := s.request("GET", EndpointGuildChannels(guildID), "", nil, EndpointGuildChannels(guildID), 0)
+	body, err := s.request("GET", EndpointGuildChannels(guildID), "", nil, EndpointGuildChannels(guildID), 0, "")
 	if err != nil {
 		return
 	}
@@ -1570,7 +1592,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 			return
 		}
 
-		response, err = s.request("POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0)
+		response, err = s.request("POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0, "")
 	} else {
 		response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
 	}
