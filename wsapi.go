@@ -400,8 +400,8 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 
 type requestGuildMembersData struct {
 	GuildID []string `json:"guild_id"`
-	Query   string `json:"query"`
-	Limit   int    `json:"limit"`
+	Query   string   `json:"query"`
+	Limit   int      `json:"limit"`
 }
 
 type requestGuildMembersOp struct {
