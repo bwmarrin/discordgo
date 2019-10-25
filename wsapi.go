@@ -399,7 +399,7 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildID string `json:"guild_id"`
+	GuildID []string `json:"guild_id"`
 	Query   string `json:"query"`
 	Limit   int    `json:"limit"`
 }
@@ -411,10 +411,10 @@ type requestGuildMembersOp struct {
 
 // RequestGuildMembers requests guild members from the gateway
 // The gateway responds with GuildMembersChunk events
-// guildID  : The ID of the guild to request members of
+// guildID  : Slice of guild IDs to request members of
 // query    : String that username starts with, leave empty to return all members
 // limit    : Max number of items to return, or 0 to request all members matched
-func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
+func (s *Session) RequestGuildMembers(guildID []string, query string, limit int) (err error) {
 	s.log(LogInformational, "called")
 
 	s.RLock()
