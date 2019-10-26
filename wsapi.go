@@ -399,9 +399,10 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildID []string `json:"guild_id"`
-	Query   string   `json:"query"`
-	Limit   int      `json:"limit"`
+	GuildID  string   `json:"guild_id"`
+	GuildIDs []string `json:"guild_id"`
+	Query    string   `json:"query"`
+	Limit    int      `json:"limit"`
 }
 
 type requestGuildMembersOp struct {
@@ -411,10 +412,35 @@ type requestGuildMembersOp struct {
 
 // RequestGuildMembers requests guild members from the gateway
 // The gateway responds with GuildMembersChunk events
+// guildID  : Single Guild ID to request members of
+// query    : String that username starts with, leave empty to return all members
+// limit    : Max number of items to return, or 0 to request all members matched
+func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (err error) {
+	data := requestGuildMembersData{
+		GuildID: guildID,
+		Query:   query,
+		Limit:   limit,
+	}
+	err = s.requestGuildMember(&data)
+	return err
+}
+
+// RequestGuildMembersBatch requests guild members from the gateway
+// The gateway responds with GuildMembersChunk events
 // guildID  : Slice of guild IDs to request members of
 // query    : String that username starts with, leave empty to return all members
 // limit    : Max number of items to return, or 0 to request all members matched
-func (s *Session) RequestGuildMembers(guildID []string, query string, limit int) (err error) {
+func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int) (err error) {
+	data := requestGuildMembersData{
+		GuildIDs: guildIDs,
+		Query:    query,
+		Limit:    limit,
+	}
+	err = s.requestGuildMember(&data)
+	return err
+}
+
+func (s *Session) requestGuildMember(data *requestGuildMembersData) (err error) {
 	s.log(LogInformational, "called")
 
 	s.RLock()
@@ -423,17 +449,11 @@ func (s *Session) RequestGuildMembers(guildID []string, query string, limit int)
 		return ErrWSNotFound
 	}
 
-	data := requestGuildMembersData{
-		GuildID: guildID,
-		Query:   query,
-		Limit:   limit,
-	}
-
 	s.wsMutex.Lock()
-	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
+	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, *data})
 	s.wsMutex.Unlock()
 
-	return
+	return err
 }
 
 // onEvent is the "event handler" for all messages received on the
