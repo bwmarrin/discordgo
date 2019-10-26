@@ -449,7 +449,7 @@ func (s *Session) requestGuildMember(data requestGuildMembersData) (err error) {
 	}
 
 	s.wsMutex.Lock()
-	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
+	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, *data})
 	s.wsMutex.Unlock()
 
 	return err
