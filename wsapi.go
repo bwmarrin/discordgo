@@ -417,8 +417,8 @@ type requestGuildMembersOp struct {
 func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (err error) {
 	data := requestGuildMembersData{
 		GuildIDs: []string{guildID},
-		Query:   query,
-		Limit:   limit,
+		Query:    query,
+		Limit:    limit,
 	}
 	err = s.requestGuildMember(data)
 	return err
