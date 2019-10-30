@@ -1145,19 +1145,10 @@ func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, e
 }
 
 // GuildRoleDelete deletes an existing role.
-// guildID     : The ID of a Guild.
-// roleID      : The ID of a Role.
-// auditReason : Optional reason that will appear in the audit log entry.
-func (s *Session) GuildRoleDelete(guildID, roleID string, auditReason ...string) (err error) {
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
-	_, err = s.requestWithBucketID("DELETE", EndpointGuildRole(guildID, roleID), nil, EndpointGuildRole(guildID, ""), oh)
+// guildID : The ID of a Guild.
+// roleID  : The ID of a Role.
+func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointGuildRole(guildID, roleID), nil, EndpointGuildRole(guildID, ""))
 	return
 }
 
@@ -1166,7 +1157,7 @@ func (s *Session) GuildRoleDelete(guildID, roleID string, auditReason ...string)
 // guildID     : The ID of a Guild.
 // days        : The number of days to count prune for (1 or more).
 // auditReason : Optional reason that will appear in the audit log entry.
-func (s *Session) GuildPruneCount(guildID string, days uint32, auditReason ...string) (count uint32, err error) {
+func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, err error) {
 	count = 0
 
 	if days <= 0 {
@@ -1178,16 +1169,8 @@ func (s *Session) GuildPruneCount(guildID string, days uint32, auditReason ...st
 		Pruned uint32 `json:"pruned"`
 	}{}
 
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
 	uri := EndpointGuildPrune(guildID) + "?days=" + strconv.FormatUint(uint64(days), 10)
-	body, err := s.requestWithBucketID("GET", uri, nil, EndpointGuildPrune(guildID), oh)
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildPrune(guildID))
 	if err != nil {
 		return
 	}
@@ -1469,19 +1452,10 @@ func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string, 
 }
 
 // GuildEmojiDelete deletes an Emoji.
-// guildID     : The ID of a Guild.
-// emojiID     : The ID of an Emoji.
-// auditReason : Optional reason that will appear in the audit log entry.
-func (s *Session) GuildEmojiDelete(guildID, emojiID string, auditReason ...string) (err error) {
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
-	_, err = s.requestWithBucketID("DELETE", EndpointGuildEmoji(guildID, emojiID), nil, EndpointGuildEmojis(guildID), oh)
+// guildID : The ID of a Guild.
+// emojiID : The ID of an Emoji.
+func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointGuildEmoji(guildID, emojiID), nil, EndpointGuildEmojis(guildID))
 	return
 }
 
@@ -1534,18 +1508,9 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit, auditR
 }
 
 // ChannelDelete deletes the given channel
-// channelID   : The ID of a Channel
-// auditReason : Optional reason that will appear in the audit log entry.
-func (s *Session) ChannelDelete(channelID string, auditReason ...string) (st *Channel, err error) {
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
-	body, err := s.requestWithBucketID("DELETE", EndpointChannel(channelID), nil, EndpointChannel(channelID), oh)
+// channelID : The ID of a Channel
+func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
+	body, err := s.RequestWithBucketID("DELETE", EndpointChannel(channelID), nil, EndpointChannel(channelID))
 	if err != nil {
 		return
 	}
@@ -1930,16 +1895,8 @@ func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, a
 
 // ChannelPermissionDelete deletes a specific permission override for the given channel.
 // NOTE: Name of this func may change.
-func (s *Session) ChannelPermissionDelete(channelID, targetID string, auditReason ...string) (err error) {
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
-	_, err = s.requestWithBucketID("DELETE", EndpointChannelPermission(channelID, targetID), nil, EndpointChannelPermission(channelID, ""), oh)
+func (s *Session) ChannelPermissionDelete(channelID, targetID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointChannelPermission(channelID, targetID), nil, EndpointChannelPermission(channelID, ""))
 	return
 }
 
@@ -1974,18 +1931,9 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 }
 
 // InviteDelete deletes an existing invite
-// inviteID    : the code of an invite
-// auditReason : Optional reason for the audit log entry.
-func (s *Session) InviteDelete(inviteID string, auditReason ...string) (st *Invite, err error) {
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
-	body, err := s.requestWithBucketID("DELETE", EndpointInvite(inviteID), nil, EndpointInvite(""), oh)
+// inviteID : the code of an invite
+func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
+	body, err := s.RequestWithBucketID("DELETE", EndpointInvite(inviteID), nil, EndpointInvite(""))
 	if err != nil {
 		return
 	}
@@ -2232,18 +2180,9 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 }
 
 // WebhookDelete deletes a webhook for a given ID
-// webhookID   : The ID of a webhook.
-// auditReason : Optional reason that will appear in the audit log entry.
-func (s *Session) WebhookDelete(webhookID string, auditReason ...string) (err error) {
-	var oh []requestHeader
-	if len(auditReason) > 0 {
-		oh = []requestHeader{requestHeader{
-			key: "X-Audit-Log-Reason",
-			val: auditReason[0],
-		}}
-	}
-
-	_, err = s.requestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks, oh)
+// webhookID : The ID of a webhook.
+func (s *Session) WebhookDelete(webhookID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointWebhook(webhookID), nil, EndpointWebhooks)
 	return
 }
 
