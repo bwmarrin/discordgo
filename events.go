@@ -59,6 +59,8 @@ type ChannelCreate struct {
 // ChannelUpdate is the data for a ChannelUpdate event.
 type ChannelUpdate struct {
 	*Channel
+	// BeforeUpdate will be nil if the Guild was not previously cached in the state cache.
+	BeforeUpdate *Channel `json:"-"`
 }
 
 // ChannelDelete is the data for a ChannelDelete event.
@@ -81,6 +83,8 @@ type GuildCreate struct {
 // GuildUpdate is the data for a GuildUpdate event.
 type GuildUpdate struct {
 	*Guild
+	// BeforeUpdate will be nil if the Guild was not previously cached in the state cache.
+	BeforeUpdate *Guild `json:"-"`
 }
 
 // GuildDelete is the data for a GuildDelete event.
@@ -108,6 +112,8 @@ type GuildMemberAdd struct {
 // GuildMemberUpdate is the data for a GuildMemberUpdate event.
 type GuildMemberUpdate struct {
 	*Member
+	// BeforeUpdate will be nil if the Member was not previously cached in the state cache.
+	BeforeUpdate *Member `json:"-"`
 }
 
 // GuildMemberRemove is the data for a GuildMemberRemove event.
@@ -123,6 +129,8 @@ type GuildRoleCreate struct {
 // GuildRoleUpdate is the data for a GuildRoleUpdate event.
 type GuildRoleUpdate struct {
 	*GuildRole
+	// BeforeUpdate will be nil if the Role was not previously cached in the state cache.
+	BeforeUpdate *Role `json:"-"`
 }
 
 // A GuildRoleDelete is the data for a GuildRoleDelete event.

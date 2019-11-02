@@ -810,6 +810,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *GuildCreate:
 		err = s.GuildAdd(t.Guild)
 	case *GuildUpdate:
+		var old *Guild
+		old, err = s.Guild(t.ID)
+		if err == nil {
+			oldCopy := *old
+			t.BeforeUpdate = &oldCopy
+		}
 		err = s.GuildAdd(t.Guild)
 	case *GuildDelete:
 		err = s.GuildRemove(t.Guild)
@@ -827,6 +833,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *GuildMemberUpdate:
 		if s.TrackMembers {
+			var old *Member
+			old, err = s.Member(t.GuildID, t.User.ID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeUpdate = &oldCopy
+			}
 			err = s.MemberAdd(t.Member)
 		}
 	case *GuildMemberRemove:
@@ -854,6 +866,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *GuildRoleUpdate:
 		if s.TrackRoles {
+			var old *Role
+			old, err = s.Role(t.GuildID, t.Role.ID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeUpdate = &oldCopy
+			}
 			err = s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleDelete:
@@ -870,6 +888,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *ChannelUpdate:
 		if s.TrackChannels {
+			var old *Channel
+			old, err = s.Channel(t.ID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeUpdate = &oldCopy
+			}
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ChannelDelete:
