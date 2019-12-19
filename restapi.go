@@ -78,7 +78,12 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 	return s.requestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence, optHeaders)
 }
 
-// requestWithLockedBucket makes a request using a bucket that's already been locked
+// RequestWithLockedBucket is the same as requestWithLockedBucket but without optional header support.
+func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+	return s.requestWithLockedBucket(method, urlStr, contentType, b, bucket, sequence, nil)
+}
+
+// requestWithLockedBucket makes a request using a bucket that's already been locked.
 func (s *Session) requestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, optHeaders []requestHeader) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
@@ -91,10 +96,8 @@ func (s *Session) requestWithLockedBucket(method, urlStr, contentType string, b 
 		return
 	}
 
-	if optHeaders != nil {
-		for opt := range optHeaders {
-			req.Header.Set(optHeaders[opt].key, optHeaders[opt].val)
-		}
+	for _, opt := range optHeaders {
+		req.Header.Set(opt.key, opt.val)
 	}
 
 	// Not used on initial login..
