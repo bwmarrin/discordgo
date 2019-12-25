@@ -398,6 +398,25 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 	return
 }
 
+// SendWSEvent allows for sending raw events to the websocket.
+func (s *Session) SendWSEvent(op int, data interface{}) (err error) {
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return ErrWSNotFound
+	}
+
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(&struct {
+		Op int         `json:"op"`
+		D  interface{} `json:"d"`
+	}{op, data})
+	s.wsMutex.Unlock()
+
+	return
+}
+
 type requestGuildMembersData struct {
 	GuildID string `json:"guild_id"`
 	Query   string `json:"query"`
