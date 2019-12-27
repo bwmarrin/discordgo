@@ -687,7 +687,7 @@ type Settings struct {
 	RenderEmbeds           bool               `json:"render_embeds"`
 	InlineEmbedMedia       bool               `json:"inline_embed_media"`
 	InlineAttachmentMedia  bool               `json:"inline_attachment_media"`
-	EnableTtsCommand       bool               `json:"enable_tts_command"`
+	EnableTTSCommand       bool               `json:"enable_tts_command"`
 	MessageDisplayCompact  bool               `json:"message_display_compact"`
 	ShowCurrentGame        bool               `json:"show_current_game"`
 	ConvertEmoticons       bool               `json:"convert_emoticons"`
