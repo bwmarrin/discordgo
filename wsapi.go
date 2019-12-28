@@ -421,7 +421,7 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (
 		Limit:    limit,
 	}
 	err = s.requestGuildMembers(data)
-	return err
+	return
 }
 
 // RequestGuildMembersBatch requests guild members from the gateway
@@ -436,7 +436,7 @@ func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limi
 		Limit:    limit,
 	}
 	err = s.requestGuildMembers(data)
-	return err
+	return
 }
 
 func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) {
@@ -452,7 +452,7 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
 	s.wsMutex.Unlock()
 
-	return err
+	return
 }
 
 // onEvent is the "event handler" for all messages received on the
