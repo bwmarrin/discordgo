@@ -420,7 +420,7 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (
 		Query:    query,
 		Limit:    limit,
 	}
-	err = s.requestGuildMember(data)
+	err = s.requestGuildMembers(data)
 	return err
 }
 
@@ -435,11 +435,11 @@ func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limi
 		Query:    query,
 		Limit:    limit,
 	}
-	err = s.requestGuildMember(data)
+	err = s.requestGuildMembers(data)
 	return err
 }
 
-func (s *Session) requestGuildMember(data requestGuildMembersData) (err error) {
+func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) {
 	s.log(LogInformational, "called")
 
 	s.RLock()
