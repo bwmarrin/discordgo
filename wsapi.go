@@ -399,9 +399,9 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildID string `json:"guild_id"`
-	Query   string `json:"query"`
-	Limit   int    `json:"limit"`
+	GuildIDs []string `json:"guild_id"`
+	Query    string   `json:"query"`
+	Limit    int      `json:"limit"`
 }
 
 type requestGuildMembersOp struct {
@@ -411,22 +411,41 @@ type requestGuildMembersOp struct {
 
 // RequestGuildMembers requests guild members from the gateway
 // The gateway responds with GuildMembersChunk events
-// guildID  : The ID of the guild to request members of
+// guildID  : Single Guild ID to request members of
 // query    : String that username starts with, leave empty to return all members
 // limit    : Max number of items to return, or 0 to request all members matched
-func (s *Session) RequestGuildMembers(guildID, query string, limit int) (err error) {
+func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (err error) {
+	data := requestGuildMembersData{
+		GuildIDs: []string{guildID},
+		Query:    query,
+		Limit:    limit,
+	}
+	err = s.requestGuildMembers(data)
+	return
+}
+
+// RequestGuildMembersBatch requests guild members from the gateway
+// The gateway responds with GuildMembersChunk events
+// guildID  : Slice of guild IDs to request members of
+// query    : String that username starts with, leave empty to return all members
+// limit    : Max number of items to return, or 0 to request all members matched
+func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int) (err error) {
+	data := requestGuildMembersData{
+		GuildIDs: guildIDs,
+		Query:    query,
+		Limit:    limit,
+	}
+	err = s.requestGuildMembers(data)
+	return
+}
+
+func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) {
 	s.log(LogInformational, "called")
 
 	s.RLock()
 	defer s.RUnlock()
 	if s.wsConn == nil {
 		return ErrWSNotFound
-	}
-
-	data := requestGuildMembersData{
-		GuildID: guildID,
-		Query:   query,
-		Limit:   limit,
 	}
 
 	s.wsMutex.Lock()
