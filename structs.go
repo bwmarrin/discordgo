@@ -29,8 +29,9 @@ type Session struct {
 	// General configurable settings.
 
 	// Authentication token for this session
-	Token string
-	MFA   bool
+	Token     string
+	MFA       bool
+	mfaTicket string
 
 	// Debug for printing JSON request/responses
 	Debug    bool // Deprecated, will be removed.
@@ -117,6 +118,20 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+}
+
+type TOTP struct {
+	Code          string    `json:"code"`
+	GiftCodeSkuID *struct{} `json:"gift_code_sku_id"` // dunno
+	LoginSource   *struct{} `json:"login_source"`     // dunno
+	Ticket        string    `json:"ticket"`
+}
+
+type LoginResponse struct {
+	MFA    bool   `json:"mfa"`
+	SMS    bool   `json:"sms"`
+	Ticket string `json:"ticket"`
+	Token  string `json:"token"`
 }
 
 // UserConnection is a Connection returned from the UserConnections endpoint

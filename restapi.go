@@ -196,11 +196,10 @@ func unmarshal(data []byte, v interface{}) error {
 // Also, doing any form of automation with a user (non Bot) account may result
 // in that account being permanently banned from Discord.
 func (s *Session) Login(email, password string) (err error) {
-
-	data := struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}{email, password}
+	data := Login{
+		Email:    email,
+		Password: password,
+	}
 
 	response, err := s.RequestWithBucketID("POST", EndpointLogin, data, EndpointLogin)
 	if err != nil {
@@ -220,6 +219,76 @@ func (s *Session) Login(email, password string) (err error) {
 	s.Token = temp.Token
 	s.MFA = temp.MFA
 	return
+}
+
+// LoginMFA tries to log in with or without a 2FA code. Only email and password
+// and required.
+func (s *Session) LoginMFA(email, password, mfa string) (err error) {
+	var login LoginResponse
+
+	if s.mfaTicket == "" {
+		data := Login{
+			Email:    email,
+			Password: password,
+		}
+
+		resp, err := s.RequestWithBucketID(
+			"POST", EndpointLogin, data, EndpointLogin,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		if err := unmarshal(resp, &login); err != nil {
+			return err
+		}
+	} else {
+		// Trigger the below TOTP call
+		login.MFA = true
+	}
+
+	if login.MFA {
+		if login.Ticket != "" {
+			s.mfaTicket = login.Ticket
+		}
+
+		if mfa != "" {
+			// An MFA ticket already exists, redundant to retry logging in
+			l, err := s.TOTP(s.mfaTicket, mfa)
+			if err != nil {
+				return err
+			}
+
+			login = *l
+		} else {
+			return ErrMFA
+		}
+	}
+
+	s.Token = login.Token
+	s.MFA = login.MFA
+	return
+}
+
+// TOTP finishes logging in by sending over the final 2FA code.
+func (s *Session) TOTP(ticket, code string) (*LoginResponse, error) {
+	totp := TOTP{code, nil, nil, ticket}
+
+	resp, err := s.RequestWithBucketID(
+		"POST", EndpointTOTP, totp, EndpointTOTP,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var login LoginResponse
+	if err = unmarshal(resp, &login); err != nil {
+		return nil, err
+	}
+
+	return &login, nil
 }
 
 // Register sends a Register request to Discord, and returns the authentication token

@@ -41,6 +41,7 @@ var (
 	EndpointCDNBanners      = EndpointCDN + "banners/"
 
 	EndpointAuth           = EndpointAPI + "auth/"
+	EndpointTOTP           = EndpointAuth + "mfa/totp"
 	EndpointLogin          = EndpointAuth + "login"
 	EndpointLogout         = EndpointAuth + "logout"
 	EndpointVerify         = EndpointAuth + "verify"

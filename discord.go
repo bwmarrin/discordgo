@@ -23,22 +23,43 @@ import (
 // VERSION of DiscordGo, follows Semantic Versioning. (http://semver.org/)
 const VERSION = "0.21.0-develop"
 
-// ErrMFA will be risen by New when the user has 2FA.
+// DefaultUserAgent is used when calling New().
+var DefaultUserAgent = "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")"
+
+// ErrMFA will be returned by New when the user has 2FA but is not given the
+// token.
 var ErrMFA = errors.New("account has 2FA enabled")
+
+// ErrFailedToken is returned if the Token is empty after authenticating.
+var ErrFailedToken = errors.New("Unable to fetch discord authentication token")
+
+type Login struct {
+	// Use either these 2
+	Email    string `json:"email"`
+	Password string `json:"password"`
+
+	// Optionally use this with these 2 above
+	MFA string `json:"-"`
+
+	// This can be used instead
+	Token string `json:"-"`
+}
 
 // New creates a new Discord session and will automate some startup
 // tasks if given enough information to do so.  Currently you can pass zero
 // arguments and it will return an empty Discord session.
-// There are 3 ways to call New:
+// There are 4 ways to call New:
 //     With a single auth token - All requests will use the token blindly,
 //         no verification of the token will be done and requests may fail.
 //         IF THE TOKEN IS FOR A BOT, IT MUST BE PREFIXED WITH `BOT `
 //         eg: `"Bot <token>"`
 //     With an email and password - Discord will sign in with the provided
 //         credentials.
-//     With an email, password and auth token - Discord will verify the auth
+//     With an email, password, and auth token - Discord will verify the auth
 //         token, if it is invalid it will sign in with the provided
 //         credentials. This is the Discord recommended way to sign in.
+//     With Login - refer to the comments in the struct. The behavior is similar
+//         to giving New an email, password, and auth token.
 //
 // NOTE: While email/pass authentication is supported by DiscordGo it is
 // HIGHLY DISCOURAGED by Discord. Please only use email/pass to obtain a token
@@ -58,7 +79,7 @@ func New(args ...interface{}) (s *Session, err error) {
 		ShardCount:             1,
 		MaxRestRetries:         3,
 		Client:                 &http.Client{Timeout: (20 * time.Second)},
-		UserAgent:              "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
+		UserAgent:              DefaultUserAgent,
 		sequence:               new(int64),
 		LastHeartbeatAck:       time.Now().UTC(),
 	}
@@ -69,7 +90,7 @@ func New(args ...interface{}) (s *Session, err error) {
 	}
 
 	// Variables used below when parsing func arguments
-	var auth, pass string
+	var auth, pass, mfa string
 
 	// Parse passed arguments
 	for _, arg := range args {
@@ -113,8 +134,30 @@ func New(args ...interface{}) (s *Session, err error) {
 				return
 			}
 
-			//		case Config:
-			// TODO: Parse configuration struct
+		case Login, *Login:
+			var l Login
+
+			switch v := v.(type) {
+			case Login:
+				l = v
+			case *Login:
+				l = *v
+			}
+
+			switch {
+			case l.Token != "":
+				auth = l.Token
+
+			case l.Email == "" && l.Password == "":
+				err = errors.New(
+					"missing either token or username and password")
+				return
+
+			default:
+				auth = l.Email
+				pass = l.Password
+				mfa = l.MFA
+			}
 
 		default:
 			err = fmt.Errorf("unsupported parameter type provided")
@@ -129,14 +172,12 @@ func New(args ...interface{}) (s *Session, err error) {
 	if pass == "" {
 		s.Token = auth
 	} else {
-		err = s.Login(auth, pass)
-		if err != nil || s.Token == "" {
-			if s.MFA {
-				err = ErrMFA
-			} else {
-				err = fmt.Errorf("Unable to fetch discord authentication token. %v", err)
-			}
-			return
+		if err = s.LoginMFA(auth, pass, mfa); err != nil {
+			return nil, fmt.Errorf(ErrFailedToken.Error()+". %v", err)
+		}
+
+		if s.Token == "" {
+			return nil, ErrFailedToken
 		}
 	}
 

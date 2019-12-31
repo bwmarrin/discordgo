@@ -765,8 +765,9 @@ type identifyOp struct {
 // identify sends the identify packet to the gateway
 func (s *Session) identify() error {
 
-	properties := identifyProperties{runtime.GOOS,
-		"Discordgo v" + VERSION,
+	properties := identifyProperties{
+		runtime.GOOS,
+		DefaultUserAgent,
 		"",
 		"",
 		"",
