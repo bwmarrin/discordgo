@@ -321,6 +321,35 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 }
 
+// SubscribeGuildData is used for SubscribeGuild()
+type SubscribeGuildData struct {
+	GuildID    string `json:"guild_id"`
+	Typing     bool   `json:"typing"`
+	Activities bool   `json:"activities"`
+}
+
+type subscribeGuildOp struct {
+	Op   int                `json:"op"`
+	Data SubscribeGuildData `json:"d"`
+}
+
+// SubscribeGuild event is needed to sent if you want TypingStart and other
+// events related to the guild.
+func (s *Session) SubscribeGuild(data SubscribeGuildData) (err error) {
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return ErrWSNotFound
+	}
+
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(subscribeGuildOp{14, data})
+	s.wsMutex.Unlock()
+
+	return
+}
+
 // UpdateStatusData ia provided to UpdateStatusComplex()
 type UpdateStatusData struct {
 	IdleSince *int   `json:"since"`
