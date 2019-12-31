@@ -694,11 +694,20 @@ type Settings struct {
 	Locale                 string             `json:"locale"`
 	Theme                  string             `json:"theme"`
 	GuildPositions         []string           `json:"guild_positions"`
+	GuildFolders           []*GuildFolder     `json:"guild_folders"`
 	RestrictedGuilds       []string           `json:"restricted_guilds"`
 	FriendSourceFlags      *FriendSourceFlags `json:"friend_source_flags"`
 	Status                 Status             `json:"status"`
 	DetectPlatformAccounts bool               `json:"detect_platform_accounts"`
 	DeveloperMode          bool               `json:"developer_mode"`
+}
+
+// GuildFolder holds a single folder that you see in the left guild panel.
+type GuildFolder struct {
+	Name     string   `json:"name"`
+	ID       int64    `json:"id"`
+	GuildIDs []string `json:"guild_ids"`
+	Color    int64    `json:"color"`
 }
 
 // Status type definition
