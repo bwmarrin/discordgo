@@ -50,12 +50,13 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
 }
 
-// RequestWithBucketID is the same as requestWithBucketID but does not support optional headers.
+// RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
 	return s.requestWithBucketID(method, urlStr, data, bucketID, nil)
 }
 
 // requestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
+// optHeaders allows for optional headers to be set in the request.
 func (s *Session) requestWithBucketID(method, urlStr string, data interface{}, bucketID string, optHeaders []requestHeader) (response []byte, err error) {
 	var body []byte
 	if data != nil {
@@ -78,12 +79,13 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 	return s.requestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence, optHeaders)
 }
 
-// RequestWithLockedBucket is the same as requestWithLockedBucket but without optional header support.
+// RequestWithLockedBucket makes a request using a bucket that's already been locked.
 func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
 	return s.requestWithLockedBucket(method, urlStr, contentType, b, bucket, sequence, nil)
 }
 
 // requestWithLockedBucket makes a request using a bucket that's already been locked.
+// optHeaders allows for optional headers to be set in the request.
 func (s *Session) requestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, optHeaders []requestHeader) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
