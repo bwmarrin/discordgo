@@ -925,22 +925,25 @@ type GatewayStatusUpdate struct {
 	AFK    bool     `json:"afk"`
 }
 
+// https://discordapp.com/developers/docs/topics/gateway#activity-object
+// Activity defines the Activity sent with GatewayStatusUpdate
 type Activity struct {
 	Name string
 	Type ActivityType
 	URL  string
 }
 
-// GameType is the type of "game" (see GameType* consts) in the Game struct
+// ActivityType is the type of Activity (see ActivityType* consts) in the Activity struct
 // https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
 type ActivityType int
 
-// Valid GameType values
+// Valid ActivityType values
+//https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
 const (
 	ActivityTypeGame GameType = iota
 	ActivityTypeStreaming
 	ActivityTypeListening
-	//	ActivityTypeWatching // not valid in the use?
+	//	ActivityTypeWatching // not valid in this use case?
 	ActivityTypeCustom = 4
 )
 
