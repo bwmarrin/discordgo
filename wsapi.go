@@ -188,9 +188,9 @@ func (s *Session) Open() error {
 
 	// A VoiceConnections map is a hard requirement for Voice.
 	// XXX: can this be moved to when opening a voice connection?
-	if s.voiceConnections == nil {
+	if s.VoiceConnections == nil {
 		s.log(LogInformational, "creating new VoiceConnections map")
-		s.voiceConnections = make(map[string]*VoiceConnection)
+		s.VoiceConnections = make(map[string]*VoiceConnection)
 	}
 
 	// Create listening chan outside of listen, as it needs to happen inside the
@@ -596,13 +596,13 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	s.log(LogInformational, "called")
 
 	s.mutex.RLock()
-	voice, _ = s.voiceConnections[gID]
+	voice, _ = s.VoiceConnections[gID]
 	s.mutex.RUnlock()
 
 	if voice == nil {
 		voice = &VoiceConnection{}
 		s.mutex.Lock()
-		s.voiceConnections[gID] = voice
+		s.VoiceConnections[gID] = voice
 		s.mutex.Unlock()
 	}
 
@@ -667,7 +667,7 @@ func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 
 	// Check if we have a voice connection to update
 	s.mutex.RLock()
-	voice, exists := s.voiceConnections[st.GuildID]
+	voice, exists := s.VoiceConnections[st.GuildID]
 	s.mutex.RUnlock()
 	if !exists {
 		return
@@ -696,7 +696,7 @@ func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
 	s.log(LogInformational, "called")
 
 	s.mutex.RLock()
-	voice, exists := s.voiceConnections[st.GuildID]
+	voice, exists := s.VoiceConnections[st.GuildID]
 	s.mutex.RUnlock()
 
 	// If no VoiceConnection exists, just skip this
@@ -802,7 +802,7 @@ func (s *Session) reconnect() {
 				// stability in those edge cases.
 				s.mutex.RLock()
 				defer s.mutex.RUnlock()
-				for _, v := range s.voiceConnections {
+				for _, v := range s.VoiceConnections {
 
 					s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
 					go v.reconnect()

@@ -153,7 +153,7 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	v.log(LogInformational, "Deleting VoiceConnection %s", v.GuildID)
 
 	v.session.mutex.Lock()
-	delete(v.session.voiceConnections, v.GuildID)
+	delete(v.session.VoiceConnections, v.GuildID)
 	v.session.mutex.Unlock()
 
 	return
