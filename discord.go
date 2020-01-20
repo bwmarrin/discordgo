@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"runtime"
 	"time"
 )
 
@@ -63,6 +64,14 @@ func New(args ...interface{}) (s *Session, err error) {
 		LastHeartbeatAck:       time.Now().UTC(),
 	}
 
+	// Initilize the Identify Package with defaults
+	// These can be modified prior to calling Open()
+	s.Identify.Compress = true
+	s.Identify.LargeThreshold = 250
+	s.Identify.GuildSubscriptions = true
+	s.Identify.Properties.OS = runtime.GOOS
+	s.Identify.Properties.Browser = "DiscordGo v" + VERSION
+
 	// If no arguments are passed return the empty Session interface.
 	if args == nil {
 		return
@@ -94,7 +103,8 @@ func New(args ...interface{}) (s *Session, err error) {
 
 			// If third string exists, it must be an auth token.
 			if len(v) > 2 {
-				s.Token = v[2]
+				s.Identify.Token = v[2]
+				s.Token = v[2] // TODO: Remove, Deprecated - Kept for backwards compatibility.
 			}
 
 		case string:
@@ -107,7 +117,8 @@ func New(args ...interface{}) (s *Session, err error) {
 			} else if pass == "" {
 				pass = v
 			} else if s.Token == "" {
-				s.Token = v
+				s.Identify.Token = v
+				s.Token = v // TODO: Remove, Deprecated - Kept for backwards compatibility.
 			} else {
 				err = fmt.Errorf("too many string parameters provided")
 				return
@@ -127,10 +138,12 @@ func New(args ...interface{}) (s *Session, err error) {
 	// Discord will verify it for free, or log the user in if it is
 	// invalid.
 	if pass == "" {
-		s.Token = auth
+		s.Identify.Token = auth
+		s.Token = auth // TODO: Remove, Deprecated - Kept for backwards compatibility.
 	} else {
 		err = s.Login(auth, pass)
-		if err != nil || s.Token == "" {
+		// TODO: Remove last s.Token part, Deprecated - Kept for backwards compatibility.
+		if err != nil || s.Identify.Token == "" || s.Token == "" {
 			if s.MFA {
 				err = ErrMFA
 			} else {
@@ -139,9 +152,6 @@ func New(args ...interface{}) (s *Session, err error) {
 			return
 		}
 	}
-
-	// The Session is now able to have RestAPI methods called on it.
-	// It is recommended that you now call Open() so that events will trigger.
 
 	return
 }

@@ -39,6 +39,11 @@ type Session struct {
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
 
+	// Identify is sent during initial handshake with the discord gateway.
+	// https://discordapp.com/developers/docs/topics/gateway#identify
+	Identify Identify
+
+	// TODO: REMOVE Below, DEPRECATED, Use IDENTITY struct
 	// Should the session request compressed websocket data.
 	Compress bool
 
@@ -907,6 +912,54 @@ type MessageReaction struct {
 type GatewayBotResponse struct {
 	URL    string `json:"url"`
 	Shards int    `json:"shards"`
+}
+
+// Gateway Status Update is sent by the client to indicate a presence or status update
+// https://discordapp.com/developers/docs/topics/gateway#update-status-gateway-status-update-structure
+type GatewayStatusUpdate struct {
+	Since  int      `json:"since"`
+	Game   Activity `json:"game"`
+	Status string   `json:"status"`
+	AFK    bool     `json:"afk"`
+}
+
+type Activity struct {
+	Name string
+	Type ActivityType
+	URL  string
+}
+
+// GameType is the type of "game" (see GameType* consts) in the Game struct
+// https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
+type ActivityType int
+
+// Valid GameType values
+const (
+	ActivityTypeGame GameType = iota
+	ActivityTypeStreaming
+	ActivityTypeListening
+	//	ActivityTypeWatching // not valid in the use?
+	ActivityTypeCustom = 4
+)
+
+// Identify is sent during initial handshake with the discord gateway.
+// https://discordapp.com/developers/docs/topics/gateway#identify
+type Identify struct {
+	Token              string              `json:"token"`
+	Properties         IdentifyProperties  `json:"properties"`
+	Compress           bool                `json:"compress"`
+	LargeThreshold     int                 `json:"large_threshold"`
+	Shard              *[2]int             `json:"shard,omitempty"`
+	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
+	GuildSubscriptions bool                `json:"guild_subscriptions"`
+}
+
+type IdentifyProperties struct {
+	OS              string `json:"$os"`
+	Browser         string `json:"$browser"`
+	Device          string `json:"$device"`
+	Referer         string `json:"$referer"`
+	ReferringDomain string `json:"$referring_domain"`
 }
 
 // Constants for the different bit offsets of text channel permissions
