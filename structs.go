@@ -916,7 +916,7 @@ type GatewayBotResponse struct {
 	Shards int    `json:"shards"`
 }
 
-// Gateway Status Update is sent by the client to indicate a presence or status update
+// GatewayStatusUpdate is sent by the client to indicate a presence or status update
 // https://discordapp.com/developers/docs/topics/gateway#update-status-gateway-status-update-structure
 type GatewayStatusUpdate struct {
 	Since  int      `json:"since"`
@@ -925,8 +925,8 @@ type GatewayStatusUpdate struct {
 	AFK    bool     `json:"afk"`
 }
 
-// https://discordapp.com/developers/docs/topics/gateway#activity-object
 // Activity defines the Activity sent with GatewayStatusUpdate
+// https://discordapp.com/developers/docs/topics/gateway#activity-object
 type Activity struct {
 	Name string
 	Type ActivityType
@@ -959,6 +959,8 @@ type Identify struct {
 	GuildSubscriptions bool                `json:"guild_subscriptions"`
 }
 
+// IdentifyProperties contains the "properties" portion of an Identify packet
+// https://discordapp.com/developers/docs/topics/gateway#identify-identify-connection-properties
 type IdentifyProperties struct {
 	OS              string `json:"$os"`
 	Browser         string `json:"$browser"`
