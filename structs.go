@@ -29,8 +29,10 @@ type Session struct {
 	// General configurable settings.
 
 	// Authentication token for this session
+	// TODO: Remove Below, Deprecated, Use Identify struct
 	Token string
-	MFA   bool
+
+	MFA bool
 
 	// Debug for printing JSON request/responses
 	Debug    bool // Deprecated, will be removed.
@@ -43,7 +45,7 @@ type Session struct {
 	// https://discordapp.com/developers/docs/topics/gateway#identify
 	Identify Identify
 
-	// TODO: REMOVE Below, DEPRECATED, Use IDENTITY struct
+	// TODO: Remove Below, Deprecated, Use Identify struct
 	// Should the session request compressed websocket data.
 	Compress bool
 
