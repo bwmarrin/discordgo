@@ -938,7 +938,7 @@ type Activity struct {
 type ActivityType int
 
 // Valid ActivityType values
-//https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
+// https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
 const (
 	ActivityTypeGame GameType = iota
 	ActivityTypeStreaming
