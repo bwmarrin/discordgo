@@ -29,8 +29,10 @@ type Session struct {
 	// General configurable settings.
 
 	// Authentication token for this session
+	// TODO: Remove Below, Deprecated, Use Identify struct
 	Token string
-	MFA   bool
+
+	MFA bool
 
 	// Debug for printing JSON request/responses
 	Debug    bool // Deprecated, will be removed.
@@ -39,6 +41,11 @@ type Session struct {
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
 
+	// Identify is sent during initial handshake with the discord gateway.
+	// https://discordapp.com/developers/docs/topics/gateway#identify
+	Identify Identify
+
+	// TODO: Remove Below, Deprecated, Use Identify struct
 	// Should the session request compressed websocket data.
 	Compress bool
 
@@ -909,6 +916,59 @@ type MessageReaction struct {
 type GatewayBotResponse struct {
 	URL    string `json:"url"`
 	Shards int    `json:"shards"`
+}
+
+// GatewayStatusUpdate is sent by the client to indicate a presence or status update
+// https://discordapp.com/developers/docs/topics/gateway#update-status-gateway-status-update-structure
+type GatewayStatusUpdate struct {
+	Since  int      `json:"since"`
+	Game   Activity `json:"game"`
+	Status string   `json:"status"`
+	AFK    bool     `json:"afk"`
+}
+
+// Activity defines the Activity sent with GatewayStatusUpdate
+// https://discordapp.com/developers/docs/topics/gateway#activity-object
+type Activity struct {
+	Name string
+	Type ActivityType
+	URL  string
+}
+
+// ActivityType is the type of Activity (see ActivityType* consts) in the Activity struct
+// https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
+type ActivityType int
+
+// Valid ActivityType values
+// https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
+const (
+	ActivityTypeGame GameType = iota
+	ActivityTypeStreaming
+	ActivityTypeListening
+	//	ActivityTypeWatching // not valid in this use case?
+	ActivityTypeCustom = 4
+)
+
+// Identify is sent during initial handshake with the discord gateway.
+// https://discordapp.com/developers/docs/topics/gateway#identify
+type Identify struct {
+	Token              string              `json:"token"`
+	Properties         IdentifyProperties  `json:"properties"`
+	Compress           bool                `json:"compress"`
+	LargeThreshold     int                 `json:"large_threshold"`
+	Shard              *[2]int             `json:"shard,omitempty"`
+	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
+	GuildSubscriptions bool                `json:"guild_subscriptions"`
+}
+
+// IdentifyProperties contains the "properties" portion of an Identify packet
+// https://discordapp.com/developers/docs/topics/gateway#identify-identify-connection-properties
+type IdentifyProperties struct {
+	OS              string `json:"$os"`
+	Browser         string `json:"$browser"`
+	Device          string `json:"$device"`
+	Referer         string `json:"$referer"`
+	ReferringDomain string `json:"$referring_domain"`
 }
 
 // Constants for the different bit offsets of text channel permissions
