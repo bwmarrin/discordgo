@@ -12,6 +12,6 @@ func SnowflakeTimestamp(ID string) (t time.Time, err error) {
 		return
 	}
 	timestamp := (i >> 22) + 1420070400000
-	t = time.Unix(timestamp/1000, (timestamp%1000) * 1000000)
+	t = time.Unix(timestamp/1000, (timestamp%1000)*1000000)
 	return
 }
