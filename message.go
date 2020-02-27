@@ -304,6 +304,11 @@ type MessageReference struct {
 	GuildID   string `json:"guild_id"`
 }
 
+// String returns link to message
+func (m *Message) String() string {
+	return "https://discordapp.com/channels/" + m.GuildID + "/" + m.ChannelID + "/" + m.ID
+}
+
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
 // username of the mention.
 func (m *Message) ContentWithMentionsReplaced() (content string) {
