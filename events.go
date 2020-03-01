@@ -169,6 +169,7 @@ type MessageUpdate struct {
 // MessageDelete is the data for a MessageDelete event.
 type MessageDelete struct {
 	*Message
+	BeforeDelete *Message `json:"-"`
 }
 
 // MessageReactionAdd is the data for a MessageReactionAdd event.
