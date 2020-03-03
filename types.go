@@ -39,6 +39,25 @@ func (s NullString) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(s))
 }
 
+func nullString(v interface{}) *NullString {
+	switch v.(type) {
+	case string:
+		if v.(string) == "" {
+			return nil
+		} else {
+			ns := NullString(v.(string))
+			return &ns
+		}
+	case NullString:
+		ns := NullString(v.(NullString))
+		return &ns
+	case *NullString:
+		return v.(*NullString)
+	default:
+		return nil
+	}
+}
+
 // NullBool is a custom Bool type to allow for optional modifying booleans that can have false as value
 // the JSON Marshalling encoding is unique:
 // if the bool is false, it will be encoded as false
@@ -54,6 +73,25 @@ func (b NullBool) MarshalJSON() ([]byte, error) {
 	return json.Marshal(true)
 }
 
+func nullBool(v interface{}) *NullBool {
+	switch v.(type) {
+	case bool:
+		if v.(bool) == false {
+			return nil
+		} else {
+			nb := NullBool(true)
+			return &nb
+		}
+	case NullBool:
+		nb := NullBool(v.(NullBool))
+		return &nb
+	case *NullBool:
+		return v.(*NullBool)
+	default:
+		return nil
+	}
+}
+
 // NullInt is a custom Int type to allow for optional modifying integers that can have 0 as value
 // the JSON Marshalling encoding is unique:
 // if the integer is 0, it will be encoded as 0
@@ -67,6 +105,25 @@ func (i NullInt) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(int(i))
+}
+
+func nullInt(v interface{}) *NullInt {
+	switch v.(type) {
+	case int:
+		if v.(int) == 0 {
+			return nil
+		} else {
+			ni := NullInt(v.(int))
+			return &ni
+		}
+	case NullInt:
+		ni := NullInt(v.(NullInt))
+		return &ni
+	case *NullInt:
+		return v.(*NullInt)
+	default:
+		return nil
+	}
 }
 
 // RESTError stores error information about a request with a bad response code.
