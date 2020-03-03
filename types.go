@@ -24,6 +24,51 @@ func (t Timestamp) Parse() (time.Time, error) {
 	return time.Parse(time.RFC3339, string(t))
 }
 
+// NullString is a custom String type to allow for optional modifying strings that can be reset
+// the JSON Marshalling encoding is unique:
+// if the string is empty, it will be encoded as null
+// if the string is not empty, it will be encoded as a string
+type NullString string
+
+// MarshalJSON returns the JSON encoding of the NullString
+func (s NullString) MarshalJSON() ([]byte, error) {
+	if s == "" {
+		return json.Marshal(nil)
+	}
+
+	return json.Marshal(string(s))
+}
+
+// NullBool is a custom Bool type to allow for optional modifying booleans that can have false as value
+// the JSON Marshalling encoding is unique:
+// if the bool is false, it will be encoded as false
+// if the bool is true, it will be encoded as true
+type NullBool bool
+
+// MarshalJSON returns the JSON encoding of the NullBool
+func (b NullBool) MarshalJSON() ([]byte, error) {
+	if b == false {
+		return json.Marshal(false)
+	}
+
+	return json.Marshal(true)
+}
+
+// NullInt is a custom Int type to allow for optional modifying integers that can have 0 as value
+// the JSON Marshalling encoding is unique:
+// if the integer is 0, it will be encoded as 0
+// if the integer is not equal to 0, it will be encoded as an integer
+type NullInt int
+
+// MarshalJSON returns the JSON encoding of the NullBool
+func (i NullInt) MarshalJSON() ([]byte, error) {
+	if i == 0 {
+		return json.Marshal(0)
+	}
+
+	return json.Marshal(int(i))
+}
+
 // RESTError stores error information about a request with a bad response code.
 // Message is not always present, there are cases where api calls can fail
 // without returning a json message.
