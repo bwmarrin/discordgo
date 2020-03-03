@@ -44,10 +44,10 @@ func nullString(v interface{}) *NullString {
 	case string:
 		if v.(string) == "" {
 			return nil
-		} else {
-			ns := NullString(v.(string))
-			return &ns
 		}
+
+		ns := NullString(v.(string))
+		return &ns
 	case NullString:
 		ns := NullString(v.(NullString))
 		return &ns
@@ -78,10 +78,10 @@ func nullBool(v interface{}) *NullBool {
 	case bool:
 		if v.(bool) == false {
 			return nil
-		} else {
-			nb := NullBool(true)
-			return &nb
 		}
+
+		nb := NullBool(true)
+		return &nb
 	case NullBool:
 		nb := NullBool(v.(NullBool))
 		return &nb
@@ -112,10 +112,10 @@ func nullInt(v interface{}) *NullInt {
 	case int:
 		if v.(int) == 0 {
 			return nil
-		} else {
-			ni := NullInt(v.(int))
-			return &ni
 		}
+
+		ni := NullInt(v.(int))
+		return &ni
 	case NullInt:
 		ni := NullInt(v.(NullInt))
 		return &ni
