@@ -30,10 +30,13 @@ var ErrMFA = errors.New("account has 2FA enabled")
 // tasks if given enough information to do so.  Currently you can pass zero
 // arguments and it will return an empty Discord session.
 // There are 3 ways to call New:
-//     With a single auth token - All requests will use the token blindly,
+//     With a single auth token - All requests will use the token blindly
+//         (just tossing it into the HTTP Authorization header);
 //         no verification of the token will be done and requests may fail.
 //         IF THE TOKEN IS FOR A BOT, IT MUST BE PREFIXED WITH `BOT `
 //         eg: `"Bot <token>"`
+//         IF IT IS AN OAUTH2 ACCESS TOKEN, IT MUST BE PREFIXED WITH `Bearer `
+//         eg: `"Bearer <token>"`
 //     With an email and password - Discord will sign in with the provided
 //         credentials.
 //     With an email, password and auth token - Discord will verify the auth
