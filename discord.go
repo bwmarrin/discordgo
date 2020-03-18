@@ -22,7 +22,12 @@ import (
 )
 
 // VERSION of DiscordGo, follows Semantic Versioning. (http://semver.org/)
-const VERSION = "0.21.0-develop"
+const (
+	VERSION = "0.21.0-develop"
+
+	clientTimeout         = 20 * time.Second
+	defaultMaxRestRetries = 3
+)
 
 // ErrMFA will be risen by New when the user has 2FA.
 var ErrMFA = errors.New("account has 2FA enabled")
@@ -60,8 +65,8 @@ func New(args ...interface{}) (s *Session, err error) {
 		ShouldReconnectOnError: true,
 		ShardID:                0,
 		ShardCount:             1,
-		MaxRestRetries:         3,
-		Client:                 &http.Client{Timeout: (20 * time.Second)},
+		MaxRestRetries:         defaultMaxRestRetries,
+		Client:                 &http.Client{Timeout: clientTimeout},
 		UserAgent:              "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
 		sequence:               new(int64),
 		LastHeartbeatAck:       time.Now().UTC(),

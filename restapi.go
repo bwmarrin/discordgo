@@ -12,6 +12,7 @@ package discordgo
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,7 +31,9 @@ import (
 	"time"
 )
 
-// All error constants
+const contextTimeout = defaultMaxRestRetries * clientTimeout
+
+// All errors
 var (
 	ErrJSONUnmarshal           = errors.New("json unmarshal")
 	ErrStatusOffline           = errors.New("You can't set your Status to offline")
@@ -41,14 +44,26 @@ var (
 	ErrUnauthorized            = errors.New("HTTP request was unauthorized. This could be because the provided token was not a bot token. Please add \"Bot \" to the start of your token. https://discordapp.com/developers/docs/reference#authentication-example-bot-token-authorization-header")
 )
 
-// Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
+// Request is the same as RequestWithBucketID but the bucket ID is the same as
+// urlStr.
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
 }
 
-// RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
+// RequestWithContext is the same as RequestWithContextBucketID but the bucket
+// ID is the same as urlStr.
+func (s *Session) RequestWithContext(ctx context.Context, method, urlStr string, data interface{}) (response []byte, err error) {
+	return s.RequestWithContextBucketID(ctx, method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
+}
+
+// RequestWithBucketID makes a (GET/POST/...) request to Discord REST API with
+// JSON data.
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
+
 	var body []byte
+
 	if data != nil {
 		body, err = json.Marshal(data)
 		if err != nil {
@@ -56,27 +71,56 @@ func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, b
 		}
 	}
 
-	return s.request(method, urlStr, "application/json", body, bucketID, 0)
+	return s.request(ctx, method, urlStr, "application/json", body, bucketID, 0)
 }
 
-// request makes a (GET/POST/...) Requests to Discord REST API.
-// Sequence is the sequence number, if it fails with a 502 it will
-// retry with sequence+1 until it either succeeds or sequence >= session.MaxRestRetries
-func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID string, sequence int) (response []byte, err error) {
+// RequestWithContextBucketID makes a (GET/POST/...) request to Discord REST
+// API with JSON data using the provided context.
+func (s *Session) RequestWithContextBucketID(ctx context.Context, method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
+	var body []byte
+
+	if data != nil {
+		body, err = json.Marshal(data)
+		if err != nil {
+			return
+		}
+	}
+
+	return s.request(ctx, method, urlStr, "application/json", body, bucketID, 0)
+}
+
+// request makes a (GET/POST/...) request to Discord REST API. Sequence is the
+// sequence number. If it fails with a 502 it will retry with sequence+1 until
+// it either succeeds or sequence >= session.MaxRestRetries.
+func (s *Session) request(ctx context.Context, method, urlStr, contentType string, b []byte, bucketID string, sequence int) (response []byte, err error) {
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
+
+	return s.RequestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
 }
 
-// RequestWithLockedBucket makes a request using a bucket that's already been locked
+// RequestWithLockedBucket makes a request using a bucket that's already been locked.
 func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
+
+	return s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, bucket, sequence)
+}
+
+// RequestWithContextLockedBucket makes a request using a bucket that's already
+// been locked using the provided context.
+func (s *Session) RequestWithContextLockedBucket(ctx context.Context, method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+	return s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, bucket, sequence)
+}
+
+func (s *Session) requestWithContextLockedBucket(ctx context.Context, method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
 	}
 
-	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
+	req, err := http.NewRequestWithContext(ctx, method, urlStr, bytes.NewBuffer(b))
 	if err != nil {
 		bucket.Release(nil)
 		return
@@ -126,7 +170,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	}
 
 	if s.Debug {
-
 		log.Printf("API RESPONSE  STATUS :: %s\n", resp.Status)
 		for k, v := range resp.Header {
 			log.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
@@ -143,9 +186,9 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		if sequence < s.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
+			response, err = s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
 		} else {
-			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
+			err = fmt.Errorf("exceeded max retries HTTP %s, %s", resp.Status, response)
 		}
 	case 429: // TOO MANY REQUESTS - Rate limiting
 		rl := TooManyRequests{}
@@ -161,7 +204,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
-		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+		response, err = s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
 	case http.StatusUnauthorized:
 		if strings.Index(s.Token, "Bot ") != 0 {
 			s.log(LogInformational, ErrUnauthorized.Error())
@@ -273,16 +316,26 @@ func (s *Session) Logout() (err error) {
 // Functions specific to Discord Users
 // ------------------------------------------------------------------------------------------------
 
-// User returns the user details of the given userID
-// userID    : A user ID or "@me" which is a shortcut of current user ID
+// User returns the user details of the given userID.
+// userID    : A user ID or "@me" which is a shortcut of current user ID.
 func (s *Session) User(userID string) (st *User, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
 
-	body, err := s.RequestWithBucketID("GET", EndpointUser(userID), nil, EndpointUsers)
+	return s.UserWithContext(ctx, userID)
+}
+
+// UserWithContext returns the user details of the given userID with the given
+// context.
+// userID    : A user ID or "@me" which is a shortcut of current user ID.
+func (s *Session) UserWithContext(ctx context.Context, userID string) (st *User, err error) {
+	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointUser(userID), nil, EndpointUsers)
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(body, &st)
+
 	return
 }
 
@@ -583,12 +636,23 @@ func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermiss
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID), nil, EndpointGuild(guildID))
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
+
+	return s.GuildWithContext(ctx, guildID)
+}
+
+// GuildWithContext returns a Guild structure of a specific Guild using the
+// provided context.
+// guildID   : The ID of a Guild
+func (s *Session) GuildWithContext(ctx context.Context, guildID string) (st *Guild, err error) {
+	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointGuild(guildID), nil, EndpointGuild(guildID))
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(body, &st)
+
 	return
 }
 
@@ -884,19 +948,41 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be assigned to the user.
 func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
 
-	_, err = s.RequestWithBucketID("PUT", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
+	return s.GuildMemberRoleAddWithContext(ctx, guildID, userID, roleID)
+}
+
+// GuildMemberRoleAddWithContext adds the specified role to a given member
+// using the provided context.
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  roleID 	  : The ID of a Role to be assigned to the user.
+func (s *Session) GuildMemberRoleAddWithContext(ctx context.Context, guildID, userID, roleID string) (err error) {
+	_, err = s.RequestWithContextBucketID(ctx, "PUT", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
 
 	return
 }
 
-// GuildMemberRoleRemove removes the specified role to a given member
+// GuildMemberRoleRemove removes the specified role from a given member.
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be removed from the user.
 func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
 
-	_, err = s.RequestWithBucketID("DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
+	return s.GuildMemberRoleRemoveWithContext(ctx, guildID, userID, roleID)
+}
+
+// GuildMemberRoleRemoveWithContext removes the specified role from a given
+// member using the provided context.
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  roleID 	  : The ID of a Role to be removed from the user.
+func (s *Session) GuildMemberRoleRemoveWithContext(ctx context.Context, guildID, userID, roleID string) (err error) {
+	_, err = s.RequestWithContextBucketID(ctx, "DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
 
 	return
 }
@@ -905,8 +991,17 @@ func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err err
 // given guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
 
-	body, err := s.request("GET", EndpointGuildChannels(guildID), "", nil, EndpointGuildChannels(guildID), 0)
+	return s.GuildChannelsWithContext(ctx, guildID)
+}
+
+// GuildChannelsWithContext returns an array of Channel structures for all
+// channels of a given guild using the provided context.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildChannelsWithContext(ctx context.Context, guildID string) (st []*Channel, err error) {
+	body, err := s.request(ctx, "GET", EndpointGuildChannels(guildID), "", nil, EndpointGuildChannels(guildID), 0)
 	if err != nil {
 		return
 	}
@@ -1000,8 +1095,17 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 // GuildRoleCreate returns a new Guild Role.
 // guildID: The ID of a Guild.
 func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
 
-	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
+	return s.GuildRoleCreateWithContext(ctx, guildID)
+}
+
+// GuildRoleCreateWithContext returns a new Guild Role using the provided
+// context.
+// guildID: The ID of a Guild.
+func (s *Session) GuildRoleCreateWithContext(ctx context.Context, guildID string) (st *Role, err error) {
+	body, err := s.RequestWithContextBucketID(ctx, "POST", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
 	}
@@ -1011,7 +1115,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	return
 }
 
-// GuildRoleEdit updates an existing Guild Role with new values
+// GuildRoleEdit updates an existing Guild Role with new values.
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
 // name      : The name of the Role.
@@ -1020,7 +1124,22 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // perm      : The permissions for the role.
 // mention   : Whether this role is mentionable
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
 
+	return s.GuildRoleEditWithContext(ctx, guildID, roleID, name, color, hoist, perm, mention)
+}
+
+// GuildRoleEditWithContext updates an existing Guild Role with new values
+// using the provided context.
+// guildID   : The ID of a Guild.
+// roleID    : The ID of a Role.
+// name      : The name of the Role.
+// color     : The color of the role (decimal, not hex).
+// hoist     : Whether to display the role's users separately.
+// perm      : The permissions for the role.
+// mention   : Whether this role is mentionable
+func (s *Session) GuildRoleEditWithContext(ctx context.Context, guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
 	// Prevent sending a color int that is too big.
 	if color > 0xFFFFFF {
 		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
@@ -1035,7 +1154,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 		Mentionable bool   `json:"mentionable"` // Whether this role is mentionable
 	}{name, color, hoist, perm, mention}
 
-	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""))
+	body, err := s.RequestWithContextBucketID(ctx, "PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""))
 	if err != nil {
 		return
 	}
@@ -1366,12 +1485,23 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
 // Channel returns a Channel structure of a specific Channel.
 // channelID  : The ID of the Channel you want returned.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointChannel(channelID), nil, EndpointChannel(channelID))
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
+
+	return s.ChannelWithContext(ctx, channelID)
+}
+
+// ChannelWithContext returns a Channel structure of a specific channel using
+// the provided context.
+// channelID  : The ID of the Channel you want returned.
+func (s *Session) ChannelWithContext(ctx context.Context, channelID string) (st *Channel, err error) {
+	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointChannel(channelID), nil, EndpointChannel(channelID))
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(body, &st)
+
 	return
 }
 
@@ -1500,6 +1630,17 @@ var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 // channelID : The ID of a Channel.
 // data      : The message struct to send.
 func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend) (st *Message, err error) {
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
+
+	return s.ChannelMessageSendComplexWithContext(ctx, channelID, data)
+}
+
+// ChannelMessageSendComplexWithContext sends a message to the given channel
+// using the provided context.
+// channelID : The ID of a Channel.
+// data      : The message struct to send.
+func (s *Session) ChannelMessageSendComplexWithContext(ctx context.Context, channelID string, data *MessageSend) (st *Message, err error) {
 	if data.Embed != nil && data.Embed.Type == "" {
 		data.Embed.Type = "rich"
 	}
@@ -1567,15 +1708,16 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 			return
 		}
 
-		response, err = s.request("POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0)
+		response, err = s.request(ctx, "POST", endpoint, bodywriter.FormDataContentType(), body.Bytes(), endpoint, 0)
 	} else {
-		response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+		response, err = s.RequestWithContextBucketID(ctx, "POST", endpoint, data, endpoint)
 	}
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(response, &st)
+
 	return
 }
 
