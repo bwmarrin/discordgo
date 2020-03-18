@@ -47,7 +47,10 @@ var (
 // Request is the same as RequestWithBucketID but the bucket ID is the same as
 // urlStr.
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
-	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
+	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
+	defer cancelCtx()
+
+	return s.RequestWithContext(ctx, method, urlStr, data)
 }
 
 // RequestWithContext is the same as RequestWithContextBucketID but the bucket
@@ -62,16 +65,7 @@ func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, b
 	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancelCtx()
 
-	var body []byte
-
-	if data != nil {
-		body, err = json.Marshal(data)
-		if err != nil {
-			return
-		}
-	}
-
-	return s.request(ctx, method, urlStr, "application/json", body, bucketID, 0)
+	return s.RequestWithContextBucketID(ctx, method, urlStr, data, bucketID)
 }
 
 // RequestWithContextBucketID makes a (GET/POST/...) request to Discord REST
@@ -105,7 +99,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancelCtx()
 
-	return s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, bucket, sequence)
+	return s.RequestWithContextLockedBucket(ctx, method, urlStr, contentType, b, bucket, sequence)
 }
 
 // RequestWithContextLockedBucket makes a request using a bucket that's already
