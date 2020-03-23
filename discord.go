@@ -22,9 +22,9 @@ import (
 )
 
 // VERSION of DiscordGo, follows Semantic Versioning. (http://semver.org/)
-const (
-	VERSION = "0.21.0-develop"
+const VERSION = "0.23.0-develop"
 
+const (
 	clientTimeout         = 20 * time.Second
 	defaultMaxRestRetries = 3
 )
