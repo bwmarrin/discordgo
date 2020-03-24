@@ -31,8 +31,6 @@ import (
 	"time"
 )
 
-const contextTimeout = defaultMaxRestRetries * clientTimeout
-
 // All errors
 var (
 	ErrJSONUnmarshal           = errors.New("json unmarshal")
@@ -47,10 +45,7 @@ var (
 // Request is the same as RequestWithBucketID but the bucket ID is the same as
 // urlStr.
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.RequestWithContext(ctx, method, urlStr, data)
+	return s.RequestWithContext(context.TODO(), method, urlStr, data)
 }
 
 // RequestWithContext is the same as RequestWithContextBucketID but the bucket
@@ -62,10 +57,7 @@ func (s *Session) RequestWithContext(ctx context.Context, method, urlStr string,
 // RequestWithBucketID makes a (GET/POST/...) request to Discord REST API with
 // JSON data.
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.RequestWithContextBucketID(ctx, method, urlStr, data, bucketID)
+	return s.RequestWithContextBucketID(context.TODO(), method, urlStr, data, bucketID)
 }
 
 // RequestWithContextBucketID makes a (GET/POST/...) request to Discord REST
@@ -96,10 +88,7 @@ func (s *Session) request(ctx context.Context, method, urlStr, contentType strin
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked.
 func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.RequestWithContextLockedBucket(ctx, method, urlStr, contentType, b, bucket, sequence)
+	return s.RequestWithContextLockedBucket(context.TODO(), method, urlStr, contentType, b, bucket, sequence)
 }
 
 // RequestWithContextLockedBucket makes a request using a bucket that's already
@@ -313,10 +302,7 @@ func (s *Session) Logout() (err error) {
 // User returns the user details of the given userID.
 // userID    : A user ID or "@me" which is a shortcut of current user ID.
 func (s *Session) User(userID string) (st *User, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.UserWithContext(ctx, userID)
+	return s.UserWithContext(context.TODO(), userID)
 }
 
 // UserWithContext returns the user details of the given userID with the given
@@ -630,10 +616,7 @@ func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermiss
 // Guild returns a Guild structure of a specific Guild.
 // guildID   : The ID of a Guild
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.GuildWithContext(ctx, guildID)
+	return s.GuildWithContext(context.TODO(), guildID)
 }
 
 // GuildWithContext returns a Guild structure of a specific Guild using the
@@ -942,10 +925,7 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be assigned to the user.
 func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.GuildMemberRoleAddWithContext(ctx, guildID, userID, roleID)
+	return s.GuildMemberRoleAddWithContext(context.TODO(), guildID, userID, roleID)
 }
 
 // GuildMemberRoleAddWithContext adds the specified role to a given member
@@ -964,10 +944,7 @@ func (s *Session) GuildMemberRoleAddWithContext(ctx context.Context, guildID, us
 //  userID    : The ID of a User.
 //  roleID 	  : The ID of a Role to be removed from the user.
 func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.GuildMemberRoleRemoveWithContext(ctx, guildID, userID, roleID)
+	return s.GuildMemberRoleRemoveWithContext(context.TODO(), guildID, userID, roleID)
 }
 
 // GuildMemberRoleRemoveWithContext removes the specified role from a given
@@ -985,10 +962,7 @@ func (s *Session) GuildMemberRoleRemoveWithContext(ctx context.Context, guildID,
 // given guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.GuildChannelsWithContext(ctx, guildID)
+	return s.GuildChannelsWithContext(context.TODO(), guildID)
 }
 
 // GuildChannelsWithContext returns an array of Channel structures for all
@@ -1089,10 +1063,7 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 // GuildRoleCreate returns a new Guild Role.
 // guildID: The ID of a Guild.
 func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.GuildRoleCreateWithContext(ctx, guildID)
+	return s.GuildRoleCreateWithContext(context.TODO(), guildID)
 }
 
 // GuildRoleCreateWithContext returns a new Guild Role using the provided
@@ -1118,10 +1089,7 @@ func (s *Session) GuildRoleCreateWithContext(ctx context.Context, guildID string
 // perm      : The permissions for the role.
 // mention   : Whether this role is mentionable
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.GuildRoleEditWithContext(ctx, guildID, roleID, name, color, hoist, perm, mention)
+	return s.GuildRoleEditWithContext(context.TODO(), guildID, roleID, name, color, hoist, perm, mention)
 }
 
 // GuildRoleEditWithContext updates an existing Guild Role with new values
@@ -1479,10 +1447,7 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
 // Channel returns a Channel structure of a specific Channel.
 // channelID  : The ID of the Channel you want returned.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.ChannelWithContext(ctx, channelID)
+	return s.ChannelWithContext(context.TODO(), channelID)
 }
 
 // ChannelWithContext returns a Channel structure of a specific channel using
@@ -1624,10 +1589,7 @@ var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 // channelID : The ID of a Channel.
 // data      : The message struct to send.
 func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend) (st *Message, err error) {
-	ctx, cancelCtx := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancelCtx()
-
-	return s.ChannelMessageSendComplexWithContext(ctx, channelID, data)
+	return s.ChannelMessageSendComplexWithContext(context.TODO(), channelID, data)
 }
 
 // ChannelMessageSendComplexWithContext sends a message to the given channel
