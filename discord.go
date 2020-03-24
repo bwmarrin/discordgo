@@ -25,8 +25,8 @@ import (
 const VERSION = "0.23.0-develop"
 
 const (
-	clientTimeout         = 20 * time.Second
 	defaultMaxRestRetries = 3
+	clientTimeout         = 20 * time.Second
 )
 
 // ErrMFA will be risen by New when the user has 2FA.
