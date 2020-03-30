@@ -805,13 +805,24 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User
 func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
+	return s.GuildMemberWithContext(context.TODO(), guildID, userID)
+}
 
+// GuildMemberWithContext returns a member of a guild using the given context.
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User
+func (s *Session) GuildMemberWithContext(ctx context.Context, guildID, userID string) (st *Member, err error) {
+	return s.guildMemberWithContext(ctx, guildID, userID)
+}
+
+func (s *Session) guildMemberWithContext(ctx context.Context, guildID, userID string) (st *Member, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointGuildMember(guildID, userID), nil, EndpointGuildMember(guildID, ""))
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(body, &st)
+
 	return
 }
 
