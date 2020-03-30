@@ -816,7 +816,7 @@ func (s *Session) GuildMemberWithContext(ctx context.Context, guildID, userID st
 }
 
 func (s *Session) guildMemberWithContext(ctx context.Context, guildID, userID string) (st *Member, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointGuildMember(guildID, userID), nil, EndpointGuildMember(guildID, ""))
+	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointGuildMember(guildID, userID), nil, EndpointGuildMember(guildID, ""))
 	if err != nil {
 		return
 	}
@@ -1060,7 +1060,6 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 // GuildRoles returns all roles for a given guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
-
 	body, err := s.RequestWithBucketID("GET", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
