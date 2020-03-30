@@ -1059,15 +1059,26 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 
 // GuildRoles returns all roles for a given guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
+func (s *Session) GuildRoles(guildID string) (st Roles, err error) {
+	return s.GuildRolesWithContext(context.TODO(), guildID)
+}
+
+// GuildRolesWithContext returns all roles for a given guild using the given
+// context.
+// guildID   : The ID of a Guild.
+func (s *Session) GuildRolesWithContext(ctx context.Context, guildID string) (st Roles, err error) {
+	return s.guildRolesWithContext(ctx, guildID)
+}
+
+func (s *Session) guildRolesWithContext(ctx context.Context, guildID string) (st Roles, err error) {
+	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
 	}
 
 	err = unmarshal(body, &st)
 
-	return // TODO return pointer
+	return
 }
 
 // GuildRoleCreate returns a new Guild Role.
