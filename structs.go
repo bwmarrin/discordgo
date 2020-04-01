@@ -1014,6 +1014,7 @@ const (
 	PermissionManageServer
 	PermissionAddReactions
 	PermissionViewAuditLogs
+	PermissionViewChannel
 
 	PermissionAllText = PermissionReadMessages |
 		PermissionSendMessages |
