@@ -1017,7 +1017,7 @@ const (
 	PermissionViewAuditLogs
 	PermissionViewChannel
 
-	PermissionAllText = PermissionReadMessages |
+	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
 		PermissionSendTTSMessages |
 		PermissionManageMessages |
@@ -1025,7 +1025,8 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
-	PermissionAllVoice = PermissionVoiceConnect |
+	PermissionAllVoice = PermissionViewChannel |
+		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
 		PermissionVoiceMuteMembers |
 		PermissionVoiceDeafenMembers |
