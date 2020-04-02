@@ -973,6 +973,7 @@ type IdentifyProperties struct {
 
 // Constants for the different bit offsets of text channel permissions
 const (
+	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
 	PermissionReadMessages = 1 << (iota + 10)
 	PermissionSendMessages
 	PermissionSendTTSMessages
@@ -1014,8 +1015,9 @@ const (
 	PermissionManageServer
 	PermissionAddReactions
 	PermissionViewAuditLogs
+	PermissionViewChannel
 
-	PermissionAllText = PermissionReadMessages |
+	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
 		PermissionSendTTSMessages |
 		PermissionManageMessages |
@@ -1023,7 +1025,8 @@ const (
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone
-	PermissionAllVoice = PermissionVoiceConnect |
+	PermissionAllVoice = PermissionViewChannel |
+		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
 		PermissionVoiceMuteMembers |
 		PermissionVoiceDeafenMembers |
