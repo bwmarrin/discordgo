@@ -1015,7 +1015,7 @@ const (
 	PermissionManageServer
 	PermissionAddReactions
 	PermissionViewAuditLogs
-	PermissionViewChannel = 1 << (iota + 10)
+	PermissionViewChannel = 1 << (iota + 2)
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
