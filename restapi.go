@@ -937,7 +937,7 @@ func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err err
 }
 
 // GuildMemberRoleRemoveWithContext removes the specified role from a given
-//member via the Discord REST API using the provided context.
+// member via the Discord REST API using the provided context.
 func (s *Session) GuildMemberRoleRemoveWithContext(ctx context.Context, guildID, userID, roleID string) (err error) {
 	_, err = s.RequestWithContextBucketID(ctx, "DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
 
