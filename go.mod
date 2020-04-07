@@ -1,8 +1,9 @@
 module github.com/bwmarrin/discordgo
 
-require (
-	github.com/gorilla/websocket v1.4.0
-	golang.org/x/crypto v0.0.0-20181030102418-4d3f4d9ffa16
-)
+go 1.14
 
-go 1.10
+require (
+	github.com/gorilla/websocket v1.4.2
+	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
+	golang.org/x/sys v0.0.0-20200406155108-e3b113bbe6a4 // indirect
+)

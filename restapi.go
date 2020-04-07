@@ -54,14 +54,14 @@ func (s *Session) RequestWithContext(ctx context.Context, method, urlStr string,
 	return s.RequestWithContextBucketID(ctx, method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
 }
 
-// RequestWithBucketID makes a (GET/POST/...) request to Discord REST API with
-// JSON data.
+// RequestWithBucketID makes a (GET/POST/...) request to the Discord REST API
+// with JSON data.
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
 	return s.RequestWithContextBucketID(context.TODO(), method, urlStr, data, bucketID)
 }
 
-// RequestWithContextBucketID makes a (GET/POST/...) request to Discord REST
-// API with JSON data using the provided context.
+// RequestWithContextBucketID makes a (GET/POST/...) request to the Discord
+// REST API with JSON data using the provided context.
 func (s *Session) RequestWithContextBucketID(ctx context.Context, method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
 	var body []byte
 
@@ -94,10 +94,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 // RequestWithContextLockedBucket makes a request using a bucket that's already
 // been locked using the provided context.
 func (s *Session) RequestWithContextLockedBucket(ctx context.Context, method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
-	return s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, bucket, sequence)
-}
-
-func (s *Session) requestWithContextLockedBucket(ctx context.Context, method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -169,7 +165,7 @@ func (s *Session) requestWithContextLockedBucket(ctx context.Context, method, ur
 		if sequence < s.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
+			response, err = s.RequestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
 		} else {
 			err = fmt.Errorf("exceeded max retries HTTP %s, %s", resp.Status, response)
 		}
@@ -187,7 +183,7 @@ func (s *Session) requestWithContextLockedBucket(ctx context.Context, method, ur
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
-		response, err = s.requestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+		response, err = s.RequestWithContextLockedBucket(ctx, method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
 	case http.StatusUnauthorized:
 		if strings.Index(s.Token, "Bot ") != 0 {
 			s.log(LogInformational, ErrUnauthorized.Error())
@@ -299,15 +295,14 @@ func (s *Session) Logout() (err error) {
 // Functions specific to Discord Users
 // ------------------------------------------------------------------------------------------------
 
-// User returns the user details of the given userID.
-// userID    : A user ID or "@me" which is a shortcut of current user ID.
+// User returns the user details of the given userID via the Discord REST API.
 func (s *Session) User(userID string) (st *User, err error) {
 	return s.UserWithContext(context.TODO(), userID)
 }
 
-// UserWithContext returns the user details of the given userID with the given
-// context.
-// userID    : A user ID or "@me" which is a shortcut of current user ID.
+// UserWithContext returns the user details of the given userID via the Discord
+// REST API with the given context. A userID of "@me" is a shortcut of current
+// user ID.
 func (s *Session) UserWithContext(ctx context.Context, userID string) (st *User, err error) {
 	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointUser(userID), nil, EndpointUsers)
 	if err != nil {
@@ -613,15 +608,14 @@ func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermiss
 // Functions specific to Discord Guilds
 // ------------------------------------------------------------------------------------------------
 
-// Guild returns a Guild structure of a specific Guild.
-// guildID   : The ID of a Guild
+// Guild returns a Guild structure of a specific Guild via the Discord REST
+// API.
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	return s.GuildWithContext(context.TODO(), guildID)
 }
 
-// GuildWithContext returns a Guild structure of a specific Guild using the
-// provided context.
-// guildID   : The ID of a Guild
+// GuildWithContext returns a Guild structure of a specific Guild via the
+// Discord REST API using the provided context.
 func (s *Session) GuildWithContext(ctx context.Context, guildID string) (st *Guild, err error) {
 	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointGuild(guildID), nil, EndpointGuild(guildID))
 	if err != nil {
@@ -801,21 +795,14 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 	return
 }
 
-// GuildMember returns a member of a guild.
-//  guildID   : The ID of a Guild.
-//  userID    : The ID of a User
+// GuildMember returns a member of a guild via the Discord REST API.
 func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 	return s.GuildMemberWithContext(context.TODO(), guildID, userID)
 }
 
-// GuildMemberWithContext returns a member of a guild using the given context.
-//  guildID   : The ID of a Guild.
-//  userID    : The ID of a User
+// GuildMemberWithContext returns a member of a guild via the Discord REST API
+// using the given context.
 func (s *Session) GuildMemberWithContext(ctx context.Context, guildID, userID string) (st *Member, err error) {
-	return s.guildMemberWithContext(ctx, guildID, userID)
-}
-
-func (s *Session) guildMemberWithContext(ctx context.Context, guildID, userID string) (st *Member, err error) {
 	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointGuildMember(guildID, userID), nil, EndpointGuildMember(guildID, ""))
 	if err != nil {
 		return
@@ -931,54 +918,40 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 	return
 }
 
-// GuildMemberRoleAdd adds the specified role to a given member
-//  guildID   : The ID of a Guild.
-//  userID    : The ID of a User.
-//  roleID 	  : The ID of a Role to be assigned to the user.
+// GuildMemberRoleAdd adds the specified role to a given member via the Discord REST API.
 func (s *Session) GuildMemberRoleAdd(guildID, userID, roleID string) (err error) {
 	return s.GuildMemberRoleAddWithContext(context.TODO(), guildID, userID, roleID)
 }
 
-// GuildMemberRoleAddWithContext adds the specified role to a given member
-// using the provided context.
-//  guildID   : The ID of a Guild.
-//  userID    : The ID of a User.
-//  roleID 	  : The ID of a Role to be assigned to the user.
+// GuildMemberRoleAddWithContext adds the specified role to a given member via
+// the Discord REST API using the provided context.
 func (s *Session) GuildMemberRoleAddWithContext(ctx context.Context, guildID, userID, roleID string) (err error) {
 	_, err = s.RequestWithContextBucketID(ctx, "PUT", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
 
 	return
 }
 
-// GuildMemberRoleRemove removes the specified role from a given member.
-//  guildID   : The ID of a Guild.
-//  userID    : The ID of a User.
-//  roleID 	  : The ID of a Role to be removed from the user.
+// GuildMemberRoleRemove removes the specified role from a given member via the Discord REST API.
 func (s *Session) GuildMemberRoleRemove(guildID, userID, roleID string) (err error) {
 	return s.GuildMemberRoleRemoveWithContext(context.TODO(), guildID, userID, roleID)
 }
 
 // GuildMemberRoleRemoveWithContext removes the specified role from a given
-// member using the provided context.
-//  guildID   : The ID of a Guild.
-//  userID    : The ID of a User.
-//  roleID 	  : The ID of a Role to be removed from the user.
+//member via the Discord REST API using the provided context.
 func (s *Session) GuildMemberRoleRemoveWithContext(ctx context.Context, guildID, userID, roleID string) (err error) {
 	_, err = s.RequestWithContextBucketID(ctx, "DELETE", EndpointGuildMemberRole(guildID, userID, roleID), nil, EndpointGuildMemberRole(guildID, "", ""))
 
 	return
 }
 
-// GuildChannels returns an array of Channel structures for all channels of a
-// given guild.
-// guildID   : The ID of a Guild.
+// GuildChannels returns a slice of Channel structures for all channels of a
+// given guild via the Discord REST API.
 func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 	return s.GuildChannelsWithContext(context.TODO(), guildID)
 }
 
-// GuildChannelsWithContext returns an array of Channel structures for all
-// channels of a given guild using the provided context.
-// guildID   : The ID of a Guild.
+// GuildChannelsWithContext returns a slice of Channel structures for all
+// channels of a given guild via the Discord REST API.using the provided context.
 func (s *Session) GuildChannelsWithContext(ctx context.Context, guildID string) (st []*Channel, err error) {
 	body, err := s.request(ctx, "GET", EndpointGuildChannels(guildID), "", nil, EndpointGuildChannels(guildID), 0)
 	if err != nil {
@@ -1057,20 +1030,14 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 	return
 }
 
-// GuildRoles returns all roles for a given guild.
-// guildID   : The ID of a Guild.
+// GuildRoles returns all roles for a given guild via the Discord REST API.
 func (s *Session) GuildRoles(guildID string) (st Roles, err error) {
 	return s.GuildRolesWithContext(context.TODO(), guildID)
 }
 
-// GuildRolesWithContext returns all roles for a given guild using the given
-// context.
-// guildID   : The ID of a Guild.
+// GuildRolesWithContext returns all roles for a given guild via the Discord
+// REST API. using the given context.
 func (s *Session) GuildRolesWithContext(ctx context.Context, guildID string) (st Roles, err error) {
-	return s.guildRolesWithContext(ctx, guildID)
-}
-
-func (s *Session) guildRolesWithContext(ctx context.Context, guildID string) (st Roles, err error) {
 	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
@@ -1081,15 +1048,13 @@ func (s *Session) guildRolesWithContext(ctx context.Context, guildID string) (st
 	return
 }
 
-// GuildRoleCreate returns a new Guild Role.
-// guildID: The ID of a Guild.
+// GuildRoleCreate returns a new Guild Role via the Discord REST API.
 func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	return s.GuildRoleCreateWithContext(context.TODO(), guildID)
 }
 
-// GuildRoleCreateWithContext returns a new Guild Role using the provided
-// context.
-// guildID: The ID of a Guild.
+// GuildRoleCreateWithContext returns a new Guild Role via the Discord REST API
+// using the provided context.
 func (s *Session) GuildRoleCreateWithContext(ctx context.Context, guildID string) (st *Role, err error) {
 	body, err := s.RequestWithContextBucketID(ctx, "POST", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
 	if err != nil {
@@ -1101,27 +1066,20 @@ func (s *Session) GuildRoleCreateWithContext(ctx context.Context, guildID string
 	return
 }
 
-// GuildRoleEdit updates an existing Guild Role with new values.
-// guildID   : The ID of a Guild.
-// roleID    : The ID of a Role.
-// name      : The name of the Role.
-// color     : The color of the role (decimal, not hex).
-// hoist     : Whether to display the role's users separately.
-// perm      : The permissions for the role.
-// mention   : Whether this role is mentionable
+// GuildRoleEdit updates an existing Guild Role with new values via the Discord
+// REST API. The color parameter must be provided as a decimal value, not hex.
+// The hoist parameter is for whether to display the role's users separately.
+// The perm parameter is the permissions for the role. The mention parameter is
+// for whether this role is mentionable.
 func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
 	return s.GuildRoleEditWithContext(context.TODO(), guildID, roleID, name, color, hoist, perm, mention)
 }
 
-// GuildRoleEditWithContext updates an existing Guild Role with new values
-// using the provided context.
-// guildID   : The ID of a Guild.
-// roleID    : The ID of a Role.
-// name      : The name of the Role.
-// color     : The color of the role (decimal, not hex).
-// hoist     : Whether to display the role's users separately.
-// perm      : The permissions for the role.
-// mention   : Whether this role is mentionable
+// GuildRoleEditWithContext updates an existing Guild Role with new values via
+// the Discord REST API using the provided context. The color parameter must be
+// provided as a decimal value, not hex. The hoist parameter is for whether to
+// display the role's users separately. The perm parameter is the permissions
+// for the role. The mention parameter is for whether this role is mentionable.
 func (s *Session) GuildRoleEditWithContext(ctx context.Context, guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
 	// Prevent sending a color int that is too big.
 	if color > 0xFFFFFF {
@@ -1465,15 +1423,13 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------
 
-// Channel returns a Channel structure of a specific Channel.
-// channelID  : The ID of the Channel you want returned.
+// Channel returns a Channel structure of a specific Channel via the Discord REST API.
 func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	return s.ChannelWithContext(context.TODO(), channelID)
 }
 
-// ChannelWithContext returns a Channel structure of a specific channel using
-// the provided context.
-// channelID  : The ID of the Channel you want returned.
+// ChannelWithContext returns a Channel structure of a specific Channel via the
+// Discord REST API using the provided context.
 func (s *Session) ChannelWithContext(ctx context.Context, channelID string) (st *Channel, err error) {
 	body, err := s.RequestWithContextBucketID(ctx, "GET", EndpointChannel(channelID), nil, EndpointChannel(channelID))
 	if err != nil {
@@ -1606,17 +1562,13 @@ func (s *Session) ChannelMessageSend(channelID string, content string) (*Message
 
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
-// ChannelMessageSendComplex sends a message to the given channel.
-// channelID : The ID of a Channel.
-// data      : The message struct to send.
+// ChannelMessageSendComplex sends a message to the given channel via the Discord REST API.
 func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend) (st *Message, err error) {
 	return s.ChannelMessageSendComplexWithContext(context.TODO(), channelID, data)
 }
 
 // ChannelMessageSendComplexWithContext sends a message to the given channel
-// using the provided context.
-// channelID : The ID of a Channel.
-// data      : The message struct to send.
+// via the Discord REST API using the provided context.
 func (s *Session) ChannelMessageSendComplexWithContext(ctx context.Context, channelID string, data *MessageSend) (st *Message, err error) {
 	if data.Embed != nil && data.Embed.Type == "" {
 		data.Embed.Type = "rich"
