@@ -764,35 +764,55 @@ func (s *Session) GuildBanDelete(guildID, userID string) (err error) {
 	return
 }
 
-// GuildMembers returns a list of members for a guild.
-//  guildID  : The ID of a Guild.
-//  after    : The id of the member to return members after
-//  limit    : max number of members to return (max 1000)
-func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*Member, err error) {
+// GuildMembers returns a list of members for a guild. The after parameter is
+// to denote a guild member user ID to return members after. If set to an empty
+// string, it will start from the beginning. The limit parameter denotes the
+// max number of members to return and must be greater than 0 and less than
+// 1000.
+func (s *Session) GuildMembers(guildID string, after string, limit int) ([]*Member, error) {
+	return s.GuildMembersWithContext(context.TODO(), guildID, after, limit)
+}
 
+// GuildMembersWithContext returns a list of members for a guild using the
+// provided context. The after parameter is to denote a guild member user ID to
+// return members after. If set to an empty string, it will start from the
+// beginning. The limit parameter denotes the max number of members to return.
+// The value must be greater than 0 and less than 1000.
+func (s *Session) GuildMembersWithContext(ctx context.Context, guildID string, after string, limit int) ([]*Member, error) {
+	if limit < 0 {
+		return nil, fmt.Errorf("limit (%d) must be greater than 0", limit)
+	}
+
+	if limit > 1000 {
+		return nil, fmt.Errorf("limit (%d) exceeds max value of 1000", limit)
+	}
+
+	urlValues := url.Values{}
 	uri := EndpointGuildMembers(guildID)
 
-	v := url.Values{}
-
 	if after != "" {
-		v.Set("after", after)
+		urlValues.Set("after", after)
 	}
 
-	if limit > 0 {
-		v.Set("limit", strconv.Itoa(limit))
+	urlValues.Set("limit", strconv.Itoa(limit))
+
+	if len(urlValues) > 0 {
+		uri += "?" + urlValues.Encode()
 	}
 
-	if len(v) > 0 {
-		uri += "?" + v.Encode()
-	}
-
-	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildMembers(guildID))
+	body, err := s.RequestWithContextBucketID(ctx, http.MethodGet, uri, nil, EndpointGuildMembers(guildID))
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	err = unmarshal(body, &st)
-	return
+	var members []*Member
+
+	err = unmarshal(body, &members)
+	if err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }
 
 // GuildMember returns a member of a guild via the Discord REST API.
