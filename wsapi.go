@@ -498,7 +498,7 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	// Must immediately disconnect from gateway and reconnect to new gateway.
 	if e.Operation == 7 {
 		s.log(LogInformational, "Closing and reconnecting in response to Op7")
-		s.Close()
+		s.CloseWithCode(websocket.CloseServiceRestart)
 		s.reconnect()
 		return e, nil
 	}
@@ -833,9 +833,13 @@ func (s *Session) reconnect() {
 	}
 }
 
+func (s *Session) Close() error {
+	return s.CloseWithCode(websocket.CloseNormalClosure)
+}
+
 // Close closes a websocket and stops all listening/heartbeat goroutines.
 // TODO: Add support for Voice WS/UDP connections
-func (s *Session) Close() (err error) {
+func (s *Session) CloseWithCode(closeCode int) (err error) {
 
 	s.log(LogInformational, "called")
 	s.Lock()
@@ -857,7 +861,7 @@ func (s *Session) Close() (err error) {
 		// To cleanly close a connection, a client should send a close
 		// frame and wait for the server to close the connection.
 		s.wsMutex.Lock()
-		err := s.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		err := s.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, ""))
 		s.wsMutex.Unlock()
 		if err != nil {
 			s.log(LogInformational, "error closing websocket, %s", err)
