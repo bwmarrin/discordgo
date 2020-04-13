@@ -79,7 +79,7 @@ func (s *Session) Open() error {
 	header.Add("accept-encoding", "zlib")
 	s.wsConn, _, err = websocket.DefaultDialer.Dial(s.gateway, header)
 	if err != nil {
-		s.log(LogWarning, "error connecting to gateway %s, %s", s.gateway, err)
+		s.log(LogError, "error connecting to gateway %s, %s", s.gateway, err)
 		s.gateway = "" // clear cached gateway
 		s.wsConn = nil // Just to be safe.
 		return err
