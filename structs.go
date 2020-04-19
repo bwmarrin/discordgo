@@ -1117,8 +1117,8 @@ const (
 	IntentsGuildMessages
 	IntentsGuildMessageReactions
 	IntentsGuildMessageTyping
-	IntentsDirectMessagesMessages
-	IntentsDirectMessageReaction
+	IntentsDirectMessages
+	IntentsDirectMessageReactions
 	IntentsDirectMessageTyping
 
 	IntentsAllWithoutPrivileged = IntentsGuilds |
@@ -1131,8 +1131,8 @@ const (
 		IntentsGuildMessages |
 		IntentsGuildMessageReactions |
 		IntentsGuildMessageTyping |
-		IntentsDirectMessagesMessages |
-		IntentsDirectMessageReaction |
+		IntentsDirectMessages |
+		IntentsDirectMessageReactions |
 		IntentsDirectMessageTyping
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentsGuildMembers |
