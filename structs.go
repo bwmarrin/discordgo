@@ -1103,3 +1103,38 @@ const (
 
 	ErrCodeReactionBlocked = 90001
 )
+
+const (
+	IntentsGuilds = 1 << iota
+	IntentsGuildMembers
+	IntentsGuildBans
+	IntentsGuildEmojis
+	IntentsGuildIntegrations
+	IntentsGuildWebhooks
+	IntentsGuildInvites
+	IntentsGuildVoiceStates
+	IntentsGuildPresences
+	IntentsGuildMessages
+	IntentsGuildMessageReactions
+	IntentsGuildMessageTyping
+	IntentsDirectMessagesMessages
+	IntentsDirectMessageReaction
+	IntentsDirectMessageTyping
+
+	IntentsAllWithoutPrivileged = IntentsGuilds |
+		IntentsGuildBans |
+		IntentsGuildEmojis |
+		IntentsGuildIntegrations |
+		IntentsGuildWebhooks |
+		IntentsGuildInvites |
+		IntentsGuildVoiceStates |
+		IntentsGuildMessages |
+		IntentsGuildMessageReactions |
+		IntentsGuildMessageTyping |
+		IntentsDirectMessagesMessages |
+		IntentsDirectMessageReaction |
+		IntentsDirectMessageTyping
+	IntentsAll = IntentsAllWithoutPrivileged |
+		IntentsGuildMembers |
+		IntentsGuildPresences
+)
