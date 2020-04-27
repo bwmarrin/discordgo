@@ -838,11 +838,14 @@ func (s *Session) reconnect() {
 	}
 }
 
+// Close closes a websocket and stops all listening/heartbeat goroutines.
+// TODO: Add support for Voice WS/UDP
 func (s *Session) Close() error {
 	return s.CloseWithCode(websocket.CloseNormalClosure)
 }
 
-// Close closes a websocket and stops all listening/heartbeat goroutines.
+// CloseWithCode closes a websocket using the provided closeCode and stops all
+// listening/heartbeat goroutines.
 // TODO: Add support for Voice WS/UDP connections
 func (s *Session) CloseWithCode(closeCode int) (err error) {
 
