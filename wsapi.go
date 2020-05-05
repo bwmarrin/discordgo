@@ -47,7 +47,7 @@ type resumePacket struct {
 }
 
 // Open creates a websocket connection to Discord.
-// See: https://discordapp.com/developers/docs/topics/gateway#connecting
+// See: https://discord.com/developers/docs/topics/gateway#connecting
 func (s *Session) Open() error {
 	s.log(LogInformational, "called")
 
