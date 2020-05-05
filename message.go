@@ -63,7 +63,7 @@ type Message struct {
 	MentionRoles []string `json:"mention_roles"`
 
 	// Whether the message is text-to-speech.
-	Tts bool `json:"tts"`
+	TTS bool `json:"tts"`
 
 	// Whether the message mentions everyone.
 	MentionEveryone bool `json:"mention_everyone"`
@@ -131,7 +131,7 @@ type File struct {
 type MessageSend struct {
 	Content string        `json:"content,omitempty"`
 	Embed   *MessageEmbed `json:"embed,omitempty"`
-	Tts     bool          `json:"tts"`
+	TTS     bool          `json:"tts"`
 	Files   []*File       `json:"-"`
 
 	// TODO: Remove this when compatibility is not required.
