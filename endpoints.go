@@ -18,12 +18,12 @@ var APIVersion = "6"
 
 // Known Discord API Endpoints.
 var (
-	EndpointStatus     = "https://status.discordapp.com/api/v2/"
+	EndpointStatus     = "https://status.discord.com/api/v2/"
 	EndpointSm         = EndpointStatus + "scheduled-maintenances/"
 	EndpointSmActive   = EndpointSm + "active.json"
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
-	EndpointDiscord    = "https://discordapp.com/"
+	EndpointDiscord    = "https://discord.com/"
 	EndpointAPI        = EndpointDiscord + "api/v" + APIVersion + "/"
 	EndpointGuilds     = EndpointAPI + "guilds/"
 	EndpointChannels   = EndpointAPI + "channels/"
@@ -32,7 +32,7 @@ var (
 	EndpointGatewayBot = EndpointGateway + "/bot"
 	EndpointWebhooks   = EndpointAPI + "webhooks/"
 
-	EndpointCDN             = "https://cdn.discordapp.com/"
+	EndpointCDN             = "https://cdn.discord.com/"
 	EndpointCDNAttachments  = EndpointCDN + "attachments/"
 	EndpointCDNAvatars      = EndpointCDN + "avatars/"
 	EndpointCDNIcons        = EndpointCDN + "icons/"
