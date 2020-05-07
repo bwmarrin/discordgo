@@ -58,7 +58,7 @@ support multi-server voice connections and some other features that are
 exclusive to Bot accounts only.
 
 To create a new user account (if you have not done so already) visit the 
-[Discord](https://discord.com/) website and click on the 
+[Discord](https://discordapp.com/) website and click on the 
 **Try Discord Now, It's Free** button then follow the steps to setup your
 new account.
 
@@ -77,12 +77,12 @@ have access to some user client specific features however they gain access to
 many Bot specific features.
 
 To create a new bot account first create yourself a normal user account on 
-Discord then visit the [My Applications](https://discord.com/developers/applications/me)
+Discord then visit the [My Applications](https://discordapp.com/developers/applications/me)
 page and click on the **New Application** box.  Follow the prompts from there
 to finish creating your account.
 
 
-**More information about Bots vs Client accounts can be found [here](https://discord.com/developers/docs/topics/oauth2#bot-vs-user-accounts)**
+**More information about Bots vs Client accounts can be found [here](https://discordapp.com/developers/docs/topics/oauth2#bot-vs-user-accounts)**
 
 # Requirements
 
