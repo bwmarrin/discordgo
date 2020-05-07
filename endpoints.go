@@ -32,7 +32,7 @@ var (
 	EndpointGatewayBot = EndpointGateway + "/bot"
 	EndpointWebhooks   = EndpointAPI + "webhooks/"
 
-	EndpointCDN             = "https://cdn.discord.com/"
+	EndpointCDN             = "https://cdn.discordapp.com/"
 	EndpointCDNAttachments  = EndpointCDN + "attachments/"
 	EndpointCDNAvatars      = EndpointCDN + "avatars/"
 	EndpointCDNIcons        = EndpointCDN + "icons/"
