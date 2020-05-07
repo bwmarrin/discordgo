@@ -2,12 +2,12 @@
 <hr>
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
-[Go](https://golang.org/) (golang) interface for the [Discord](https://discord.com/) 
+[Go](https://golang.org/) (golang) interface for the [Discord](https://discordapp.com/) 
 chat service.  Provides both low-level direct bindings to the 
 Discord API and helper functions that allow you to make custom clients and chat 
 bot applications easily.
 
-[Discord](https://discord.com/) is an all-in-one voice and text chat for 
+[Discord](https://discordapp.com/) is an all-in-one voice and text chat for 
 gamers that's free, secure, and works on both your desktop and phone. 
  
 ### Why DiscordGo?
@@ -30,4 +30,4 @@ information and support for DiscordGo.  There's also a chance to make some
 friends :)
 
 * Join the [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP) chat server dedicated to Go programming.
-* Join the [Discord API](https://discord.com/invite/discord-API) chat server dedicated to the Discord API.
+* Join the [Discord API](https://discordapp.com/invite/discord-API) chat server dedicated to the Discord API.
