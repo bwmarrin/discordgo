@@ -42,7 +42,7 @@ type Session struct {
 	ShouldReconnectOnError bool
 
 	// Identify is sent during initial handshake with the discord gateway.
-	// https://discordapp.com/developers/docs/topics/gateway#identify
+	// https://discord.com/developers/docs/topics/gateway#identify
 	Identify Identify
 
 	// TODO: Remove Below, Deprecated, Use Identify struct
@@ -919,7 +919,7 @@ type GatewayBotResponse struct {
 }
 
 // GatewayStatusUpdate is sent by the client to indicate a presence or status update
-// https://discordapp.com/developers/docs/topics/gateway#update-status-gateway-status-update-structure
+// https://discord.com/developers/docs/topics/gateway#update-status-gateway-status-update-structure
 type GatewayStatusUpdate struct {
 	Since  int      `json:"since"`
 	Game   Activity `json:"game"`
@@ -928,7 +928,7 @@ type GatewayStatusUpdate struct {
 }
 
 // Activity defines the Activity sent with GatewayStatusUpdate
-// https://discordapp.com/developers/docs/topics/gateway#activity-object
+// https://discord.com/developers/docs/topics/gateway#activity-object
 type Activity struct {
 	Name string
 	Type ActivityType
@@ -936,11 +936,11 @@ type Activity struct {
 }
 
 // ActivityType is the type of Activity (see ActivityType* consts) in the Activity struct
-// https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
+// https://discord.com/developers/docs/topics/gateway#activity-object-activity-types
 type ActivityType int
 
 // Valid ActivityType values
-// https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-types
+// https://discord.com/developers/docs/topics/gateway#activity-object-activity-types
 const (
 	ActivityTypeGame GameType = iota
 	ActivityTypeStreaming
@@ -950,7 +950,7 @@ const (
 )
 
 // Identify is sent during initial handshake with the discord gateway.
-// https://discordapp.com/developers/docs/topics/gateway#identify
+// https://discord.com/developers/docs/topics/gateway#identify
 type Identify struct {
 	Token              string              `json:"token"`
 	Properties         IdentifyProperties  `json:"properties"`
@@ -962,7 +962,7 @@ type Identify struct {
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
-// https://discordapp.com/developers/docs/topics/gateway#identify-identify-connection-properties
+// https://discord.com/developers/docs/topics/gateway#identify-identify-connection-properties
 type IdentifyProperties struct {
 	OS              string `json:"$os"`
 	Browser         string `json:"$browser"`
