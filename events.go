@@ -139,9 +139,11 @@ type GuildEmojisUpdate struct {
 
 // A GuildMembersChunk is the data for a GuildMembersChunk event.
 type GuildMembersChunk struct {
-	GuildID   string      `json:"guild_id"`
-	Members   []*Member   `json:"members"`
-	Presences []*Presence `json:"presences,omitempty"`
+	GuildID    string      `json:"guild_id"`
+	Members    []*Member   `json:"members"`
+	ChunkIndex int         `json:"chunk_index"`
+	ChunkCount int         `json:"chunk_count"`
+	Presences  []*Presence `json:"presences,omitempty"`
 }
 
 // GuildIntegrationsUpdate is the data for a GuildIntegrationsUpdate event.
