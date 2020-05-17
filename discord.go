@@ -74,7 +74,6 @@ func New(args ...interface{}) (s *Session, err error) {
 	s.Identify.GuildSubscriptions = true
 	s.Identify.Properties.OS = runtime.GOOS
 	s.Identify.Properties.Browser = "DiscordGo v" + VERSION
-	s.Identify.Intents = IntentsAllWithoutPrivileged
 
 	// If no arguments are passed return the empty Session interface.
 	if args == nil {

@@ -959,7 +959,7 @@ type Identify struct {
 	Shard              *[2]int             `json:"shard,omitempty"`
 	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
 	GuildSubscriptions bool                `json:"guild_subscriptions"`
-	Intents            int                 `json:"intents"`
+	Intents            *Intent             `json:"intents,omitempty"`
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
@@ -1104,8 +1104,10 @@ const (
 	ErrCodeReactionBlocked = 90001
 )
 
+type Intent int
+
 const (
-	IntentsGuilds = 1 << iota
+	IntentsGuilds Intent = 1 << iota
 	IntentsGuildMembers
 	IntentsGuildBans
 	IntentsGuildEmojis
@@ -1137,4 +1139,5 @@ const (
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentsGuildMembers |
 		IntentsGuildPresences
+    IntentsNone Intent = 0
 )
