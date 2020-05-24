@@ -15,7 +15,3 @@ func SnowflakeTimestamp(ID string) (t time.Time, err error) {
 	t = time.Unix(timestamp/1000, 0)
 	return
 }
-
-func MakeIntent(intents Intent) *Intent {
-	return &intents
-}

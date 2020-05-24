@@ -1141,3 +1141,8 @@ const (
 		IntentsGuildPresences
 	IntentsNone Intent = 0
 )
+
+// MakeIntent helps convert a gateway intent value for use in the Identify structure.
+func MakeIntent(intents Intent) *Intent {
+	return &intents
+}
