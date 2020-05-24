@@ -1139,5 +1139,5 @@ const (
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentsGuildMembers |
 		IntentsGuildPresences
-    IntentsNone Intent = 0
+	IntentsNone Intent = 0
 )
