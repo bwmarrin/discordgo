@@ -46,7 +46,7 @@ type resumePacket struct {
 }
 
 // Open creates a websocket connection to Discord.
-// See: https://discordapp.com/developers/docs/topics/gateway#connecting
+// See: https://discord.com/developers/docs/topics/gateway#connecting
 func (s *Session) Open() error {
 	s.log(LogInformational, "called")
 
@@ -838,11 +838,14 @@ func (s *Session) reconnect() {
 	}
 }
 
+// Close closes a websocket and stops all listening/heartbeat goroutines.
+// TODO: Add support for Voice WS/UDP
 func (s *Session) Close() error {
 	return s.CloseWithCode(websocket.CloseNormalClosure)
 }
 
-// Close closes a websocket and stops all listening/heartbeat goroutines.
+// CloseWithCode closes a websocket using the provided closeCode and stops all
+// listening/heartbeat goroutines.
 // TODO: Add support for Voice WS/UDP connections
 func (s *Session) CloseWithCode(closeCode int) (err error) {
 
