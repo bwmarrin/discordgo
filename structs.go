@@ -1104,8 +1104,11 @@ const (
 	ErrCodeReactionBlocked = 90001
 )
 
+// Intent is the type of a Gateway Intent
+// https://discord.com/developers/docs/topics/gateway#gateway-intents
 type Intent int
 
+// Constants for the different bit offsets of intents
 const (
 	IntentsGuilds Intent = 1 << iota
 	IntentsGuildMembers
