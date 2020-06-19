@@ -959,6 +959,7 @@ type Identify struct {
 	Shard              *[2]int             `json:"shard,omitempty"`
 	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
 	GuildSubscriptions bool                `json:"guild_subscriptions"`
+	Intents            *Intent             `json:"intents,omitempty"`
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
@@ -1102,3 +1103,49 @@ const (
 
 	ErrCodeReactionBlocked = 90001
 )
+
+// Intent is the type of a Gateway Intent
+// https://discord.com/developers/docs/topics/gateway#gateway-intents
+type Intent int
+
+// Constants for the different bit offsets of intents
+const (
+	IntentsGuilds Intent = 1 << iota
+	IntentsGuildMembers
+	IntentsGuildBans
+	IntentsGuildEmojis
+	IntentsGuildIntegrations
+	IntentsGuildWebhooks
+	IntentsGuildInvites
+	IntentsGuildVoiceStates
+	IntentsGuildPresences
+	IntentsGuildMessages
+	IntentsGuildMessageReactions
+	IntentsGuildMessageTyping
+	IntentsDirectMessages
+	IntentsDirectMessageReactions
+	IntentsDirectMessageTyping
+
+	IntentsAllWithoutPrivileged = IntentsGuilds |
+		IntentsGuildBans |
+		IntentsGuildEmojis |
+		IntentsGuildIntegrations |
+		IntentsGuildWebhooks |
+		IntentsGuildInvites |
+		IntentsGuildVoiceStates |
+		IntentsGuildMessages |
+		IntentsGuildMessageReactions |
+		IntentsGuildMessageTyping |
+		IntentsDirectMessages |
+		IntentsDirectMessageReactions |
+		IntentsDirectMessageTyping
+	IntentsAll = IntentsAllWithoutPrivileged |
+		IntentsGuildMembers |
+		IntentsGuildPresences
+	IntentsNone Intent = 0
+)
+
+// MakeIntent helps convert a gateway intent value for use in the Identify structure.
+func MakeIntent(intents Intent) *Intent {
+	return &intents
+}
