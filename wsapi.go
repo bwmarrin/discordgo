@@ -843,10 +843,6 @@ func (s *Session) reconnect() {
 	}
 }
 
-func (s *Session) Close() error {
-	return s.CloseWithCode(websocket.CloseNormalClosure)
-}
-
 // Close closes a websocket and stops all listening/heartbeat goroutines.
 // TODO: Add support for Voice WS/UDP
 func (s *Session) Close() error {
