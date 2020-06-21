@@ -6,7 +6,7 @@ This example demonstrates how to utilize DiscordGo to create, view, and delete
 Bot Applications on your account.
 
 These tasks are normally accomplished from the 
-[Discord Developers](https://discordapp.com/developers/applications/me) site.
+[Discord Developers](https://discord.com/developers/applications/me) site.
 
 **Join [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP)
 Discord chat channel for support.**
