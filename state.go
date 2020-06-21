@@ -848,6 +848,12 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 				err = s.MemberAdd(t.Members[i])
 			}
 		}
+
+		if s.TrackPresences {
+			for _, p := range t.Presences {
+				err = s.PresenceAdd(t.GuildID, p)
+			}
+		}
 	case *GuildRoleCreate:
 		if s.TrackRoles {
 			err = s.RoleAdd(t.GuildID, t.Role)
