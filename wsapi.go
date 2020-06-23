@@ -398,9 +398,10 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildIDs []string `json:"guild_id"`
-	Query    string   `json:"query"`
-	Limit    int      `json:"limit"`
+	GuildIDs  []string `json:"guild_id"`
+	Query     string   `json:"query"`
+	Limit     int      `json:"limit"`
+	Presences bool     `json:"presences"`
 }
 
 type requestGuildMembersOp struct {
@@ -410,14 +411,16 @@ type requestGuildMembersOp struct {
 
 // RequestGuildMembers requests guild members from the gateway
 // The gateway responds with GuildMembersChunk events
-// guildID  : Single Guild ID to request members of
-// query    : String that username starts with, leave empty to return all members
-// limit    : Max number of items to return, or 0 to request all members matched
-func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (err error) {
+// guildID   : Single Guild ID to request members of
+// query     : String that username starts with, leave empty to return all members
+// limit     : Max number of items to return, or 0 to request all members matched
+// presences : Whether to request presences of guild members
+func (s *Session) RequestGuildMembers(guildID string, query string, limit int, presences bool) (err error) {
 	data := requestGuildMembersData{
-		GuildIDs: []string{guildID},
-		Query:    query,
-		Limit:    limit,
+		GuildIDs:  []string{guildID},
+		Query:     query,
+		Limit:     limit,
+		Presences: presences,
 	}
 	err = s.requestGuildMembers(data)
 	return
@@ -425,14 +428,16 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int) (
 
 // RequestGuildMembersBatch requests guild members from the gateway
 // The gateway responds with GuildMembersChunk events
-// guildID  : Slice of guild IDs to request members of
-// query    : String that username starts with, leave empty to return all members
-// limit    : Max number of items to return, or 0 to request all members matched
-func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int) (err error) {
+// guildID   : Slice of guild IDs to request members of
+// query     : String that username starts with, leave empty to return all members
+// limit     : Max number of items to return, or 0 to request all members matched
+// presences : Whether to request presences of guild members
+func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, presences bool) (err error) {
 	data := requestGuildMembersData{
-		GuildIDs: guildIDs,
-		Query:    query,
-		Limit:    limit,
+		GuildIDs:  guildIDs,
+		Query:     query,
+		Limit:     limit,
+		Presences: presences,
 	}
 	err = s.requestGuildMembers(data)
 	return
