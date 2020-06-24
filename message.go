@@ -129,11 +129,11 @@ type MessageFlags int
 
 // Valid MessageFlags values
 const (
-	MessageFlagsCrossPosted          MessageFlags = 1 << 0
-	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
-	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
-	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
-	MessageFlagsUrgant               MessageFlags = 1 << 4
+	MessageFlagsCrossPosted MessageFlags = 1 << iota
+	MessageFlagsIsCrossPosted
+	MessageFlagsSupressEmbeds
+	MessageFlagsSourceMessageDeleted
+	MessageFlagsUrgant
 )
 
 // File stores info about files you e.g. send in messages.
