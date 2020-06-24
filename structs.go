@@ -1064,7 +1064,6 @@ type Webhook struct {
 type WebhookType int
 
 // Valid WebhookType values
-// https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types
 const (
 	WebhookTypeIncoming WebhookType = iota
 	WebhookTypeChannelFollower
@@ -1117,7 +1116,6 @@ type Activity struct {
 type ActivityType int
 
 // Valid ActivityType values
-// https://discord.com/developers/docs/topics/gateway#activity-object-activity-types
 const (
 	ActivityTypeGame GameType = iota
 	ActivityTypeStreaming
