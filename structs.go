@@ -180,22 +180,33 @@ type ICEServer struct {
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild     *Guild    `json:"guild"`
-	Channel   *Channel  `json:"channel"`
-	Inviter   *User     `json:"inviter"`
-	Code      string    `json:"code"`
-	CreatedAt Timestamp `json:"created_at"`
-	MaxAge    int       `json:"max_age"`
-	Uses      int       `json:"uses"`
-	MaxUses   int       `json:"max_uses"`
-	Revoked   bool      `json:"revoked"`
-	Temporary bool      `json:"temporary"`
-	Unique    bool      `json:"unique"`
+	Guild          *Guild         `json:"guild"`
+	Channel        *Channel       `json:"channel"`
+	Inviter        *User          `json:"inviter"`
+	Code           string         `json:"code"`
+	CreatedAt      Timestamp      `json:"created_at"`
+	MaxAge         int            `json:"max_age"`
+	Uses           int            `json:"uses"`
+	MaxUses        int            `json:"max_uses"`
+	Revoked        bool           `json:"revoked"`
+	Temporary      bool           `json:"temporary"`
+	Unique         bool           `json:"unique"`
+	TargetUser     *User          `json:"target_user"`
+	TargetUserType TargetUserType `json:"target_user_type"`
 
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
+
+// TargetUserType is the type of the target user
+// https://discord.com/developers/docs/resources/invite#invite-object-target-user-types
+type TargetUserType int
+
+// Block contains known TargetUserType values
+const (
+	TargetUserTypeStream TargetUserType = iota
+)
 
 // ChannelType is the type of a Channel
 type ChannelType int
@@ -268,6 +279,12 @@ type Channel struct {
 	// Amount of seconds a user has to wait before sending another message (0-21600)
 	// bots, as well as users with the permission manage_messages or manage_channel, are unaffected
 	RateLimitPerUser int `json:"rate_limit_per_user"`
+
+	// ID of the DM creator Zeroed if guild channel
+	OwnerID string `json:"owner_id"`
+
+	// ApplicationID of the DM creator Zeroed if guild channel or not a bot user
+	ApplicationID string `json:"application_id"`
 }
 
 // Mention returns a string which mentions the channel
@@ -301,6 +318,7 @@ type Emoji struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`
 	Roles         []string `json:"roles"`
+	User          *User    `json:"user"`
 	Managed       bool     `json:"managed"`
 	RequireColons bool     `json:"require_colons"`
 	Animated      bool     `json:"animated"`
@@ -398,10 +416,16 @@ type Guild struct {
 	// The user ID of the owner of the guild.
 	OwnerID string `json:"owner_id"`
 
+	// If we are the owner of the guild
+	Owner bool `json:"owner"`
+
 	// The time at which the current user joined the guild.
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
 	JoinedAt Timestamp `json:"joined_at"`
+
+	// The hash of the guild's discovery splash.
+	DiscoverySplash string `json:"discovery_splash"`
 
 	// The hash of the guild's splash.
 	Splash string `json:"splash"`
@@ -445,6 +469,12 @@ type Guild struct {
 	// update events, and thus is only present in state-cached guilds.
 	Presences []*Presence `json:"presences"`
 
+	// the maximum number of presences for the guild (the default value, currently 25000, is in effect when null is returned)
+	MaxPresences int `json:"max_presences"`
+
+	// the maximum number of members for the guild
+	MaxMembers int `json:"max_members"`
+
 	// A list of channels in the guild.
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
@@ -469,6 +499,9 @@ type Guild struct {
 	// Required MFA level for the guild
 	MfaLevel MfaLevel `json:"mfa_level"`
 
+	// The application id of the guild if bot created.
+	ApplicationID string `json:"application_id"`
+
 	// Whether or not the Server Widget is enabled
 	WidgetEnabled bool `json:"widget_enabled"`
 
@@ -477,6 +510,12 @@ type Guild struct {
 
 	// The Channel ID to which system messages are sent (eg join and leave messages)
 	SystemChannelID string `json:"system_channel_id"`
+
+	// The System channel flags
+	SystemChannelFlags SystemChannelFlag `json:"system_channel_flags"`
+
+	// The ID of the rules channel ID, used for rules.
+	RulesChannelID string `json:"rules_channel_id"`
 
 	// the vanity url code for the guild
 	VanityURLCode string `json:"vanity_url_code"`
@@ -492,7 +531,32 @@ type Guild struct {
 
 	// The total number of users currently boosting this server
 	PremiumSubscriptionCount int `json:"premium_subscription_count"`
+
+	// the preferred locale of a guild with the "PUBLIC" feature; used in server discovery and notices from Discord; defaults to "en-US"
+	PreferredLocale string `json:"preferred_locale"`
+
+	// the id of the channel where admins and moderators of guilds with the "PUBLIC" feature receive notices from Discord
+	PublicUpdatesChannelID string `json:"public_updates_channel_id"`
+
+	// the maximum amount of users in a video channel
+	MaxVideoChannelUsers int `json:"max_video_channel_users"`
+
+	// approximate number of members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	ApproximateMemberCount int `json:"approximate_member_count"`
+
+	// approximate number of non-offline members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	ApproximatePresenceCount int `json:"approximate_presence_count"`
 }
+
+// SystemChannelFlag is the type of flags in the system channel (see SystemChannelFlag* consts)
+// https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
+type SystemChannelFlag int
+
+// Block containing known SystemChannelFlag values
+const (
+	SystemChannelFlagsSuppressJoin    SystemChannelFlag = 1 << 0
+	SystemChannelFlagsSuppressPremium SystemChannelFlag = 1 << 1
+)
 
 // IconURL returns a URL to the guild's icon.
 func (g *Guild) IconURL() string {
@@ -884,14 +948,26 @@ type APIErrorMessage struct {
 
 // Webhook stores the data for a webhook.
 type Webhook struct {
-	ID        string `json:"id"`
-	GuildID   string `json:"guild_id"`
-	ChannelID string `json:"channel_id"`
-	User      *User  `json:"user"`
-	Name      string `json:"name"`
-	Avatar    string `json:"avatar"`
-	Token     string `json:"token"`
+	ID        string      `json:"id"`
+	Type      WebhookType `json:"type"`
+	GuildID   string      `json:"guild_id"`
+	ChannelID string      `json:"channel_id"`
+	User      *User       `json:"user"`
+	Name      string      `json:"name"`
+	Avatar    string      `json:"avatar"`
+	Token     string      `json:"token"`
 }
+
+// WebhookType is the type of Webhook (see WebhookType* consts) in the Webhook struct
+// https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types
+type WebhookType int
+
+// Valid WebhookType values
+// https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types
+const (
+	WebhookTypeIncoming WebhookType = iota
+	WebhookTypeChannelFollower
+)
 
 // WebhookParams is a struct for webhook params, used in the WebhookExecute command.
 type WebhookParams struct {
