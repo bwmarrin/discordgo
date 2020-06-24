@@ -15,13 +15,3 @@ func SnowflakeTimestamp(ID string) (t time.Time, err error) {
 	t = time.Unix(0, timestamp*1000000)
 	return
 }
-
-//PermissionsSynced Checks if channel has permissions synced with another channel
-func PermissionsSynced(c1 *Channel, c2 *Channel) bool {
-	for index, po := range c1.PermissionOverwrites {
-		if po != c2.PermissionOverwrites[index] {
-			return false
-		}
-	}
-	return true
-}
