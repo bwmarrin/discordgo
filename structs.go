@@ -450,8 +450,7 @@ type Guild struct {
 	Large bool `json:"large"`
 
 	// The default message notification setting for the guild.
-	// 0 == all messages, 1 == mentions only.
-	DefaultMessageNotifications int `json:"default_message_notifications"`
+	DefaultMessageNotifications MessageNotifications `json:"default_message_notifications"`
 
 	// A list of roles in the guild.
 	Roles []*Role `json:"roles"`
@@ -546,7 +545,20 @@ type Guild struct {
 
 	// approximate number of non-offline members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
+
+	// permissions of our user
+	Permissions int `json:"permissions"`
 }
+
+// MessageNotifications is the notification level for a guild
+// https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
+type MessageNotifications int
+
+// Block containing known MessageNotifications values
+const (
+	MessageNotificationsAllMessages MessageNotifications = iota
+	MessageNotificationsOnlyMentions
+)
 
 // SystemChannelFlag is the type of flags in the system channel (see SystemChannelFlag* consts)
 // https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
