@@ -330,8 +330,8 @@ type Emoji struct {
 	Name          string   `json:"name"`
 	Roles         []string `json:"roles"`
 	User          *User    `json:"user"`
-	Managed       bool     `json:"managed"`
 	RequireColons bool     `json:"require_colons"`
+	Managed       bool     `json:"managed"`
 	Animated      bool     `json:"animated"`
 	Available     bool     `json:"available"`
 }
