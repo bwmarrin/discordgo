@@ -26,7 +26,7 @@ jobs:
 
       - name: Init
         shell: bash
-        run: go get -v ./...
+        run: go mod download
 
       - name: Lint
         shell: bash
