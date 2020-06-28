@@ -13,7 +13,7 @@ package discordgo
 // Code specific to Discord OAuth2 Applications
 // ------------------------------------------------------------------------------------------------
 
-// A TeamMember struct stores values for a single Team Member, extending the normal User data. Note that the user field is partial.
+// A TeamMember struct stores values for a single Team Member, extending the normal User data - note that the user field is partial
 type TeamMember struct {
 	User            *User    `json:"user"`
 	TeamID          string   `json:"team_id"`
