@@ -133,7 +133,7 @@ const (
 	MessageFlagsIsCrossPosted
 	MessageFlagsSupressEmbeds
 	MessageFlagsSourceMessageDeleted
-	MessageFlagsUrgant
+	MessageFlagsUrgent
 )
 
 // File stores info about files you e.g. send in messages.
