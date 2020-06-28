@@ -17,7 +17,7 @@ package discordgo
 type TeamMember struct {
 	User            *User    `json:"user"`
 	TeamID          string   `json:"team_id"`
-	MembershipState string   `json:"membership_state"`
+	MembershipState int      `json:"membership_state"`
 	Permissions     []string `json:"permissions"`
 }
 
