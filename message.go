@@ -307,7 +307,7 @@ type MessageActivityType int
 
 // Constants for the different types of Message Activity
 const (
-	MessageActivityTypeJoin = iota + 1
+	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
 	MessageActivityTypeListen
 	MessageActivityTypeJoinRequest
@@ -319,7 +319,7 @@ type MessageFlag int
 // Constants for the different bit offsets of Message Flags
 const (
 	// This message has been published to subscribed channels (via Channel Following)
-	MessageFlagCrossposted = 1 << iota
+	MessageFlagCrossposted MessageFlag = 1 << iota
 	// This message originated from a message in another channel (via Channel Following)
 	MessageFlagIsCrosspost
 	// Do not include any embeds when serializing this message
