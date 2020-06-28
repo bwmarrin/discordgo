@@ -16,6 +16,7 @@ package discordgo
 // The MembershipState represents whether the user is in the team or has been invited into it
 type MembershipState int
 
+// Constants for the different stages of the MembershipState
 const (
 	MembershipStateInvited MembershipState = iota + 1
 	MembershipStateAccepted
