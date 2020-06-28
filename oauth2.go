@@ -13,12 +13,20 @@ package discordgo
 // Code specific to Discord OAuth2 Applications
 // ------------------------------------------------------------------------------------------------
 
+// The MembershipState represents whether the user is in the team or has been invited into it
+type MembershipState int
+
+const (
+	MembershipStateInvited MembershipState = iota + 1
+	MembershipStateAccepted
+)
+
 // A TeamMember struct stores values for a single Team Member, extending the normal User data - note that the user field is partial
 type TeamMember struct {
-	User            *User    `json:"user"`
-	TeamID          string   `json:"team_id"`
-	MembershipState int      `json:"membership_state"`
-	Permissions     []string `json:"permissions"`
+	User            *User           `json:"user"`
+	TeamID          string          `json:"team_id"`
+	MembershipState MembershipState `json:"membership_state"`
+	Permissions     []string        `json:"permissions"`
 }
 
 // A Team struct stores the members of a Discord Developer Team as well as some metadata about it
