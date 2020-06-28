@@ -1309,9 +1309,9 @@ func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, li
 	return
 }
 
-// GuildEmoji returns all emoji
+// GuildEmojis returns all emoji
 // guildID : The ID of a Guild.
-func (s *Session) GuildEmoji(guildID string) (emoji []*Emoji, err error) {
+func (s *Session) GuildEmojis(guildID string) (emoji []*Emoji, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointGuildEmojis(guildID), nil, EndpointGuildEmojis(guildID))
 	if err != nil {
