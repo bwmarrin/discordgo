@@ -1071,12 +1071,13 @@ const (
 
 // WebhookParams is a struct for webhook params, used in the WebhookExecute command.
 type WebhookParams struct {
-	Content   string          `json:"content,omitempty"`
-	Username  string          `json:"username,omitempty"`
-	AvatarURL string          `json:"avatar_url,omitempty"`
-	TTS       bool            `json:"tts,omitempty"`
-	File      string          `json:"file,omitempty"`
-	Embeds    []*MessageEmbed `json:"embeds,omitempty"`
+	Content         string                  `json:"content,omitempty"`
+	Username        string                  `json:"username,omitempty"`
+	AvatarURL       string                  `json:"avatar_url,omitempty"`
+	TTS             bool                    `json:"tts,omitempty"`
+	File            string                  `json:"file,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
 
 // MessageReaction stores the data for a message reaction.
