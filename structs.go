@@ -316,6 +316,11 @@ type ChannelEdit struct {
 	RateLimitPerUser     int                    `json:"rate_limit_per_user,omitempty"`
 }
 
+type ChannelFollow struct {
+	ChannelID string `json:"channel_id"`
+	WebhookID string `json:"webhook_id"`
+}
+
 // A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
 	ID    string `json:"id"`

@@ -1810,7 +1810,7 @@ func (s *Session) ChannelMessageCrosspost(channelID, messageID string) (st *Mess
 // ChannelNewsFollow follows a news channel in the targetID
 // channelID   : The ID of a News Channel
 // targetID    : The ID of a Channel where the News Channel should post to
-func (s *Session) ChannelNewsFollow(channelID, targetID string) (err error) {
+func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFollow, err error) {
 
 	endpoint := EndpointChannelFollow(channelID)
 
@@ -1818,7 +1818,9 @@ func (s *Session) ChannelNewsFollow(channelID, targetID string) (err error) {
 		WebhookChannelID string `json:"webhook_channel_id"`
 	}{targetID}
 
-	_, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	body, err := s.RequestWithBucketID("POST", endpoint, data, endpoint)
+
+	err = unmarshal(body, &st)
 	return
 }
 
