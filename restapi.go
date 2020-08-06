@@ -1819,6 +1819,9 @@ func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFoll
 	}{targetID}
 
 	body, err := s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	if err != nil {
+		return
+	}
 
 	err = unmarshal(body, &st)
 	return
