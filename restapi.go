@@ -1790,6 +1790,43 @@ func (s *Session) ChannelPermissionDelete(channelID, targetID string) (err error
 	return
 }
 
+// ChannelMessageCrosspost cross posts a message in a news channel to followers
+// of the channel
+// channelID   : The ID of a Channel
+// messageID   : The ID of a Message
+func (s *Session) ChannelMessageCrosspost(channelID, messageID string) (st *Message, err error) {
+
+	endpoint := EndpointChannelMessageCrosspost(channelID, messageID)
+
+	body, err := s.RequestWithBucketID("POST", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// ChannelNewsFollow follows a news channel in the targetID
+// channelID   : The ID of a News Channel
+// targetID    : The ID of a Channel where the News Channel should post to
+func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFollow, err error) {
+
+	endpoint := EndpointChannelFollow(channelID)
+
+	data := struct {
+		WebhookChannelID string `json:"webhook_channel_id"`
+	}{targetID}
+
+	body, err := s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Invites
 // ------------------------------------------------------------------------------------------------
