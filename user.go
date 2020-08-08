@@ -2,6 +2,27 @@ package discordgo
 
 import "strings"
 
+// UserFlags is the flags of "user" (see UserFlags* consts)
+// https://discord.com/developers/docs/resources/user#user-object-user-flags
+type UserFlags int
+
+// Valid UserFlags values
+const (
+	UserFlagDiscordEmployee      UserFlags = 1 << iota
+	UserFlagDiscordPartner                 = 1 << iota
+	UserFlagHypeSquadEvents                = 1 << iota
+	UserFlagBugHunterLevel1                = 1 << iota
+	UserFlagHouseBravery                   = 1 << iota
+	UserFlagHouseBrilliance                = 1 << iota
+	UserFlagHouseBalance                   = 1 << iota
+	UserFlagEarlySupporter                 = 1 << iota
+	UserFlagTeamUser                       = 1 << iota
+	UserFlagSystem                         = 1 << iota
+	UserFlagBugHunterLevel2                = 1 << iota
+	UserFlagVerifiedBot                    = 1 << iota
+	UserFlagVerifiedBotDeveloper           = 1 << iota
+)
+
 // A User stores all data for an individual Discord user.
 type User struct {
 	// The ID of the user.
@@ -36,6 +57,11 @@ type User struct {
 
 	// Whether the user is a bot.
 	Bot bool `json:"bot"`
+
+	// The public flags on a users account.
+	// This is a combination of bit masks; the presence of a certain flag can
+	// be checked by performing a bitwise AND between this int and the flag.
+	PublicFlags UserFlags `json:"public_flags"`
 }
 
 // String returns a unique identifier of the form username#discriminator
