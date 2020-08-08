@@ -8,19 +8,19 @@ type UserFlags int
 
 // Valid UserFlags values
 const (
-	UserFlagDiscordEmployee UserFlags = 1 << iota
-	UserFlagDiscordPartner
-	UserFlagHypeSquadEvents
-	UserFlagBugHunterLevel1
-	UserFlagHouseBravery
-	UserFlagHouseBrilliance
-	UserFlagHouseBalance
-	UserFlagEarlySupporter
-	UserFlagTeamUser
-	UserFlagSystem
-	UserFlagBugHunterLevel2
-	UserFlagVerifiedBot
-	UserFlagVerifiedBotDeveloper
+	UserFlagDiscordEmployee      UserFlags = 1 << 0
+	UserFlagDiscordPartner                 = 1 << 1
+	UserFlagHypeSquadEvents                = 1 << 2
+	UserFlagBugHunterLevel1                = 1 << 3
+	UserFlagHouseBravery                   = 1 << 6
+	UserFlagHouseBrilliance                = 1 << 7
+	UserFlagHouseBalance                   = 1 << 8
+	UserFlagEarlySupporter                 = 1 << 9
+	UserFlagTeamUser                       = 1 << 10
+	UserFlagSystem                         = 1 << 12
+	UserFlagBugHunterLevel2                = 1 << 14
+	UserFlagVerifiedBot                    = 1 << 16
+	UserFlagVerifiedBotDeveloper           = 1 << 17
 )
 
 // A User stores all data for an individual Discord user.
