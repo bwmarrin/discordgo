@@ -828,16 +828,18 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 // userID   : The ID of a User.
 // roles    : A list of role ID's to set on the member.
 func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
+	// TODO: Change to GuildMemberEditRoles later, kept for backwards-compatability
+	return s.GuildMemberEditComplex(guildID, userID, &MemberEdit{
+		Roles: roles,
+	})
+}
 
-	data := struct {
-		Roles []string `json:"roles"`
-	}{roles}
-
+// GuildMemberEditComplex edits a member
+// guildID  : The ID of a Guild.
+// userID   : The ID of a User.
+// data     : MemberEdit struct to send
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data *MemberEdit) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
-	if err != nil {
-		return
-	}
-
 	return
 }
 
@@ -848,16 +850,11 @@ func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err e
 // NOTE : I am not entirely set on the name of this function and it may change
 // prior to the final 1.0.0 release of Discordgo
 func (s *Session) GuildMemberMove(guildID string, userID string, channelID *string) (err error) {
-
 	data := struct {
 		ChannelID *string `json:"channel_id"`
 	}{channelID}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
-	if err != nil {
-		return
-	}
-
 	return
 }
 

@@ -784,6 +784,20 @@ func (m *Member) Mention() string {
 	return "<@!" + m.User.ID + ">"
 }
 
+// A MemberEdit holds Member Field data for a member edit.
+type MemberEdit struct {
+	Nick  string   `json:"nick,omitempty"`
+	Roles []string `json:"roles,omitempty"`
+
+	// Cannot change below fields if user is not in voice channel
+	Mute bool `json:"mute,omitempty"`
+	Deaf bool `json:"deaf,omitempty"`
+
+	// ChannelID is ommitted from this because Discord API requires a nil value
+	// which cannot work with omitempty, since nil value would be omitted from
+	// the request, use GuildMemberMove instead
+}
+
 // A Settings stores data for a specific users Discord client settings.
 type Settings struct {
 	RenderEmbeds           bool               `json:"render_embeds"`
