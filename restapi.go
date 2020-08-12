@@ -2137,10 +2137,11 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 // MessageReactionAdd creates an emoji reaction to a message.
 // channelID : The channel ID.
 // messageID : The message ID.
-// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier (":emojiName:emojiID").
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier (via Emoji.APIName).
 func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
 
-	emojiID = url.QueryEscape(emojiID)
+	// emoji such as  #⃣ need to have # escaped
+	emojiID = strings.Replace(emojiID, "#", "%23", -1)
 	_, err := s.RequestWithBucketID("PUT", EndpointMessageReaction(channelID, messageID, emojiID, "@me"), nil, EndpointMessageReaction(channelID, "", "", ""))
 
 	return err
