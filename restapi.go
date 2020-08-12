@@ -828,17 +828,11 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 // userID   : The ID of a User.
 // roles    : A list of role ID's to set on the member.
 func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
-	// TODO: Change to GuildMemberEditRoles later, kept for backwards-compatability
-	return s.GuildMemberEditComplex(guildID, userID, &MemberEdit{
-		Roles: roles,
-	})
-}
 
-// GuildMemberEditComplex edits a member
-// guildID  : The ID of a Guild.
-// userID   : The ID of a User.
-// data     : MemberEdit struct to send
-func (s *Session) GuildMemberEditComplex(guildID, userID string, data *MemberEdit) (err error) {
+	data := struct {
+		Roles []string `json:"roles"`
+	}{roles}
+
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	return
 }
@@ -862,6 +856,7 @@ func (s *Session) GuildMemberMove(guildID string, userID string, channelID *stri
 // guildID   : The ID of a guild
 // userID    : The ID of a user
 // userID    : The ID of a user or "@me" which is a shortcut of the current user ID
+// nickname  : The nickname of the member, "" will reset their nickname
 func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err error) {
 
 	data := struct {
@@ -871,6 +866,32 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 	if userID == "@me" {
 		userID += "/nick"
 	}
+
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	return
+}
+
+// GuildMemberMute server mutes a guild member
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  mute    : boolean value for if the user should be muted
+func (s *Session) GuildMemberMute(guildID string, userID string, mute bool) (err error) {
+	data := struct {
+		Mute bool `json:"mute"`
+	}{mute}
+
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	return
+}
+
+// GuildMemberDeafen server deafens a guild member
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+//  deaf    : boolean value for if the user should be deafened
+func (s *Session) GuildMemberDeafen(guildID string, userID string, deaf bool) (err error) {
+	data := struct {
+		Deaf bool `json:"deaf"`
+	}{deaf}
 
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	return
