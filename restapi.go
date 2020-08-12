@@ -1325,7 +1325,7 @@ func (s *Session) GuildEmojis(guildID string) (emoji []*Emoji, err error) {
 // GuildEmojiCreate creates a new emoji
 // guildID : The ID of a Guild.
 // name    : The Name of the Emoji.
-// image   : The base64 encoded emoji image, has to be smaller than 256KB.
+// image   : The base64 encoded emoji image, has to be smaller than 256KB and provided in the data URI scheme.
 // roles   : The roles for which this emoji will be whitelisted, can be nil.
 func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) (emoji *Emoji, err error) {
 
