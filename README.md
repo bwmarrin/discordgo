@@ -1,16 +1,16 @@
 # DiscordGo
 
-[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discordapp.com/invite/discord-api)
+[![GoDoc](https://godoc.org/github.com/bwmarrin/discordgo?status.svg)](https://godoc.org/github.com/bwmarrin/discordgo) [![Go report](http://goreportcard.com/badge/bwmarrin/discordgo)](http://goreportcard.com/report/bwmarrin/discordgo) [![Build Status](https://travis-ci.org/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.org/bwmarrin/discordgo) [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/0f1SbxBZjYoCtNPP) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discord.com/invite/discord-api)
 
 <img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
 DiscordGo is a [Go](https://golang.org/) package that provides low level 
-bindings to the [Discord](https://discordapp.com/) chat client API. DiscordGo 
+bindings to the [Discord](https://discord.com/) chat client API. DiscordGo 
 has nearly complete support for all of the Discord API endpoints, websocket
 interface, and voice interface.
 
 If you would like to help the DiscordGo package please use 
-[this link](https://discordapp.com/oauth2/authorize?client_id=173113690092994561&scope=bot)
+[this link](https://discord.com/oauth2/authorize?client_id=173113690092994561&scope=bot)
 to add the official DiscordGo test bot **dgo** to your server. This provides 
 indispensable help to this project.
 
@@ -26,39 +26,15 @@ Gophers](https://discord.gg/0f1SbxBZjYq9jLBk) chat server.**
 
 ## Getting Started
 
-### master vs develop Branch
-* The master branch represents the latest released version of DiscordGo.  This
-branch will always have a stable and tested version of the library. Each release
-is tagged and you can easily download a specific release and view release notes
-on the github [releases](https://github.com/bwmarrin/discordgo/releases) page.
-
-* The develop branch is where all development happens and almost always has
-new features over the master branch.  However breaking changes are frequently
-added to develop and even sometimes bugs are introduced.  Bugs get fixed and 
-the breaking changes get documented before pushing to master.  
-
-*So, what should you use?*
-
-If you can accept the constant changing nature of *develop*, it is the 
-recommended branch to use.  Otherwise, if you want to tail behind development
-slightly and have a more stable package with documented releases, use *master*.
-
 ### Installing
 
 This assumes you already have a working Go environment, if not please see
 [this page](https://golang.org/doc/install) first.
 
-`go get` *will always pull the latest released version from the master branch.*
+`go get` *will always pull the latest tagged release from the master branch.*
 
 ```sh
 go get github.com/bwmarrin/discordgo
-```
-
-If you want to use the develop branch, follow these steps next.
-
-```sh
-cd $GOPATH/src/github.com/bwmarrin/discordgo
-git checkout develop
 ```
 
 ### Usage
@@ -81,7 +57,7 @@ See Documentation and Examples below for more detailed information.
 
 ## Documentation
 
-**NOTICE** : This library and the Discord API are unfinished.
+**NOTICE**: This library and the Discord API are unfinished.
 Because of that there may be major changes to library in the future.
 
 The DiscordGo code is fairly well documented at this point and is currently
@@ -112,12 +88,11 @@ Contributions are very welcomed, however please follow the below guidelines.
 
 - First open an issue describing the bug or enhancement so it can be
 discussed.  
-- Fork the develop branch and make your changes.  
 - Try to match current naming conventions as closely as possible.  
 - This package is intended to be a low level direct mapping of the Discord API, 
 so please avoid adding enhancements outside of that scope without first 
 discussing it.
-- Create a Pull Request with your changes against the develop branch.
+- Create a Pull Request with your changes against the master branch.
 
 
 ## List of Discord APIs
