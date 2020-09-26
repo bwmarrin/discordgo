@@ -151,7 +151,7 @@ type Integration struct {
 	SyncedAt          Timestamp          `json:"synced_at"`
 }
 
-//ExpireBehavior of Integration
+// ExpireBehavior of Integration
 // https://discord.com/developers/docs/resources/guild#integration-object-integration-expire-behaviors
 type ExpireBehavior int
 
@@ -565,6 +565,40 @@ type Guild struct {
 
 	// Permissions of our user
 	Permissions int `json:"permissions"`
+}
+
+// A GuildPreview holds data related to a specific public Discord Guild, even if the user is not in the guild.
+type GuildPreview struct {
+	// The ID of the guild.
+	ID string `json:"id"`
+
+	// The name of the guild. (2–100 characters)
+	Name string `json:"name"`
+
+	// The hash of the guild's icon. Use Session.GuildIcon
+	// to retrieve the icon itself.
+	Icon string `json:"icon"`
+
+	// The hash of the guild's splash.
+	Splash string `json:"splash"`
+
+	// The hash of the guild's discovery splash.
+	DiscoverySplash string `json:"discovery_splash"`
+
+	// A list of the custom emojis present in the guild.
+	Emojis []*Emoji `json:"emojis"`
+
+	// The list of enabled guild features
+	Features []string `json:"features"`
+
+	// Approximate number of members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	ApproximateMemberCount int `json:"approximate_member_count"`
+
+	// Approximate number of non-offline members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	ApproximatePresenceCount int `json:"approximate_presence_count"`
+
+	// the description for the guild
+	Description string `json:"description"`
 }
 
 // MessageNotifications is the notification level for a guild
