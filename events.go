@@ -254,6 +254,11 @@ type VoiceStateUpdate struct {
 	*VoiceState
 }
 
+// VoiceStateUpdate is the data for a VoiceStateUpdate event.
+type VoiceStateDisconnect struct {
+	*VoiceState
+}
+
 // MessageDeleteBulk is the data for a MessageDeleteBulk event
 type MessageDeleteBulk struct {
 	Messages  []string `json:"ids"`

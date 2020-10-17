@@ -696,7 +696,7 @@ func (s *State) messageRemoveByID(channelID, messageID string) error {
 	return ErrStateNotFound
 }
 
-func (s *State) voiceStateUpdate(update *VoiceStateUpdate) error {
+func (s *State) voiceStateUpdate(se *Session, update *VoiceStateUpdate) error {
 	guild, err := s.Guild(update.GuildID)
 	if err != nil {
 		return err
@@ -709,6 +709,10 @@ func (s *State) voiceStateUpdate(update *VoiceStateUpdate) error {
 	if update.ChannelID == "" {
 		for i, state := range guild.VoiceStates {
 			if state.UserID == update.UserID {
+				disconn := guild.VoiceStates[i]
+
+
+				se.handleEvent("VOICE_STATE_DISCONNECT", &VoiceStateDisconnect{disconn})
 				guild.VoiceStates = append(guild.VoiceStates[:i], guild.VoiceStates[i+1:]...)
 				return nil
 			}
@@ -916,7 +920,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *VoiceStateUpdate:
 		if s.TrackVoice {
-			err = s.voiceStateUpdate(t)
+			err = s.voiceStateUpdate(se, t)
 		}
 	case *PresenceUpdate:
 		if s.TrackPresences {

@@ -50,6 +50,7 @@ const (
 	userUpdateEventType               = "USER_UPDATE"
 	voiceServerUpdateEventType        = "VOICE_SERVER_UPDATE"
 	voiceStateUpdateEventType         = "VOICE_STATE_UPDATE"
+	voiceStateDisconectEventType      = "VOICE_STATE_DISCONNECT"
 	webhooksUpdateEventType           = "WEBHOOKS_UPDATE"
 )
 
@@ -893,6 +894,28 @@ func (eh voiceStateUpdateEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// voiceStateUpdateEventHandler is an event handler for VoiceStateUpdate events.
+type voiceStateDisconnectEventHandler func(*Session, *VoiceStateDisconnect)
+
+// Type returns the event type for VoiceStateUpdate events.
+func (eh voiceStateDisconnectEventHandler) Type() string {
+	return voiceStateDisconectEventType
+}
+
+// New returns a new instance of VoiceStateUpdate.
+func (eh voiceStateDisconnectEventHandler) New() interface{} {
+	return &VoiceStateDisconnect{}
+}
+
+// Handle is the handler for VoiceStateUpdate events.
+func (eh voiceStateDisconnectEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*VoiceStateDisconnect); ok {
+		eh(s, t)
+	}
+}
+
+
+
 // webhooksUpdateEventHandler is an event handler for WebhooksUpdate events.
 type webhooksUpdateEventHandler func(*Session, *WebhooksUpdate)
 
@@ -1003,6 +1026,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return voiceServerUpdateEventHandler(v)
 	case func(*Session, *VoiceStateUpdate):
 		return voiceStateUpdateEventHandler(v)
+	case func(*Session, *VoiceStateDisconnect):
+		return voiceStateDisconnectEventHandler(v)
 	case func(*Session, *WebhooksUpdate):
 		return webhooksUpdateEventHandler(v)
 	}
@@ -1050,5 +1075,6 @@ func init() {
 	registerInterfaceProvider(userUpdateEventHandler(nil))
 	registerInterfaceProvider(voiceServerUpdateEventHandler(nil))
 	registerInterfaceProvider(voiceStateUpdateEventHandler(nil))
+	registerInterfaceProvider(voiceStateDisconnectEventHandler(nil))
 	registerInterfaceProvider(webhooksUpdateEventHandler(nil))
 }
