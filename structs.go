@@ -620,6 +620,7 @@ type GuildParams struct {
 	Icon                        string             `json:"icon,omitempty"`
 	OwnerID                     string             `json:"owner_id,omitempty"`
 	Splash                      string             `json:"splash,omitempty"`
+	Banner                      string             `json:"banner,omitempty"`
 }
 
 // A Role stores information about Discord guild member roles.

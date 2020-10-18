@@ -1,3 +1,4 @@
+
 // Discordgo - Discord bindings for Go
 // Available at https://github.com/bwmarrin/discordgo
 
@@ -24,6 +25,11 @@ var ErrNilState = errors.New("state not instantiated, please use discordgo.New()
 // ErrStateNotFound is returned when the state cache
 // requested is not found
 var ErrStateNotFound = errors.New("state cache not found")
+
+// ErrMessageIncompletePermissions is returned when the message
+// requested for permissions does not contain enough data to
+// generate the permissions.
+var ErrMessageIncompletePermissions = errors.New("message incomplete, unable to determine permissions")
 
 // A State contains the current known state.
 // As discord sends this in a READY blob, it seems reasonable to simply
@@ -984,17 +990,34 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 		return
 	}
 
-	if userID == guild.OwnerID {
-		apermissions = PermissionAll
-		return
-	}
-
 	member, err := s.Member(guild.ID, userID)
 	if err != nil {
 		return
 	}
 
-	return memberPermissions(guild, channel, member), nil
+	return memberPermissions(guild, channel, userID, member.Roles), nil
+}
+
+func (s *State) MessagePermissions(message *Message) (apermissions int, err error) {
+	if s == nil {
+		return 0, ErrNilState
+	}
+
+	if message.Author == nil || message.Member == nil {
+		return 0, ErrMessageIncompletePermissions
+	}
+
+	channel, err := s.Channel(message.ChannelID)
+	if err != nil {
+		return
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return
+	}
+
+	return memberPermissions(guild, channel, message.Author.ID, message.Member.Roles), nil
 }
 
 // UserColor returns the color of a user in a channel.
@@ -1022,16 +1045,48 @@ func (s *State) UserColor(userID, channelID string) int {
 		return 0
 	}
 
+	return firstRoleColorColor(guild, member.Roles)
+}
+
+func (s *State) MessageColor(message *Message) int {
+	if s == nil {
+		return 0
+	}
+
+	if message.Member == nil || message.Member.Roles == nil {
+		return 0
+	}
+
+	channel, err := s.Channel(message.ChannelID)
+	if err != nil {
+		return 0
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return 0
+	}
+
+	return firstRoleColorColor(guild, message.Member.Roles)
+}
+
+func firstRoleColorColor(guild *Guild, memberRoles []string) int {
 	roles := Roles(guild.Roles)
 	sort.Sort(roles)
 
 	for _, role := range roles {
-		for _, roleID := range member.Roles {
+		for _, roleID := range memberRoles {
 			if role.ID == roleID {
 				if role.Color != 0 {
 					return role.Color
 				}
 			}
+		}
+	}
+
+	for _, role := range roles {
+		if role.ID == guild.ID {
+			return role.Color
 		}
 	}
 

@@ -502,14 +502,12 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 		}
 	}
 
-	return memberPermissions(guild, channel, member), nil
+	return memberPermissions(guild, channel, userID, member.Roles), nil
 }
 
 // Calculates the permissions for a member.
 // https://support.discord.com/hc/en-us/articles/206141927-How-is-the-permission-hierarchy-structured-
-func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermissions int) {
-	userID := member.User.ID
-
+func memberPermissions(guild *Guild, channel *Channel, userID string, roles []string) (apermissions int) {
 	if userID == guild.OwnerID {
 		apermissions = PermissionAll
 		return
@@ -523,7 +521,7 @@ func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermiss
 	}
 
 	for _, role := range guild.Roles {
-		for _, roleID := range member.Roles {
+		for _, roleID := range roles {
 			if role.ID == roleID {
 				apermissions |= role.Permissions
 				break
@@ -549,7 +547,7 @@ func memberPermissions(guild *Guild, channel *Channel, member *Member) (apermiss
 
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
-		for _, roleID := range member.Roles {
+		for _, roleID := range roles {
 			if overwrite.Type == "role" && roleID == overwrite.ID {
 				denies |= overwrite.Deny
 				allows |= overwrite.Allow
