@@ -516,8 +516,7 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 
 	for _, role := range guild.Roles {
 		if role.ID == guild.ID {
-			p, _ := strconv.Atoi(role.Permissions)
-			apermissions |= p
+			apermissions |= role.Permissions
 			break
 		}
 	}
@@ -525,8 +524,7 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	for _, role := range guild.Roles {
 		for _, roleID := range roles {
 			if role.ID == roleID {
-				p, _ := strconv.Atoi(role.Permissions)
-				apermissions |= p
+				apermissions |= role.Permissions
 				break
 			}
 		}
@@ -539,11 +537,8 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	// Apply @everyone overrides from the channel.
 	for _, overwrite := range channel.PermissionOverwrites {
 		if guild.ID == overwrite.ID {
-			denyInt, _ := strconv.Atoi(overwrite.Deny)
-			allowInt, _ := strconv.Atoi(overwrite.Allow)
-
-			apermissions &= ^denyInt
-			apermissions |= allowInt
+			apermissions &= ^overwrite.Deny
+			apermissions |= overwrite.Allow
 			break
 		}
 	}
@@ -554,12 +549,9 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
 		for _, roleID := range roles {
-			if overwrite.Type == 0 && roleID == overwrite.ID {
-				denyInt, _ := strconv.Atoi(overwrite.Deny)
-				allowInt, _ := strconv.Atoi(overwrite.Allow)
-
-				denies |= denyInt
-				allows |= allowInt
+			if overwrite.Type == PermissionOverwriteRole && roleID == overwrite.ID {
+				denies |= overwrite.Deny
+				allows |= overwrite.Allow
 				break
 			}
 		}
@@ -569,12 +561,9 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	apermissions |= allows
 
 	for _, overwrite := range channel.PermissionOverwrites {
-		if overwrite.Type == 1 && overwrite.ID == userID {
-			denyInt, _ := strconv.Atoi(overwrite.Deny)
-			allowInt, _ := strconv.Atoi(overwrite.Allow)
-
-			apermissions &= ^denyInt
-			apermissions |= allowInt
+		if overwrite.Type == PermissionOverwriteMember && overwrite.ID == userID {
+			apermissions &= ^overwrite.Deny
+			apermissions |= overwrite.Allow
 			break
 		}
 	}

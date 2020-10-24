@@ -322,12 +322,21 @@ type ChannelFollow struct {
 	WebhookID string `json:"webhook_id"`
 }
 
+// PermissionOverwriteType is the integer representing the permission overwrite type.
+type PermissionOverwriteType int
+
+// Holds all known permission overwrite types
+const (
+	PermissionOverwriteRole PermissionOverwriteType = iota
+	PermissionOverwriteMember
+)
+
 // A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
-	ID    string `json:"id"`
-	Type  int    `json:"type"`
-	Deny  string `json:"deny"`
-	Allow string `json:"allow"`
+	ID    string                  `json:"id"`
+	Type  PermissionOverwriteType `json:"type"`
+	Deny  int                     `json:",string,deny"`
+	Allow int                     `json:",string,allow"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -644,7 +653,7 @@ type Role struct {
 	// The permissions of the role on the guild (doesn't include channel overrides).
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the permission.
-	Permissions string `json:"permissions"`
+	Permissions int `json:",string,permissions"`
 }
 
 // Mention returns a string which mentions the role
@@ -682,10 +691,10 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User       *User     `json:"user"`
-	Status     Status    `json:"status"`
-	Activities []*Game   `json:"activities"`
-	Since      *int      `json:"since"`
+	User       *User   `json:"user"`
+	Status     Status  `json:"status"`
+	Activities []*Game `json:"activities"`
+	Since      *int    `json:"since"`
 }
 
 // GameType is the type of "game" (see GameType* consts) in the Game struct
