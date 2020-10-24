@@ -62,6 +62,17 @@ type User struct {
 	// This is a combination of bit masks; the presence of a certain flag can
 	// be checked by performing a bitwise AND between this int and the flag.
 	PublicFlags UserFlags `json:"public_flags"`
+
+	// The type of Nitro subscription on a user's account.
+	// Only available when the request is authorized via a Bearer token.
+	PremiumType int `json:"premium_type"`
+
+	// Whether the user is an Official Discord System user (part of the urgent message system).
+	System bool `json:"system"`
+
+	// The flags on a user's account.
+	// Only available when the request is authorized via a Bearer token.
+	Flags int `json:"flags"`
 }
 
 // String returns a unique identifier of the form username#discriminator
