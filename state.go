@@ -200,6 +200,7 @@ func (s *State) PresenceAdd(guildID string, presence *Presence) error {
 		if p.User.ID == presence.User.ID {
 			//guild.Presences[i] = presence
 
+			guild.Presences[i].Activities = presence.Activities
 			//Update status
 			if presence.Status != "" {
 				guild.Presences[i].Status = presence.Status
