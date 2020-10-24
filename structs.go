@@ -322,21 +322,22 @@ type ChannelFollow struct {
 	WebhookID string `json:"webhook_id"`
 }
 
-// PermissionOverwriteType is the integer representing the permission overwrite type.
-type PermissionOverwriteType int
+// PermissionType is the integer representing the permission type.
+// (PermissionTypeRole, PermissionTypeMember)
+type PermissionType int
 
 // Holds all known permission overwrite types
 const (
-	PermissionOverwriteRole PermissionOverwriteType = iota
-	PermissionOverwriteMember
+	PermissionTypeRole PermissionType = iota
+	PermissionTypeMember
 )
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
 type PermissionOverwrite struct {
-	ID    string                  `json:"id"`
-	Type  PermissionOverwriteType `json:"type"`
-	Deny  int                     `json:",string,deny"`
-	Allow int                     `json:",string,allow"`
+	ID    string         `json:"id"`
+	Type  PermissionType `json:"type"`
+	Deny  int            `json:"deny,string"`
+	Allow int            `json:"allow,string"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -653,7 +654,7 @@ type Role struct {
 	// The permissions of the role on the guild (doesn't include channel overrides).
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the permission.
-	Permissions int `json:",string,permissions"`
+	Permissions int `json:"permissions,string"`
 }
 
 // Mention returns a string which mentions the role

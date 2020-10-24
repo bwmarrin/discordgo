@@ -549,7 +549,7 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
 		for _, roleID := range roles {
-			if overwrite.Type == PermissionOverwriteRole && roleID == overwrite.ID {
+			if overwrite.Type == PermissionTypeRole && roleID == overwrite.ID {
 				denies |= overwrite.Deny
 				allows |= overwrite.Allow
 				break
@@ -561,7 +561,7 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	apermissions |= allows
 
 	for _, overwrite := range channel.PermissionOverwrites {
-		if overwrite.Type == PermissionOverwriteMember && overwrite.ID == userID {
+		if overwrite.Type == PermissionTypeMember && overwrite.ID == userID {
 			apermissions &= ^overwrite.Deny
 			apermissions |= overwrite.Allow
 			break
@@ -1786,13 +1786,13 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 // ChannelPermissionSet creates a Permission Override for the given channel.
 // NOTE: This func name may changed.  Using Set instead of Create because
 // you can both create a new override or update an override with this function.
-func (s *Session) ChannelPermissionSet(channelID, targetID, targetType string, allow, deny int) (err error) {
+func (s *Session) ChannelPermissionSet(channelID, targetID string, targetType PermissionType, allow, deny int) (err error) {
 
 	data := struct {
-		ID    string `json:"id"`
-		Type  string `json:"type"`
-		Allow int    `json:"allow"`
-		Deny  int    `json:"deny"`
+		ID    string         `json:"id"`
+		Type  PermissionType `json:"type"`
+		Allow int            `json:"allow"`
+		Deny  int            `json:"deny"`
 	}{targetID, targetType, allow, deny}
 
 	_, err = s.RequestWithBucketID("PUT", EndpointChannelPermission(channelID, targetID), data, EndpointChannelPermission(channelID, ""))
