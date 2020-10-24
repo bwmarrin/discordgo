@@ -508,6 +508,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 // Calculates the permissions for a member.
 // https://support.discord.com/hc/en-us/articles/206141927-How-is-the-permission-hierarchy-structured-
 func memberPermissions(guild *Guild, channel *Channel, userID string, roles []string) (apermissions int) {
+
 	if userID == guild.OwnerID {
 		apermissions = PermissionAll
 		return
@@ -515,7 +516,8 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 
 	for _, role := range guild.Roles {
 		if role.ID == guild.ID {
-			apermissions |= role.Permissions
+			p, _ := strconv.Atoi(role.Permissions)
+			apermissions |= p
 			break
 		}
 	}
@@ -523,7 +525,8 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	for _, role := range guild.Roles {
 		for _, roleID := range roles {
 			if role.ID == roleID {
-				apermissions |= role.Permissions
+				p, _ := strconv.Atoi(role.Permissions)
+				apermissions |= p
 				break
 			}
 		}
@@ -536,8 +539,11 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	// Apply @everyone overrides from the channel.
 	for _, overwrite := range channel.PermissionOverwrites {
 		if guild.ID == overwrite.ID {
-			apermissions &= ^overwrite.Deny
-			apermissions |= overwrite.Allow
+			denyInt, _ := strconv.Atoi(overwrite.Deny)
+			allowInt, _ := strconv.Atoi(overwrite.Deny)
+
+			apermissions &= ^denyInt
+			apermissions |= allowInt
 			break
 		}
 	}
@@ -548,9 +554,12 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
 		for _, roleID := range roles {
-			if overwrite.Type == "role" && roleID == overwrite.ID {
-				denies |= overwrite.Deny
-				allows |= overwrite.Allow
+			if overwrite.Type == 1 && roleID == overwrite.ID {
+				denyInt, _ := strconv.Atoi(overwrite.Deny)
+				allowInt, _ := strconv.Atoi(overwrite.Deny)
+
+				denies |= denyInt
+				allows |= allowInt
 				break
 			}
 		}
@@ -560,9 +569,12 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 	apermissions |= allows
 
 	for _, overwrite := range channel.PermissionOverwrites {
-		if overwrite.Type == "member" && overwrite.ID == userID {
-			apermissions &= ^overwrite.Deny
-			apermissions |= overwrite.Allow
+		if overwrite.Type == 0 && overwrite.ID == userID {
+			denyInt, _ := strconv.Atoi(overwrite.Deny)
+			allowInt, _ := strconv.Atoi(overwrite.Deny)
+
+			apermissions &= ^denyInt
+			apermissions |= allowInt
 			break
 		}
 	}
