@@ -201,13 +201,8 @@ func (s *State) PresenceAdd(guildID string, presence *Presence) error {
 			//guild.Presences[i] = presence
 
 			//Update status
-			guild.Presences[i].Game = presence.Game
-			guild.Presences[i].Roles = presence.Roles
 			if presence.Status != "" {
 				guild.Presences[i].Status = presence.Status
-			}
-			if presence.Nick != "" {
-				guild.Presences[i].Nick = presence.Nick
 			}
 
 			//Update the optionally sent user information
@@ -940,24 +935,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 				// Member not found; this is a user coming online
 				m = &Member{
 					GuildID: t.GuildID,
-					Nick:    t.Nick,
 					User:    t.User,
-					Roles:   t.Roles,
 				}
 
 			} else {
-
-				if t.Nick != "" {
-					m.Nick = t.Nick
-				}
-
 				if t.User.Username != "" {
 					m.User.Username = t.User.Username
 				}
-
-				// PresenceUpdates always contain a list of roles, so there's no need to check for an empty list here
-				m.Roles = t.Roles
-
 			}
 
 			err = s.MemberAdd(m)

@@ -56,7 +56,7 @@ func TestRatelimitGlobal(t *testing.T) {
 
 		headers.Set("X-RateLimit-Global", "1")
 		// Reset for approx 1 seconds from now
-		headers.Set("Retry-After", "1000")
+		headers.Set("Retry-After", "1")
 
 		err := bucket.Release(headers)
 		if err != nil {

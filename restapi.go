@@ -33,7 +33,7 @@ import (
 // All error constants
 var (
 	ErrJSONUnmarshal           = errors.New("json unmarshal")
-	ErrStatusOffline           = errors.New("You can't set your Status to offline")
+	ErrStatusOffline           = errors.New("status cannot be set to offline")
 	ErrVerificationLevelBounds = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
 	ErrPruneDaysBounds         = errors.New("the number of days should be more than or equal to 1")
 	ErrGuildNoIcon             = errors.New("guild does not have an icon set")
@@ -704,7 +704,7 @@ func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days 
 
 	queryParams := url.Values{}
 	if days > 0 {
-		queryParams.Set("delete-message-days", strconv.Itoa(days))
+		queryParams.Set("delete_message_days", strconv.Itoa(days))
 	}
 	if reason != "" {
 		queryParams.Set("reason", reason)

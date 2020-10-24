@@ -121,6 +121,21 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// A sticker, which is a special type of message.
+	Stickers []*Sticker `json:"stickers"`
+}
+
+// Sticker contains the data that determines how a sticker is displayed in a channel.
+type Sticker struct {
+	ID           string `json:"string"`
+	Name         string `json:"name"`
+	Description  string `json:"description,omitempty"`
+	PackID       string `json:"pack_id"`
+	Asset        string `json:"asset"`
+	PreviewAsset string `json:"preview_asset,omitempty"`
+	FormatType   int    `json:"format_type"`
+	Tags         string `json:"tags,omitempty"`
 }
 
 // MessageFlags is the flags of "message" (see MessageFlags* consts)
