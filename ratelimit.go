@@ -146,7 +146,7 @@ func (b *Bucket) Release(headers http.Header) error {
 	// If global is set, then it will block all buckets until after Retry-After
 	// If Retry-After without global is provided it will use that for the new reset
 	// time since it's more accurate than X-RateLimit-Reset.
-	// If Retry-After after is not proided, it will update the reset time from X-RateLimit-Reset
+	// If Retry-After after is not provided, it will update the reset time from X-RateLimit-Reset
 	if retryAfter != "" {
 		parsedAfter, err := strconv.ParseInt(retryAfter, 10, 64)
 		if err != nil {
@@ -168,7 +168,8 @@ func (b *Bucket) Release(headers http.Header) error {
 			return err
 		}
 
-		unix, err := strconv.ParseInt(reset, 10, 64)
+		// X-Ratelimit-Reset has the potential to be a float
+		unix, err := strconv.ParseFloat(reset, 64)
 		if err != nil {
 			return err
 		}
@@ -177,11 +178,11 @@ func (b *Bucket) Release(headers http.Header) error {
 		// some extra time is added because without it i still encountered 429's.
 		// The added amount is the lowest amount that gave no 429's
 		// in 1k requests
-		delta := time.Unix(unix, 0).Sub(discordTime) + time.Millisecond*250
+		delta := time.Unix(int64(unix), 0).Sub(discordTime) + time.Millisecond*250
 		b.reset = time.Now().Add(delta)
 	}
 
-	// Udpate remaining if header is present
+	// Update remaining if header is present
 	if remaining != "" {
 		parsedRemaining, err := strconv.ParseInt(remaining, 10, 32)
 		if err != nil {
