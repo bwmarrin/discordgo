@@ -174,11 +174,13 @@ func (b *Bucket) Release(headers http.Header) error {
 			return err
 		}
 
-		// Calculate the time until reset and add it to the current local time
-		// some extra time is added because without it i still encountered 429's.
-		// The added amount is the lowest amount that gave no 429's
-		// in 1k requests
-		delta := time.Unix(int64(unix), 0).Sub(discordTime) + time.Millisecond*250
+		// Calculate the time until X-Ratelimit-Reset resets and add to the current local time.
+		// The second part of this addition adds a Duration where the float
+		// is subtracted by the same number, precision removed, by converting it to an int then back to a float.
+		// E.x. if the header returned 150.500, 150.500 - 150.0 = .500 * 1000 = 500 * time.Millisecond
+		headerAsInt := int64(unix)
+		precision := time.Duration((unix-float64(headerAsInt))*1000) * time.Millisecond
+		delta := time.Unix(headerAsInt, 0).Sub(discordTime) + precision
 		b.reset = time.Now().Add(delta)
 	}
 
