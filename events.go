@@ -254,7 +254,7 @@ type VoiceStateUpdate struct {
 	*VoiceState
 }
 
-// VoiceStateUpdate is the data for a VoiceStateUpdate event.
+// VoiceStateDisconnect is the data for a VoiceStateDisconnect event.
 type VoiceStateDisconnect struct {
 	*VoiceState
 }
