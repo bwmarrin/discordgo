@@ -993,6 +993,8 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 	return memberPermissions(guild, channel, userID, member.Roles), nil
 }
 
+// MessagePermissions returns the permissions of the author of the message
+// in the channel in which it was sent.
 func (s *State) MessagePermissions(message *Message) (apermissions int, err error) {
 	if s == nil {
 		return 0, ErrNilState
@@ -1043,6 +1045,8 @@ func (s *State) UserColor(userID, channelID string) int {
 	return firstRoleColorColor(guild, member.Roles)
 }
 
+// MessageColor returns the color of the author's name as displayed
+// in the client associated with this message.
 func (s *State) MessageColor(message *Message) int {
 	if s == nil {
 		return 0
