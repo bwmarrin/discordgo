@@ -1,4 +1,3 @@
-
 // Discordgo - Discord bindings for Go
 // Available at https://github.com/bwmarrin/discordgo
 
