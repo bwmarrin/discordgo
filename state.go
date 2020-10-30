@@ -1,4 +1,3 @@
-
 // Discordgo - Discord bindings for Go
 // Available at https://github.com/bwmarrin/discordgo
 
@@ -998,8 +997,8 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 	return memberPermissions(guild, channel, userID, member.Roles), nil
 }
 
-// MessagePermissions returns the permission of a user in a channel.
-// message    : The message to check
+// MessagePermissions returns the permissions of the author of the message
+// in the channel in which it was sent.
 func (s *State) MessagePermissions(message *Message) (apermissions int, err error) {
 	if s == nil {
 		return 0, ErrNilState
@@ -1049,10 +1048,10 @@ func (s *State) UserColor(userID, channelID string) int {
 
 	return firstRoleColorColor(guild, member.Roles)
 }
-// MessageColor returns the color of a user in a channel.
-// While colors are defined at a Guild level, determining for a channel is more useful in message handlers.
+
+// MessageColor returns the color of the author's name as displayed
+// While colors are defined at a Guild level, determining for a message is more useful in message handlers.
 // 0 is returned in cases of error, which is the color of @everyone.
-// message    : The message to check
 func (s *State) MessageColor(message *Message) int {
 	if s == nil {
 		return 0
