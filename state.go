@@ -716,7 +716,6 @@ func (s *State) voiceStateUpdate(se *Session, update *VoiceStateUpdate) error {
 			if state.UserID == update.UserID {
 				disconn := guild.VoiceStates[i]
 
-
 				se.handleEvent("VOICE_STATE_DISCONNECT", &VoiceStateDisconnect{disconn})
 				guild.VoiceStates = append(guild.VoiceStates[:i], guild.VoiceStates[i+1:]...)
 				return nil

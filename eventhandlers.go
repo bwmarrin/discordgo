@@ -914,8 +914,6 @@ func (eh voiceStateDisconnectEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
-
-
 // webhooksUpdateEventHandler is an event handler for WebhooksUpdate events.
 type webhooksUpdateEventHandler func(*Session, *WebhooksUpdate)
 
