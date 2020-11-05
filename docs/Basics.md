@@ -43,7 +43,7 @@ func main() {
 }
 ```
 
-## Receiving a message
+## Receiving a messag
 The `messageCreate` function gets called when a user sends a message.
 ```golang
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
