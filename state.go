@@ -732,6 +732,26 @@ func (s *State) voiceStateUpdate(update *VoiceStateUpdate) error {
 	return nil
 }
 
+// VoiceState gets a VoiceState by guild and user ID.
+func (s *State) VoiceState(guildID, userID string) (*VoiceState, error) {
+	if s == nil {
+		return nil, ErrNilState
+	}
+
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, state := range guild.VoiceStates {
+		if state.UserID == userID {
+			return state, nil
+		}
+	}
+
+	return nil, ErrStateNotFound
+}
+
 // Message gets a message by channel and message ID.
 func (s *State) Message(channelID, messageID string) (*Message, error) {
 	if s == nil {
@@ -921,6 +941,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *VoiceStateUpdate:
 		if s.TrackVoice {
+			var old *VoiceState
+			old, err = s.VoiceState(t.GuildID, t.UserID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeUpdate = &oldCopy
+			}
+
 			err = s.voiceStateUpdate(t)
 		}
 	case *PresenceUpdate:
