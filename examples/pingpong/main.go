@@ -33,6 +33,9 @@ func main() {
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
 
+	// In this example, we only care about receiving message events.
+	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
+
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
 	if err != nil {
@@ -51,7 +54,7 @@ func main() {
 }
 
 // This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated bot has access to.
+// message is created on any channel that the authenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself

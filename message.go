@@ -16,6 +16,7 @@ import (
 )
 
 // MessageType is the type of Message
+// https://discord.com/developers/docs/resources/channel#message-object-message-types
 type MessageType int
 
 // Block contains the valid known MessageType values
@@ -33,6 +34,8 @@ const (
 	MessageTypeUserPremiumGuildSubscriptionTierTwo
 	MessageTypeUserPremiumGuildSubscriptionTierThree
 	MessageTypeChannelFollowAdd
+	MessageTypeGuildDiscoveryDisqualified
+	MessageTypeGuildDiscoveryRequalified
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -63,7 +66,7 @@ type Message struct {
 	MentionRoles []string `json:"mention_roles"`
 
 	// Whether the message is text-to-speech.
-	Tts bool `json:"tts"`
+	TTS bool `json:"tts"`
 
 	// Whether the message mentions everyone.
 	MentionEveryone bool `json:"mention_everyone"`
@@ -117,8 +120,21 @@ type Message struct {
 	// The flags of the message, which describe extra features of a message.
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
-	Flags int `json:"flags"`
+	Flags MessageFlags `json:"flags"`
 }
+
+// MessageFlags is the flags of "message" (see MessageFlags* consts)
+// https://discord.com/developers/docs/resources/channel#message-object-message-flags
+type MessageFlags int
+
+// Valid MessageFlags values
+const (
+	MessageFlagsCrossPosted MessageFlags = 1 << iota
+	MessageFlagsIsCrossPosted
+	MessageFlagsSupressEmbeds
+	MessageFlagsSourceMessageDeleted
+	MessageFlagsUrgent
+)
 
 // File stores info about files you e.g. send in messages.
 type File struct {
@@ -129,10 +145,11 @@ type File struct {
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
-	Content string        `json:"content,omitempty"`
-	Embed   *MessageEmbed `json:"embed,omitempty"`
-	Tts     bool          `json:"tts"`
-	Files   []*File       `json:"-"`
+	Content         string                  `json:"content,omitempty"`
+	Embed           *MessageEmbed           `json:"embed,omitempty"`
+	TTS             bool                    `json:"tts"`
+	Files           []*File                 `json:"-"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
 	// TODO: Remove this when compatibility is not required.
 	File *File `json:"-"`
@@ -141,8 +158,9 @@ type MessageSend struct {
 // MessageEdit is used to chain parameters via ChannelMessageEditComplex, which
 // is also where you should get the instance from.
 type MessageEdit struct {
-	Content *string       `json:"content,omitempty"`
-	Embed   *MessageEmbed `json:"embed,omitempty"`
+	Content         *string                 `json:"content,omitempty"`
+	Embed           *MessageEmbed           `json:"embed,omitempty"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
 	ID      string
 	Channel string
@@ -169,6 +187,42 @@ func (m *MessageEdit) SetContent(str string) *MessageEdit {
 func (m *MessageEdit) SetEmbed(embed *MessageEmbed) *MessageEdit {
 	m.Embed = embed
 	return m
+}
+
+// AllowedMentionType describes the types of mentions used
+// in the MessageAllowedMentions type.
+type AllowedMentionType string
+
+// The types of mentions used in MessageAllowedMentions.
+const (
+	AllowedMentionTypeRoles    AllowedMentionType = "roles"
+	AllowedMentionTypeUsers    AllowedMentionType = "users"
+	AllowedMentionTypeEveryone AllowedMentionType = "everyone"
+)
+
+// MessageAllowedMentions allows the user to specify which mentions
+// Discord is allowed to parse in this message. This is useful when
+// sending user input as a message, as it prevents unwanted mentions.
+// If this type is used, all mentions must be explicitly whitelisted,
+// either by putting an AllowedMentionType in the Parse slice
+// (allowing all mentions of that type) or, in the case of roles and
+// users, explicitly allowing those mentions on an ID-by-ID basis.
+// For more information on this functionality, see:
+// https://discordapp.com/developers/docs/resources/channel#allowed-mentions-object-allowed-mentions-reference
+type MessageAllowedMentions struct {
+	// The mention types that are allowed to be parsed in this message.
+	// Please note that this is purposely **not** marked as omitempty,
+	// so if a zero-value MessageAllowedMentions object is provided no
+	// mentions will be allowed.
+	Parse []AllowedMentionType `json:"parse"`
+
+	// A list of role IDs to allow. This cannot be used when specifying
+	// AllowedMentionTypeRoles in the Parse slice.
+	Roles []string `json:"roles,omitempty"`
+
+	// A list of user IDs to allow. This cannot be used when specifying
+	// AllowedMentionTypeUsers in the Parse slice.
+	Users []string `json:"users,omitempty"`
 }
 
 // A MessageAttachment stores data for message attachments.
@@ -207,10 +261,9 @@ type MessageEmbedThumbnail struct {
 
 // MessageEmbedVideo is a part of a MessageEmbed struct.
 type MessageEmbedVideo struct {
-	URL      string `json:"url,omitempty"`
-	ProxyURL string `json:"proxy_url,omitempty"`
-	Width    int    `json:"width,omitempty"`
-	Height   int    `json:"height,omitempty"`
+	URL    string `json:"url,omitempty"`
+	Width  int    `json:"width,omitempty"`
+	Height int    `json:"height,omitempty"`
 }
 
 // MessageEmbedProvider is a part of a MessageEmbed struct.
@@ -237,7 +290,7 @@ type MessageEmbedField struct {
 // An MessageEmbed stores data for message embeds.
 type MessageEmbed struct {
 	URL         string                 `json:"url,omitempty"`
-	Type        string                 `json:"type,omitempty"`
+	Type        EmbedType              `json:"type,omitempty"`
 	Title       string                 `json:"title,omitempty"`
 	Description string                 `json:"description,omitempty"`
 	Timestamp   string                 `json:"timestamp,omitempty"`
@@ -250,6 +303,20 @@ type MessageEmbed struct {
 	Author      *MessageEmbedAuthor    `json:"author,omitempty"`
 	Fields      []*MessageEmbedField   `json:"fields,omitempty"`
 }
+
+// EmbedType is the type of embed
+// https://discord.com/developers/docs/resources/channel#embed-object-embed-types
+type EmbedType string
+
+// Block of valid EmbedTypes
+const (
+	EmbedTypeRich    EmbedType = "rich"
+	EmbedTypeImage   EmbedType = "image"
+	EmbedTypeVideo   EmbedType = "video"
+	EmbedTypeGifv    EmbedType = "gifv"
+	EmbedTypeArticle EmbedType = "article"
+	EmbedTypeLink    EmbedType = "link"
+)
 
 // MessageReactions holds a reactions object for a message.
 type MessageReactions struct {
@@ -269,7 +336,7 @@ type MessageActivityType int
 
 // Constants for the different types of Message Activity
 const (
-	MessageActivityTypeJoin = iota + 1
+	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
 	MessageActivityTypeListen
 	MessageActivityTypeJoinRequest
@@ -281,7 +348,7 @@ type MessageFlag int
 // Constants for the different bit offsets of Message Flags
 const (
 	// This message has been published to subscribed channels (via Channel Following)
-	MessageFlagCrossposted = 1 << iota
+	MessageFlagCrossposted MessageFlag = 1 << iota
 	// This message originated from a message in another channel (via Channel Following)
 	MessageFlagIsCrosspost
 	// Do not include any embeds when serializing this message

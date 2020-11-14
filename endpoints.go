@@ -18,12 +18,12 @@ var APIVersion = "6"
 
 // Known Discord API Endpoints.
 var (
-	EndpointStatus     = "https://status.discordapp.com/api/v2/"
+	EndpointStatus     = "https://status.discord.com/api/v2/"
 	EndpointSm         = EndpointStatus + "scheduled-maintenances/"
 	EndpointSmActive   = EndpointSm + "active.json"
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
-	EndpointDiscord    = "https://discordapp.com/"
+	EndpointDiscord    = "https://discord.com/"
 	EndpointAPI        = EndpointDiscord + "api/v" + APIVersion + "/"
 	EndpointGuilds     = EndpointAPI + "guilds/"
 	EndpointChannels   = EndpointAPI + "channels/"
@@ -112,6 +112,8 @@ var (
 	EndpointChannelMessagesBulkDelete = func(cID string) string { return EndpointChannel(cID) + "/messages/bulk-delete" }
 	EndpointChannelMessagesPins       = func(cID string) string { return EndpointChannel(cID) + "/pins" }
 	EndpointChannelMessagePin         = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
+	EndpointChannelMessageCrosspost   = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
+	EndpointChannelFollow             = func(cID string) string { return EndpointChannel(cID) + "/followers" }
 
 	EndpointGroupIcon = func(cID, hash string) string { return EndpointCDNChannelIcons + cID + "/" + hash + ".png" }
 
@@ -139,8 +141,8 @@ var (
 
 	EndpointIntegrationsJoin = func(iID string) string { return EndpointAPI + "integrations/" + iID + "/join" }
 
-	EndpointEmoji         = func(eID string) string { return EndpointAPI + "emojis/" + eID + ".png" }
-	EndpointEmojiAnimated = func(eID string) string { return EndpointAPI + "emojis/" + eID + ".gif" }
+	EndpointEmoji         = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".png" }
+	EndpointEmojiAnimated = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".gif" }
 
 	EndpointOauth2            = EndpointAPI + "oauth2/"
 	EndpointApplications      = EndpointOauth2 + "applications"
