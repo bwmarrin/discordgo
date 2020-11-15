@@ -835,7 +835,7 @@ type Relationship struct {
 type TooManyRequests struct {
 	Bucket     string        `json:"bucket"`
 	Message    string        `json:"message"`
-	RetryAfter time.Duration `json:"retry_after"`
+	RetryAfter float64       `json:"retry_after"`
 }
 
 // A ReadState stores data on the read state of channels.
