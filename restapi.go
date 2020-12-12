@@ -693,6 +693,18 @@ func (s *Session) GuildBanCreate(guildID, userID string, days int) (err error) {
 	return s.GuildBanCreateWithReason(guildID, userID, "", days)
 }
 
+// GuildBan finds ban by given guild and user id and returns GuildBan structure 
+func (s *Session) GuildBan(guildID, userID string) (st *GuildBan, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildBan(guildID, userID), nil, EndpointGuildBan(guildID, userID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
 // GuildBanCreateWithReason bans the given user from the given guild also providing a reaso.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
