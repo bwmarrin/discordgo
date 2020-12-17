@@ -369,7 +369,7 @@ type MessageApplication struct {
 type MessageReference struct {
 	MessageID string `json:"message_id"`
 	ChannelID string `json:"channel_id"`
-	GuildID   string `json:"guild_id"`
+	GuildID   string `json:"guild_id,omitempty"`
 }
 
 // Reference returns MessageReference of given message
