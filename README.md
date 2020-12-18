@@ -78,7 +78,7 @@ an issue if you would like your project added or removed from this list.
 - [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) - A curated list of high quality projects using DiscordGo
 
 ## Templates
-You can  use this [Discord Go bot template](https://github.com/pblcc/discordgo-templaate) for creating Discord bots in Golang.
+You can  use this [Discord Go bot template](https://github.com/pblcc/discordgo-template) for creating Discord bots in Golang.
 
 ## Troubleshooting
 For help with common problems please reference the 
