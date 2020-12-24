@@ -2328,3 +2328,65 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 	err = unmarshal(body, &mf)
 	return
 }
+
+// ApplicationCommandCreate creates an global application command. If guild is specified - creates guild specific application command.
+func (s *Session) ApplicationCommandCreate(cmd *ApplicationCommand, guildID string) (rcmd *ApplicationCommand, err error) {
+	endpoint := EndpointApplicationGlobalCommands(s.State.User.ID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommands(s.State.User.ID, guildID)
+	}
+	body, err := s.RequestWithBucketID("POST", endpoint, *cmd, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &rcmd)
+	return
+}
+
+// ApplicationCommandDelete deletes global application command by id. If guild is specified - deletes guild specific application command.
+func (s *Session) ApplicationCommandDelete(cmdID, guildID string) (err error) {
+	endpoint := EndpointApplicationGlobalCommand(s.State.User.ID, cmdID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
+	}
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return
+}
+
+// ApplicationCommandEdit edits global application command by id and replaces with contents of "cmd". If guild is specified - edits guild specific application command.
+func (s *Session) ApplicationCommandEdit(cmdID, guildID string, cmd *ApplicationCommand) (oldcmd *ApplicationCommand, err error) {
+	endpoint := EndpointApplicationGlobalCommand(s.State.User.ID, cmdID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
+	}
+
+	body, err := s.RequestWithBucketID("PATCH", endpoint, *cmd, endpoint)
+
+	err = unmarshal(body, &oldcmd)
+	return
+}
+
+// ApplicationCommand retrieves a command by given id and returns it. If guild is specified - retrieves guild specific application command.
+func (s *Session) ApplicationCommand(cmdID, guildID string) (cmd *ApplicationCommand, err error) {
+	endpoint := EndpointApplicationGlobalCommand(s.State.User.ID, cmdID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
+	}
+
+	_, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	return
+}
+
+// ApplicationCommands retrieves all commands in application. If guild is specified - retrieves all guild specific application commands.
+func (s *Session) ApplicationCommands(guildID string) (cmd []*ApplicationCommand, err error) {
+	endpoint := EndpointApplicationGlobalCommands(s.State.User.ID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommands(s.State.User.ID, guildID)
+	}
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+
+	err = unmarshal(body, &cmd)
+	return
+}

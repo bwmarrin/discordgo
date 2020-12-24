@@ -14,7 +14,7 @@ package discordgo
 import "strconv"
 
 // APIVersion is the Discord API version used for the REST and Websocket API.
-var APIVersion = "6"
+var APIVersion = "8"
 
 // Known Discord API Endpoints.
 var (
@@ -131,6 +131,21 @@ var (
 		return EndpointMessageReactions(cID, mID, eID) + "/" + uID
 	}
 
+	EndpointApplicationGlobalCommands = func(aID string) string {
+		return EndpointApplication(aID) + "/" + "commands"
+	}
+
+	EndpointApplicationGlobalCommand = func(aID, cID string) string {
+		return EndpointApplicationGlobalCommands(aID) + "/" + cID
+	}
+
+	EndpointApplicationGuildCommands = func(aID, gID string) string {
+		return EndpointApplication(aID) + "/" + "guilds" + "/" + gID + "/" + "commands"
+	}
+	EndpointApplicationGuildCommand = func(aID, gID, cID string) string {
+		return EndpointApplicationGuildCommands(aID, gID) + "/" + cID
+	}
+
 	EndpointRelationships       = func() string { return EndpointUsers + "@me" + "/relationships" }
 	EndpointRelationship        = func(uID string) string { return EndpointRelationships() + "/" + uID }
 	EndpointRelationshipsMutual = func(uID string) string { return EndpointUsers + uID + "/relationships" }
@@ -144,9 +159,11 @@ var (
 	EndpointEmoji         = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".png" }
 	EndpointEmojiAnimated = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".gif" }
 
-	EndpointOauth2            = EndpointAPI + "oauth2/"
-	EndpointApplications      = EndpointOauth2 + "applications"
-	EndpointApplication       = func(aID string) string { return EndpointApplications + "/" + aID }
-	EndpointApplicationsBot   = func(aID string) string { return EndpointApplications + "/" + aID + "/bot" }
-	EndpointApplicationAssets = func(aID string) string { return EndpointApplications + "/" + aID + "/assets" }
+	EndpointOauth2                  = EndpointAPI + "oauth2/"
+	EndpointOauth2Applications      = EndpointOauth2 + "applications"
+	EndpointApplications            = EndpointAPI + "applications"
+	EndpointApplication             = func(aID string) string { return EndpointApplications + "/" + aID }
+	EndpointOauth2Application       = func(aID string) string { return EndpointOauth2Applications + "/" + aID }
+	EndpointOauth2ApplicationsBot   = func(aID string) string { return EndpointOauth2Applications + "/" + aID + "/bot" }
+	EndpointOauth2ApplicationAssets = func(aID string) string { return EndpointOauth2Applications + "/" + aID + "/assets" }
 )
