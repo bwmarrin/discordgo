@@ -124,7 +124,7 @@ type Message struct {
 
 	// A sticker which is a special type of message that displays a GIF.
 	// TODO: Currently not documented in Discord API but appears in stable clients.
-	Stickers *[]Sticker `json:"stickers"`
+	Stickers []*Sticker `json:"stickers"`
 }
 
 // Sticker contains the data that determines how a sticker is displayed in a channel.

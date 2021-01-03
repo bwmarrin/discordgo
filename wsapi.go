@@ -323,7 +323,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 // UpdateStatusData ia provided to UpdateStatusComplex()
 type UpdateStatusData struct {
 	IdleSince  *int    `json:"since"`
-	Activities *[]Game `json:"activities"`
+	Activities []*Game `json:"activities"`
 	AFK        bool    `json:"afk"`
 	Status     string  `json:"status"`
 }
@@ -334,10 +334,10 @@ type updateStatusOp struct {
 }
 
 func newUpdateStatusData(idle int, gameType GameType, game, url string) *UpdateStatusData {
-	var newActivities []Game
+	var newActivities []*Game
 
 	if game != "" {
-		newActivities = append(newActivities, Game{
+		newActivities = append(newActivities, &Game{
 			Name: game,
 			Type: gameType,
 			URL:  url,
@@ -346,7 +346,7 @@ func newUpdateStatusData(idle int, gameType GameType, game, url string) *UpdateS
 
 	usd := &UpdateStatusData{
 		Status:     "online",
-		Activities: &newActivities,
+		Activities: newActivities,
 	}
 
 	if idle > 0 {

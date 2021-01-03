@@ -323,7 +323,6 @@ type ChannelFollow struct {
 }
 
 // PermissionType is the integer representing the permission type.
-// (PermissionTypeRole, PermissionTypeMember)
 type PermissionType int
 
 // Holds all known permission overwrite types
@@ -1107,7 +1106,7 @@ type GatewayBotResponse struct {
 // https://discord.com/developers/docs/topics/gateway#update-status-gateway-status-update-structure
 type GatewayStatusUpdate struct {
 	Since      int         `json:"since"`
-	Activities *[]Activity `json:"activities"`
+	Activities []*Activity `json:"activities"`
 	Status     string      `json:"status"`
 	AFK        bool        `json:"afk"`
 }
