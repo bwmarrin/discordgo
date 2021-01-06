@@ -778,6 +778,9 @@ type Member struct {
 
 	// When the user used their Nitro boost on the server
 	PremiumSince Timestamp `json:"premium_since"`
+
+	// Is true while the member hasn't accepted the membership screen.
+	Pending bool `json:"pending"`
 }
 
 // Mention creates a member mention
