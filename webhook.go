@@ -1,0 +1,44 @@
+package discordgo
+
+// Webhook stores the data for a webhook.
+type Webhook struct {
+	ID        string      `json:"id"`
+	Type      WebhookType `json:"type"`
+	GuildID   string      `json:"guild_id"`
+	ChannelID string      `json:"channel_id"`
+	User      *User       `json:"user"`
+	Name      string      `json:"name"`
+	Avatar    string      `json:"avatar"`
+	Token     string      `json:"token"`
+
+	// ApplicationID is the bot/OAuth2 application that created this webhook
+	ApplicationID string `json:"application_id,omitempty"`
+}
+
+// WebhookType is the type of Webhook (see WebhookType* consts) in the Webhook struct
+// https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types
+type WebhookType int
+
+// Valid WebhookType values
+const (
+	WebhookTypeIncoming WebhookType = iota
+	WebhookTypeChannelFollower
+)
+
+// WebhookParams is a struct for webhook params, used in the WebhookExecute command.
+type WebhookParams struct {
+	Content         string                  `json:"content,omitempty"`
+	Username        string                  `json:"username,omitempty"`
+	AvatarURL       string                  `json:"avatar_url,omitempty"`
+	TTS             bool                    `json:"tts,omitempty"`
+	File            string                  `json:"file,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+}
+
+// WebhookEdit stores data for editing webhook's message
+type WebhookEdit struct {
+	Content         string                  `json:"content,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+}

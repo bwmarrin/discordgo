@@ -2174,6 +2174,29 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 	return
 }
 
+// WebhookMessageEdit edits webhook's message.
+// webhookID : The ID of a webhook
+// token     : The auth token for the webhook
+// messageID : The ID of message to edit
+func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (err error) {
+	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	_, err = s.RequestWithBucketID("PATCH", uri, data, EndpointWebhookToken("", ""))
+
+	return
+}
+
+// WebhookMessageEdit deletes webhook's message.
+// webhookID : The ID of a webhook
+// token     : The auth token for the webhook
+// messageID : The ID of message to edit
+func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err error) {
+	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	_, err = s.RequestWithBucketID("DELETE", uri, nil, EndpointWebhookToken("", ""))
+	return
+}
+
 // MessageReactionAdd creates an emoji reaction to a message.
 // channelID : The channel ID.
 // messageID : The message ID.
@@ -2329,6 +2352,10 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 	return
 }
 
+// ------------------------------------------------------------------------------------------------
+// Functions specific to application (slash) commands 
+// ------------------------------------------------------------------------------------------------
+
 // ApplicationCommandCreate creates an global application command. If guild is specified - creates guild specific application command.
 func (s *Session) ApplicationCommandCreate(cmd *ApplicationCommand, guildID string) (rcmd *ApplicationCommand, err error) {
 	endpoint := EndpointApplicationGlobalCommands(s.State.User.ID)
@@ -2389,4 +2416,38 @@ func (s *Session) ApplicationCommands(guildID string) (cmd []*ApplicationCommand
 
 	err = unmarshal(body, &cmd)
 	return
+}
+
+// InteractionRespond creates the response to an interaction.
+func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
+	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
+	_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
+	return
+}
+
+// InteractionResponseEdit edits the response to an interaction.
+func (s *Session) InteractionResponseEdit(interaction *Interaction, newresp *WebhookEdit) (err error) {
+	return s.WebhookMessageEdit(s.State.User.ID, interaction.Token, "@original", newresp)
+}
+
+// InteractionResponseDelete deletes the response to an interaction.
+func (s *Session) InteractionResponseDelete(interaction *Interaction) (err error) {
+	endpoint := EndpointInteractionResponseActions(s.State.User.ID, interaction.Token)
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return
+}
+
+// FollowupMessageCreate creates the followup message for an interaction.
+func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams) (st *Message, err error) {
+	return s.WebhookExecute(s.State.User.ID, interaction.Token, wait, data)
+}
+
+// FollowupMessageEdit edits a followup message of an interaction.
+func (s *Session) FollowupMessageEdit(interaction *Interaction, messageID string, data *WebhookEdit) (err error) {
+	return s.WebhookMessageEdit(s.State.User.ID, interaction.Token, messageID, data)
+}
+
+// FollowupMessageDelete deletes a followup message of an interaction.
+func (s *Session) FollowupMessageDelete(interaction *Interaction, messageID string) (err error) {
+	return s.WebhookMessageDelete(s.State.User.ID, interaction.Token, messageID)
 }

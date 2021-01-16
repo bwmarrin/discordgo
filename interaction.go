@@ -8,11 +8,11 @@ const InteractionDeadline = time.Second * 3
 
 // ApplicationCommand is representing application's slash command.
 type ApplicationCommand struct {
-	ID            string                      `json:"id"`
-	ApplicationID string                      `json:"application_id"`
-	Name          string                      `json:"name"`
-	Description   string                      `json:"description"`
-	Options       []*ApplicationCommandOption `json:"options"`
+	ID            string                      `json:"id,omitempty"`
+	ApplicationID string                      `json:"application_id,omitempty"`
+	Name          string                      `json:"name,omitempty"`
+	Description   string                      `json:"description,omitempty"`
+	Options       []*ApplicationCommandOption `json:"options,omitempty"`
 }
 
 // ApplicationCommandOptionType is type of an slash-command's option.
@@ -40,19 +40,19 @@ const (
 
 // ApplicationCommandOption is representing an option/subcommand/subcommands group.
 type ApplicationCommandOption struct {
-	Type        ApplicationCommandOptionType      `json:"type"`
-	Name        string                            `json:"name"`
-	Description string                            `json:"description"`
-	Default     bool                              `json:"default"`
-	Required    bool                              `json:"required"`
-	Choices     []*ApplicationCommandOptionChoice `json:"choices"`
-	Options     []*ApplicationCommandOption       `json:"options"`
+	Type        ApplicationCommandOptionType      `json:"type,omitempty"`
+	Name        string                            `json:"name,omitempty"`
+	Description string                            `json:"description,omitempty"`
+	Default     bool                              `json:"default,omitempty"`
+	Required    bool                              `json:"required,omitempty"`
+	Choices     []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
+	Options     []*ApplicationCommandOption       `json:"options,omitempty"`
 }
 
 // ApplicationCommandOption is representing slash-command's option choice.
 type ApplicationCommandOptionChoice struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
+	Name  string      `json:"name,omitempty"`
+	Value interface{} `json:"value,omitempty"`
 }
 
 // InteractionType is representing interaction type.
@@ -68,14 +68,14 @@ const (
 
 // Interaction is representing interaction with application.
 type Interaction struct {
-	Id        string                            `json:"id"`
-	Type      InteractionType                   `json:"type"`
-	Data      ApplicationCommandInteractionData `json:"data"`
-	GuildID   string                            `json:"guild_id"`
-	ChannelID string                            `json:"channel_id"`
-	Member    *Member                           `json:"member"`
-	Token     string                            `json:"token"`
-	Version   int                               `json:"version"`
+	ID        string                            `json:"id,omitempty"`
+	Type      InteractionType                   `json:"type,omitempty"`
+	Data      ApplicationCommandInteractionData `json:"data,omitempty"`
+	GuildID   string                            `json:"guild_id,omitempty"`
+	ChannelID string                            `json:"channel_id,omitempty"`
+	Member    *Member                           `json:"member,omitempty"`
+	Token     string                            `json:"token,omitempty"`
+	Version   int                               `json:"version,omitempty"`
 }
 
 // ApplicationCommandInteractionData is representing interaction data for application command
@@ -87,10 +87,10 @@ type ApplicationCommandInteractionData struct {
 
 // ApplicationCommandInteractionDataOption is representing an option of application's command
 type ApplicationCommandInteractionDataOption struct {
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// Contains the value specified by InteractionType
-	Value   interface{}                                `json:"value"`
-	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+	Value   interface{}                                `json:"value,omitempty"`
+	Options []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
 }
 
 // InteractionResponseType is type of interaction response
@@ -112,14 +112,16 @@ const (
 
 // InteractionResponse is representing response for interaction with application
 type InteractionResponse struct {
-	Type InteractionResponseType                    `json:"type"`
-	Data *InteractionApplicationCommandCallbackData `json:"data"`
+	Type InteractionResponseType                    `json:"type,omitempty"`
+	Data *InteractionApplicationCommandResponseData `json:"data,omitempty"`
 }
 
 // InteractionApplicationCommandCallbackData is callback data for application command interaction
-type InteractionApplicationCommandCallbackData struct {
-	TTS             bool                    `json:"tts"`
-	Content         string                  `json:"content"`
-	Embeds          []*MessageEmbed         `json:"embeds"`
-	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions"`
+type InteractionApplicationCommandResponseData struct {
+	TTS             bool                    `json:"tts,omitempty"`
+	Content         string                  `json:"content,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+
+	Flags uint64 `json:"flags,omitempty"`
 }

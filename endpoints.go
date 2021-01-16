@@ -14,7 +14,7 @@ package discordgo
 import "strconv"
 
 // APIVersion is the Discord API version used for the REST and Websocket API.
-var APIVersion = "8"
+var APIVersion = "6"
 
 // Known Discord API Endpoints.
 var (
@@ -120,6 +120,9 @@ var (
 	EndpointChannelWebhooks = func(cID string) string { return EndpointChannel(cID) + "/webhooks" }
 	EndpointWebhook         = func(wID string) string { return EndpointWebhooks + wID }
 	EndpointWebhookToken    = func(wID, token string) string { return EndpointWebhooks + wID + "/" + token }
+	EndpointWebhookMessage  = func(wID, token, messageID string) string {
+		return EndpointWebhookToken(wID, token) + "/" + "messages/" + messageID
+	}
 
 	EndpointMessageReactionsAll = func(cID, mID string) string {
 		return EndpointChannelMessage(cID, mID) + "/reactions"
@@ -134,7 +137,6 @@ var (
 	EndpointApplicationGlobalCommands = func(aID string) string {
 		return EndpointApplication(aID) + "/" + "commands"
 	}
-
 	EndpointApplicationGlobalCommand = func(aID, cID string) string {
 		return EndpointApplicationGlobalCommands(aID) + "/" + cID
 	}
@@ -144,6 +146,21 @@ var (
 	}
 	EndpointApplicationGuildCommand = func(aID, gID, cID string) string {
 		return EndpointApplicationGuildCommands(aID, gID) + "/" + cID
+	}
+	EndpointInteraction = func(aID, iToken string) string {
+		return EndpointAPI + "interactions/" + aID + "/" + iToken
+	}
+	EndpointInteractionResponse = func(iID, iToken string) string {
+		return EndpointInteraction(iID, iToken) + "/" + "callback"
+	}
+	EndpointInteractionResponseActions = func(aID, iToken string) string {
+		return EndpointWebhookMessage(aID, iToken, "@original")
+	}
+	EndpointFollowupMessage = func(aID, iToken string) string {
+		return EndpointWebhookToken(aID, iToken)
+	}
+	EndpointFollowupMessageActions = func(aID, iToken, mID string) string {
+		return EndpointWebhookMessage(aID, iToken, mID)
 	}
 
 	EndpointRelationships       = func() string { return EndpointUsers + "@me" + "/relationships" }
