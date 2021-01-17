@@ -18,23 +18,17 @@ type ApplicationCommand struct {
 // ApplicationCommandOptionType is type of an slash-command's option.
 type ApplicationCommandOptionType uint8
 
+// Application command option types.
 const (
 	_ = ApplicationCommandOptionType(iota)
-	// ApplicationCommandOptionSubCommand is a type of option for sub-commands.
+
 	ApplicationCommandOptionSubCommand
-	// ApplicationCommandOptionSubCommand is a type of option for sub-commands groups.
 	ApplicationCommandOptionSubCommandGroup
-	// ApplicationCommandOptionSubCommand is a type of option for string options.
 	ApplicationCommandOptionString
-	// ApplicationCommandOptionSubCommand is a type of option for integer options.
 	ApplicationCommandOptionInteger
-	// ApplicationCommandOptionSubCommand is a type of option for boolean options.
 	ApplicationCommandOptionBoolean
-	// ApplicationCommandOptionSubCommand is a type of option when user id/mention is needed.
 	ApplicationCommandOptionUser
-	// ApplicationCommandOptionSubCommand is a type of option when channel id/mention is needed.
 	ApplicationCommandOptionChannel
-	// ApplicationCommandOptionSubCommand is a type of option when role id/mention is needed.
 	ApplicationCommandOptionRole
 )
 
@@ -68,24 +62,24 @@ const (
 
 // Interaction is representing interaction with application.
 type Interaction struct {
-	ID        string                            `json:"id,omitempty"`
-	Type      InteractionType                   `json:"type,omitempty"`
-	Data      ApplicationCommandInteractionData `json:"data,omitempty"`
-	GuildID   string                            `json:"guild_id,omitempty"`
-	ChannelID string                            `json:"channel_id,omitempty"`
-	Member    *Member                           `json:"member,omitempty"`
-	Token     string                            `json:"token,omitempty"`
-	Version   int                               `json:"version,omitempty"`
+	ID        string                            `json:"id"`
+	Type      InteractionType                   `json:"type"`
+	Data      ApplicationCommandInteractionData `json:"data"`
+	GuildID   string                            `json:"guild_id"`
+	ChannelID string                            `json:"channel_id"`
+	Member    *Member                           `json:"member"`
+	Token     string                            `json:"token"`
+	Version   int                               `json:"version"`
 }
 
-// ApplicationCommandInteractionData is representing interaction data for application command
+// ApplicationCommandInteractionData is representing interaction data for application command.
 type ApplicationCommandInteractionData struct {
 	ID      string
 	Name    string
 	Options []*ApplicationCommandInteractionDataOption
 }
 
-// ApplicationCommandInteractionDataOption is representing an option of application's command
+// ApplicationCommandInteractionDataOption is representing an option of application's command.
 type ApplicationCommandInteractionDataOption struct {
 	Name string `json:"name,omitempty"`
 	// Contains the value specified by InteractionType
@@ -93,9 +87,10 @@ type ApplicationCommandInteractionDataOption struct {
 	Options []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
 }
 
-// InteractionResponseType is type of interaction response
+// InteractionResponseType is type of interaction response.
 type InteractionResponseType uint8
 
+// Interaction response types.
 const (
 	_ = InteractionResponseType(iota)
 	// InteractionResponsePong is an interaction response type when you need to just ACK a "Ping".
@@ -110,18 +105,18 @@ const (
 	InteractionResponseACKWithSource
 )
 
-// InteractionResponse is representing response for interaction with application
+// InteractionResponse is representing response for interaction with application.
 type InteractionResponse struct {
 	Type InteractionResponseType                    `json:"type,omitempty"`
 	Data *InteractionApplicationCommandResponseData `json:"data,omitempty"`
 }
 
-// InteractionApplicationCommandCallbackData is callback data for application command interaction
+// InteractionApplicationCommandCallbackData is callback data for application command interaction.
 type InteractionApplicationCommandResponseData struct {
 	TTS             bool                    `json:"tts,omitempty"`
 	Content         string                  `json:"content,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
-	Flags uint64 `json:"flags,omitempty"`
+	Flags uint64 `json:"flags,omitempty"` // NOTE: Undocumented feature, be careful with it.
 }

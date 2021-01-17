@@ -61,7 +61,7 @@ type Application struct {
 //   appID : The ID of an Application
 func (s *Session) Application(appID string) (st *Application, err error) {
 
-	body, err := s.RequestWithBucketID("GET", EndpointOauth2Application(appID), nil, EndpointOauth2Application(""))
+	body, err := s.RequestWithBucketID("GET", EndpointOAuth2Application(appID), nil, EndpointOAuth2Application(""))
 	if err != nil {
 		return
 	}
@@ -73,7 +73,7 @@ func (s *Session) Application(appID string) (st *Application, err error) {
 // Applications returns all applications for the authenticated user
 func (s *Session) Applications() (st []*Application, err error) {
 
-	body, err := s.RequestWithBucketID("GET", EndpointOauth2Applications, nil, EndpointOauth2Applications)
+	body, err := s.RequestWithBucketID("GET", EndpointOAuth2Applications, nil, EndpointOAuth2Applications)
 	if err != nil {
 		return
 	}
@@ -93,7 +93,7 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
 	}{ap.Name, ap.Description, ap.RedirectURIs}
 
-	body, err := s.RequestWithBucketID("POST", EndpointOauth2Applications, data, EndpointOauth2Applications)
+	body, err := s.RequestWithBucketID("POST", EndpointOAuth2Applications, data, EndpointOAuth2Applications)
 	if err != nil {
 		return
 	}
@@ -112,7 +112,7 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
 	}{ap.Name, ap.Description, ap.RedirectURIs}
 
-	body, err := s.RequestWithBucketID("PUT", EndpointOauth2Application(appID), data, EndpointOauth2Application(""))
+	body, err := s.RequestWithBucketID("PUT", EndpointOAuth2Application(appID), data, EndpointOAuth2Application(""))
 	if err != nil {
 		return
 	}
@@ -125,7 +125,7 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 //   appID : The ID of an Application
 func (s *Session) ApplicationDelete(appID string) (err error) {
 
-	_, err = s.RequestWithBucketID("DELETE", EndpointOauth2Application(appID), nil, EndpointOauth2Application(""))
+	_, err = s.RequestWithBucketID("DELETE", EndpointOAuth2Application(appID), nil, EndpointOAuth2Application(""))
 	if err != nil {
 		return
 	}
@@ -143,7 +143,7 @@ type Asset struct {
 // ApplicationAssets returns an application's assets
 func (s *Session) ApplicationAssets(appID string) (ass []*Asset, err error) {
 
-	body, err := s.RequestWithBucketID("GET", EndpointOauth2ApplicationAssets(appID), nil, EndpointOauth2ApplicationAssets(""))
+	body, err := s.RequestWithBucketID("GET", EndpointOAuth2ApplicationAssets(appID), nil, EndpointOAuth2ApplicationAssets(""))
 	if err != nil {
 		return
 	}
@@ -163,7 +163,7 @@ func (s *Session) ApplicationAssets(appID string) (ass []*Asset, err error) {
 // NOTE: func name may change, if I can think up something better.
 func (s *Session) ApplicationBotCreate(appID string) (st *User, err error) {
 
-	body, err := s.RequestWithBucketID("POST", EndpointOauth2ApplicationsBot(appID), nil, EndpointOauth2ApplicationsBot(""))
+	body, err := s.RequestWithBucketID("POST", EndpointOAuth2ApplicationsBot(appID), nil, EndpointOAuth2ApplicationsBot(""))
 	if err != nil {
 		return
 	}

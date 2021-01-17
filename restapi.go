@@ -2353,7 +2353,7 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 }
 
 // ------------------------------------------------------------------------------------------------
-// Functions specific to application (slash) commands 
+// Functions specific to application (slash) commands
 // ------------------------------------------------------------------------------------------------
 
 // ApplicationCommandCreate creates an global application command. If guild is specified - creates guild specific application command.
@@ -2401,7 +2401,11 @@ func (s *Session) ApplicationCommand(cmdID, guildID string) (cmd *ApplicationCom
 		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
 	}
 
-	_, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err == nil {
+		err = unmarshal(body, &cmd)
+	}
+
 	return
 }
 

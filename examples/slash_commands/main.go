@@ -105,7 +105,7 @@ func main() {
 	}, *testGuild)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	log.Println("Old command: ", cmd)

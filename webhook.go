@@ -36,7 +36,7 @@ type WebhookParams struct {
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
 
-// WebhookEdit stores data for editing webhook's message
+// WebhookEdit stores data for editing of a webhook message.
 type WebhookEdit struct {
 	Content         string                  `json:"content,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
