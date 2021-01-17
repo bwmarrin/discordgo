@@ -3,6 +3,7 @@ package discordgo
 import (
 	"time"
 )
+
 // InteractionDeadline is a deadline for responding to an interaction, if you haven't responded in the time, you won't be able to respond later.
 const InteractionDeadline = time.Second * 3
 

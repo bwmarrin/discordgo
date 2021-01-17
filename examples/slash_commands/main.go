@@ -36,10 +36,10 @@ func main() {
 	client.AddHandler(func(s *dgo.Session, i *dgo.InteractionCreate) {
 		responseType := dgo.InteractionResponseType(i.Interaction.Data.Options[0].Value.(float64))
 		responseData := &dgo.InteractionApplicationCommandResponseData{
-				TTS:     false,
-				Content: "here we go",
-				// Flags: 1 << 6,
-			}
+			TTS:     false,
+			Content: "here we go",
+			// Flags: 1 << 6,
+		}
 		if responseType == dgo.InteractionResponseACKWithSource || responseType == dgo.InteractionResponseAcknowledge {
 			responseData = nil
 		}
