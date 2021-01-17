@@ -34,38 +34,43 @@ func main() {
 	client := setup()
 
 	client.AddHandler(func(s *dgo.Session, i *dgo.InteractionCreate) {
-		log.Println(dgo.InteractionResponseType(i.Interaction.Data.Options[0].Value.(float64)))
-		err := s.InteractionRespond(i.Interaction, &dgo.InteractionResponse{
-			Type: dgo.InteractionResponseType(i.Interaction.Data.Options[0].Value.(float64)),
-			Data: &dgo.InteractionApplicationCommandResponseData{
+		responseType := dgo.InteractionResponseType(i.Interaction.Data.Options[0].Value.(float64))
+		responseData := &dgo.InteractionApplicationCommandResponseData{
 				TTS:     false,
 				Content: "here we go",
 				// Flags: 1 << 6,
-			},
+			}
+		if responseType == dgo.InteractionResponseACKWithSource || responseType == dgo.InteractionResponseAcknowledge {
+			responseData = nil
+		}
+		log.Println("response parameters:", responseType, responseData)
+		err := s.InteractionRespond(i.Interaction, &dgo.InteractionResponse{
+			Type: responseType,
+			Data: responseData,
 		})
 		log.Println("response", err)
 		time.Sleep(time.Second * 2)
-		err = s.InteractionResponseEdit(i.Interaction, &dgo.WebhookEdit{
+		err = s.InteractionResponseEdit("", i.Interaction, &dgo.WebhookEdit{
 			Content: "here we go!",
 		})
 		log.Println("response edit", err)
 		time.Sleep(time.Second * 2)
-		err = s.InteractionResponseDelete(i.Interaction)
+		err = s.InteractionResponseDelete("", i.Interaction)
 		log.Println("response delete", err)
-		err = s.InteractionResponseDelete(i.Interaction)
+		err = s.InteractionResponseDelete("", i.Interaction)
 		log.Println("response delete 2", err)
 
-		followupMessage, err := s.FollowupMessageCreate(i.Interaction, true, &dgo.WebhookParams{
+		followupMessage, err := s.FollowupMessageCreate("", i.Interaction, true, &dgo.WebhookParams{
 			Content: "followup messages rule!",
 		})
 		log.Println("followup message create", followupMessage, err)
 		time.Sleep(time.Second * 3)
-		err = s.FollowupMessageEdit(i.Interaction, followupMessage.ID, &dgo.WebhookEdit{
+		err = s.FollowupMessageEdit("", i.Interaction, followupMessage.ID, &dgo.WebhookEdit{
 			Content: "that's true",
 		})
 		log.Println("followup message edit", err)
 		time.Sleep(time.Second * 3)
-		err = s.FollowupMessageDelete(i.Interaction, followupMessage.ID)
+		err = s.FollowupMessageDelete("", i.Interaction, followupMessage.ID)
 		log.Println("followup message delete", err)
 	})
 
@@ -73,7 +78,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cmd, err := client.ApplicationCommandCreate(&dgo.ApplicationCommand{
+	cmd, err := client.ApplicationCommandCreate("", &dgo.ApplicationCommand{
 		Name:        "test-slashes",
 		Description: "Command for testing application commands",
 		Options: []*dgo.ApplicationCommandOption{

@@ -2170,11 +2170,10 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 	}
 
 	err = unmarshal(response, &st)
-
 	return
 }
 
-// WebhookMessageEdit edits webhook's message.
+// WebhookMessageEdit edits a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
 // messageID : The ID of message to edit
@@ -2186,7 +2185,7 @@ func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *W
 	return
 }
 
-// WebhookMessageEdit deletes webhook's message.
+// WebhookMessageDelete deletes a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
 // messageID : The ID of message to edit
@@ -2357,48 +2356,61 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 // ------------------------------------------------------------------------------------------------
 
 // ApplicationCommandCreate creates an global application command. If guild is specified - creates guild specific application command.
-func (s *Session) ApplicationCommandCreate(cmd *ApplicationCommand, guildID string) (rcmd *ApplicationCommand, err error) {
+func (s *Session) ApplicationCommandCreate(appID string, cmd *ApplicationCommand, guildID string) (rcmd *ApplicationCommand, err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
 	endpoint := EndpointApplicationGlobalCommands(s.State.User.ID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommands(s.State.User.ID, guildID)
 	}
 	body, err := s.RequestWithBucketID("POST", endpoint, *cmd, endpoint)
-	if err != nil {
-		return
+	if err == nil {
+		err = unmarshal(body, &rcmd)
 	}
 
-	err = unmarshal(body, &rcmd)
 	return
 }
 
 // ApplicationCommandDelete deletes global application command by id. If guild is specified - deletes guild specific application command.
-func (s *Session) ApplicationCommandDelete(cmdID, guildID string) (err error) {
-	endpoint := EndpointApplicationGlobalCommand(s.State.User.ID, cmdID)
+func (s *Session) ApplicationCommandDelete(appID, cmdID, guildID string) (err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
-		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
+		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
 	}
 	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 	return
 }
 
 // ApplicationCommandEdit edits global application command by id and replaces with contents of "cmd". If guild is specified - edits guild specific application command.
-func (s *Session) ApplicationCommandEdit(cmdID, guildID string, cmd *ApplicationCommand) (oldcmd *ApplicationCommand, err error) {
-	endpoint := EndpointApplicationGlobalCommand(s.State.User.ID, cmdID)
+func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *ApplicationCommand) (oldcmd *ApplicationCommand, err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
-		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
+		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
 	}
 
 	body, err := s.RequestWithBucketID("PATCH", endpoint, *cmd, endpoint)
 
-	err = unmarshal(body, &oldcmd)
+	if err == nil {
+		err = unmarshal(body, &cmd)
+	}
 	return
 }
 
 // ApplicationCommand retrieves a command by given id and returns it. If guild is specified - retrieves guild specific application command.
-func (s *Session) ApplicationCommand(cmdID, guildID string) (cmd *ApplicationCommand, err error) {
-	endpoint := EndpointApplicationGlobalCommand(s.State.User.ID, cmdID)
+func (s *Session) ApplicationCommand(appID, cmdID, guildID string) (cmd *ApplicationCommand, err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
-		endpoint = EndpointApplicationGuildCommand(s.State.User.ID, guildID, cmdID)
+		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
 	}
 
 	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
@@ -2410,15 +2422,21 @@ func (s *Session) ApplicationCommand(cmdID, guildID string) (cmd *ApplicationCom
 }
 
 // ApplicationCommands retrieves all commands in application. If guild is specified - retrieves all guild specific application commands.
-func (s *Session) ApplicationCommands(guildID string) (cmd []*ApplicationCommand, err error) {
-	endpoint := EndpointApplicationGlobalCommands(s.State.User.ID)
+func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*ApplicationCommand, err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	endpoint := EndpointApplicationGlobalCommands(appID)
 	if guildID != "" {
-		endpoint = EndpointApplicationGuildCommands(s.State.User.ID, guildID)
+		endpoint = EndpointApplicationGuildCommands(appID, guildID)
 	}
 
 	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 
-	err = unmarshal(body, &cmd)
+	if err == nil {
+		err = unmarshal(body, &cmd)
+	}
+
 	return
 }
 
@@ -2430,28 +2448,43 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 }
 
 // InteractionResponseEdit edits the response to an interaction.
-func (s *Session) InteractionResponseEdit(interaction *Interaction, newresp *WebhookEdit) (err error) {
-	return s.WebhookMessageEdit(s.State.User.ID, interaction.Token, "@original", newresp)
+func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) (err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
 }
 
 // InteractionResponseDelete deletes the response to an interaction.
-func (s *Session) InteractionResponseDelete(interaction *Interaction) (err error) {
-	endpoint := EndpointInteractionResponseActions(s.State.User.ID, interaction.Token)
+func (s *Session) InteractionResponseDelete(appID string, interaction *Interaction) (err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	endpoint := EndpointInteractionResponseActions(appID, interaction.Token)
 	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 	return
 }
 
 // FollowupMessageCreate creates the followup message for an interaction.
-func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams) (st *Message, err error) {
-	return s.WebhookExecute(s.State.User.ID, interaction.Token, wait, data)
+func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, wait bool, data *WebhookParams) (st *Message, err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	return s.WebhookExecute(appID, interaction.Token, wait, data)
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
-func (s *Session) FollowupMessageEdit(interaction *Interaction, messageID string, data *WebhookEdit) (err error) {
-	return s.WebhookMessageEdit(s.State.User.ID, interaction.Token, messageID, data)
+func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) (err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	return s.WebhookMessageEdit(appID, interaction.Token, messageID, data)
 }
 
 // FollowupMessageDelete deletes a followup message of an interaction.
-func (s *Session) FollowupMessageDelete(interaction *Interaction, messageID string) (err error) {
-	return s.WebhookMessageDelete(s.State.User.ID, interaction.Token, messageID)
+func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, messageID string) (err error) {
+	if appID == "" {
+		appID = s.State.User.ID
+	}
+	return s.WebhookMessageDelete(appID, interaction.Token, messageID)
 }

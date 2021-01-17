@@ -3,7 +3,7 @@ package discordgo
 import (
 	"time"
 )
-
+// InteractionDeadline is a deadline for responding to an interaction, if you haven't responded in the time, you won't be able to respond later.
 const InteractionDeadline = time.Second * 3
 
 // ApplicationCommand is representing application's slash command.
@@ -43,7 +43,7 @@ type ApplicationCommandOption struct {
 	Options     []*ApplicationCommandOption       `json:"options,omitempty"`
 }
 
-// ApplicationCommandOption is representing slash-command's option choice.
+// ApplicationCommandOptionChoice is representing slash-command's option choice.
 type ApplicationCommandOptionChoice struct {
 	Name  string      `json:"name,omitempty"`
 	Value interface{} `json:"value,omitempty"`
@@ -111,7 +111,7 @@ type InteractionResponse struct {
 	Data *InteractionApplicationCommandResponseData `json:"data,omitempty"`
 }
 
-// InteractionApplicationCommandCallbackData is callback data for application command interaction.
+// InteractionApplicationCommandResponseData is callback data for application command interaction.
 type InteractionApplicationCommandResponseData struct {
 	TTS             bool                    `json:"tts,omitempty"`
 	Content         string                  `json:"content,omitempty"`
