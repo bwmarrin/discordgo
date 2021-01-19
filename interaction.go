@@ -21,9 +21,7 @@ type ApplicationCommandOptionType uint8
 
 // Application command option types.
 const (
-	_ = ApplicationCommandOptionType(iota)
-
-	ApplicationCommandOptionSubCommand
+	ApplicationCommandOptionSubCommand = ApplicationCommandOptionType(iota + 1)
 	ApplicationCommandOptionSubCommandGroup
 	ApplicationCommandOptionString
 	ApplicationCommandOptionInteger
@@ -53,11 +51,9 @@ type ApplicationCommandOptionChoice struct {
 // InteractionType is representing interaction type.
 type InteractionType uint8
 
+// Interaction types
 const (
-	_ = InteractionType(iota)
-	// InteractionPing is type of interaction for ping.
-	InteractionPing
-	// InteractionApplicationCommand is type of interaction for application commands.
+	InteractionPing = InteractionType(iota + 1)
 	InteractionApplicationCommand
 )
 
@@ -93,16 +89,15 @@ type InteractionResponseType uint8
 
 // Interaction response types.
 const (
-	_ = InteractionResponseType(iota)
-	// InteractionResponsePong is an interaction response type when you need to just ACK a "Ping".
-	InteractionResponsePong
-	// InteractionResponsePong is an interaction response type when you need to ACK a command without sending a message, eating the user's input.
+	// InteractionResponsePong is for ACK ping event.
+	InteractionResponsePong = InteractionResponseType(iota + 1)
+	// InteractionResponseAcknowledge is for ACK a command without sending a message, eating the user's input.
 	InteractionResponseAcknowledge
-	// InteractionResponsePong is an interaction response type when you need to respond with a message, eating the user's input.
+	// InteractionResponseChannelMessage is for responding with a message, eating the user's input.
 	InteractionResponseChannelMessage
-	// InteractionResponsePong is an interaction response type when you need to respond with a message, showing the user's input.
+	// InteractionResponseChannelMessageWithSource is for responding with a message, showing the user's input.
 	InteractionResponseChannelMessageWithSource
-	// InteractionResponsePong is an interaction response type when you need to ACK a command without sending a message, showing the user's input.
+	// InteractionResponseACKWithSource is for ACK a command without sending a message, showing the user's input.
 	InteractionResponseACKWithSource
 )
 
