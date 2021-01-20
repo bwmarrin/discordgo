@@ -437,9 +437,6 @@ type Guild struct {
 	// The ID of the AFK voice channel.
 	AfkChannelID string `json:"afk_channel_id"`
 
-	// The ID of the embed channel ID, used for embed widgets.
-	EmbedChannelID string `json:"embed_channel_id"`
-
 	// The user ID of the owner of the guild.
 	OwnerID string `json:"owner_id"`
 
@@ -467,9 +464,6 @@ type Guild struct {
 
 	// The verification level required for the guild.
 	VerificationLevel VerificationLevel `json:"verification_level"`
-
-	// Whether the guild has embedding enabled.
-	EmbedEnabled bool `json:"embed_enabled"`
 
 	// Whether the guild is considered large. This is
 	// determined by a member threshold in the identify packet,

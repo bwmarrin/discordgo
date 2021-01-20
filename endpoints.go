@@ -90,7 +90,8 @@ var (
 	EndpointGuildRoles           = func(gID string) string { return EndpointGuilds + gID + "/roles" }
 	EndpointGuildRole            = func(gID, rID string) string { return EndpointGuilds + gID + "/roles/" + rID }
 	EndpointGuildInvites         = func(gID string) string { return EndpointGuilds + gID + "/invites" }
-	EndpointGuildEmbed           = func(gID string) string { return EndpointGuilds + gID + "/embed" }
+	EndpointGuildWidget          = func(gID string) string { return EndpointGuilds + gID + "/widget" }
+	EndpointGuildEmbed           = EndpointGuildWidget
 	EndpointGuildPrune           = func(gID string) string { return EndpointGuilds + gID + "/prune" }
 	EndpointGuildIcon            = func(gID, hash string) string { return EndpointCDNIcons + gID + "/" + hash + ".png" }
 	EndpointGuildIconAnimated    = func(gID, hash string) string { return EndpointCDNIcons + gID + "/" + hash + ".gif" }

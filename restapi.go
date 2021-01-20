@@ -715,7 +715,7 @@ func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days 
 
 	queryParams := url.Values{}
 	if days > 0 {
-		queryParams.Set("delete-message-days", strconv.Itoa(days))
+		queryParams.Set("delete_message_days", strconv.Itoa(days))
 	}
 	if reason != "" {
 		queryParams.Set("reason", reason)
