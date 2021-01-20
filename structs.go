@@ -14,6 +14,7 @@ package discordgo
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strings"
 	"sync"
@@ -692,39 +693,10 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User       *User    `json:"user"`
-	Status     Status   `json:"status"`
-	Game       *Game    `json:"game"`
-	Activities []*Game  `json:"activities"`
-	Nick       string   `json:"nick"`
-	Roles      []string `json:"roles"`
-	Since      *int     `json:"since"`
-}
-
-// GameType is the type of "game" (see GameType* consts) in the Game struct
-type GameType int
-
-// Valid GameType values
-const (
-	GameTypeGame GameType = iota
-	GameTypeStreaming
-	GameTypeListening
-	GameTypeWatching
-	GameTypeCustom
-)
-
-// A Game struct holds the name of the "playing .." game for a user
-type Game struct {
-	Name          string     `json:"name"`
-	Type          GameType   `json:"type"`
-	URL           string     `json:"url,omitempty"`
-	Details       string     `json:"details,omitempty"`
-	State         string     `json:"state,omitempty"`
-	TimeStamps    TimeStamps `json:"timestamps,omitempty"`
-	Assets        Assets     `json:"assets,omitempty"`
-	ApplicationID string     `json:"application_id,omitempty"`
-	Instance      int8       `json:"instance,omitempty"`
-	// TODO: Party and Secrets (unknown structure)
+	User       *User       `json:"user"`
+	Status     Status      `json:"status"`
+	Activities []*Activity `json:"activities"`
+	Since      *int        `json:"since"`
 }
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
@@ -1153,7 +1125,7 @@ type ActivityType int
 
 // Valid ActivityType values
 const (
-	ActivityTypeGame GameType = iota
+	ActivityTypeGame ActivityType = iota
 	ActivityTypeStreaming
 	ActivityTypeListening
 	//	ActivityTypeWatching // not valid in this use case?
