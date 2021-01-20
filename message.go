@@ -34,7 +34,7 @@ const (
 	MessageTypeUserPremiumGuildSubscriptionTierTwo
 	MessageTypeUserPremiumGuildSubscriptionTierThree
 	MessageTypeChannelFollowAdd
-	MessageTypeGuildDiscoveryDisqualified
+	MessageTypeGuildDiscoveryDisqualified = iota + 1
 	MessageTypeGuildDiscoveryRequalified
 )
 
