@@ -997,7 +997,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 // UserChannelPermissions returns the permission of a user in a channel.
 // userID    : The ID of the user to calculate permissions for.
 // channelID : The ID of the channel to calculate permission for.
-func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int64, err error) {
 	if s == nil {
 		return 0, ErrNilState
 	}
@@ -1022,7 +1022,7 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 
 // MessagePermissions returns the permissions of the author of the message
 // in the channel in which it was sent.
-func (s *State) MessagePermissions(message *Message) (apermissions int, err error) {
+func (s *State) MessagePermissions(message *Message) (apermissions int64, err error) {
 	if s == nil {
 		return 0, ErrNilState
 	}
