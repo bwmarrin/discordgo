@@ -1158,7 +1158,7 @@ type Identify struct {
 	Shard              *[2]int             `json:"shard,omitempty"`
 	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
 	GuildSubscriptions bool                `json:"guild_subscriptions"`
-	Intents            *Intent             `json:"intents,omitempty"`
+	Intents            Intent              `json:"intents"`
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
@@ -1345,7 +1345,9 @@ const (
 	IntentsNone Intent = 0
 )
 
-// MakeIntent helps convert a gateway intent value for use in the Identify structure.
-func MakeIntent(intents Intent) *Intent {
-	return &intents
+// MakeIntent used to help convert a gateway intent value for use in the Identify structure;
+// this was useful to help support the use of a pointer type when intents were optional.
+// This is now a no-op, and is not necessary to use.
+func MakeIntent(intents Intent) Intent {
+	return intents
 }
