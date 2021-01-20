@@ -845,6 +845,24 @@ type TooManyRequests struct {
 	RetryAfter time.Duration `json:"retry_after"`
 }
 
+func (t *TooManyRequests) UnmarshalJSON(b []byte) error {
+	u := struct {
+		Bucket     string  `json:"bucket"`
+		Message    string  `json:"message"`
+		RetryAfter float64 `json:"retry_after"`
+	}{}
+	err := json.Unmarshal(b, &u)
+	if err != nil {
+		return err
+	}
+
+	t.Bucket = u.Bucket
+	t.Message = u.Message
+	whole, frac := math.Modf(u.RetryAfter)
+	t.RetryAfter = time.Duration(whole)*time.Second + time.Duration(frac*1000)*time.Millisecond
+	return nil
+}
+
 // A ReadState stores data on the read state of channels.
 type ReadState struct {
 	MentionCount  int    `json:"mention_count"`
