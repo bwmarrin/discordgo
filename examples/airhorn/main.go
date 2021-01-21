@@ -78,7 +78,7 @@ func main() {
 func ready(s *discordgo.Session, event *discordgo.Ready) {
 
 	// Set the playing status.
-	s.UpdateStatus(0, "!airhorn")
+	s.UpdateGameStatus(0, "!airhorn")
 }
 
 // This function will be called (due to AddHandler above) every time a new
