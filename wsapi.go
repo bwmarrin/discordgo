@@ -353,7 +353,7 @@ func newUpdateStatusData(idle int, activityType ActivityType, name, url string) 
 	return usd
 }
 
-// UpdateStatus is used to update the user's status.
+// UpdateGameStatus is used to update the user's status.
 // If idle>0 then set status to idle.
 // If name!="" then set game.
 // if otherwise, set status to active, and no activity.
