@@ -611,7 +611,7 @@ type UserGuild struct {
 	Name        string `json:"name"`
 	Icon        string `json:"icon"`
 	Owner       bool   `json:"owner"`
-	Permissions int    `json:"permissions"`
+	Permissions int64  `json:"permissions,string"`
 }
 
 // A GuildParams stores all the data needed to update discord guild settings
