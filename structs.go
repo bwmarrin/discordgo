@@ -817,6 +817,8 @@ type TooManyRequests struct {
 	RetryAfter time.Duration `json:"retry_after"`
 }
 
+// UnmarshalJSON helps support translation of a milliseconds-based float
+// into a time.Duration on TooManyRequests.
 func (t *TooManyRequests) UnmarshalJSON(b []byte) error {
 	u := struct {
 		Bucket     string  `json:"bucket"`
