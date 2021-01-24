@@ -34,8 +34,10 @@ const (
 	MessageTypeUserPremiumGuildSubscriptionTierTwo
 	MessageTypeUserPremiumGuildSubscriptionTierThree
 	MessageTypeChannelFollowAdd
-	MessageTypeGuildDiscoveryDisqualified
+	MessageTypeGuildDiscoveryDisqualified = iota + 1
 	MessageTypeGuildDiscoveryRequalified
+	MessageTypeReply = iota + 4
+	MessageTypeApplicationCommand
 )
 
 // A Message stores all data related to a specific Discord message.
