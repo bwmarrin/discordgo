@@ -1116,9 +1116,9 @@ type GatewayStatusUpdate struct {
 // Activity defines the Activity sent with GatewayStatusUpdate
 // https://discord.com/developers/docs/topics/gateway#activity-object
 type Activity struct {
-	Name string
-	Type ActivityType
-	URL  string
+	Name string       `json:"name"`
+	Type ActivityType `json:"type"`
+	URL  string       `json:"url,omitempty"`
 }
 
 // ActivityType is the type of Activity (see ActivityType* consts) in the Activity struct
