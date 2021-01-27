@@ -1048,7 +1048,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 // hoist     : Whether to display the role's users separately.
 // perm      : The permissions for the role.
 // mention   : Whether this role is mentionable
-func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int, mention bool) (st *Role, err error) {
+func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int64, mention bool) (st *Role, err error) {
 
 	// Prevent sending a color int that is too big.
 	if color > 0xFFFFFF {
@@ -1060,7 +1060,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 		Name        string `json:"name"`        // The role's name (overwrites existing)
 		Color       int    `json:"color"`       // The color the role should have (as a decimal, not hex)
 		Hoist       bool   `json:"hoist"`       // Whether to display the role's users separately
-		Permissions int    `json:"permissions"` // The overall permissions number of the role (overwrites existing)
+		Permissions int64  `json:"permissions"` // The overall permissions number of the role (overwrites existing)
 		Mentionable bool   `json:"mentionable"` // Whether this role is mentionable
 	}{name, color, hoist, perm, mention}
 
@@ -1807,13 +1807,13 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 // ChannelPermissionSet creates a Permission Override for the given channel.
 // NOTE: This func name may changed.  Using Set instead of Create because
 // you can both create a new override or update an override with this function.
-func (s *Session) ChannelPermissionSet(channelID, targetID string, targetType PermissionOverwriteType, allow, deny int) (err error) {
+func (s *Session) ChannelPermissionSet(channelID, targetID string, targetType PermissionOverwriteType, allow, deny int64) (err error) {
 
 	data := struct {
 		ID    string                  `json:"id"`
 		Type  PermissionOverwriteType `json:"type"`
-		Allow int                     `json:"allow"`
-		Deny  int                     `json:"deny"`
+		Allow int64                   `json:"allow"`
+		Deny  int64                   `json:"deny"`
 	}{targetID, targetType, allow, deny}
 
 	_, err = s.RequestWithBucketID("PUT", EndpointChannelPermission(channelID, targetID), data, EndpointChannelPermission(channelID, ""))
