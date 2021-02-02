@@ -2209,6 +2209,19 @@ func (s *Session) MessageReactionsRemoveAll(channelID, messageID string) error {
 	return err
 }
 
+// MessageReactionsRemove deletes all reactions of a certain emoji from a message
+// channelID : The channel ID
+// messageID : The message ID
+// emojiID	 : The emoji ID
+func (s *Session) MessageReactionsRemove(channelID, messageID string, emojiID string) error {
+
+	// emoji such as  #⃣ need to have # escaped
+	emojiID = strings.Replace(emojiID, "#", "%23", -1)
+	_, err := s.RequestWithBucketID("DELETE", EndpointMessageReactions(channelID, messageID, emojiID), nil, EndpointMessageReactions(channelID, messageID, emojiID))
+
+	return err
+}
+
 // MessageReactions gets all the users reactions for a specific emoji.
 // channelID : The channel ID.
 // messageID : The message ID.
