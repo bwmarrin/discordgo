@@ -2209,10 +2209,10 @@ func (s *Session) MessageReactionsRemoveAll(channelID, messageID string) error {
 	return err
 }
 
-// MessageReactionsRemove deletes all reactions of a certain emoji from a message
+// MessageReactionsRemoveEmoji deletes all reactions of a certain emoji from a message
 // channelID : The channel ID
 // messageID : The message ID
-// emojiID	 : The emoji ID
+// emojiID   : The emoji ID
 func (s *Session) MessageReactionsRemoveEmoji(channelID, messageID, emojiID string) error {
 
 	// emoji such as  #⃣ need to have # escaped
