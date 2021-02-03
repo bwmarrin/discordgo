@@ -2213,7 +2213,7 @@ func (s *Session) MessageReactionsRemoveAll(channelID, messageID string) error {
 // channelID : The channel ID
 // messageID : The message ID
 // emojiID	 : The emoji ID
-func (s *Session) MessageReactionsRemove(channelID, messageID, emojiID string) error {
+func (s *Session) MessageReactionsRemoveEmoji(channelID, messageID, emojiID string) error {
 
 	// emoji such as  #⃣ need to have # escaped
 	emojiID = strings.Replace(emojiID, "#", "%23", -1)
