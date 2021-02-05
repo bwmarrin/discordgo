@@ -154,10 +154,10 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
 		}
-		s.log(LogInformational, "Rate Limiting %s, retry in %d", urlStr, rl.RetryAfter)
+		s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
 		s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		time.Sleep(rl.RetryAfter * time.Millisecond)
+		time.Sleep(rl.RetryAfter)
 		// we can make the above smarter
 		// this method can cause longer delays than required
 
