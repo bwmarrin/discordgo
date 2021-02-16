@@ -2414,7 +2414,7 @@ func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *Appl
 // appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
 // cmdID       : Application command ID to delete.
 // guildID     : Guild ID to delete guild-specific application command.
-func (s *Session) ApplicationCommandDelete(appID, cmdID, guildID string) (err error) {
+func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) (err error) {
 	if appID == "" {
 		appID = s.State.User.ID
 	}
@@ -2431,7 +2431,7 @@ func (s *Session) ApplicationCommandDelete(appID, cmdID, guildID string) (err er
 // appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
 // cmdID       : Application command ID.
 // guildID     : Guild ID to retrieve guild-specific application command.
-func (s *Session) ApplicationCommand(appID, cmdID, guildID string) (cmd *ApplicationCommand, err error) {
+func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *ApplicationCommand, err error) {
 	if appID == "" {
 		appID = s.State.User.ID
 	}
