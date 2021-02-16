@@ -2426,7 +2426,6 @@ func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) (err er
 	return
 }
 
-
 // ApplicationCommand retrieves an application command by given id.
 // appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
 // cmdID       : Application command ID.
@@ -2444,7 +2443,7 @@ func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *Applica
 	if err != nil {
 		return
 	}
-	
+
 	err = unmarshal(body, &cmd)
 	return
 }

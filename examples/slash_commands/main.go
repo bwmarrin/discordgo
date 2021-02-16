@@ -13,8 +13,8 @@ import (
 
 // Bot parameters
 var (
-	GuildID = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
-	BotToken = flag.String("token", "", "Bot access token")
+	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
+	BotToken       = flag.String("token", "", "Bot access token")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
@@ -31,64 +31,64 @@ func init() {
 }
 
 var (
-	commands = []*discordgo.ApplicationCommand {
+	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
 			// All commands and options must have an description
 			// Commands/options without description will fail the registration
 			// of the command.
-			Description: "Basic command", 
+			Description: "Basic command",
 		},
 		{
-			Name: "options",
+			Name:        "options",
 			Description: "Command for demonstrating options",
 			Options: []*discordgo.ApplicationCommandOption{
 
 				{
-					Type: discordgo.ApplicationCommandOptionString,
-					Name: "string-option",
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "string-option",
 					Description: "String option",
-					Required: true,
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionInteger,
-					Name: "integer-option",
+					Type:        discordgo.ApplicationCommandOptionInteger,
+					Name:        "integer-option",
 					Description: "Integer option",
-					Required: true,
+					Required:    true,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionBoolean,
-					Name: "bool-option",
+					Type:        discordgo.ApplicationCommandOptionBoolean,
+					Name:        "bool-option",
 					Description: "Boolean option",
-					Required: true,
+					Required:    true,
 				},
 
 				// Required options must be listed first, because
 				// like everyone knows - optional parameters is on the back.
 				// The same concept applies to Discord's Slash-commands API
-				
+
 				{
-					Type: discordgo.ApplicationCommandOptionChannel,
-					Name: "channel-option",
+					Type:        discordgo.ApplicationCommandOptionChannel,
+					Name:        "channel-option",
 					Description: "Channel option",
-					Required: false,
+					Required:    false,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionUser,
-					Name: "user-option",
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "user-option",
 					Description: "User option",
-					Required: false,
+					Required:    false,
 				},
 				{
-					Type: discordgo.ApplicationCommandOptionRole,
-					Name: "role-option",
+					Type:        discordgo.ApplicationCommandOptionRole,
+					Name:        "role-option",
 					Description: "Role option",
-					Required: false,
+					Required:    false,
 				},
 			},
 		},
 		{
-			Name: "subcommands",
+			Name:        "subcommands",
 			Description: "Subcommands and command groups example",
 			Options: []*discordgo.ApplicationCommandOption{
 				// When command have subcommands/subcommand groups
@@ -98,16 +98,16 @@ var (
 				// will fail the registration of the command
 
 				{
-					Name: "scmd-grp",
+					Name:        "scmd-grp",
 					Description: "Subcommands group",
 					Options: []*discordgo.ApplicationCommandOption{
 						// Also, subcommand groups isn't capable of
 						// containg options, by the name of them, you can see
 						// they can contain only subcommands
 						{
-							Name: "nst-subcmd",
+							Name:        "nst-subcmd",
 							Description: "Nested subcommand",
-							Type: discordgo.ApplicationCommandOptionSubCommand,
+							Type:        discordgo.ApplicationCommandOptionSubCommand,
 						},
 					},
 					Type: discordgo.ApplicationCommandOptionSubCommandGroup,
@@ -118,35 +118,35 @@ var (
 				// Read the intro of slash-commands docs on Discord dev portal
 				// to get more information
 				{
-					Name: "subcmd",
+					Name:        "subcmd",
 					Description: "Top-level subcommand",
-					Type: discordgo.ApplicationCommandOptionSubCommand,
+					Type:        discordgo.ApplicationCommandOptionSubCommand,
 				},
 			},
 		},
 		{
-			Name: "responses",
+			Name:        "responses",
 			Description: "Interaction responses testing initiative",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Name: "resp-type",
+					Name:        "resp-type",
 					Description: "Response type",
-					Type: discordgo.ApplicationCommandOptionInteger,
+					Type:        discordgo.ApplicationCommandOptionInteger,
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
-							Name: "Acknowledge",
+							Name:  "Acknowledge",
 							Value: 2,
 						},
 						{
-							Name: "Channel message",
+							Name:  "Channel message",
 							Value: 3,
 						},
 						{
-							Name: "Channel message with source",
+							Name:  "Channel message with source",
 							Value: 4,
 						},
 						{
-							Name: "Acknowledge with source",
+							Name:  "Acknowledge with source",
 							Value: 5,
 						},
 					},
@@ -154,11 +154,11 @@ var (
 			},
 		},
 		{
-			Name: "followups",
+			Name:        "followups",
 			Description: "Followup messages",
 		},
 	}
-	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -208,16 +208,16 @@ var (
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			content := ""
-			
+
 			// As you can see, the name of subcommand (nested, top-level) or subcommand group
 			// is provided through arguments.
-			switch i.Data.Options[0].Name { 
+			switch i.Data.Options[0].Name {
 			case "subcmd":
-				content = 
+				content =
 					"The top-level subcommand is executed. Now try to execute nested one."
 			default:
 				if i.Data.Options[0].Name != "scmd-grp" {
-				 	return
+					return
 				}
 				switch i.Data.Options[0].Options[0].Name {
 				case "nst-subcmd":
@@ -243,21 +243,21 @@ var (
 			// use interaction token and ID for responding to the user's request
 
 			content := ""
-			// As you can see, response type names saying by themselvs 
+			// As you can see, response type names saying by themselvs
 			// how they're used, but for those who want to get
 			// more information - read the official documentation
 			switch i.Data.Options[0].IntValue() {
 			case int64(discordgo.InteractionResponseChannelMessage):
 				content =
 					"Well, you just responded to an interaction, and sent a message.\n" +
-					"That's all what I wanted to say, yeah."
-				content += 
+						"That's all what I wanted to say, yeah."
+				content +=
 					"\nAlso... you can edit your response, wait 5 seconds and this message will be changed"
-			case int64(discordgo.InteractionResponseChannelMessageWithSource): 
+			case int64(discordgo.InteractionResponseChannelMessageWithSource):
 				content =
 					"You just responded to an interaction, sent a message and showed the original one. " +
-					"Congratulations!"
-				content += 
+						"Congratulations!"
+				content +=
 					"\nAlso... you can edit your response, wait 5 seconds and this message will be changed"
 			default:
 				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -283,7 +283,7 @@ var (
 				})
 				return
 			}
-			time.AfterFunc(time.Second * 5, func() {
+			time.AfterFunc(time.Second*5, func() {
 				err = s.InteractionResponseEdit("", i.Interaction, &discordgo.WebhookEdit{
 					Content: content + "\n\nWell, now you know how to create and edit responses. " +
 						"But you still don't know how to delete them... so... wait 10 seconds and this " +
@@ -310,7 +310,7 @@ var (
 					// Note: this isn't documented, but you can use that if you want to.
 					// This flag just allows to create messages visible only for the caller (user who triggered the command)
 					// of the command
-					Flags: 1 << 6, 
+					Flags:   1 << 6,
 					Content: "Surprise!",
 				},
 			})
@@ -328,22 +328,22 @@ var (
 			s.FollowupMessageEdit("", i.Interaction, msg.ID, &discordgo.WebhookEdit{
 				Content: "Now original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
-			
+
 			time.Sleep(time.Second * 10)
 
-			s.FollowupMessageDelete	("", i.Interaction, msg.ID)
+			s.FollowupMessageDelete("", i.Interaction, msg.ID)
 
 			s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
-				Content: "For those, who didn't skip anything and followed tutorial along fairly, " + 
-						 "take a unicorn :unicorn: as reward!\n" +
-						 "Also, as bonus..., look at the original interaction response :D",
+				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
+					"take a unicorn :unicorn: as reward!\n" +
+					"Also, as bonus..., look at the original interaction response :D",
 			})
 		},
 	}
 )
 
 func init() {
-	s.AddHandler(func (s *discordgo.Session, i *discordgo.InteractionCreate) {
+	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.Data.Name]; ok {
 			h(s, i)
 		}
@@ -351,7 +351,7 @@ func init() {
 }
 
 func main() {
-	s.AddHandler(func (s *discordgo.Session, r *discordgo.Ready) {
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Println("Bot is up!")
 	})
 	err := s.Open()

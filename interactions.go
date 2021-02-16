@@ -40,13 +40,13 @@ const (
 
 // ApplicationCommandOption is representing an option/subcommand/subcommands group.
 type ApplicationCommandOption struct {
-	Type        ApplicationCommandOptionType      `json:"type"`
-	Name        string                            `json:"name"`
-	Description string                            `json:"description,omitempty"`
+	Type        ApplicationCommandOptionType `json:"type"`
+	Name        string                       `json:"name"`
+	Description string                       `json:"description,omitempty"`
 	// Default     bool                              `json:"default"`
-	Required    bool                              `json:"required"`
-	Choices     []*ApplicationCommandOptionChoice `json:"choices"`
-	Options     []*ApplicationCommandOption       `json:"options"`
+	Required bool                              `json:"required"`
+	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
+	Options  []*ApplicationCommandOption       `json:"options"`
 }
 
 // ApplicationCommandOptionChoice is representing slash-command's option choice.
@@ -78,8 +78,8 @@ type Interaction struct {
 
 // ApplicationCommandInteractionData is representing interaction data for application command.
 type ApplicationCommandInteractionData struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
+	ID      string                                     `json:"id"`
+	Name    string                                     `json:"name"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
 }
 
@@ -91,6 +91,7 @@ type ApplicationCommandInteractionDataOption struct {
 	Options []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
 }
 
+// IntValue is utility function for casting option value to integer
 func (o ApplicationCommandInteractionDataOption) IntValue() (i int64) {
 	if v, ok := o.Value.(float64); ok {
 		i = int64(v)
@@ -98,6 +99,7 @@ func (o ApplicationCommandInteractionDataOption) IntValue() (i int64) {
 	return
 }
 
+// UintValue is utility function for casting option value to unsigned integer
 func (o ApplicationCommandInteractionDataOption) UintValue() (i uint64) {
 	if v, ok := o.Value.(float64); ok {
 		i = uint64(v)
@@ -105,6 +107,7 @@ func (o ApplicationCommandInteractionDataOption) UintValue() (i uint64) {
 	return
 }
 
+// FloatValue is utility function for casting option value to float
 func (o ApplicationCommandInteractionDataOption) FloatValue() (n float64) {
 	if v, ok := o.Value.(float64); ok {
 		n = float64(v)
@@ -112,12 +115,15 @@ func (o ApplicationCommandInteractionDataOption) FloatValue() (n float64) {
 	return
 }
 
+// StringValue is utility function for casting option value to string
 func (o ApplicationCommandInteractionDataOption) StringValue() (s string) {
 	if v, ok := o.Value.(string); ok {
 		s = v
 	}
 	return
 }
+
+// BoolValue is utility function for casting option value to bool
 func (o ApplicationCommandInteractionDataOption) BoolValue() (b bool) {
 	if v, ok := o.Value.(bool); ok {
 		b = v
@@ -125,12 +131,16 @@ func (o ApplicationCommandInteractionDataOption) BoolValue() (b bool) {
 	return
 }
 
+// ChannelValue is utility function for casting option value to channel object.
+// s : Session object, if not nil, function additionaly fetches all channel's data
 func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) (ch *Channel) {
 	chanID := o.StringValue()
-	if chanID == "" { return }
+	if chanID == "" {
+		return
+	}
 
 	if s == nil {
-		return &Channel {ID: chanID}
+		return &Channel{ID: chanID}
 	}
 
 	ch, err := s.State.Channel(chanID)
@@ -141,12 +151,16 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) (ch *C
 	return
 }
 
+// RoleValue is utility function for casting option value to role object.
+// s : Session object, if not nil, function additionaly fetches all role's data
 func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) (r *Role) {
 	roleID := o.StringValue()
-	if roleID == "" { return }
+	if roleID == "" {
+		return
+	}
 
 	if s == nil || gID == "" {
-		return &Role { ID: roleID }
+		return &Role{ID: roleID}
 	}
 
 	var err error
@@ -167,22 +181,22 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 	return
 }
 
+// UserValue is utility function for casting option value to user object.
+// s : Session object, if not nil, function additionaly fetches all user's data
 func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) (u *User) {
 	userID := o.StringValue()
-	if userID == "" { return }
+	if userID == "" {
+		return
+	}
 
 	if s == nil {
-		return &User { ID: userID }
+		return &User{ID: userID}
 	}
 
 	u, _ = s.User(userID)
 
 	return
 }
-
-// func (o ApplicationCommandInteractionDataOption) String() string {
-// 	return fmt.Sprintf("%v", o.Value)
-// }
 
 // InteractionResponseType is type of interaction response.
 type InteractionResponseType uint8
@@ -216,7 +230,6 @@ type InteractionApplicationCommandResponseData struct {
 
 	Flags uint64 `json:"flags,omitempty"` // NOTE: Undocumented feature, be careful with it.
 }
-
 
 // VerifyInteraction implements message verification of the discord interactions api
 // signing algorithm, as documented here:
