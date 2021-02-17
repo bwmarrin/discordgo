@@ -122,7 +122,7 @@ var (
 	EndpointWebhook         = func(wID string) string { return EndpointWebhooks + wID }
 	EndpointWebhookToken    = func(wID, token string) string { return EndpointWebhooks + wID + "/" + token }
 	EndpointWebhookMessage  = func(wID, token, messageID string) string {
-		return EndpointWebhookToken(wID, token) + "/" + "messages/" + messageID
+		return EndpointWebhookToken(wID, token) + "/messages/" + messageID
 	}
 
 	EndpointMessageReactionsAll = func(cID, mID string) string {
@@ -136,14 +136,14 @@ var (
 	}
 
 	EndpointApplicationGlobalCommands = func(aID string) string {
-		return EndpointApplication(aID) + "/" + "commands"
+		return EndpointApplication(aID) + "/commands"
 	}
 	EndpointApplicationGlobalCommand = func(aID, cID string) string {
 		return EndpointApplicationGlobalCommands(aID) + "/" + cID
 	}
 
 	EndpointApplicationGuildCommands = func(aID, gID string) string {
-		return EndpointApplication(aID) + "/" + "guilds" + "/" + gID + "/" + "commands"
+		return EndpointApplication(aID) + "guilds/" + gID + "/commands"
 	}
 	EndpointApplicationGuildCommand = func(aID, gID, cID string) string {
 		return EndpointApplicationGuildCommands(aID, gID) + "/" + cID
@@ -152,7 +152,7 @@ var (
 		return EndpointAPI + "interactions/" + aID + "/" + iToken
 	}
 	EndpointInteractionResponse = func(iID, iToken string) string {
-		return EndpointInteraction(iID, iToken) + "/" + "callback"
+		return EndpointInteraction(iID, iToken) + "/callback"
 	}
 	EndpointInteractionResponseActions = func(aID, iToken string) string {
 		return EndpointWebhookMessage(aID, iToken, "@original")

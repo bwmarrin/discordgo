@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-	// "fmt"
 )
 
 // InteractionDeadline is a deadline for responding to an interaction, if you haven't responded in the time, you won't be able to respond later.
@@ -43,6 +42,8 @@ type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType `json:"type"`
 	Name        string                       `json:"name"`
 	Description string                       `json:"description,omitempty"`
+	// NOTE: This feature was on the API but at some point developers decided to remove it.
+	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
 	Required bool                              `json:"required"`
 	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
@@ -92,51 +93,56 @@ type ApplicationCommandInteractionDataOption struct {
 }
 
 // IntValue is utility function for casting option value to integer
-func (o ApplicationCommandInteractionDataOption) IntValue() (i int64) {
+func (o ApplicationCommandInteractionDataOption) IntValue() int64 {
 	if v, ok := o.Value.(float64); ok {
-		i = int64(v)
+ 		return int64(v)
 	}
-	return
+
+	return 0
 }
 
 // UintValue is utility function for casting option value to unsigned integer
-func (o ApplicationCommandInteractionDataOption) UintValue() (i uint64) {
+func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 	if v, ok := o.Value.(float64); ok {
-		i = uint64(v)
+		return uint64(v)
 	}
-	return
+
+	return 0
 }
 
 // FloatValue is utility function for casting option value to float
-func (o ApplicationCommandInteractionDataOption) FloatValue() (n float64) {
+func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
 	if v, ok := o.Value.(float64); ok {
-		n = float64(v)
+		return float64(v)
 	}
-	return
+
+	return 0.0
 }
 
 // StringValue is utility function for casting option value to string
-func (o ApplicationCommandInteractionDataOption) StringValue() (s string) {
+func (o ApplicationCommandInteractionDataOption) StringValue() string {
 	if v, ok := o.Value.(string); ok {
-		s = v
+		return v
 	}
-	return
+
+	return ""
 }
 
 // BoolValue is utility function for casting option value to bool
-func (o ApplicationCommandInteractionDataOption) BoolValue() (b bool) {
+func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 	if v, ok := o.Value.(bool); ok {
-		b = v
+		return v
 	}
-	return
+
+	return false
 }
 
 // ChannelValue is utility function for casting option value to channel object.
 // s : Session object, if not nil, function additionaly fetches all channel's data
-func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) (ch *Channel) {
+func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Channel {
 	chanID := o.StringValue()
 	if chanID == "" {
-		return
+		return nil
 	}
 
 	if s == nil {
@@ -146,56 +152,60 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) (ch *C
 	ch, err := s.State.Channel(chanID)
 	if err != nil {
 		ch, err = s.Channel(chanID)
+		if err != nil {
+			return &Channel{ID: chanID}
+		}
 	}
 
-	return
+	return ch
 }
 
 // RoleValue is utility function for casting option value to role object.
 // s : Session object, if not nil, function additionaly fetches all role's data
-func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) (r *Role) {
+func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) *Role {
 	roleID := o.StringValue()
 	if roleID == "" {
-		return
+		return nil
 	}
 
 	if s == nil || gID == "" {
 		return &Role{ID: roleID}
 	}
 
-	var err error
-	r, err = s.State.Role(roleID, gID)
+	r, err := s.State.Role(roleID, gID)
 	if err != nil {
 		roles, err := s.GuildRoles(gID)
-		if err != nil {
-			return
-		}
-		for _, r = range roles {
-			if r.ID == roleID {
-				return
+		if err == nil {
+			for _, r = range roles {
+				if r.ID == roleID {
+					return r
+				}
 			}
 		}
-		r = nil
+		return &Role{ID: roleID}
 	}
 
-	return
+	return r
 }
 
 // UserValue is utility function for casting option value to user object.
 // s : Session object, if not nil, function additionaly fetches all user's data
-func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) (u *User) {
+func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	userID := o.StringValue()
 	if userID == "" {
-		return
+		return nil
 	}
 
 	if s == nil {
 		return &User{ID: userID}
 	}
 
-	u, _ = s.User(userID)
+	u, err := s.User(userID)
+	if err != nil {
+		return &User{ID: userID}
+	}
 
-	return
+	return u
 }
 
 // InteractionResponseType is type of interaction response.
