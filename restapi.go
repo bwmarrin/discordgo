@@ -2417,7 +2417,7 @@ func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *Appl
 	}
 
 	err = unmarshal(body, &cmd)
-	
+
 	return
 }
 
@@ -2438,9 +2438,9 @@ func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) (err er
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
 	}
-	
+
 	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
-	
+
 	return
 }
 
@@ -2469,7 +2469,7 @@ func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *Applica
 	}
 
 	err = unmarshal(body, &cmd)
-	
+
 	return
 }
 
@@ -2493,7 +2493,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	}
 
 	err = unmarshal(body, &cmd)
-	
+
 	return
 }
 
@@ -2505,7 +2505,7 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
-	
+
 	return
 }
 
@@ -2517,7 +2517,7 @@ func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction
 	if appID == "" {
 		appID = s.State.User.ID
 	}
-	
+
 	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
 }
 
@@ -2530,9 +2530,9 @@ func (s *Session) InteractionResponseDelete(appID string, interaction *Interacti
 	}
 
 	endpoint := EndpointInteractionResponseActions(appID, interaction.Token)
-	
+
 	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
-	
+
 	return
 }
 

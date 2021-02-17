@@ -95,7 +95,7 @@ type ApplicationCommandInteractionDataOption struct {
 // IntValue is utility function for casting option value to integer
 func (o ApplicationCommandInteractionDataOption) IntValue() int64 {
 	if v, ok := o.Value.(float64); ok {
- 		return int64(v)
+		return int64(v)
 	}
 
 	return 0
