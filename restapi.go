@@ -588,6 +588,18 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	return
 }
 
+// GuildPreview returns a GuildPreview structure of a specific public Guild.
+// guildID   : The ID of a Guild
+func (s *Session) GuildPreview(guildID string) (st *GuildPreview, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildPreview(guildID), nil, EndpointGuildPreview(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildCreate creates a new Guild
 // name      : A name for the Guild (2-100 characters)
 func (s *Session) GuildCreate(name string) (st *Guild, err error) {
