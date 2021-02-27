@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -352,6 +353,11 @@ type Emoji struct {
 	Animated      bool     `json:"animated"`
 	Available     bool     `json:"available"`
 }
+
+// EmojiRegex is the regex used to find and identify emojis in messages
+var (
+	EmojiRegex = regexp.MustCompile(`<(a|):[A-z 0-9]+:[0-9]+>`)
+)
 
 // MessageFormat returns a correctly formatted Emoji for use in Message content and embeds
 func (e *Emoji) MessageFormat() string {
@@ -1150,9 +1156,39 @@ type GatewayStatusUpdate struct {
 // Activity defines the Activity sent with GatewayStatusUpdate
 // https://discord.com/developers/docs/topics/gateway#activity-object
 type Activity struct {
-	Name string       `json:"name"`
-	Type ActivityType `json:"type"`
-	URL  string       `json:"url,omitempty"`
+	Name          string       `json:"name"`
+	Type          ActivityType `json:"type"`
+	URL           string       `json:"url,omitempty"`
+	CreatedAt     Timestamp    `json:"created_at"`
+	ApplicationID string       `json:"application_id,omitempty"`
+	State         string       `json:"state,omitempty"`
+	Details       string       `json:"details,omitempty"`
+	Timestamps    struct {
+		Start int64 `json:"start,omitempty"`
+		End   int64 `json:"end,omitempty"`
+	} `json:"timestamps,omitempty"`
+	Emoji struct {
+		Name     string `json:"name"`
+		ID       string `json:"id,omitempty"`
+		Animated bool   `json:"animated,omitempty"`
+	} `json:"emoji,omitempty"`
+	Party struct {
+		ID   string `json:"id,omitempty"`
+		Size []int  `json:"size,omitempty"`
+	} `json:"party,omitempty"`
+	Assets struct {
+		LargeImage string `json:"large_image,omitempty"`
+		LargeText  string `json:"large_text,omitempty"`
+		SmallImage string `json:"small_image,omitempty"`
+		SmallText  string `json:"small_text,omitempty"`
+	} `json:"assets,omitempty"`
+	Secrets struct {
+		Join     string `json:"join,omitempty"`
+		Spectate string `json:"spectate,omitempty"`
+		Match    string `json:"match,omitempty"`
+	} `json:"secrets,omitempty"`
+	Instance bool `json:"instance,omitempty"`
+	Flags    int  `json:"flags,omitempty"`
 }
 
 // ActivityType is the type of Activity (see ActivityType* consts) in the Activity struct
