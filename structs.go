@@ -1159,7 +1159,7 @@ type Activity struct {
 	Name          string       `json:"name"`
 	Type          ActivityType `json:"type"`
 	URL           string       `json:"url,omitempty"`
-	CreatedAt     Timestamp    `json:"created_at"`
+	CreatedAt     int    	   `json:"created_at"`
 	ApplicationID string       `json:"application_id,omitempty"`
 	State         string       `json:"state,omitempty"`
 	Details       string       `json:"details,omitempty"`
