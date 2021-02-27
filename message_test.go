@@ -38,3 +38,15 @@ func TestContentWithMoreMentionsReplaced(t *testing.T) {
 		t.Error(result)
 	}
 }
+func TestGettingEmojisFromMessage(t *testing.T) {
+	msg := "test test <:kitty14:811736565172011058> <:kitty4:811736468812595260>"
+	m := &Message{
+		Content: msg,
+	}
+	emojis := m.GetEmojis()
+	if len(emojis) < 1 {
+		t.Error("No emojis found.")
+		return
+	}
+
+}
