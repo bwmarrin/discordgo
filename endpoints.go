@@ -143,7 +143,7 @@ var (
 	}
 
 	EndpointApplicationGuildCommands = func(aID, gID string) string {
-		return EndpointApplication(aID) + "guilds/" + gID + "/commands"
+		return EndpointApplication(aID) + "/guilds/" + gID + "/commands"
 	}
 	EndpointApplicationGuildCommand = func(aID, gID, cID string) string {
 		return EndpointApplicationGuildCommands(aID, gID) + "/" + cID

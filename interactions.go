@@ -42,7 +42,7 @@ type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType `json:"type"`
 	Name        string                       `json:"name"`
 	Description string                       `json:"description,omitempty"`
-	// NOTE: This feature was on the API but at some point developers decided to remove it.
+	// NOTE: This feature was on the API, but at some point developers decided to remove it.
 	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
 	Required bool                              `json:"required"`
@@ -87,7 +87,7 @@ type ApplicationCommandInteractionData struct {
 // ApplicationCommandInteractionDataOption is representing an option of application's command.
 type ApplicationCommandInteractionDataOption struct {
 	Name string `json:"name"`
-	// Contains the value specified by InteractionType
+	// NOTE: Contains the value specified by InteractionType.
 	Value   interface{}                                `json:"value,omitempty"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
 }
@@ -238,7 +238,8 @@ type InteractionApplicationCommandResponseData struct {
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
-	Flags uint64 `json:"flags,omitempty"` // NOTE: Undocumented feature, be careful with it.
+	// NOTE: Undocumented feature, be careful with it.
+	Flags uint64 `json:"flags,omitempty"` 
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
