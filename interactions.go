@@ -79,6 +79,19 @@ type Interaction struct {
 	Version   int                               `json:"version"`
 }
 
+// IsInGuild is a utility function for checking if the interaction is sent in a guild or in a direct message
+func (i Interaction) IsInGuild() bool {
+	return i.Member != nil
+}
+
+// GetUser is a utility function for getting the User struct
+func (i Interaction) GetUser() *User {
+	if i.Member != nil {
+		return i.Member.User
+	}
+	return i.User
+}
+
 // ApplicationCommandInteractionData contains data received in an interaction event.
 type ApplicationCommandInteractionData struct {
 	ID      string                                     `json:"id"`
