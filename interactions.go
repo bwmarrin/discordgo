@@ -114,7 +114,7 @@ func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 // FloatValue is a utility function for casting option value to float
 func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
 	if v, ok := o.Value.(float64); ok {
-		return float64(v)
+		return v
 	}
 
 	return 0.0
