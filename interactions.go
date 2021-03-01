@@ -74,6 +74,7 @@ type Interaction struct {
 	GuildID   string                            `json:"guild_id"`
 	ChannelID string                            `json:"channel_id"`
 	Member    *Member                           `json:"member"`
+	User      *User                             `json:"user"`
 	Token     string                            `json:"token"`
 	Version   int                               `json:"version"`
 }
