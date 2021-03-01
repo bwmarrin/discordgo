@@ -2393,10 +2393,6 @@ func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *Ap
 // guildID     : Guild ID to edit guild-specific application command. If empty - edits global application command.
 // cmd         : Updated application command data.
 func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *ApplicationCommand) (oldcmd *ApplicationCommand, err error) {
-	if cmdID == "" {
-		return nil, errors.New("invalid command id")
-	}
-
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
@@ -2418,10 +2414,6 @@ func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *Appl
 // cmdID       : Application command ID to delete.
 // guildID     : Guild ID to delete guild-specific application command. If empty - deletes global application command.
 func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) error {
-	if cmdID == "" {
-		return errors.New("invalid command id")
-	}
-
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
@@ -2437,10 +2429,6 @@ func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) error {
 // cmdID       : Application command ID.
 // guildID     : Guild ID to retrieve guild-specific application command. If empty - retrieves global application command.
 func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *ApplicationCommand, err error) {
-	if cmdID == "" {
-		return nil, errors.New("invalid command id")
-	}
-
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
