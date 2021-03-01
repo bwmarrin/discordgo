@@ -2368,7 +2368,7 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 
 // ApplicationCommandCreate creates an global application command and returns it.
 // appID       : The application ID.
-// guildID     : Guild ID to create guild-specific application command. If empty - creates global appication command.
+// guildID     : Guild ID to create guild-specific application command. If empty - creates global application command.
 // cmd         : New application command data.
 func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *ApplicationCommand) (ccmd *ApplicationCommand, err error) {
 	endpoint := EndpointApplicationGlobalCommands(appID)
