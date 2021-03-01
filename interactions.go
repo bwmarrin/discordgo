@@ -19,6 +19,7 @@ type ApplicationCommand struct {
 	ApplicationID string                      `json:"application_id,omitempty"`
 	Name          string                      `json:"name"`
 	Description   string                      `json:"description,omitempty"`
+	Version       string                      `json:"version,omitempty"`
 	Options       []*ApplicationCommandOption `json:"options"`
 }
 
