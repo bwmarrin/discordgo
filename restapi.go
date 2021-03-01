@@ -2391,7 +2391,7 @@ func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *Ap
 // cmdID       : Application command ID to edit.
 // guildID     : Guild ID to edit guild-specific application command. If empty - edits global application command.
 // cmd         : Updated application command data.
-func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *ApplicationCommand) (oldcmd *ApplicationCommand, err error) {
+func (s *Session) ApplicationCommandEdit(appID, guildID, cmdID string, cmd *ApplicationCommand) (updated *ApplicationCommand, err error) {
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
@@ -2402,7 +2402,7 @@ func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *Appl
 		return
 	}
 
-	err = unmarshal(body, &oldcmd)
+	err = unmarshal(body, &updated)
 
 	return
 }
