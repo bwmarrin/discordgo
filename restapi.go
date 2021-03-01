@@ -2367,14 +2367,10 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 // ------------------------------------------------------------------------------------------------
 
 // ApplicationCommandCreate creates an global application command and returns it.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // guildID     : Guild ID to create guild-specific application command. If empty - creates global appication command.
 // cmd         : New application command data.
 func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *ApplicationCommand) (ccmd *ApplicationCommand, err error) {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	endpoint := EndpointApplicationGlobalCommands(appID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommands(appID, guildID)
@@ -2392,17 +2388,13 @@ func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *Ap
 }
 
 // ApplicationCommandEdit edits application command and returns old command data.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // cmdID       : Application command ID to edit.
 // guildID     : Guild ID to edit guild-specific application command. If empty - edits global application command.
 // cmd         : Updated application command data.
 func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *ApplicationCommand) (oldcmd *ApplicationCommand, err error) {
 	if cmdID == "" {
 		return nil, errors.New("invalid command id")
-	}
-
-	if appID == "" {
-		appID = s.State.User.ID
 	}
 
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
@@ -2422,16 +2414,12 @@ func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *Appl
 }
 
 // ApplicationCommandDelete deletes application command by id.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // cmdID       : Application command ID to delete.
 // guildID     : Guild ID to delete guild-specific application command. If empty - deletes global application command.
 func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) error {
 	if cmdID == "" {
 		return errors.New("invalid command id")
-	}
-
-	if appID == "" {
-		appID = s.State.User.ID
 	}
 
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
@@ -2445,16 +2433,12 @@ func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) error {
 }
 
 // ApplicationCommand retrieves an application command by given id.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // cmdID       : Application command ID.
 // guildID     : Guild ID to retrieve guild-specific application command. If empty - retrieves global application command.
 func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *ApplicationCommand, err error) {
 	if cmdID == "" {
 		return nil, errors.New("invalid command id")
-	}
-
-	if appID == "" {
-		appID = s.State.User.ID
 	}
 
 	endpoint := EndpointApplicationGlobalCommand(appID, cmdID)
@@ -2474,13 +2458,9 @@ func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *Applica
 }
 
 // ApplicationCommands retrieves all commands in application.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // guildID     : Guild ID to retrieve all guild-specific application commands. If empty - retrieves global application commands.
 func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*ApplicationCommand, err error) {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	endpoint := EndpointApplicationGlobalCommands(appID)
 	if guildID != "" {
 		endpoint = EndpointApplicationGuildCommands(appID, guildID)
@@ -2498,7 +2478,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 }
 
 // InteractionRespond creates the response to an interaction.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // interaction : Interaction instance.
 // resp        : Response message data.
 func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
@@ -2510,25 +2490,17 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 }
 
 // InteractionResponseEdit edits the response to an interaction.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // interaction : Interaction instance.
 // newresp     : Updated response message data.
 func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) error {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
 }
 
 // InteractionResponseDelete deletes the response to an interaction.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // interaction : Interaction instance.
 func (s *Session) InteractionResponseDelete(appID string, interaction *Interaction) error {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	endpoint := EndpointInteractionResponseActions(appID, interaction.Token)
 
 	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
@@ -2537,39 +2509,27 @@ func (s *Session) InteractionResponseDelete(appID string, interaction *Interacti
 }
 
 // FollowupMessageCreate creates the followup message for an interaction.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // interaction : Interaction instance.
 // wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
 func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, wait bool, data *WebhookParams) (*Message, error) {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	return s.WebhookExecute(appID, interaction.Token, wait, data)
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
 // data        : Data to update the message
 func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) error {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	return s.WebhookMessageEdit(appID, interaction.Token, messageID, data)
 }
 
 // FollowupMessageDelete deletes a followup message of an interaction.
-// appID       : The application ID. If empty - s.State.User.ID. Note: works only with opened session.
+// appID       : The application ID.
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
 func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, messageID string) error {
-	if appID == "" {
-		appID = s.State.User.ID
-	}
-
 	return s.WebhookMessageDelete(appID, interaction.Token, messageID)
 }
