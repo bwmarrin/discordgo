@@ -122,6 +122,9 @@ var (
 	EndpointChannelWebhooks = func(cID string) string { return EndpointChannel(cID) + "/webhooks" }
 	EndpointWebhook         = func(wID string) string { return EndpointWebhooks + wID }
 	EndpointWebhookToken    = func(wID, token string) string { return EndpointWebhooks + wID + "/" + token }
+	EndpointWebhookMessage  = func(wID, token, messageID string) string {
+		return EndpointWebhookToken(wID, token) + "/messages/" + messageID
+	}
 
 	EndpointMessageReactionsAll = func(cID, mID string) string {
 		return EndpointChannelMessage(cID, mID) + "/reactions"
@@ -131,6 +134,35 @@ var (
 	}
 	EndpointMessageReaction = func(cID, mID, eID, uID string) string {
 		return EndpointMessageReactions(cID, mID, eID) + "/" + uID
+	}
+
+	EndpointApplicationGlobalCommands = func(aID string) string {
+		return EndpointApplication(aID) + "/commands"
+	}
+	EndpointApplicationGlobalCommand = func(aID, cID string) string {
+		return EndpointApplicationGlobalCommands(aID) + "/" + cID
+	}
+
+	EndpointApplicationGuildCommands = func(aID, gID string) string {
+		return EndpointApplication(aID) + "/guilds/" + gID + "/commands"
+	}
+	EndpointApplicationGuildCommand = func(aID, gID, cID string) string {
+		return EndpointApplicationGuildCommands(aID, gID) + "/" + cID
+	}
+	EndpointInteraction = func(aID, iToken string) string {
+		return EndpointAPI + "interactions/" + aID + "/" + iToken
+	}
+	EndpointInteractionResponse = func(iID, iToken string) string {
+		return EndpointInteraction(iID, iToken) + "/callback"
+	}
+	EndpointInteractionResponseActions = func(aID, iToken string) string {
+		return EndpointWebhookMessage(aID, iToken, "@original")
+	}
+	EndpointFollowupMessage = func(aID, iToken string) string {
+		return EndpointWebhookToken(aID, iToken)
+	}
+	EndpointFollowupMessageActions = func(aID, iToken, mID string) string {
+		return EndpointWebhookMessage(aID, iToken, mID)
 	}
 
 	EndpointRelationships       = func() string { return EndpointUsers + "@me" + "/relationships" }
@@ -146,9 +178,19 @@ var (
 	EndpointEmoji         = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".png" }
 	EndpointEmojiAnimated = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".gif" }
 
-	EndpointOauth2            = EndpointAPI + "oauth2/"
-	EndpointApplications      = EndpointOauth2 + "applications"
-	EndpointApplication       = func(aID string) string { return EndpointApplications + "/" + aID }
-	EndpointApplicationsBot   = func(aID string) string { return EndpointApplications + "/" + aID + "/bot" }
-	EndpointApplicationAssets = func(aID string) string { return EndpointApplications + "/" + aID + "/assets" }
+	EndpointApplications = EndpointAPI + "applications"
+	EndpointApplication  = func(aID string) string { return EndpointApplications + "/" + aID }
+
+	EndpointOAuth2                  = EndpointAPI + "oauth2/"
+	EndpointOAuth2Applications      = EndpointOAuth2 + "applications"
+	EndpointOAuth2Application       = func(aID string) string { return EndpointOAuth2Applications + "/" + aID }
+	EndpointOAuth2ApplicationsBot   = func(aID string) string { return EndpointOAuth2Applications + "/" + aID + "/bot" }
+	EndpointOAuth2ApplicationAssets = func(aID string) string { return EndpointOAuth2Applications + "/" + aID + "/assets" }
+
+	// TODO: Deprecated, remove in the next release
+	EndpointOauth2                  = EndpointOAuth2
+	EndpointOauth2Applications      = EndpointOAuth2Applications
+	EndpointOauth2Application       = EndpointOAuth2Application
+	EndpointOauth2ApplicationsBot   = EndpointOAuth2ApplicationsBot
+	EndpointOauth2ApplicationAssets = EndpointOAuth2ApplicationAssets
 )

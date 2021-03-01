@@ -267,3 +267,8 @@ type WebhooksUpdate struct {
 	GuildID   string `json:"guild_id"`
 	ChannelID string `json:"channel_id"`
 }
+
+// InteractionCreate is the data for a InteractionCreate event
+type InteractionCreate struct {
+	*Interaction
+}
