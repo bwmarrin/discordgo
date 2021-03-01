@@ -264,7 +264,7 @@ var (
 					Type: discordgo.InteractionResponseType(i.Data.Options[0].IntValue()),
 				})
 				if err != nil {
-					s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something gone wrong",
 					})
 				}
@@ -278,25 +278,25 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something gone wrong",
 				})
 				return
 			}
 			time.AfterFunc(time.Second*5, func() {
-				err = s.InteractionResponseEdit("", i.Interaction, &discordgo.WebhookEdit{
+				err = s.InteractionResponseEdit(s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
 					Content: content + "\n\nWell, now you know how to create and edit responses. " +
 						"But you still don't know how to delete them... so... wait 10 seconds and this " +
 						"message will be deleted.",
 				})
 				if err != nil {
-					s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something gone wrong",
 					})
 					return
 				}
 				time.Sleep(time.Second * 10)
-				s.InteractionResponseDelete("", i.Interaction)
+				s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
 			})
 		},
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -314,26 +314,26 @@ var (
 					Content: "Surprise!",
 				},
 			})
-			msg, err := s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
+			msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Followup message has created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something gone wrong",
 				})
 				return
 			}
 			time.Sleep(time.Second * 5)
 
-			s.FollowupMessageEdit("", i.Interaction, msg.ID, &discordgo.WebhookEdit{
+			s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
 				Content: "Now original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
 
 			time.Sleep(time.Second * 10)
 
-			s.FollowupMessageDelete("", i.Interaction, msg.ID)
+			s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
 
-			s.FollowupMessageCreate("", i.Interaction, true, &discordgo.WebhookParams{
+			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus..., look at the original interaction response :D",
@@ -360,7 +360,7 @@ func main() {
 	}
 
 	for _, v := range commands {
-		_, err := s.ApplicationCommandCreate("", *GuildID, v)
+		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
