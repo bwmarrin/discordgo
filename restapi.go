@@ -2366,7 +2366,7 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 // Functions specific to application (slash) commands
 // ------------------------------------------------------------------------------------------------
 
-// ApplicationCommandCreate creates an global application command and returns it.
+// ApplicationCommandCreate creates a global application command and returns it.
 // appID       : The application ID.
 // guildID     : Guild ID to create guild-specific application command. If empty - creates global application command.
 // cmd         : New application command data.
@@ -2386,7 +2386,7 @@ func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *Ap
 	return
 }
 
-// ApplicationCommandEdit edits application command and returns old command data.
+// ApplicationCommandEdit edits application command and returns new command data.
 // appID       : The application ID.
 // cmdID       : Application command ID to edit.
 // guildID     : Guild ID to edit guild-specific application command. If empty - edits global application command.
@@ -2407,7 +2407,7 @@ func (s *Session) ApplicationCommandEdit(appID, guildID, cmdID string, cmd *Appl
 	return
 }
 
-// ApplicationCommandDelete deletes application command by id.
+// ApplicationCommandDelete deletes application command by ID.
 // appID       : The application ID.
 // cmdID       : Application command ID to delete.
 // guildID     : Guild ID to delete guild-specific application command. If empty - deletes global application command.
@@ -2422,7 +2422,7 @@ func (s *Session) ApplicationCommandDelete(appID, guildID, cmdID string) error {
 	return err
 }
 
-// ApplicationCommand retrieves an application command by given id.
+// ApplicationCommand retrieves an application command by given ID.
 // appID       : The application ID.
 // cmdID       : Application command ID.
 // guildID     : Guild ID to retrieve guild-specific application command. If empty - retrieves global application command.

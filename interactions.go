@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-// InteractionDeadline is a deadline for responding to an interaction, if you haven't responded in the time, you won't be able to respond later.
+// InteractionDeadline is the time allowed to respond to an interaction.
 const InteractionDeadline = time.Second * 3
 
-// ApplicationCommand is representing application's slash command.
+// ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
 	ID            string                      `json:"id"`
 	ApplicationID string                      `json:"application_id,omitempty"`
@@ -23,7 +23,7 @@ type ApplicationCommand struct {
 	Options       []*ApplicationCommandOption `json:"options"`
 }
 
-// ApplicationCommandOptionType is type of an slash-command's option.
+// ApplicationCommandOptionType indicates the type of a slash command's option.
 type ApplicationCommandOptionType uint8
 
 // Application command option types.
@@ -38,7 +38,7 @@ const (
 	ApplicationCommandOptionRole
 )
 
-// ApplicationCommandOption is representing an option/subcommand/subcommands group.
+// ApplicationCommandOption represents an option/subcommand/subcommands group.
 type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType `json:"type"`
 	Name        string                       `json:"name"`
@@ -51,13 +51,13 @@ type ApplicationCommandOption struct {
 	Options  []*ApplicationCommandOption       `json:"options"`
 }
 
-// ApplicationCommandOptionChoice is representing slash-command's option choice.
+// ApplicationCommandOptionChoice represents a slash command option choice.
 type ApplicationCommandOptionChoice struct {
 	Name  string      `json:"name"`
 	Value interface{} `json:"value"`
 }
 
-// InteractionType is representing interaction type.
+// InteractionType indicates the type of an interaction event.
 type InteractionType uint8
 
 // Interaction types
@@ -66,7 +66,7 @@ const (
 	InteractionApplicationCommand
 )
 
-// Interaction is representing interaction with application.
+// Interaction represents an interaction event created via a slash command.
 type Interaction struct {
 	ID        string                            `json:"id"`
 	Type      InteractionType                   `json:"type"`
@@ -78,14 +78,14 @@ type Interaction struct {
 	Version   int                               `json:"version"`
 }
 
-// ApplicationCommandInteractionData is representing interaction data for application command.
+// ApplicationCommandInteractionData contains data received in an interaction event.
 type ApplicationCommandInteractionData struct {
 	ID      string                                     `json:"id"`
 	Name    string                                     `json:"name"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
 }
 
-// ApplicationCommandInteractionDataOption is representing an option of application's command.
+// ApplicationCommandInteractionDataOption represents an option of a slash command.
 type ApplicationCommandInteractionDataOption struct {
 	Name string `json:"name"`
 	// NOTE: Contains the value specified by InteractionType.
@@ -93,7 +93,7 @@ type ApplicationCommandInteractionDataOption struct {
 	Options []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
 }
 
-// IntValue is utility function for casting option value to integer
+// IntValue is a utility function for casting option value to integer
 func (o ApplicationCommandInteractionDataOption) IntValue() int64 {
 	if v, ok := o.Value.(float64); ok {
 		return int64(v)
@@ -102,7 +102,7 @@ func (o ApplicationCommandInteractionDataOption) IntValue() int64 {
 	return 0
 }
 
-// UintValue is utility function for casting option value to unsigned integer
+// UintValue is a utility function for casting option value to unsigned integer
 func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 	if v, ok := o.Value.(float64); ok {
 		return uint64(v)
@@ -111,7 +111,7 @@ func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 	return 0
 }
 
-// FloatValue is utility function for casting option value to float
+// FloatValue is a utility function for casting option value to float
 func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
 	if v, ok := o.Value.(float64); ok {
 		return float64(v)
@@ -120,7 +120,7 @@ func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
 	return 0.0
 }
 
-// StringValue is utility function for casting option value to string
+// StringValue is a utility function for casting option value to string
 func (o ApplicationCommandInteractionDataOption) StringValue() string {
 	if v, ok := o.Value.(string); ok {
 		return v
@@ -129,7 +129,7 @@ func (o ApplicationCommandInteractionDataOption) StringValue() string {
 	return ""
 }
 
-// BoolValue is utility function for casting option value to bool
+// BoolValue is a utility function for casting option value to bool
 func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 	if v, ok := o.Value.(bool); ok {
 		return v
@@ -138,7 +138,7 @@ func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 	return false
 }
 
-// ChannelValue is utility function for casting option value to channel object.
+// ChannelValue is a utility function for casting option value to channel object.
 // s : Session object, if not nil, function additionaly fetches all channel's data
 func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Channel {
 	chanID := o.StringValue()
@@ -161,7 +161,7 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Chann
 	return ch
 }
 
-// RoleValue is utility function for casting option value to role object.
+// RoleValue is a utility function for casting option value to role object.
 // s : Session object, if not nil, function additionaly fetches all role's data
 func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) *Role {
 	roleID := o.StringValue()
@@ -189,7 +189,7 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 	return r
 }
 
-// UserValue is utility function for casting option value to user object.
+// UserValue is a utility function for casting option value to user object.
 // s : Session object, if not nil, function additionaly fetches all user's data
 func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	userID := o.StringValue()
@@ -229,13 +229,13 @@ const (
 	InteractionResponseDeferredChannelMessageWithSource
 )
 
-// InteractionResponse is representing response for interaction with application.
+// InteractionResponse represents a response for an interaction event.
 type InteractionResponse struct {
 	Type InteractionResponseType                    `json:"type,omitempty"`
 	Data *InteractionApplicationCommandResponseData `json:"data,omitempty"`
 }
 
-// InteractionApplicationCommandResponseData is callback data for application command interaction.
+// InteractionApplicationCommandResponseData is response data for a slash command interaction.
 type InteractionApplicationCommandResponseData struct {
 	TTS             bool                    `json:"tts,omitempty"`
 	Content         string                  `json:"content,omitempty"`
