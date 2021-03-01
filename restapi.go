@@ -2376,8 +2376,7 @@ func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *Ap
 		endpoint = EndpointApplicationGuildCommands(appID, guildID)
 	}
 
-	var body []byte
-	body, err = s.RequestWithBucketID("POST", endpoint, *cmd, endpoint)
+	body, err := s.RequestWithBucketID("POST", endpoint, *cmd, endpoint)
 	if err != nil {
 		return
 	}
@@ -2398,8 +2397,7 @@ func (s *Session) ApplicationCommandEdit(appID, cmdID, guildID string, cmd *Appl
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
 	}
 
-	var body []byte
-	body, err = s.RequestWithBucketID("PATCH", endpoint, *cmd, endpoint)
+	body, err := s.RequestWithBucketID("PATCH", endpoint, *cmd, endpoint)
 	if err != nil {
 		return
 	}
@@ -2434,8 +2432,7 @@ func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *Applica
 		endpoint = EndpointApplicationGuildCommand(appID, guildID, cmdID)
 	}
 
-	var body []byte
-	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
 		return
 	}
@@ -2454,8 +2451,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 		endpoint = EndpointApplicationGuildCommands(appID, guildID)
 	}
 
-	var body []byte
-	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
 		return
 	}
