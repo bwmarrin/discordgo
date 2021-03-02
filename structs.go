@@ -609,10 +609,10 @@ type GuildPreview struct {
 	// The list of enabled guild features
 	Features []string `json:"features"`
 
-	// Approximate number of members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	// Approximate number of members in this guild
 	ApproximateMemberCount int `json:"approximate_member_count"`
 
-	// Approximate number of non-offline members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	// Approximate number of non-offline members in this guild
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 
 	// the description for the guild
