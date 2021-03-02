@@ -79,12 +79,12 @@ type Interaction struct {
 	Version   int                               `json:"version"`
 }
 
-// IsInGuild is a utility function for checking if the interaction is sent in a guild or in a direct message
-func (i Interaction) IsInGuild() bool {
+// InGuild is a utility function for checking if the interaction is sent in a guild or in a direct message
+func (i Interaction) InGuild() bool {
 	return i.Member != nil
 }
 
-// GetUser is a utility function for getting the User struct
+// GetUser is a utility function for retrieving the User struct
 func (i Interaction) GetUser() *User {
 	if i.Member != nil {
 		return i.Member.User
