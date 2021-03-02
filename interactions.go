@@ -86,7 +86,7 @@ func (i Interaction) InGuild() bool {
 
 // GetUser is a utility function for retrieving the User struct
 func (i Interaction) GetUser() *User {
-	if i.Member != nil {
+	if i.InGuild() {
 		return i.Member.User
 	}
 	return i.User
