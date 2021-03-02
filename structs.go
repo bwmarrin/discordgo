@@ -572,6 +572,19 @@ type Guild struct {
 	Permissions int64 `json:"permissions,string"`
 }
 
+// IconURL returns a URL to the guild's icon.
+func (g Guild) IconURL() string {
+	if g.Icon == "" {
+		return ""
+	}
+
+	if strings.HasPrefix(g.Icon, "a_") {
+		return EndpointGuildIconAnimated(g.ID, g.Icon)
+	}
+
+	return EndpointGuildIcon(g.ID, g.Icon)
+}
+
 // A GuildPreview holds data related to a specific public Discord Guild, even if the user is not in the guild.
 type GuildPreview struct {
 	// The ID of the guild.
@@ -625,19 +638,6 @@ const (
 	SystemChannelFlagsSuppressJoin SystemChannelFlag = 1 << iota
 	SystemChannelFlagsSuppressPremium
 )
-
-// IconURL returns a URL to the guild's icon.
-func (g *Guild) IconURL() string {
-	if g.Icon == "" {
-		return ""
-	}
-
-	if strings.HasPrefix(g.Icon, "a_") {
-		return EndpointGuildIconAnimated(g.ID, g.Icon)
-	}
-
-	return EndpointGuildIcon(g.ID, g.Icon)
-}
 
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
