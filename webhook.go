@@ -31,7 +31,7 @@ type WebhookParams struct {
 	Username        string                  `json:"username,omitempty"`
 	AvatarURL       string                  `json:"avatar_url,omitempty"`
 	TTS             bool                    `json:"tts,omitempty"`
-	File            string                  `json:"file,omitempty"`
+	Files           []*File                 `json:"-"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
