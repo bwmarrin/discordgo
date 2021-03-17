@@ -356,7 +356,7 @@ type Emoji struct {
 
 // EmojiRegex is the regex used to find and identify emojis in messages
 var (
-	EmojiRegex = regexp.MustCompile(`<(a|):[A-z 0-9]+:[0-9]+>`)
+	EmojiRegex = regexp.MustCompile(`<(a|):[A-z0-9_~]+:[0-9]{18}>`)
 )
 
 // MessageFormat returns a correctly formatted Emoji for use in Message content and embeds
