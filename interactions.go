@@ -73,10 +73,20 @@ type Interaction struct {
 	Data      ApplicationCommandInteractionData `json:"data"`
 	GuildID   string                            `json:"guild_id"`
 	ChannelID string                            `json:"channel_id"`
-	Member    *Member                           `json:"member"`
-	User      *User                             `json:"user"`
-	Token     string                            `json:"token"`
-	Version   int                               `json:"version"`
+
+	// The member who invoked this interaction.
+	// NOTE: this field is only filled when the slash command was invoked in a guild;
+	// if it was invoked in a DM, the `User` field will be filled instead.
+	// Make sure to check for `nil` before using this field.
+	Member *Member `json:"member"`
+	// The user who invoked this interaction.
+	// NOTE: this field is only filled when the slash command was invoked in a DM;
+	// if it was invoked in a guild, the `Member` field will be filled instead.
+	// Make sure to check for `nil` before using this field.
+	User *User `json:"user"`
+
+	Token   string `json:"token"`
+	Version int    `json:"version"`
 }
 
 // InGuild is a utility function for checking if the interaction is sent in a guild or in a direct message
