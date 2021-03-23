@@ -43,7 +43,7 @@ func TestGettingEmojisFromMessage(t *testing.T) {
 	m := &Message{
 		Content: msg,
 	}
-	emojis := m.GetEmojis()
+	emojis := m.GetCustomEmojis()
 	if len(emojis) < 1 {
 		t.Error("No emojis found.")
 		return
