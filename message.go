@@ -125,8 +125,8 @@ type Message struct {
 	Flags MessageFlags `json:"flags"`
 }
 
-// GetEmojis pulls out all the emojis from a message and returns a Slice of the Emoji struct.
-func (m *Message) GetEmojis() []*Emoji {
+// GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
+func (m *Message) GetCustomEmojis() []*Emoji {
 	var toReturn []*Emoji
 	emojis := EmojiRegex.FindAllString(m.Content, -1)
 	if len(emojis) < 1 {
