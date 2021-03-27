@@ -150,6 +150,7 @@ var (
 							Value: 5,
 						},
 					},
+					Required: true,
 				},
 			},
 		},
