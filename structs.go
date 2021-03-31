@@ -792,7 +792,7 @@ type Member struct {
 	// Is true while the member hasn't accepted the membership screen.
 	Pending bool `json:"pending"`
 
-	// Total permissions of the member in the channel, including overrides, returned when in the interaction object
+	// Total permissions of the member in the channel, including overrides, returned when in the interaction object.
 	Permissions string `json:"permissions"`
 }
 
