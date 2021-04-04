@@ -1167,6 +1167,7 @@ const (
 	PermissionReadMessageHistory
 	PermissionMentionEveryone
 	PermissionUseExternalEmojis
+	PermissionUseSlashCommands = 1 << (iota + 22)
 )
 
 // Constants for the different bit offsets of voice permissions
@@ -1178,6 +1179,8 @@ const (
 	PermissionVoiceMoveMembers
 	PermissionVoiceUseVAD
 	PermissionVoicePrioritySpeaker = 1 << (iota + 2)
+	PermissionVoiceStreamVideo
+	PermissionVoiceRequestToSpeak = 1 << (iota + 24)
 )
 
 // Constants for general management.
@@ -1199,7 +1202,8 @@ const (
 	PermissionManageServer
 	PermissionAddReactions
 	PermissionViewAuditLogs
-	PermissionViewChannel = 1 << (iota + 2)
+	PermissionViewChannel       = 1 << (iota + 2)
+	PermissionViewGuildInsights = 1 << (iota + 10)
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
