@@ -1,6 +1,6 @@
 ## DiscordGo
 <hr>
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img align="right" src="https://github.com/bwmarrin/discordgo/blob/master/docs/img/discordgo.png">
 
 [Go](https://golang.org/) (Golang) interface for the [Discord](https://discord.com/) 
 chat service.  Provides both low-level direct bindings to the 
