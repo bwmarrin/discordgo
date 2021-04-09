@@ -793,7 +793,7 @@ type Member struct {
 	Pending bool `json:"pending"`
 
 	// Total permissions of the member in the channel, including overrides, returned when in the interaction object.
-	Permissions string `json:"permissions"`
+	Permissions int64 `json:"permissions,string"`
 }
 
 // Mention creates a member mention
