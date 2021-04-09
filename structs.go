@@ -1123,7 +1123,7 @@ type Activity struct {
 	Name          string       `json:"name"`
 	Type          ActivityType `json:"type"`
 	URL           string       `json:"url,omitempty"`
-	CreatedAt     int          `json:"created_at"`
+	CreatedAt     time.Time    `json:"created_at"`
 	ApplicationID string       `json:"application_id,omitempty"`
 	State         string       `json:"state,omitempty"`
 	Details       string       `json:"details,omitempty"`
@@ -1134,6 +1134,45 @@ type Activity struct {
 	Secrets       Secrets      `json:"secrets,omitempty"`
 	Instance      bool         `json:"instance,omitempty"`
 	Flags         int          `json:"flags,omitempty"`
+}
+
+// UnmarshalJSON is a custom unmarshaljson to make CreatedAt a time.Time instead of an int
+func (activity *Activity) UnmarshalJSON(b []byte) error {
+	temp := struct {
+		Name          string       `json:"name"`
+		Type          ActivityType `json:"type"`
+		URL           string       `json:"url,omitempty"`
+		CreatedAt     int64        `json:"created_at"`
+		ApplicationID string       `json:"application_id,omitempty"`
+		State         string       `json:"state,omitempty"`
+		Details       string       `json:"details,omitempty"`
+		Timestamps    TimeStamps   `json:"timestamps,omitempty"`
+		Emoji         Emoji        `json:"emoji,omitempty"`
+		Party         Party        `json:"party,omitempty"`
+		Assets        Assets       `json:"assets,omitempty"`
+		Secrets       Secrets      `json:"secrets,omitempty"`
+		Instance      bool         `json:"instance,omitempty"`
+		Flags         int          `json:"flags,omitempty"`
+	}{}
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		return err
+	}
+	activity.CreatedAt = time.Unix(temp.CreatedAt/1000, 0)
+	activity.ApplicationID = temp.ApplicationID
+	activity.Assets = temp.Assets
+	activity.Details = temp.Details
+	activity.Emoji = temp.Emoji
+	activity.Flags = temp.Flags
+	activity.Instance = temp.Instance
+	activity.Name = temp.Name
+	activity.Party = temp.Party
+	activity.Secrets = temp.Secrets
+	activity.State = temp.State
+	activity.Timestamps = temp.Timestamps
+	activity.Type = temp.Type
+	activity.URL = temp.URL
+	return nil
 }
 
 // Party defines the Party field in the Activity struct
