@@ -1158,7 +1158,7 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	activity.CreatedAt = time.Unix(temp.CreatedAt/1000, 0)
+	activity.CreatedAt = time.Unix(0, temp.CreatedAt*1000000)
 	activity.ApplicationID = temp.ApplicationID
 	activity.Assets = temp.Assets
 	activity.Details = temp.Details
