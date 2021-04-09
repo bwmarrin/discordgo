@@ -1158,52 +1158,52 @@ type IdentifyProperties struct {
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
-	PermissionReadMessages = 1 << (iota + 10)
-	PermissionSendMessages
-	PermissionSendTTSMessages
-	PermissionManageMessages
-	PermissionEmbedLinks
-	PermissionAttachFiles
-	PermissionReadMessageHistory
-	PermissionMentionEveryone
-	PermissionUseExternalEmojis
-	PermissionUseSlashCommands = 1 << (iota + 22)
+	PermissionReadMessages       = 0x0000000000000400
+	PermissionSendMessages       = 0x0000000000000800
+	PermissionSendTTSMessages    = 0x0000000000001000
+	PermissionManageMessages     = 0x0000000000002000
+	PermissionEmbedLinks         = 0x0000000000004000
+	PermissionAttachFiles        = 0x0000000000008000
+	PermissionReadMessageHistory = 0x0000000000010000
+	PermissionMentionEveryone    = 0x0000000000020000
+	PermissionUseExternalEmojis  = 0x0000000000040000
+	PermissionUseSlashCommands   = 0x0000000080000000
 )
 
 // Constants for the different bit offsets of voice permissions
 const (
-	PermissionVoiceConnect = 1 << (iota + 20)
-	PermissionVoiceSpeak
-	PermissionVoiceMuteMembers
-	PermissionVoiceDeafenMembers
-	PermissionVoiceMoveMembers
-	PermissionVoiceUseVAD
-	PermissionVoicePrioritySpeaker = 1 << (iota + 2)
-	PermissionVoiceStreamVideo
-	PermissionVoiceRequestToSpeak = 1 << (iota + 24)
+	PermissionVoicePrioritySpeaker = 0x0000000000000100
+	PermissionVoiceStreamVideo     = 0x0000000000000200
+	PermissionVoiceConnect         = 0x0000000000100000
+	PermissionVoiceSpeak           = 0x0000000000200000
+	PermissionVoiceMuteMembers     = 0x0000000000400000
+	PermissionVoiceDeafenMembers   = 0x0000000000800000
+	PermissionVoiceMoveMembers     = 0x0000000001000000
+	PermissionVoiceUseVAD          = 0x0000000002000000
+	PermissionVoiceRequestToSpeak  = 0x0000000100000000
 )
 
 // Constants for general management.
 const (
-	PermissionChangeNickname = 1 << (iota + 26)
-	PermissionManageNicknames
-	PermissionManageRoles
-	PermissionManageWebhooks
-	PermissionManageEmojis
+	PermissionChangeNickname  = 0x0000000004000000
+	PermissionManageNicknames = 0x0000000008000000
+	PermissionManageRoles     = 0x0000000010000000
+	PermissionManageWebhooks  = 0x0000000020000000
+	PermissionManageEmojis    = 0x0000000040000000
 )
 
 // Constants for the different bit offsets of general permissions
 const (
-	PermissionCreateInstantInvite = 1 << iota
-	PermissionKickMembers
-	PermissionBanMembers
-	PermissionAdministrator
-	PermissionManageChannels
-	PermissionManageServer
-	PermissionAddReactions
-	PermissionViewAuditLogs
-	PermissionViewChannel       = 1 << (iota + 2)
-	PermissionViewGuildInsights = 1 << (iota + 10)
+	PermissionCreateInstantInvite = 0x0000000000000001
+	PermissionKickMembers         = 0x0000000000000002
+	PermissionBanMembers          = 0x0000000000000004
+	PermissionAdministrator       = 0x0000000000000008
+	PermissionManageChannels      = 0x0000000000000010
+	PermissionManageServer        = 0x0000000000000020
+	PermissionAddReactions        = 0x0000000000000040
+	PermissionViewAuditLogs       = 0x0000000000000080
+	PermissionViewChannel         = 0x0000000000000400
+	PermissionViewGuildInsights   = 0x0000000000080000
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |

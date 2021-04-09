@@ -171,7 +171,7 @@ var (
 
 	EndpointGuildCreate = EndpointAPI + "guilds"
 
-	EndpointInvite = func(iID string) string { return EndpointAPI + "invite/" + iID }
+	EndpointInvite = func(iID string) string { return EndpointAPI + "invites/" + iID }
 
 	EndpointIntegrationsJoin = func(iID string) string { return EndpointAPI + "integrations/" + iID + "/join" }
 
