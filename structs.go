@@ -1167,17 +1167,20 @@ const (
 	PermissionReadMessageHistory = 0x0000000000010000
 	PermissionMentionEveryone    = 0x0000000000020000
 	PermissionUseExternalEmojis  = 0x0000000000040000
+	PermissionUseSlashCommands   = 0x0000000080000000
 )
 
 // Constants for the different bit offsets of voice permissions
 const (
 	PermissionVoicePrioritySpeaker = 0x0000000000000100
+	PermissionVoiceStreamVideo     = 0x0000000000000200
 	PermissionVoiceConnect         = 0x0000000000100000
 	PermissionVoiceSpeak           = 0x0000000000200000
 	PermissionVoiceMuteMembers     = 0x0000000000400000
 	PermissionVoiceDeafenMembers   = 0x0000000000800000
 	PermissionVoiceMoveMembers     = 0x0000000001000000
 	PermissionVoiceUseVAD          = 0x0000000002000000
+	PermissionVoiceRequestToSpeak  = 0x0000000100000000
 )
 
 // Constants for general management.
@@ -1200,6 +1203,7 @@ const (
 	PermissionAddReactions        = 0x0000000000000040
 	PermissionViewAuditLogs       = 0x0000000000000080
 	PermissionViewChannel         = 0x0000000000000400
+	PermissionViewGuildInsights   = 0x0000000000080000
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
