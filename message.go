@@ -125,6 +125,24 @@ type Message struct {
 	Flags MessageFlags `json:"flags"`
 }
 
+// GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
+func (m *Message) GetCustomEmojis() []*Emoji {
+	var toReturn []*Emoji
+	emojis := EmojiRegex.FindAllString(m.Content, -1)
+	if len(emojis) < 1 {
+		return toReturn
+	}
+	for _, em := range emojis {
+		parts := strings.Split(em, ":")
+		toReturn = append(toReturn, &Emoji{
+			ID:       parts[2][:len(parts[2])-1],
+			Name:     parts[1],
+			Animated: strings.HasPrefix(em, "<a:"),
+		})
+	}
+	return toReturn
+}
+
 // MessageFlags is the flags of "message" (see MessageFlags* consts)
 // https://discord.com/developers/docs/resources/channel#message-object-message-flags
 type MessageFlags int
