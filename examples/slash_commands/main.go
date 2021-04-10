@@ -34,7 +34,7 @@ var (
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
-			// All commands and options must have an description
+			// All commands and options must have a description
 			// Commands/options without description will fail the registration
 			// of the command.
 			Description: "Basic command",
@@ -63,8 +63,8 @@ var (
 					Required:    true,
 				},
 
-				// Required options must be listed first, because
-				// like everyone knows - optional parameters is on the back.
+				// Required options must be listed first since optional parameters
+				// always come after when they're used.
 				// The same concept applies to Discord's Slash-commands API
 
 				{
@@ -91,19 +91,19 @@ var (
 			Name:        "subcommands",
 			Description: "Subcommands and command groups example",
 			Options: []*discordgo.ApplicationCommandOption{
-				// When command have subcommands/subcommand groups
+				// When a command has subcommands/subcommand groups
 				// It must not have top-level options, they aren't accesible in the UI
-				// in this case (at least, yet), so if command is with
-				// subcommands/subcommand groups registering top-level options
-				// will fail the registration of the command
+				// in this case (at least not yet), so if a command has
+				// subcommands/subcommand any groups registering top-level options
+				// will cause the registration of the command to fail
 
 				{
 					Name:        "scmd-grp",
 					Description: "Subcommands group",
 					Options: []*discordgo.ApplicationCommandOption{
-						// Also, subcommand groups isn't capable of
+						// Also, subcommand groups aren't capable of
 						// containg options, by the name of them, you can see
-						// they can contain only subcommands
+						// they can only contain subcommands
 						{
 							Name:        "nst-subcmd",
 							Description: "Nested subcommand",
@@ -179,7 +179,7 @@ var (
 				i.Data.Options[2].BoolValue(),
 			}
 			msgformat :=
-				` Now you just leared how to use command options. Take a look to the value of which you've just entered:
+				` Now you just learned how to use command options. Take a look to the value of which you've just entered:
 				> string_option: %s
 				> integer_option: %d
 				> bool_option: %v
@@ -215,7 +215,7 @@ var (
 			switch i.Data.Options[0].Name {
 			case "subcmd":
 				content =
-					"The top-level subcommand is executed. Now try to execute nested one."
+					"The top-level subcommand is executed. Now try to execute the nested one."
 			default:
 				if i.Data.Options[0].Name != "scmd-grp" {
 					return
@@ -237,16 +237,15 @@ var (
 			})
 		},
 		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Responses to a command is really important thing.
+			// Responses to a command are very important.
 			// First of all, because you need to react to the interaction
 			// by sending the response in 3 seconds after receiving, otherwise
 			// interaction will be considered invalid and you can no longer
-			// use interaction token and ID for responding to the user's request
+			// use the interaction token and ID for responding to the user's request
 
 			content := ""
-			// As you can see, response type names saying by themselvs
-			// how they're used, but for those who want to get
-			// more information - read the official documentation
+			// As you can see, the response type names used here are pretty self-explanatory,
+			// but for those who want more information see the official documentation
 			switch i.Data.Options[0].IntValue() {
 			case int64(discordgo.InteractionResponseChannelMessage):
 				content =
@@ -266,7 +265,7 @@ var (
 				})
 				if err != nil {
 					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something gone wrong",
+						Content: "Something went wrong",
 					})
 				}
 				return
@@ -280,7 +279,7 @@ var (
 			})
 			if err != nil {
 				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something gone wrong",
+					Content: "Something went wrong",
 				})
 				return
 			}
@@ -292,7 +291,7 @@ var (
 				})
 				if err != nil {
 					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something gone wrong",
+						Content: "Something went wrong",
 					})
 					return
 				}
@@ -301,33 +300,33 @@ var (
 			})
 		},
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Followup messages is basically regular messages (you can create as many of them as you wish),
-			// but working as they is created by webhooks and their functional
-			// is for handling additional messages after sending response.
+			// Followup messages are basically regular messages (you can create as many of them as you wish)
+			// but work as they are created by webhooks and their functionality
+			// is for handling additional messages after sending a response.
 
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionApplicationCommandResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
-					// This flag just allows to create messages visible only for the caller (user who triggered the command)
-					// of the command
+					// This flag just allows you to create messages visible only for the caller of the command
+					// (user who triggered the command)
 					Flags:   1 << 6,
 					Content: "Surprise!",
 				},
 			})
 			msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-				Content: "Followup message has created, after 5 seconds it will be edited",
+				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
 				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something gone wrong",
+					Content: "Something went wrong",
 				})
 				return
 			}
 			time.Sleep(time.Second * 5)
 
 			s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
-				Content: "Now original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
+				Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
 
 			time.Sleep(time.Second * 10)
@@ -337,7 +336,7 @@ var (
 			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
-					"Also, as bonus..., look at the original interaction response :D",
+					"Also, as bonus... look at the original interaction response :D",
 			})
 		},
 	}
