@@ -15,7 +15,7 @@ import (
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
-	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
+	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutting down")
 )
 
 var s *discordgo.Session
@@ -360,10 +360,11 @@ func main() {
 	}
 
 	for _, v := range commands {
-		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+			log.Panicf("Cannot create '%s' command: %v", v.Name, err)
 		}
+		v.ID = cmd.ID
 	}
 
 	defer s.Close()
@@ -371,5 +372,14 @@ func main() {
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
-	log.Println("Gracefully shutdowning")
+	log.Println("Gracefully shutting down")
+
+	if *RemoveCommands {
+		log.Println("Removing commands")
+		for _, v := range commands {
+			if err = s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID); err != nil {
+				log.Printf("Could not delete '%s' command: %v", v.Name, err)
+			}
+		}
+	}
 }
