@@ -892,10 +892,23 @@ func (s *Session) GuildMemberNickname(guildID, userID, nickname string) (err err
 	return
 }
 
+// GuildMemberDisconnect disconnects a guild member from a voice chat.
+//  guildID   : The ID of a Guild.
+//  userID    : The ID of a User.
+func (s *Session) GuildMemberDisconnect(guildID, userID string) (err error) {
+	var null *string = nil
+	data := struct {
+		ChannelID *string `json:"channel_id"`
+	}{null}
+
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	return
+}
+
 // GuildMemberMute server mutes a guild member
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User.
-//  mute    : boolean value for if the user should be muted
+//  mute     : boolean value for if the user should be muted
 func (s *Session) GuildMemberMute(guildID string, userID string, mute bool) (err error) {
 	data := struct {
 		Mute bool `json:"mute"`
