@@ -97,7 +97,7 @@ type ApplicationCommandInteractionData struct {
 	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
 }
 
-// ApplicationCommandInteractionDataResolved contains resolved data from command arguments.
+// ApplicationCommandInteractionDataResolved contains resolved data for command arguments.
 // Partial Member objects are missing user, deaf and mute fields.
 // Partial Channel objects only have id, name, type and permissions fields.
 type ApplicationCommandInteractionDataResolved struct {
