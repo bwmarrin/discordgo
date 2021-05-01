@@ -91,9 +91,17 @@ type Interaction struct {
 
 // ApplicationCommandInteractionData contains data received in an interaction event.
 type ApplicationCommandInteractionData struct {
-	ID      string                                     `json:"id"`
-	Name    string                                     `json:"name"`
-	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+	ID       string                                     `json:"id"`
+	Name     string                                     `json:"name"`
+	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
+	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
+}
+
+type ApplicationCommandInteractionDataResolved struct {
+	Users    map[string]*User    `json:"users"`
+	Members  map[string]*Member  `json:"members"`
+	Roles    map[string]*Role    `json:"roles"`
+	Channels map[string]*Channel `json:"channels"`
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
