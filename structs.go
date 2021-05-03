@@ -351,6 +351,28 @@ type ThreadMember struct {
 	Flags         int       `json:"flags"`
 }
 
+// ThreadCreateData is the data used to create threads
+type ThreadCreateData struct {
+	Name string `json:"name"`
+
+	// Duration in minutes to automatically archive the thread
+	// after recent activity.
+	// Can be set to: 60, 1440, 4320, 10080
+	AutoArchiveDuration int `json:"auto_archive_duration"`
+}
+
+type ThreadEdit struct {
+	Name             string `json:"name"`
+	Archived         bool   `json:"archived"`
+	Locked           bool   `json:"locked"`
+	RateLimitPerUser *int   `json:"rate_limit_per_user,omitempty"`
+
+	// Duration in minutes to automatically archive the thread
+	// after recent activity.
+	// Can be set to: 60, 1440, 4320, 10080
+	AutoArchiveDuration int `json:"auto_archive_duration"`
+}
+
 // VideoQualityMode of the voice channel
 // 1 when not present
 type VideoQualityMode int
