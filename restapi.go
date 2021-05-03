@@ -178,7 +178,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 func unmarshal(data []byte, v interface{}) error {
 	err := json.Unmarshal(data, v)
 	if err != nil {
-		return ErrJSONUnmarshal
+		return fmt.Errorf("%w: %s", ErrJSONUnmarshal, err)
 	}
 
 	return nil
