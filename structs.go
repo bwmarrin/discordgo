@@ -1407,27 +1407,30 @@ const (
 
 	ErrCodeUnauthorized = 40001
 
-	ErrCodeMissingAccess                             = 50001
-	ErrCodeInvalidAccountType                        = 50002
-	ErrCodeCannotExecuteActionOnDMChannel            = 50003
-	ErrCodeEmbedDisabled                             = 50004
-	ErrCodeCannotEditFromAnotherUser                 = 50005
-	ErrCodeCannotSendEmptyMessage                    = 50006
-	ErrCodeCannotSendMessagesToThisUser              = 50007
-	ErrCodeCannotSendMessagesInVoiceChannel          = 50008
-	ErrCodeChannelVerificationLevelTooHigh           = 50009
-	ErrCodeOAuth2ApplicationDoesNotHaveBot           = 50010
-	ErrCodeOAuth2ApplicationLimitReached             = 50011
-	ErrCodeInvalidOAuthState                         = 50012
-	ErrCodeMissingPermissions                        = 50013
-	ErrCodeInvalidAuthenticationToken                = 50014
-	ErrCodeNoteTooLong                               = 50015
-	ErrCodeTooFewOrTooManyMessagesToDelete           = 50016
-	ErrCodeCanOnlyPinMessageToOriginatingChannel     = 50019
-	ErrCodeCannotExecuteActionOnSystemMessage        = 50021
-	ErrCodeMessageProvidedTooOldForBulkDelete        = 50034
-	ErrCodeInvalidFormBody                           = 50035
-	ErrCodeInviteAcceptedToGuildApplicationsBotNotIn = 50036
+	ErrCodeMissingAccess                              = 50001
+	ErrCodeInvalidAccountType                         = 50002
+	ErrCodeCannotExecuteActionOnDMChannel             = 50003
+	ErrCodeEmbedDisabled                              = 50004
+	ErrCodeCannotEditFromAnotherUser                  = 50005
+	ErrCodeCannotSendEmptyMessage                     = 50006
+	ErrCodeCannotSendMessagesToThisUser               = 50007
+	ErrCodeCannotSendMessagesInVoiceChannel           = 50008
+	ErrCodeChannelVerificationLevelTooHigh            = 50009
+	ErrCodeOAuth2ApplicationDoesNotHaveBot            = 50010
+	ErrCodeOAuth2ApplicationLimitReached              = 50011
+	ErrCodeInvalidOAuthState                          = 50012
+	ErrCodeMissingPermissions                         = 50013
+	ErrCodeInvalidAuthenticationToken                 = 50014
+	ErrCodeNoteTooLong                                = 50015
+	ErrCodeTooFewOrTooManyMessagesToDelete            = 50016
+	ErrCodeCanOnlyPinMessageToOriginatingChannel      = 50019
+	ErrCodeCannotExecuteActionOnSystemMessage         = 50021
+	ErrCodeMessageProvidedTooOldForBulkDelete         = 50034
+	ErrCodeInvalidFormBody                            = 50035
+	ErrCodeInviteAcceptedToGuildApplicationsBotNotIn  = 50036
+	ErrCodePerformedOperationOnArchivedThread         = 50083
+	ErrCodeInvalidThreadNotificationSettings          = 50084
+	ErrCodeBeforeValueIsEarlierThanThreadCreationDate = 50085
 
 	ErrCodeReactionBlocked = 90001
 )
