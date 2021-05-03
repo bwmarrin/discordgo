@@ -2639,7 +2639,7 @@ func (s *Session) RemoveUserFromThread(channelID, uID string) (err error) {
 	return
 }
 
-// TheadMembers lists the members of a thread
+// ThreadMembers lists the members of a thread
 // GET /channels/{channel.id}/threads-members
 func (s *Session) ThreadMembers(channelID string) (st []*ThreadMember, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointThreadMembers(channelID), nil, EndpointThreadMembers(""))
@@ -2651,6 +2651,8 @@ func (s *Session) ThreadMembers(channelID string) (st []*ThreadMember, err error
 	return
 }
 
+// ThreadsResponseBody is the returned data from the discord gateway
+// of some specific threads requests
 type ThreadsResponseBody struct {
 	Threads []*Channel      `json:"threads"`
 	Members []*ThreadMember `json:"members"`
@@ -2767,7 +2769,7 @@ func (s *Session) JoinedPrivateArchivedThreads(channelID string, before *time.Ti
 // threadID  : The ID of a Thread
 // name       : The new name to assign the thread.
 func (s *Session) ThreadEdit(channelID string, name string) (*Channel, error) {
-	return s.ThreadEditComplex(channelID, &ThreadEdit{
+	return s.ThreadEditComplex(channelID, &ThreadEditData{
 		Name: name,
 	})
 }
@@ -2775,7 +2777,7 @@ func (s *Session) ThreadEdit(channelID string, name string) (*Channel, error) {
 // ThreadEditComplex edits an existing thread, replacing the parameters entirely with ThreadEdit struct
 // threadID  : The ID of a Thread
 // data          : The thread struct to send
-func (s *Session) ThreadEditComplex(threadID string, data *ThreadEdit) (st *Channel, err error) {
+func (s *Session) ThreadEditComplex(threadID string, data *ThreadEditData) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(threadID), data, EndpointChannel(threadID))
 	if err != nil {
 		return

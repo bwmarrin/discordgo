@@ -361,7 +361,8 @@ type ThreadCreateData struct {
 	AutoArchiveDuration int `json:"auto_archive_duration"`
 }
 
-type ThreadEdit struct {
+// ThreadEditData is the data used to edit threads
+type ThreadEditData struct {
 	Name             string `json:"name"`
 	Archived         bool   `json:"archived"`
 	Locked           bool   `json:"locked"`
