@@ -634,6 +634,7 @@ type Guild struct {
 	Permissions int64 `json:"permissions,string"`
 
 	// All active threads in the guild that current user has permission to view
+	// Only sent within the GUILD_CREATE event
 	Threads []*Channel `json:"threads"`
 }
 
