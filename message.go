@@ -163,6 +163,9 @@ const (
 	MessageFlagsSupressEmbeds
 	MessageFlagsSourceMessageDeleted
 	MessageFlagsUrgent
+	MessageHasThread
+	MessageEphemeral
+	MessageLoading
 )
 
 // File stores info about files you e.g. send in messages.
