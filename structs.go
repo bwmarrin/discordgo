@@ -332,7 +332,7 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// The thread metadata object contains a number of thread-specific
+// ThreadMetadata contains a number of thread-specific
 // channel fields that are not needed by other channel types.
 type ThreadMetadata struct {
 	Archived            bool      `json:"archived"`
@@ -342,7 +342,7 @@ type ThreadMetadata struct {
 	Locked              bool      `json:"locked,omitempty"`
 }
 
-// A thread member is used to indicate whether a user has joined
+// ThreadMember is used to indicate whether a user has joined
 // a thread or not.
 type ThreadMember struct {
 	ID            string    `json:"id,omitempty"`
@@ -351,10 +351,11 @@ type ThreadMember struct {
 	Flags         int       `json:"flags"`
 }
 
-// The camera video quality mode of the voice channel
+// VideoQualityMode of the voice channel
 // 1 when not present
 type VideoQualityMode int
 
+// Constants for the Video Quality Modes of a channel
 const (
 	VideoQualityModeAuto VideoQualityMode = iota + 1
 	VideoQualityModeFull
