@@ -103,19 +103,30 @@ var (
 	EndpointGuildEmoji           = func(gID, eID string) string { return EndpointGuilds + gID + "/emojis/" + eID }
 	EndpointGuildBanner          = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
 
-	EndpointChannel                   = func(cID string) string { return EndpointChannels + cID }
-	EndpointChannelPermissions        = func(cID string) string { return EndpointChannels + cID + "/permissions" }
-	EndpointChannelPermission         = func(cID, tID string) string { return EndpointChannels + cID + "/permissions/" + tID }
-	EndpointChannelInvites            = func(cID string) string { return EndpointChannels + cID + "/invites" }
-	EndpointChannelTyping             = func(cID string) string { return EndpointChannels + cID + "/typing" }
-	EndpointChannelMessages           = func(cID string) string { return EndpointChannels + cID + "/messages" }
-	EndpointChannelMessage            = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID }
-	EndpointChannelMessageAck         = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID + "/ack" }
-	EndpointChannelMessagesBulkDelete = func(cID string) string { return EndpointChannel(cID) + "/messages/bulk-delete" }
-	EndpointChannelMessagesPins       = func(cID string) string { return EndpointChannel(cID) + "/pins" }
-	EndpointChannelMessagePin         = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
-	EndpointChannelMessageCrosspost   = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
-	EndpointChannelFollow             = func(cID string) string { return EndpointChannel(cID) + "/followers" }
+	EndpointChannel                      = func(cID string) string { return EndpointChannels + cID }
+	EndpointChannelPermissions           = func(cID string) string { return EndpointChannels + cID + "/permissions" }
+	EndpointChannelPermission            = func(cID, tID string) string { return EndpointChannels + cID + "/permissions/" + tID }
+	EndpointChannelInvites               = func(cID string) string { return EndpointChannels + cID + "/invites" }
+	EndpointChannelTyping                = func(cID string) string { return EndpointChannels + cID + "/typing" }
+	EndpointChannelMessages              = func(cID string) string { return EndpointChannels + cID + "/messages" }
+	EndpointChannelMessage               = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID }
+	EndpointChannelMessageAck            = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID + "/ack" }
+	EndpointChannelMessagesBulkDelete    = func(cID string) string { return EndpointChannel(cID) + "/messages/bulk-delete" }
+	EndpointChannelMessagesPins          = func(cID string) string { return EndpointChannel(cID) + "/pins" }
+	EndpointChannelMessagePin            = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
+	EndpointChannelMessageCrosspost      = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
+	EndpointChannelUsers                 = func(cID string) string { return EndpointChannel(cID) + "/users" }
+	EndpointThreads                      = func(cID string) string { return EndpointChannel(cID) + "/threads" }
+	EndpointThreadMembers                = func(cID string) string { return EndpointChannel(cID) + "/thread-members/" }
+	EndpointActiveThreads                = func(cID string) string { return EndpointThreads(cID) + "/active" }
+	EndpointArchivedThreads              = func(cID string) string { return EndpointThreads(cID) + "/archived" }
+	EndpointPublicArchivedThreads        = func(cID string) string { return EndpointArchivedThreads(cID) + "/public" }
+	EndpointPrivateArchivedThreads       = func(cID string) string { return EndpointArchivedThreads(cID) + "/private" }
+	EndpointJoinedPrivateArchivedThreads = func(cID string) string { return EndpointChannelUsers(cID) + "/@me/threads/archived/private" }
+	EndpointChannelMessageThreads        = func(cID, mID string) string {
+		return EndpointChannels + cID + "/messages/" + mID + "/threads"
+	}
+	EndpointChannelFollow = func(cID string) string { return EndpointChannel(cID) + "/followers" }
 
 	EndpointGroupIcon = func(cID, hash string) string { return EndpointCDNChannelIcons + cID + "/" + hash + ".png" }
 
