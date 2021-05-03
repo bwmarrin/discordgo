@@ -172,10 +172,14 @@ type IntegrationAccount struct {
 
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Hostname string `json:"sample_hostname"`
-	Port     int    `json:"sample_port"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Hostname   string `json:"sample_hostname"`
+	Port       int    `json:"sample_port"`
+	VIP        bool   `json:"vip"`
+	Optimal    bool   `json:"optimal"`
+	Deprecated bool   `json:"deprecated"`
+	Custom     bool   `json:"custom"`
 }
 
 // A VoiceICE stores data for voice ICE servers.
@@ -233,6 +237,10 @@ const (
 	ChannelTypeGuildCategory
 	ChannelTypeGuildNews
 	ChannelTypeGuildStore
+	ChannelTypeGuildNewsThread = iota + 3
+	ChannelTypeGuildPublicThread
+	ChannelTypeGuildPrivateThread
+	ChannelTypeGuildStageVoice
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -298,12 +306,59 @@ type Channel struct {
 
 	// ApplicationID of the DM creator Zeroed if guild channel or not a bot user
 	ApplicationID string `json:"application_id"`
+
+	// Voice region ID for the voice channel, automatic when set to null
+	RTCRegion *string `json:"rtc_region"`
+
+	// The camera video quality mode of the voice channel, 1 when not present
+	VideoQualityMode VideoQualityMode `json:"video_quality_mode,omitempty"`
+
+	// An approximate count of messages in a thread, stops counting at 50
+	MessageCount int `json:"message_count,omitempty"`
+
+	// An approximate count of users in a thread, stops counting at 50
+	MemberCount int `json:"member_count,omitempty"`
+
+	// Thread-specific fields not needed by other channels
+	ThreadMetadata *ThreadMetadata `json:"thread_metadata"`
+
+	// Thread member object for the current user, if they have joined the thread
+	// Only included on certain API endpoints
+	Member *ThreadMember `json:"member"`
 }
 
 // Mention returns a string which mentions the channel
 func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
+
+// The thread metadata object contains a number of thread-specific
+// channel fields that are not needed by other channel types.
+type ThreadMetadata struct {
+	Archived            bool      `json:"archived"`
+	ArchiverID          string    `json:"archiver_id,omitempty"`
+	AutoArchiveDuration int       `json:"auto_archive_duration"`
+	ArchiveTimestamp    Timestamp `json:"archive_timestamp"`
+	Locked              bool      `json:"locked,omitempty"`
+}
+
+// A thread member is used to indicate whether a user has joined
+// a thread or not.
+type ThreadMember struct {
+	ID            string    `json:"id,omitempty"`
+	UserID        string    `json:"user_id,omitempty"`
+	JoinTimeStamp Timestamp `json:"join_timestamp"`
+	Flags         int       `json:"flags"`
+}
+
+// The camera video quality mode of the voice channel
+// 1 when not present
+type VideoQualityMode int
+
+const (
+	VideoQualityModeAuto VideoQualityMode = iota + 1
+	VideoQualityModeFull
+)
 
 // A ChannelEdit holds Channel Field data for a channel edit.
 type ChannelEdit struct {
@@ -576,6 +631,9 @@ type Guild struct {
 
 	// Permissions of our user
 	Permissions int64 `json:"permissions,string"`
+
+	// All active threads in the guild that current user has permission to view
+	Threads []*Channel `json:"threads"`
 }
 
 // A GuildPreview holds data related to a specific public Discord Guild, even if the user is not in the guild.
@@ -1242,6 +1300,9 @@ const (
 	PermissionMentionEveryone    = 0x0000000000020000
 	PermissionUseExternalEmojis  = 0x0000000000040000
 	PermissionUseSlashCommands   = 0x0000000080000000
+	PermissionManageThreads      = 0x0000000400000000
+	PermissionUsePublicThreads   = 0x0000000800000000
+	PermissionUsePrivateThreads  = 0x0000001000000000
 )
 
 // Constants for the different bit offsets of voice permissions
@@ -1286,7 +1347,10 @@ const (
 		PermissionEmbedLinks |
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
-		PermissionMentionEveryone
+		PermissionMentionEveryone |
+		PermissionManageThreads |
+		PermissionUsePublicThreads |
+		PermissionUsePrivateThreads
 	PermissionAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |

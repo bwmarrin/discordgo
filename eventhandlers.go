@@ -52,6 +52,12 @@ const (
 	voiceServerUpdateEventType        = "VOICE_SERVER_UPDATE"
 	voiceStateUpdateEventType         = "VOICE_STATE_UPDATE"
 	webhooksUpdateEventType           = "WEBHOOKS_UPDATE"
+	threadCreateEventType             = "THREAD_CREATE"
+	threadUpdateEventType             = "THREAD_UPDATE"
+	threadDeleteEventType             = "THREAD_DELETE"
+	threadListSyncEventType           = "THREAD_LIST_SYNC"
+	threadMemberUpdateEventType       = "THREAD_MEMBER_UPDATE"
+	threadMembersUpdateEventType      = "THREAD_MEMBERS_UPDATE"
 )
 
 // channelCreateEventHandler is an event handler for ChannelCreate events.
@@ -934,6 +940,126 @@ func (eh webhooksUpdateEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// threadCreateEventHandler is an event handler for ThreadCreate events.
+type threadCreateEventHandler func(*Session, *ThreadCreate)
+
+// Type returns the event type for ThreadCreate events.
+func (th threadCreateEventHandler) Type() string {
+	return threadCreateEventType
+}
+
+// New returns a new instance of ThreadCreate.
+func (th threadCreateEventHandler) New() interface{} {
+	return &ThreadCreate{}
+}
+
+// Handle is the handler for ThreadCreate events.
+func (th threadCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*ThreadCreate); ok {
+		th(s, t)
+	}
+}
+
+// threadUpdateEventHandler is an event handler for ThreadUpdate events.
+type threadUpdateEventHandler func(*Session, *ThreadUpdate)
+
+// Type returns the event type for ThreadUpdate events.
+func (th threadUpdateEventHandler) Type() string {
+	return threadUpdateEventType
+}
+
+// New returns a new instance of ThreadUpdate.
+func (th threadUpdateEventHandler) New() interface{} {
+	return &ThreadUpdate{}
+}
+
+// Handle is the handler for ThreadUpdate events.
+func (th threadUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*ThreadUpdate); ok {
+		th(s, t)
+	}
+}
+
+// threadDeleteEventHandler is an event handler for ThreadDelete events.
+type threadDeleteEventHandler func(*Session, *ThreadDelete)
+
+// Type returns the event type for ThreadDelete events.
+func (th threadDeleteEventHandler) Type() string {
+	return threadDeleteEventType
+}
+
+// New returns a new instance of ThreadDelete.
+func (th threadDeleteEventHandler) New() interface{} {
+	return &ThreadDelete{}
+}
+
+// Handle is the handler for ThreadDelete events.
+func (th threadDeleteEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*ThreadDelete); ok {
+		th(s, t)
+	}
+}
+
+// threadListSyncEventHandler is an event handler for ThreadListSync events.
+type threadListSyncEventHandler func(*Session, *ThreadListSync)
+
+// Type returns the event type for ThreadListSync events.
+func (th threadListSyncEventHandler) Type() string {
+	return threadListSyncEventType
+}
+
+// New returns a new instance of ThreadListSync.
+func (th threadListSyncEventHandler) New() interface{} {
+	return &ThreadListSync{}
+}
+
+// Handle is the handler for ThreadListSync events.
+func (th threadListSyncEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*ThreadListSync); ok {
+		th(s, t)
+	}
+}
+
+// threadMemberUpdateEventHandler is an event handler for ThreadMemberUpdate events.
+type threadMemberUpdateEventHandler func(*Session, *ThreadMemberUpdate)
+
+// Type returns the event type for ThreadMemberUpdate events.
+func (th threadMemberUpdateEventHandler) Type() string {
+	return threadMemberUpdateEventType
+}
+
+// New returns a new instance of ThreadMemberUpdate.
+func (th threadMemberUpdateEventHandler) New() interface{} {
+	return &ThreadMemberUpdate{}
+}
+
+// Handle is the handler for ThreadMemberUpdate events.
+func (th threadMemberUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*ThreadMemberUpdate); ok {
+		th(s, t)
+	}
+}
+
+// threadMembersUpdateEventHandler is an event handler for ThreadMembersUpdate events.
+type threadMembersUpdateEventHandler func(*Session, *ThreadMembersUpdate)
+
+// Type returns the event type for ThreadMemberUpdate events.
+func (th threadMembersUpdateEventHandler) Type() string {
+	return threadMembersUpdateEventType
+}
+
+// New returns a new instance of ThreadMemberUpdate.
+func (th threadMembersUpdateEventHandler) New() interface{} {
+	return &ThreadMembersUpdate{}
+}
+
+// Handle is the handler for ThreadMemberUpdate events.
+func (th threadMembersUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*ThreadMembersUpdate); ok {
+		th(s, t)
+	}
+}
+
 func handlerForInterface(handler interface{}) EventHandler {
 	switch v := handler.(type) {
 	case func(*Session, interface{}):
@@ -1028,6 +1154,18 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return voiceStateUpdateEventHandler(v)
 	case func(*Session, *WebhooksUpdate):
 		return webhooksUpdateEventHandler(v)
+	case func(*Session, *ThreadCreate):
+		return threadCreateEventHandler(v)
+	case func(*Session, *ThreadUpdate):
+		return threadUpdateEventHandler(v)
+	case func(*Session, *ThreadDelete):
+		return threadDeleteEventHandler(v)
+	case func(*Session, *ThreadListSync):
+		return threadListSyncEventHandler(v)
+	case func(*Session, *ThreadMemberUpdate):
+		return threadMemberUpdateEventHandler(v)
+	case func(*Session, *ThreadMembersUpdate):
+		return threadMembersUpdateEventHandler(v)
 	}
 
 	return nil
@@ -1075,4 +1213,10 @@ func init() {
 	registerInterfaceProvider(voiceServerUpdateEventHandler(nil))
 	registerInterfaceProvider(voiceStateUpdateEventHandler(nil))
 	registerInterfaceProvider(webhooksUpdateEventHandler(nil))
+	registerInterfaceProvider(threadCreateEventHandler(nil))
+	registerInterfaceProvider(threadUpdateEventHandler(nil))
+	registerInterfaceProvider(threadDeleteEventHandler(nil))
+	registerInterfaceProvider(threadListSyncEventHandler(nil))
+	registerInterfaceProvider(threadMemberUpdateEventHandler(nil))
+	registerInterfaceProvider(threadMembersUpdateEventHandler(nil))
 }

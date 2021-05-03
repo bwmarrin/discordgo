@@ -34,10 +34,16 @@ const (
 	MessageTypeUserPremiumGuildSubscriptionTierTwo
 	MessageTypeUserPremiumGuildSubscriptionTierThree
 	MessageTypeChannelFollowAdd
+
 	MessageTypeGuildDiscoveryDisqualified = iota + 1
 	MessageTypeGuildDiscoveryRequalified
-	MessageTypeReply = iota + 4
+	MessageTypeGuildDiscoveryGracePeriodInitialWarning
+	MessageTypeGuildDiscoveryGracePeriodFinalWarning
+	MessageThreadCreated
+	MessageTypeReply
 	MessageTypeApplicationCommand
+	MessageThreadStarterMessage
+	MessageGuildInviteReminder
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -123,6 +129,9 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// The thread that was started from this message, includes thread member object
+	Thread *Channel `json:"thread"`
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
