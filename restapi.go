@@ -2587,9 +2587,14 @@ func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, 
 //////////  THREADS  //////////
 //////////////////////////////
 
-// StartPublicThread creates a new public thread from an existing message.
+// StartThreadWithMessage creates a new public thread from an existing message.
+// When called on a ChannelTypeGuildText channel, creates a ChannelTypeGuildPublicThread.
+// When called on a ChannelTypeGuildNews channel, creates a ChannelTypeGuildNewsThread.
+// The id of the created thread will be the same as the id of the message,
+// and as such a message can only have a single thread created from it.
+//
 // POST /channels/{channel.id}/messages/{message.id}/threads
-func (s *Session) StartPublicThread(channelID, messageID string, data *ThreadCreateData) (st *Channel, err error) {
+func (s *Session) StartThreadWithMessage(channelID, messageID string, data *ThreadCreateData) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointChannelMessageThreads(channelID, messageID), data, EndpointChannelMessageThreads("", ""))
 	if err != nil {
 		return
@@ -2599,9 +2604,12 @@ func (s *Session) StartPublicThread(channelID, messageID string, data *ThreadCre
 	return
 }
 
-// StartPrivateThread creates a new private thread.
+// StartThreadWithoutMessage creates a new thread that is not connected
+// to an existing message.
+// The created thread is always a ChannelTypeGuildPrivateThread
+//
 // POST /channels/{channel.id}/threads
-func (s *Session) StartPrivateThread(channelID string, data *ThreadCreateData) (st *Channel, err error) {
+func (s *Session) StartThreadWithoutMessage(channelID string, data *ThreadCreateData) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointThreads(channelID), data, EndpointThreads(""))
 	if err != nil {
 		return
