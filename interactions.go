@@ -150,7 +150,7 @@ func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 }
 
 // ChannelValue is a utility function for casting option value to channel object.
-// s : Session object, if not nil, function additionaly fetches all channel's data
+// s : Session object, if not nil, function additionally fetches all channel's data
 func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Channel {
 	chanID := o.StringValue()
 	if chanID == "" {
@@ -173,7 +173,7 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Chann
 }
 
 // RoleValue is a utility function for casting option value to role object.
-// s : Session object, if not nil, function additionaly fetches all role's data
+// s : Session object, if not nil, function additionally fetches all role's data
 func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) *Role {
 	roleID := o.StringValue()
 	if roleID == "" {
@@ -201,7 +201,7 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 }
 
 // UserValue is a utility function for casting option value to user object.
-// s : Session object, if not nil, function additionaly fetches all user's data
+// s : Session object, if not nil, function additionally fetches all user's data
 func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	userID := o.StringValue()
 	if userID == "" {

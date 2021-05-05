@@ -95,7 +95,7 @@ type Session struct {
 	// The user agent used for REST APIs
 	UserAgent string
 
-	// Stores the last HeartbeatAck that was recieved (in UTC)
+	// Stores the last HeartbeatAck that was received (in UTC)
 	LastHeartbeatAck time.Time
 
 	// Stores the last Heartbeat sent (in UTC)

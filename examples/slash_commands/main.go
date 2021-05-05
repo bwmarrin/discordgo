@@ -102,7 +102,7 @@ var (
 					Description: "Subcommands group",
 					Options: []*discordgo.ApplicationCommandOption{
 						// Also, subcommand groups aren't capable of
-						// containg options, by the name of them, you can see
+						// containing options, by the name of them, you can see
 						// they can only contain subcommands
 						{
 							Name:        "nst-subcmd",
