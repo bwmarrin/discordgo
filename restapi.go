@@ -2476,8 +2476,11 @@ func (s *Session) ApplicationCommandEdit(appID, guildID, cmdID string, cmd *Appl
 // ApplicationCommandBulkOverwrite Creates commands overwriting existing commands. Returns a list of commands.
 // appID    : The application ID.
 // commands : The commands to create.
-func (s *Session) ApplicationCommandBulkOverwrite(appID string, commands []*ApplicationCommand) (createdCommands []*ApplicationCommand, err error) {
+func (s *Session) ApplicationCommandBulkOverwrite(appID string, guildID string, commands []*ApplicationCommand) (createdCommands []*ApplicationCommand, err error) {
 	endpoint := EndpointApplicationGlobalCommands(appID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommands(appID, guildID)
+	}
 
 	body, err := s.RequestWithBucketID("PUT", endpoint, commands, endpoint)
 	if err != nil {
