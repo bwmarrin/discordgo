@@ -252,6 +252,7 @@ type InteractionApplicationCommandResponseData struct {
 	Content         string                  `json:"content,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	Files           []*File `json:"-"`
 
 	// NOTE: Undocumented feature, be careful with it.
 	Flags uint64 `json:"flags,omitempty"`
