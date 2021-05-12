@@ -134,19 +134,11 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
-							Name:  "Acknowledge",
-							Value: 2,
-						},
-						{
-							Name:  "Channel message",
-							Value: 3,
-						},
-						{
 							Name:  "Channel message with source",
 							Value: 4,
 						},
 						{
-							Name:  "Acknowledge with source",
+							Name:  "Deferred response With Source",
 							Value: 5,
 						},
 					},
