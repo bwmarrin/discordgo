@@ -15,7 +15,7 @@ const InteractionDeadline = time.Second * 3
 
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID            string                      `json:"id"`
+	ID            string                      `json:"id,omitempty"`
 	ApplicationID string                      `json:"application_id,omitempty"`
 	Name          string                      `json:"name"`
 	Description   string                      `json:"description,omitempty"`
