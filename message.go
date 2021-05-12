@@ -118,6 +118,9 @@ type Message struct {
 
 	// MessageReference contains reference data sent with crossposted messages
 	MessageReference *MessageReference `json:"message_reference"`
+	
+	// Interaction represents an interaction event created via a slash command.
+	Interaction *Interaction `json:"interaction"`
 
 	// The flags of the message, which describe extra features of a message.
 	// This is a combination of bit masks; the presence of a certain permission can
