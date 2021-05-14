@@ -1571,9 +1571,9 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 	var response []byte
 	if len(files) > 0 {
-		contentType, body, err := MakeFilesBody(data, files)
-		if err != nil {
-			return
+		contentType, body, makeFilesErr := MakeFilesBody(data, files)
+		if makeFilesErr != nil {
+			return st, makeFilesErr
 		}
 
 		response, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
@@ -2131,9 +2131,9 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 
 	var response []byte
 	if len(data.Files) > 0 {
-		contentType, body, err := MakeFilesBody(data, data.Files)
-		if err != nil {
-			return
+		contentType, body, makeFilesErr := MakeFilesBody(data, data.Files)
+		if makeFilesErr != nil {
+			return st, makeFilesErr
 		}
 
 		response, err = s.request("POST", uri, contentType, body, uri, 0)
