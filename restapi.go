@@ -2452,6 +2452,14 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
+	if len(resp.Files) > 0 {
+		contentType, body, err := MakeFilesBody(interaction,  resp.Files)
+		if err != nil {
+			return  err
+		}
+
+		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
+	}
 	_, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
 
 	return err

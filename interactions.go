@@ -242,8 +242,9 @@ const (
 
 // InteractionResponse represents a response for an interaction event.
 type InteractionResponse struct {
-	Type InteractionResponseType                    `json:"type,omitempty"`
-	Data *InteractionApplicationCommandResponseData `json:"data,omitempty"`
+	Type  InteractionResponseType                    `json:"type,omitempty"`
+	Files []*File `json:"-"`
+	Data  *InteractionApplicationCommandResponseData `json:"data,omitempty"`
 }
 
 // InteractionApplicationCommandResponseData is response data for a slash command interaction.
@@ -252,7 +253,6 @@ type InteractionApplicationCommandResponseData struct {
 	Content         string                  `json:"content,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
-	Files           []*File `json:"-"`
 
 	// NOTE: Undocumented feature, be careful with it.
 	Flags uint64 `json:"flags,omitempty"`
