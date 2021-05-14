@@ -243,7 +243,7 @@ const (
 // InteractionResponse represents a response for an interaction event.
 type InteractionResponse struct {
 	Type  InteractionResponseType                    `json:"type,omitempty"`
-	Files []*File `json:"-"`
+	Files []*File                                    `json:"-"`
 	Data  *InteractionApplicationCommandResponseData `json:"data,omitempty"`
 }
 

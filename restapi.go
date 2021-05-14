@@ -2453,9 +2453,9 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if len(resp.Files) > 0 {
-		contentType, body, err := MakeFilesBody(interaction,  resp.Files)
+		contentType, body, err := MakeFilesBody(interaction, resp.Files)
 		if err != nil {
-			return  err
+			return err
 		}
 
 		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)

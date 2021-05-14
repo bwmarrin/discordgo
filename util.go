@@ -22,7 +22,6 @@ func SnowflakeTimestamp(ID string) (t time.Time, err error) {
 	return
 }
 
-
 func MakeFilesBody(data interface{}, files []*File) (requestContentType string, requestBody []byte, err error) {
 	body := &bytes.Buffer{}
 	bodywriter := multipart.NewWriter(body)
