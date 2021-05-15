@@ -227,18 +227,11 @@ type InteractionResponseType uint8
 // Interaction response types.
 const (
 	// InteractionResponsePong is for ACK ping event.
-	InteractionResponsePong = InteractionResponseType(iota + 1)
-	// InteractionResponseAcknowledge is for ACK a command without sending a message, eating the user's input.
-	// NOTE: this type is being imminently deprecated, and **will be removed when this occurs.**
-	InteractionResponseAcknowledge
-	// InteractionResponseChannelMessage is for responding with a message, eating the user's input.
-	// NOTE: this type is being imminently deprecated, and **will be removed when this occurs.**
-	InteractionResponseChannelMessage
+	InteractionResponsePong InteractionResponseType = 1
 	// InteractionResponseChannelMessageWithSource is for responding with a message, showing the user's input.
-	InteractionResponseChannelMessageWithSource
+	InteractionResponseChannelMessageWithSource InteractionResponseType = 4
 	// InteractionResponseDeferredChannelMessageWithSource acknowledges that the event was received, and that a follow-up will come later.
-	// It was previously named InteractionResponseACKWithSource.
-	InteractionResponseDeferredChannelMessageWithSource
+	InteractionResponseDeferredChannelMessageWithSource InteractionResponseType = 5
 )
 
 // InteractionResponse represents a response for an interaction event.
