@@ -34,6 +34,9 @@ type WebhookParams struct {
 	Files           []*File                 `json:"-"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+
+	// NOTE: Undocumented feature for values other than 64, be careful with it. (To be used with interactions only)
+	Flags uint64 `json:"flags,omitempty"`
 }
 
 // WebhookEdit stores data for editing of a webhook message.
