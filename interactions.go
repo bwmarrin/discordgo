@@ -95,7 +95,7 @@ type Interaction struct {
 	Version int    `json:"version"`
 }
 
-// Interaction contains data received from InteractionCreate event.
+// InteractionData contains data received from InteractionCreate event.
 type InteractionData struct {
 	// Application command
 	ID      string                                     `json:"id"`
