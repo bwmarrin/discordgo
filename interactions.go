@@ -15,7 +15,7 @@ const InteractionDeadline = time.Second * 3
 
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID            string                      `json:"id"`
+	ID            string                      `json:"id,omitempty"`
 	ApplicationID string                      `json:"application_id,omitempty"`
 	Name          string                      `json:"name"`
 	Description   string                      `json:"description,omitempty"`
@@ -36,6 +36,7 @@ const (
 	ApplicationCommandOptionUser
 	ApplicationCommandOptionChannel
 	ApplicationCommandOptionRole
+	ApplicationCommandOptionMentionable
 )
 
 // ApplicationCommandOption represents an option/subcommand/subcommands group.
@@ -160,7 +161,7 @@ func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 }
 
 // ChannelValue is a utility function for casting option value to channel object.
-// s : Session object, if not nil, function additionaly fetches all channel's data
+// s : Session object, if not nil, function additionally fetches all channel's data
 func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Channel {
 	chanID := o.StringValue()
 	if chanID == "" {
@@ -183,7 +184,7 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Chann
 }
 
 // RoleValue is a utility function for casting option value to role object.
-// s : Session object, if not nil, function additionaly fetches all role's data
+// s : Session object, if not nil, function additionally fetches all role's data
 func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) *Role {
 	roleID := o.StringValue()
 	if roleID == "" {
@@ -211,7 +212,7 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 }
 
 // UserValue is a utility function for casting option value to user object.
-// s : Session object, if not nil, function additionaly fetches all user's data
+// s : Session object, if not nil, function additionally fetches all user's data
 func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	userID := o.StringValue()
 	if userID == "" {
@@ -236,23 +237,15 @@ type InteractionResponseType uint8
 // Interaction response types.
 const (
 	// InteractionResponsePong is for ACK ping event.
-	InteractionResponsePong = InteractionResponseType(iota + 1)
-	// InteractionResponseAcknowledge is for ACK a command without sending a message, eating the user's input.
-	// NOTE: this type is being imminently deprecated, and **will be removed when this occurs.**
-	InteractionResponseAcknowledge
-	// InteractionResponseChannelMessage is for responding with a message, eating the user's input.
-	// NOTE: this type is being imminently deprecated, and **will be removed when this occurs.**
-	InteractionResponseChannelMessage
+	InteractionResponsePong InteractionResponseType = 1
 	// InteractionResponseChannelMessageWithSource is for responding with a message, showing the user's input.
-	InteractionResponseChannelMessageWithSource
+	InteractionResponseChannelMessageWithSource InteractionResponseType = 4
 	// InteractionResponseDeferredChannelMessageWithSource acknowledges that the event was received, and that a follow-up will come later.
-	// It was previously named InteractionResponseACKWithSource.
-	InteractionResponseDeferredChannelMessageWithSource
-
-	// InteractionResponseDeferredMessageUpdate acknowledges that the button click event was received, and message update will come later.
-	InteractionResponseDeferredMessageUpdate
+	InteractionResponseDeferredChannelMessageWithSource InteractionResponseType = 5
+	// InteractionResponseDeferredMessageUpdate acknowledges that the button click event was received, and message will be updated later.
+	InteractionResponseDeferredMessageUpdate InteractionResponseType = 6
 	// InteractionResponseUpdateMessage is for updating the message to which button was attached to.
-	InteractionResponseUpdateMessage
+	InteractionResponseUpdateMessage InteractionResponseType = 7
 )
 
 // InteractionResponse represents a response for an interaction event.
