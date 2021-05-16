@@ -2650,7 +2650,7 @@ func (s *Session) LeaveThread(channelID string) (err error) {
 	return
 }
 
-// RemoveUserFromThread adds another user to a thread
+// RemoveUserFromThread removes another user from a thread
 // PUT /channels/{channel.id}/thread-members/{user.id}
 func (s *Session) RemoveUserFromThread(channelID, uID string) (err error) {
 	_, err = s.RequestWithBucketID("DELETE", EndpointThreadMembers(channelID)+uID, nil, EndpointThreadMembers(""))
