@@ -23,6 +23,7 @@ type Component interface {
 type ActionsRow struct {
 	Components []Component `json:"components"`
 }
+
 // MarshalJSON is a method for marshaling ActionsRow to a JSON object.
 func (r ActionsRow) MarshalJSON() ([]byte, error) {
 	type actionRow ActionsRow
