@@ -13,7 +13,7 @@ const (
 	ButtonComponent
 )
 
-// Component is a base interface for all components
+// Component is a base interface for all components.
 type Component interface {
 	json.Marshaler
 	Type() ComponentType
@@ -23,7 +23,7 @@ type Component interface {
 type ActionsRow struct {
 	Components []Component `json:"components"`
 }
-
+// MarshalJSON is a method for marshaling ActionsRow to a JSON object.
 func (r ActionsRow) MarshalJSON() ([]byte, error) {
 	type actionRow ActionsRow
 
@@ -36,6 +36,7 @@ func (r ActionsRow) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// Type is a method to get the type of a component.
 func (r ActionsRow) Type() ComponentType {
 	return ActionsRowComponent
 }
@@ -76,6 +77,7 @@ type Button struct {
 	CustomID string `json:"custom_id,omitempty"`
 }
 
+// MarshalJSON is a method for marshaling Button to a JSON object.
 func (b Button) MarshalJSON() ([]byte, error) {
 	type button Button
 
@@ -92,6 +94,7 @@ func (b Button) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// Type is a method to get the type of a component.
 func (b Button) Type() ComponentType {
 	return ButtonComponent
 }
