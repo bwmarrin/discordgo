@@ -168,6 +168,7 @@ type MessageSend struct {
 	Content         string                  `json:"content,omitempty"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	TTS             bool                    `json:"tts"`
+	Components      []Component             `json:"components"`
 	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Reference       *MessageReference       `json:"message_reference,omitempty"`

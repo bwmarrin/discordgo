@@ -62,17 +62,22 @@ type InteractionType uint8
 
 // Interaction types
 const (
-	InteractionPing = InteractionType(iota + 1)
+	InteractionPing InteractionType = iota + 1
 	InteractionApplicationCommand
+	InteractionButton
 )
 
-// Interaction represents an interaction event created via a slash command.
+// Interaction represents data of an interaction.
 type Interaction struct {
-	ID        string                            `json:"id"`
-	Type      InteractionType                   `json:"type"`
-	Data      ApplicationCommandInteractionData `json:"data"`
-	GuildID   string                            `json:"guild_id"`
-	ChannelID string                            `json:"channel_id"`
+	ID        string          `json:"id"`
+	Type      InteractionType `json:"type"`
+	Data      InteractionData `json:"data"`
+	GuildID   string          `json:"guild_id"`
+	ChannelID string          `json:"channel_id"`
+
+	// The message on which interaction was used.
+	// NOTE: this field is only filled when the button click interaction triggered. Otherwise it will be nil.
+	Message *Message `json:"message"`
 
 	// The member who invoked this interaction.
 	// NOTE: this field is only filled when the slash command was invoked in a guild;
@@ -89,11 +94,16 @@ type Interaction struct {
 	Version int    `json:"version"`
 }
 
-// ApplicationCommandInteractionData contains data received in an interaction event.
-type ApplicationCommandInteractionData struct {
+// Interaction contains data received from InteractionCreate event.
+type InteractionData struct {
+	// Application command
 	ID      string                                     `json:"id"`
 	Name    string                                     `json:"name"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+
+	// Components
+	CustomID      string        `json:"custom_id"`
+	ComponentType ComponentType `json:"component_type"`
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
@@ -238,18 +248,24 @@ const (
 	// InteractionResponseDeferredChannelMessageWithSource acknowledges that the event was received, and that a follow-up will come later.
 	// It was previously named InteractionResponseACKWithSource.
 	InteractionResponseDeferredChannelMessageWithSource
+
+	// InteractionResponseDeferredMessageUpdate acknowledges that the button click event was received, and message update will come later.
+	InteractionResponseDeferredMessageUpdate
+	// InteractionResponseUpdateMessage is for updating the message to which button was attached to.
+	InteractionResponseUpdateMessage
 )
 
 // InteractionResponse represents a response for an interaction event.
 type InteractionResponse struct {
-	Type InteractionResponseType                    `json:"type,omitempty"`
-	Data *InteractionApplicationCommandResponseData `json:"data,omitempty"`
+	Type InteractionResponseType  `json:"type,omitempty"`
+	Data *InteractionResponseData `json:"data,omitempty"`
 }
 
-// InteractionApplicationCommandResponseData is response data for a slash command interaction.
-type InteractionApplicationCommandResponseData struct {
-	TTS             bool                    `json:"tts,omitempty"`
-	Content         string                  `json:"content,omitempty"`
+// InteractionResponseData is response data for an interaction.
+type InteractionResponseData struct {
+	TTS             bool                    `json:"tts"`
+	Content         string                  `json:"content"`
+	Components      []Component             `json:"components,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 

@@ -163,7 +163,7 @@ var (
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
 				},
 			})
@@ -199,7 +199,7 @@ var (
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				// Ignore type for now, we'll discuss them in "responses" part
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf(
 						msgformat,
 						margs...,
@@ -231,7 +231,7 @@ var (
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
@@ -273,7 +273,7 @@ var (
 
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseType(i.Data.Options[0].IntValue()),
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
@@ -306,7 +306,7 @@ var (
 
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
 					// This flag just allows you to create messages visible only for the caller of the command
 					// (user who triggered the command)
