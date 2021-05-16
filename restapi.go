@@ -2643,7 +2643,7 @@ func (s *Session) AddUserToThread(channelID, uID string) (err error) {
 	return
 }
 
-// LeaveThread joins the session user to a thread
+// LeaveThread removes the session user from a thread
 // DELETE /channels/{channel.id}/thread-members/@me
 func (s *Session) LeaveThread(channelID string) (err error) {
 	_, err = s.RequestWithBucketID("DELETE", EndpointThreadMembers(channelID)+"@me", nil, EndpointThreadMembers(""))
