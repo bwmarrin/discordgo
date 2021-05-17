@@ -43,7 +43,7 @@ func main() {
 						Content: "Are you satisfied with Buttons?",
 						// Buttons and other components are specified in Components field.
 						Components: []discordgo.Component{
-							// ActionRow is a container of all buttons in the same raw.
+							// ActionRow is a container of all buttons within the same row.
 							discordgo.ActionsRow{
 								Components: []discordgo.Component{
 									discordgo.Button{
