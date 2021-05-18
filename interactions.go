@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -95,16 +96,60 @@ type Interaction struct {
 	Version int    `json:"version"`
 }
 
-// InteractionData contains data received from InteractionCreate event.
-type InteractionData struct {
-	// Application command
+type rawInteraction struct {
+	Type InteractionType `json:"type"`
+	Data json.RawMessage `json:"data"`
+}
+
+// UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
+func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
+	var tmp rawInteraction
+	err = json.Unmarshal(raw, &tmp)
+	if err != nil {
+		return
+	}
+
+	switch i.Type {
+	case InteractionApplicationCommand:
+		v := ApplicationCommandInteractionData{}
+		err = json.Unmarshal(tmp.Data, &v)
+		if err != nil {
+			return
+		}
+		i.Data = v
+	case InteractionButton:
+		v := ButtonInteractionData{}
+		err = json.Unmarshal(tmp.Data, &v)
+		if err != nil {
+			return
+		}
+		i.Data = v
+	}
+	return nil
+}
+
+type InteractionData interface {
+	Type() InteractionType
+}
+
+// ApplicationCommandInteractionData contains the data of application command interaction.
+type ApplicationCommandInteractionData struct {
 	ID      string                                     `json:"id"`
 	Name    string                                     `json:"name"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+}
 
-	// Components
+func (ApplicationCommandInteractionData) Type() InteractionType {
+	return InteractionApplicationCommand
+}
+
+type ButtonInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
+}
+
+func (ButtonInteractionData) Type() InteractionType {
+	return InteractionButton
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
