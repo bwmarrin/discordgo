@@ -128,7 +128,7 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 	return nil
 }
 
-// Interaction is a common interface for all types of interaction data.
+// InteractionData is a common interface for all types of interaction data.
 type InteractionData interface {
 	Type() InteractionType
 }
@@ -145,6 +145,7 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 	return InteractionApplicationCommand
 }
 
+// ButtonInteractionData contains the data of button interaction.
 type ButtonInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
