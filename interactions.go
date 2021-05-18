@@ -140,7 +140,6 @@ type ApplicationCommandInteractionData struct {
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
 }
 
-
 // Type returns the type of interaction data.
 func (ApplicationCommandInteractionData) Type() InteractionType {
 	return InteractionApplicationCommand
