@@ -35,7 +35,7 @@ func main() {
 	// Buttons are part of interactions, so we register InteractionCreate handler
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if i.Type == discordgo.InteractionApplicationCommand {
-			if i.Data.Name == "feedback" {
+			if i.ButtonData().Name == "feedback" {
 				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
@@ -97,7 +97,7 @@ func main() {
 		content := "Thanks for your feedback "
 
 		// CustomID field contains the same id as when was sent. It's used to identify the which button was clicked.
-		switch i.Data.CustomID {
+		switch i.ButtonData().CustomID {
 		case "yes_btn":
 			content += "(yes)"
 		case "no_btn":
