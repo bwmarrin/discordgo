@@ -1571,9 +1571,9 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 	var response []byte
 	if len(files) > 0 {
-		contentType, body, makeFilesErr := MakeFilesBody(data, files)
-		if makeFilesErr != nil {
-			return st, makeFilesErr
+		contentType, body, encodeErr := EncodeWithFiles(data, files)
+		if encodeErr != nil {
+			return st, encodeErr
 		}
 
 		response, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
@@ -2131,9 +2131,9 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 
 	var response []byte
 	if len(data.Files) > 0 {
-		contentType, body, makeFilesErr := MakeFilesBody(data, data.Files)
-		if makeFilesErr != nil {
-			return st, makeFilesErr
+		contentType, body, encodeErr := EncodeWithFiles(data, data.Files)
+		if encodeErr != nil {
+			return st, encodeErr
 		}
 
 		response, err = s.request("POST", uri, contentType, body, uri, 0)
@@ -2155,7 +2155,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
 	if len(data.Files) > 0 {
-		contentType, body, err := MakeFilesBody(data, data.Files)
+		contentType, body, err := EncodeWithFiles(data, data.Files)
 		if err != nil {
 			return err
 		}
@@ -2449,19 +2449,19 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 // appID       : The application ID.
 // interaction : Interaction instance.
 // resp        : Response message data.
-func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
+func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if len(resp.Files) > 0 {
-		contentType, body, err := MakeFilesBody(interaction, resp.Files)
+		contentType, body, err := EncodeWithFiles(interaction, resp.Files)
 		if err != nil {
 			return err
 		}
 
 		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
+	} else {
+		_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
 	}
-	_, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
-
 	return err
 }
 
