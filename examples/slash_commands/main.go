@@ -258,7 +258,7 @@ var (
 			}
 
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseType(i.Data.Options[0].IntValue()),
+				Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},

@@ -128,6 +128,22 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 	return nil
 }
 
+// ButtonData is helper function to convert InteractionData to ButtonInteractionData.
+func (i Interaction) ButtonData() (data ButtonInteractionData) {
+	if i.Type != InteractionButton {
+		return
+	}
+	return i.Data.(ButtonInteractionData)
+}
+
+// ApplicationCommandData is helper function to convert InteractionData to ApplicationCommandInteractionData.
+func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractionData) {
+	if i.Type != InteractionApplicationCommand {
+		return
+	}
+	return i.Data.(ApplicationCommandInteractionData)
+}
+
 // InteractionData is a common interface for all types of interaction data.
 type InteractionData interface {
 	Type() InteractionType
