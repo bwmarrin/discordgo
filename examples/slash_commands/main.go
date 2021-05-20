@@ -134,19 +134,11 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
-							Name:  "Acknowledge",
-							Value: 2,
-						},
-						{
-							Name:  "Channel message",
-							Value: 3,
-						},
-						{
 							Name:  "Channel message with source",
 							Value: 4,
 						},
 						{
-							Name:  "Acknowledge with source",
+							Name:  "Deferred response With Source",
 							Value: 5,
 						},
 					},
@@ -247,12 +239,6 @@ var (
 			// As you can see, the response type names used here are pretty self-explanatory,
 			// but for those who want more information see the official documentation
 			switch i.Data.Options[0].IntValue() {
-			case int64(discordgo.InteractionResponseChannelMessage):
-				content =
-					"Well, you just responded to an interaction, and sent a message.\n" +
-						"That's all what I wanted to say, yeah."
-				content +=
-					"\nAlso... you can edit your response, wait 5 seconds and this message will be changed"
 			case int64(discordgo.InteractionResponseChannelMessageWithSource):
 				content =
 					"You just responded to an interaction, sent a message and showed the original one. " +

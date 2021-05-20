@@ -178,7 +178,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 func unmarshal(data []byte, v interface{}) error {
 	err := json.Unmarshal(data, v)
 	if err != nil {
-		return ErrJSONUnmarshal
+		return fmt.Errorf("%w: %s", ErrJSONUnmarshal, err)
 	}
 
 	return nil
@@ -2468,6 +2468,25 @@ func (s *Session) ApplicationCommandEdit(appID, guildID, cmdID string, cmd *Appl
 	}
 
 	err = unmarshal(body, &updated)
+
+	return
+}
+
+// ApplicationCommandBulkOverwrite Creates commands overwriting existing commands. Returns a list of commands.
+// appID    : The application ID.
+// commands : The commands to create.
+func (s *Session) ApplicationCommandBulkOverwrite(appID string, guildID string, commands []*ApplicationCommand) (createdCommands []*ApplicationCommand, err error) {
+	endpoint := EndpointApplicationGlobalCommands(appID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommands(appID, guildID)
+	}
+
+	body, err := s.RequestWithBucketID("PUT", endpoint, commands, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &createdCommands)
 
 	return
 }
