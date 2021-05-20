@@ -21,6 +21,7 @@ const (
 	UserFlagBugHunterLevel2                = 1 << 14
 	UserFlagVerifiedBot                    = 1 << 16
 	UserFlagVerifiedBotDeveloper           = 1 << 17
+	UserFlagDiscordCertifiedModerator      = 1 << 18
 )
 
 // A User stores all data for an individual Discord user.
