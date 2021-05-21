@@ -288,7 +288,7 @@ type InteractionCreate struct {
 	*Interaction
 }
 
-// UnmarshalJSON is a helper function to unmarshal Interaction object.
 func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
+	i.Interaction = new(Interaction)
 	return json.Unmarshal(b, &i.Interaction)
 }

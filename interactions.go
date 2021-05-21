@@ -73,7 +73,7 @@ const (
 type Interaction struct {
 	ID        string          `json:"id"`
 	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"data"`
+	Data      InteractionData `json:"-"`
 	GuildID   string          `json:"guild_id"`
 	ChannelID string          `json:"channel_id"`
 
@@ -96,8 +96,10 @@ type Interaction struct {
 	Version int    `json:"version"`
 }
 
+type interaction Interaction
+
 type rawInteraction struct {
-	Type InteractionType `json:"type"`
+	interaction
 	Data json.RawMessage `json:"data"`
 }
 
@@ -109,7 +111,9 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 		return
 	}
 
-	switch i.Type {
+	*i = Interaction(tmp.interaction)
+
+	switch tmp.Type {
 	case InteractionApplicationCommand:
 		v := ApplicationCommandInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
