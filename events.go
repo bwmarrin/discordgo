@@ -272,3 +272,8 @@ type WebhooksUpdate struct {
 type InteractionCreate struct {
 	*Interaction
 }
+
+func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
+	i.Interaction = new(Interaction)
+	return json.Unmarshal(b, &i.Interaction)
+}
