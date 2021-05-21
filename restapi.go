@@ -2545,15 +2545,44 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	return
 }
 
-func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string, permissions ApplicationCommandPermissionsList) (err error) {
-	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+func (s *Session) GuildApplicationCommandPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions) {
+	endpoint := EndpointApplicationGuildCommandsPermissions(appID, guildID)
 
-	body, err := s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
 		return
 	}
+
 	err = unmarshal(body, &permissions)
-	return err
+	return
+}
+
+func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (permissions GuildApplicationCommandPermissions) {
+	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &permissions)
+	return
+}
+
+func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string, permissions ApplicationCommandPermissionsList) (err error) {
+	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
+
+	return
+}
+
+func (s *Session) ApplicationCommandEditBulkPermissions(appID, guildID, cmdID string, permissions []GuildApplicationCommandPermissions) (err error) {
+	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
+
+	return
 }
 
 // InteractionRespond creates the response to an interaction.

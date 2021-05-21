@@ -152,6 +152,9 @@ var (
 	EndpointApplicationGuildCommandPermissions = func(aID, gID, cID string) string {
 		return EndpointApplicationGuildCommand(aID, gID, cID) + "/permissions"
 	}
+	EndpointApplicationGuildCommandsPermissions = func(aID, gID string) string {
+		return EndpointApplicationGuildCommands(aID, gID) + "/permissions"
+	}
 	EndpointInteraction = func(aID, iToken string) string {
 		return EndpointAPI + "interactions/" + aID + "/" + iToken
 	}
