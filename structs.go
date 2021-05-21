@@ -24,6 +24,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// RESTClient is an interface definition for performing REST API calls to
+// Discord. It allows for the usage of a standard library *http.Client as well
+// as other HTTP clients with custom functionality and enables the ability to
+// write unit tests.
+type RESTClient interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
 // A Session represents a connection to the Discord API.
 type Session struct {
 	sync.RWMutex
@@ -90,7 +98,7 @@ type Session struct {
 	State *State
 
 	// The http client used for REST requests
-	Client *http.Client
+	Client RESTClient
 
 	// The user agent used for REST APIs
 	UserAgent string
