@@ -2545,6 +2545,17 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	return
 }
 
+func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string, permissions ApplicationCommandPermissionsList) (err error) {
+	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+
+	body, err := s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
+	if err != nil {
+		return
+	}
+	err = unmarshal(body, &permissions)
+	return err
+}
+
 // InteractionRespond creates the response to an interaction.
 // appID       : The application ID.
 // interaction : Interaction instance.

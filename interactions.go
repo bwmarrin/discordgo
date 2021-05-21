@@ -58,6 +58,30 @@ type ApplicationCommandOptionChoice struct {
 	Value interface{} `json:"value"`
 }
 
+type ApplicationCommandPermissions struct {
+	ID         string                           `json:"id"`
+	Type       ApplicationCommandPermissionType `json:"type"`
+	Permission bool                             `json:"permission"`
+}
+
+type ApplicationCommandPermissionsList struct {
+	Permissions []ApplicationCommandPermissions `json:"permissions"`
+}
+
+type GuildApplicationCommandPermissions struct {
+	ID            string                          `json:"id"`
+	ApplicationId string                          `json:"application_id"`
+	GuildID       string                          `json:"guild_id"`
+	Permissions   []ApplicationCommandPermissions `json:"permissions"`
+}
+
+type ApplicationCommandPermissionType uint8
+
+const (
+	ApplicationCommandPermissionTypeRole = ApplicationCommandPermissionType(iota + 1)
+	ApplicationCommandPermissionTypeUser
+)
+
 // InteractionType indicates the type of an interaction event.
 type InteractionType uint8
 
