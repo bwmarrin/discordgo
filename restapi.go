@@ -2545,8 +2545,8 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	return
 }
 
-func (s *Session) GuildApplicationCommandPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions) {
-	endpoint := EndpointApplicationGuildCommandsPermissions(appID, guildID)
+func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions) {
+	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 
 	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
@@ -2558,7 +2558,7 @@ func (s *Session) GuildApplicationCommandPermissions(appID, guildID string) (per
 }
 
 func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (permissions GuildApplicationCommandPermissions) {
-	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
 
 	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
@@ -2570,15 +2570,15 @@ func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (p
 }
 
 func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string, permissions ApplicationCommandPermissionsList) (err error) {
-	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
 
 	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
 
 	return
 }
 
-func (s *Session) ApplicationCommandEditBulkPermissions(appID, guildID, cmdID string, permissions []GuildApplicationCommandPermissions) (err error) {
-	endpoint := EndpointApplicationGuildCommandPermissions(appID, guildID, cmdID)
+func (s *Session) ApplicationCommandBatchEditPermissions(appID, guildID string, permissions []GuildApplicationCommandPermissions) (err error) {
+	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 
 	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
 
