@@ -287,6 +287,7 @@ type WebhooksUpdate struct {
 type InteractionCreate struct {
 	*Interaction
 }
+
 // UnmarshalJSON is a helper function to unmarshal Interaction object.
 // Since it's a pointer json.Unmarshal does not unmarshals it correctly (Interaction field is nil).
 // And so we need to unmarshal it manually.
