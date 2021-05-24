@@ -2589,9 +2589,9 @@ func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string
 	return
 }
 
-// ApplicationCommandEditPermissions edits the permissions of an application command
+// ApplicationCommandBatchEditPermissions edits the permissions of a batch of commands
 // appID       : The Application ID
-// guildID     : The guild ID containing the application command
+// guildID     : The guild ID to batch edit commands of
 // permissions : A list of permissions paired with a command ID, guild ID, and application ID per application command
 func (s *Session) ApplicationCommandBatchEditPermissions(appID, guildID string, permissions []GuildApplicationCommandPermissions) (err error) {
 	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
