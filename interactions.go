@@ -58,16 +58,19 @@ type ApplicationCommandOptionChoice struct {
 	Value interface{} `json:"value"`
 }
 
+// ApplicationCommandPermissions represents a single user or role permission for a command.
 type ApplicationCommandPermissions struct {
 	ID         string                           `json:"id"`
 	Type       ApplicationCommandPermissionType `json:"type"`
 	Permission bool                             `json:"permission"`
 }
 
+// ApplicationCommandPermissionsList represents a list of ApplicationCommandPermissions, needed for serializing to JSON.
 type ApplicationCommandPermissionsList struct {
 	Permissions []ApplicationCommandPermissions `json:"permissions"`
 }
 
+// GuildApplicationCommandPermissions represents all permissions for a single guild command.
 type GuildApplicationCommandPermissions struct {
 	ID            string                          `json:"id"`
 	ApplicationId string                          `json:"application_id"`
@@ -75,8 +78,10 @@ type GuildApplicationCommandPermissions struct {
 	Permissions   []ApplicationCommandPermissions `json:"permissions"`
 }
 
+// ApplicationCommandPermissionType indicates whether a permission is user or role based.
 type ApplicationCommandPermissionType uint8
 
+// Application command permission types.
 const (
 	ApplicationCommandPermissionTypeRole = ApplicationCommandPermissionType(iota + 1)
 	ApplicationCommandPermissionTypeUser
