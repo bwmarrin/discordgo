@@ -7,21 +7,21 @@ import (
 // ComponentType is type of component.
 type ComponentType uint
 
-// Component types.
+// MessageComponent types.
 const (
 	ActionsRowComponent ComponentType = iota + 1
 	ButtonComponent
 )
 
-// Component is a base interface for all components.
-type Component interface {
+// MessageComponent is a base interface for all message components.
+type MessageComponent interface {
 	json.Marshaler
 	Type() ComponentType
 }
 
 // ActionsRow is a container for components within one row.
 type ActionsRow struct {
-	Components []Component `json:"components"`
+	Components []MessageComponent `json:"components"`
 }
 
 // MarshalJSON is a method for marshaling ActionsRow to a JSON object.
