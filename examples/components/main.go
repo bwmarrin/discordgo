@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
 	"os/signal"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 // Bot parameters
@@ -41,10 +42,10 @@ func main() {
 					Data: &discordgo.InteractionResponseData{
 						Content: "Are you satisfied with Buttons?",
 						// Buttons and other components are specified in Components field.
-						Components: []discordgo.Component{
+						Components: []discordgo.MessageComponent{
 							// ActionRow is a container of all buttons within the same row.
 							discordgo.ActionsRow{
-								Components: []discordgo.Component{
+								Components: []discordgo.MessageComponent{
 									discordgo.Button{
 										Label:    "Yes",
 										Style:    discordgo.SuccessButton,
@@ -64,14 +65,14 @@ func main() {
 										// Link buttons doesn't require CustomID and does not trigger the gateway/HTTP event
 										Link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 										Emoji: discordgo.ButtonEmoji{
-											Name: "🤷‍♂️",
+											Name: "🤷",
 										},
 									},
 								},
 							},
 							// The message may have multiple actions rows.
 							discordgo.ActionsRow{
-								Components: []discordgo.Component{
+								Components: []discordgo.MessageComponent{
 									discordgo.Button{
 										Label:    "Discord Developers server",
 										Style:    discordgo.LinkButton,
@@ -90,14 +91,14 @@ func main() {
 			return
 		}
 		// Type for button press will be always InteractionButton (3)
-		if i.Type != discordgo.InteractionButton {
+		if i.Type != discordgo.InteractionMessageComponent {
 			return
 		}
 
 		content := "Thanks for your feedback "
 
 		// CustomID field contains the same id as when was sent. It's used to identify the which button was clicked.
-		switch i.ButtonData().CustomID {
+		switch i.MessageComponentData().CustomID {
 		case "yes_btn":
 			content += "(yes)"
 		case "no_btn":
@@ -111,9 +112,9 @@ func main() {
 			Type: discordgo.InteractionResponseUpdateMessage,
 			Data: &discordgo.InteractionResponseData{
 				Content: content,
-				Components: []discordgo.Component{
+				Components: []discordgo.MessageComponent{
 					discordgo.ActionsRow{
-						Components: []discordgo.Component{
+						Components: []discordgo.MessageComponent{
 							discordgo.Button{
 								Label:    "Our sponsor",
 								Style:    discordgo.LinkButton,

@@ -66,7 +66,7 @@ type InteractionType uint8
 const (
 	InteractionPing InteractionType = iota + 1
 	InteractionApplicationCommand
-	InteractionButton
+	InteractionMessageComponent
 )
 
 // Interaction represents data of an interaction.
@@ -121,8 +121,8 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 			return
 		}
 		i.Data = v
-	case InteractionButton:
-		v := ButtonInteractionData{}
+	case InteractionMessageComponent:
+		v := MessageComponentInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
 		if err != nil {
 			return
@@ -132,12 +132,12 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 	return nil
 }
 
-// ButtonData is helper function to convert InteractionData to ButtonInteractionData.
-func (i Interaction) ButtonData() (data ButtonInteractionData) {
-	if i.Type != InteractionButton {
+// MessageComponentData is helper function to convert InteractionData to MessageComponentInteractionData.
+func (i Interaction) MessageComponentData() (data MessageComponentInteractionData) {
+	if i.Type != InteractionMessageComponent {
 		return
 	}
-	return i.Data.(ButtonInteractionData)
+	return i.Data.(MessageComponentInteractionData)
 }
 
 // ApplicationCommandData is helper function to convert InteractionData to ApplicationCommandInteractionData.
@@ -165,15 +165,15 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 	return InteractionApplicationCommand
 }
 
-// ButtonInteractionData contains the data of button interaction.
-type ButtonInteractionData struct {
+// MessageComponentInteractionData contains the data of message component interaction.
+type MessageComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
 }
 
 // Type returns the type of interaction data.
-func (ButtonInteractionData) Type() InteractionType {
-	return InteractionButton
+func (MessageComponentInteractionData) Type() InteractionType {
+	return InteractionMessageComponent
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
@@ -311,9 +311,9 @@ const (
 	InteractionResponseChannelMessageWithSource InteractionResponseType = 4
 	// InteractionResponseDeferredChannelMessageWithSource acknowledges that the event was received, and that a follow-up will come later.
 	InteractionResponseDeferredChannelMessageWithSource InteractionResponseType = 5
-	// InteractionResponseDeferredMessageUpdate acknowledges that the button click event was received, and message will be updated later.
+	// InteractionResponseDeferredMessageUpdate acknowledges that the message component interaction event was received, and message will be updated later.
 	InteractionResponseDeferredMessageUpdate InteractionResponseType = 6
-	// InteractionResponseUpdateMessage is for updating the message to which button was attached to.
+	// InteractionResponseUpdateMessage is for updating the message to which message component was attached to.
 	InteractionResponseUpdateMessage InteractionResponseType = 7
 )
 
@@ -327,7 +327,7 @@ type InteractionResponse struct {
 type InteractionResponseData struct {
 	TTS             bool                    `json:"tts"`
 	Content         string                  `json:"content"`
-	Components      []Component             `json:"components,omitempty"`
+	Components      []MessageComponent      `json:"components,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
