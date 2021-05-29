@@ -28,15 +28,15 @@ type ApplicationCommandOptionType uint8
 
 // Application command option types.
 const (
-	ApplicationCommandOptionSubCommand = ApplicationCommandOptionType(iota + 1)
-	ApplicationCommandOptionSubCommandGroup
-	ApplicationCommandOptionString
-	ApplicationCommandOptionInteger
-	ApplicationCommandOptionBoolean
-	ApplicationCommandOptionUser
-	ApplicationCommandOptionChannel
-	ApplicationCommandOptionRole
-	ApplicationCommandOptionMentionable
+	ApplicationCommandOptionSubCommand      ApplicationCommandOptionType = 1
+	ApplicationCommandOptionSubCommandGroup ApplicationCommandOptionType = 2
+	ApplicationCommandOptionString          ApplicationCommandOptionType = 3
+	ApplicationCommandOptionInteger         ApplicationCommandOptionType = 4
+	ApplicationCommandOptionBoolean         ApplicationCommandOptionType = 5
+	ApplicationCommandOptionUser            ApplicationCommandOptionType = 6
+	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
+	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
+	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
 )
 
 // ApplicationCommandOption represents an option/subcommand/subcommands group.
@@ -63,8 +63,8 @@ type InteractionType uint8
 
 // Interaction types
 const (
-	InteractionPing = InteractionType(iota + 1)
-	InteractionApplicationCommand
+	InteractionPing               InteractionType = 1
+	InteractionApplicationCommand InteractionType = 2
 )
 
 // Interaction represents an interaction event created via a slash command.
