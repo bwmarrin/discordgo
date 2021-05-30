@@ -134,17 +134,11 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 
 // MessageComponentData is helper function to convert InteractionData to MessageComponentInteractionData.
 func (i Interaction) MessageComponentData() (data MessageComponentInteractionData) {
-	if i.Type != InteractionMessageComponent {
-		return
-	}
 	return i.Data.(MessageComponentInteractionData)
 }
 
 // ApplicationCommandData is helper function to convert InteractionData to ApplicationCommandInteractionData.
 func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractionData) {
-	if i.Type != InteractionApplicationCommand {
-		return
-	}
 	return i.Data.(ApplicationCommandInteractionData)
 }
 
