@@ -21,8 +21,8 @@ type WebhookType int
 
 // Valid WebhookType values
 const (
-	WebhookTypeIncoming WebhookType = iota
-	WebhookTypeChannelFollower
+	WebhookTypeIncoming        WebhookType = 1
+	WebhookTypeChannelFollower WebhookType = 2
 )
 
 // WebhookParams is a struct for webhook params, used in the WebhookExecute command.
