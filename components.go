@@ -9,8 +9,8 @@ type ComponentType uint
 
 // MessageComponent types.
 const (
-	ActionsRowComponent ComponentType = iota + 1
-	ButtonComponent
+	ActionsRowComponent ComponentType = 1
+	ButtonComponent     ComponentType = 2
 )
 
 // MessageComponent is a base interface for all message components.
@@ -48,15 +48,15 @@ type ButtonStyle uint
 // Button styles.
 const (
 	// PrimaryButton is a button with blurple color.
-	PrimaryButton ButtonStyle = iota + 1
+	PrimaryButton ButtonStyle = 1
 	// SecondaryButton is a button with grey color.
-	SecondaryButton
+	SecondaryButton ButtonStyle = 2
 	// SuccessButton is a button with green color.
-	SuccessButton
+	SuccessButton ButtonStyle = 3
 	// DangerButton is a button with red color.
-	DangerButton
+	DangerButton ButtonStyle = 4
 	// LinkButton is a special type of button which navigates to a URL. Has grey color.
-	LinkButton
+	LinkButton ButtonStyle = 5
 )
 
 // ButtonEmoji represents button emoji, if it does have one.
