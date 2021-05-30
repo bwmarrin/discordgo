@@ -2576,12 +2576,12 @@ func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (p
 	return
 }
 
-// ApplicationCommandEditPermissions edits the permissions of an application command
+// ApplicationCommandPermissionsEdit edits the permissions of an application command
 // appID       : The Application ID
 // guildID     : The guild ID containing the application command
 // cmdID       : The command ID to edit the permissions of
 // permissions : An object containing a list of permissions for the application command
-func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string, permissions ApplicationCommandPermissionsList) (err error) {
+func (s *Session) ApplicationCommandPermissionsEdit(appID, guildID, cmdID string, permissions ApplicationCommandPermissionsList) (err error) {
 	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
 
 	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
@@ -2589,11 +2589,11 @@ func (s *Session) ApplicationCommandEditPermissions(appID, guildID, cmdID string
 	return
 }
 
-// ApplicationCommandBatchEditPermissions edits the permissions of a batch of commands
+// ApplicationCommandPermissionsBatchEdit edits the permissions of a batch of commands
 // appID       : The Application ID
 // guildID     : The guild ID to batch edit commands of
 // permissions : A list of permissions paired with a command ID, guild ID, and application ID per application command
-func (s *Session) ApplicationCommandBatchEditPermissions(appID, guildID string, permissions []GuildApplicationCommandPermissions) (err error) {
+func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, permissions []GuildApplicationCommandPermissions) (err error) {
 	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 
 	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
