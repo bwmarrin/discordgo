@@ -2236,6 +2236,23 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 	return
 }
 
+// WebhookMessageGet gets a webhook message.
+// webhookID : The ID of a webhook
+// token     : The auth token for the webhook
+// messageID : The ID of message to get
+func (s *Session) WebhookMessageGet(webhookID, token, messageID string) (message *Message, err error) {
+	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointWebhookToken("", ""))
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(body, &message)
+
+	return
+}
+
 // WebhookMessageEdit edits a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
@@ -2555,6 +2572,13 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 	_, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
 
 	return err
+}
+
+// InteractionResponseGet gets the response to an interaction.
+// appID       : The application ID.
+// interaction : Interaction instance.
+func (s *Session) InteractionResponseGet(appID string, interaction *Interaction) (*Message, error) {
+	return s.WebhookMessageGet(appID, interaction.Token, "@original")
 }
 
 // InteractionResponseEdit edits the response to an interaction.
