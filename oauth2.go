@@ -18,8 +18,8 @@ type MembershipState int
 
 // Constants for the different stages of the MembershipState
 const (
-	MembershipStateInvited MembershipState = iota + 1
-	MembershipStateAccepted
+	MembershipStateInvited  MembershipState = 1
+	MembershipStateAccepted MembershipState = 2
 )
 
 // A TeamMember struct stores values for a single Team Member, extending the normal User data - note that the user field is partial

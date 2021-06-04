@@ -21,23 +21,23 @@ type MessageType int
 
 // Block contains the valid known MessageType values
 const (
-	MessageTypeDefault MessageType = iota
-	MessageTypeRecipientAdd
-	MessageTypeRecipientRemove
-	MessageTypeCall
-	MessageTypeChannelNameChange
-	MessageTypeChannelIconChange
-	MessageTypeChannelPinnedMessage
-	MessageTypeGuildMemberJoin
-	MessageTypeUserPremiumGuildSubscription
-	MessageTypeUserPremiumGuildSubscriptionTierOne
-	MessageTypeUserPremiumGuildSubscriptionTierTwo
-	MessageTypeUserPremiumGuildSubscriptionTierThree
-	MessageTypeChannelFollowAdd
-	MessageTypeGuildDiscoveryDisqualified = iota + 1
-	MessageTypeGuildDiscoveryRequalified
-	MessageTypeReply = iota + 4
-	MessageTypeApplicationCommand
+	MessageTypeDefault                               MessageType = 0
+	MessageTypeRecipientAdd                          MessageType = 1
+	MessageTypeRecipientRemove                       MessageType = 2
+	MessageTypeCall                                  MessageType = 3
+	MessageTypeChannelNameChange                     MessageType = 4
+	MessageTypeChannelIconChange                     MessageType = 5
+	MessageTypeChannelPinnedMessage                  MessageType = 6
+	MessageTypeGuildMemberJoin                       MessageType = 7
+	MessageTypeUserPremiumGuildSubscription          MessageType = 8
+	MessageTypeUserPremiumGuildSubscriptionTierOne   MessageType = 9
+	MessageTypeUserPremiumGuildSubscriptionTierTwo   MessageType = 10
+	MessageTypeUserPremiumGuildSubscriptionTierThree MessageType = 11
+	MessageTypeChannelFollowAdd                      MessageType = 12
+	MessageTypeGuildDiscoveryDisqualified            MessageType = 14
+	MessageTypeGuildDiscoveryRequalified             MessageType = 15
+	MessageTypeReply                                 MessageType = 19
+	MessageTypeApplicationCommand                    MessageType = 20
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -149,11 +149,11 @@ type MessageFlags int
 
 // Valid MessageFlags values
 const (
-	MessageFlagsCrossPosted MessageFlags = 1 << iota
-	MessageFlagsIsCrossPosted
-	MessageFlagsSupressEmbeds
-	MessageFlagsSourceMessageDeleted
-	MessageFlagsUrgent
+	MessageFlagsCrossPosted          MessageFlags = 1 << 0
+	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
+	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
+	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
+	MessageFlagsUrgent               MessageFlags = 1 << 4
 )
 
 // File stores info about files you e.g. send in messages.
@@ -357,23 +357,10 @@ type MessageActivityType int
 
 // Constants for the different types of Message Activity
 const (
-	MessageActivityTypeJoin MessageActivityType = iota + 1
-	MessageActivityTypeSpectate
-	MessageActivityTypeListen
-	MessageActivityTypeJoinRequest
-)
-
-// MessageFlag describes an extra feature of the message
-type MessageFlag int
-
-// Constants for the different bit offsets of Message Flags
-const (
-	// This message has been published to subscribed channels (via Channel Following)
-	MessageFlagCrossposted MessageFlag = 1 << iota
-	// This message originated from a message in another channel (via Channel Following)
-	MessageFlagIsCrosspost
-	// Do not include any embeds when serializing this message
-	MessageFlagSuppressEmbeds
+	MessageActivityTypeJoin        MessageActivityType = 1
+	MessageActivityTypeSpectate    MessageActivityType = 2
+	MessageActivityTypeListen      MessageActivityType = 3
+	MessageActivityTypeJoinRequest MessageActivityType = 5
 )
 
 // MessageApplication is sent with Rich Presence-related chat embeds

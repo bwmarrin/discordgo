@@ -28,15 +28,15 @@ type ApplicationCommandOptionType uint8
 
 // Application command option types.
 const (
-	ApplicationCommandOptionSubCommand = ApplicationCommandOptionType(iota + 1)
-	ApplicationCommandOptionSubCommandGroup
-	ApplicationCommandOptionString
-	ApplicationCommandOptionInteger
-	ApplicationCommandOptionBoolean
-	ApplicationCommandOptionUser
-	ApplicationCommandOptionChannel
-	ApplicationCommandOptionRole
-	ApplicationCommandOptionMentionable
+	ApplicationCommandOptionSubCommand      ApplicationCommandOptionType = 1
+	ApplicationCommandOptionSubCommandGroup ApplicationCommandOptionType = 2
+	ApplicationCommandOptionString          ApplicationCommandOptionType = 3
+	ApplicationCommandOptionInteger         ApplicationCommandOptionType = 4
+	ApplicationCommandOptionBoolean         ApplicationCommandOptionType = 5
+	ApplicationCommandOptionUser            ApplicationCommandOptionType = 6
+	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
+	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
+	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
 )
 
 // ApplicationCommandOption represents an option/subcommand/subcommands group.
@@ -92,8 +92,8 @@ type InteractionType uint8
 
 // Interaction types
 const (
-	InteractionPing = InteractionType(iota + 1)
-	InteractionApplicationCommand
+	InteractionPing               InteractionType = 1
+	InteractionApplicationCommand InteractionType = 2
 )
 
 // Interaction represents an interaction event created via a slash command.
@@ -121,9 +121,20 @@ type Interaction struct {
 
 // ApplicationCommandInteractionData contains data received in an interaction event.
 type ApplicationCommandInteractionData struct {
-	ID      string                                     `json:"id"`
-	Name    string                                     `json:"name"`
-	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+	ID       string                                     `json:"id"`
+	Name     string                                     `json:"name"`
+	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
+	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
+}
+
+// ApplicationCommandInteractionDataResolved contains resolved data for command arguments.
+// Partial Member objects are missing user, deaf and mute fields.
+// Partial Channel objects only have id, name, type and permissions fields.
+type ApplicationCommandInteractionDataResolved struct {
+	Users    map[string]*User    `json:"users"`
+	Members  map[string]*Member  `json:"members"`
+	Roles    map[string]*Role    `json:"roles"`
+	Channels map[string]*Channel `json:"channels"`
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
