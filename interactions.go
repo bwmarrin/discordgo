@@ -321,7 +321,7 @@ type InteractionResponse struct {
 type InteractionResponseData struct {
 	TTS             bool                    `json:"tts"`
 	Content         string                  `json:"content"`
-	Components      []MessageComponent      `json:"components,omitempty"`
+	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
