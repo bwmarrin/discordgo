@@ -80,6 +80,9 @@ type Message struct {
 	// A list of attachments present in the message.
 	Attachments []*MessageAttachment `json:"attachments"`
 
+	// A list of components attached to the message.
+	Components []MessageComponent `json:"components"`
+
 	// A list of embeds present in the message. Multiple
 	// embeds can currently only be sent by webhooks.
 	Embeds []*MessageEmbed `json:"embeds"`
@@ -181,6 +184,7 @@ type MessageSend struct {
 // is also where you should get the instance from.
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
+	Components      []MessageComponent      `json:"components"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
