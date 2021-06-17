@@ -123,6 +123,11 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// The message being replied to.
+	// Only messages of type 19 (MessageTypeReply) or 21 can have this field (but it might still be missing).
+	// If it exists but is null, the referenced message was deleted.
+	ReferencedMessage *Message `json:"referenced_message"`
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
