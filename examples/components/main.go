@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
 	"os/signal"
 	"sort"
 	"sync"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 // Bot parameters
@@ -31,6 +32,7 @@ func init() {
 	}
 }
 
+// MessageVoteStats represents user votes for a particular message
 type MessageVoteStats struct {
 	PeopleVoted map[string]string
 	Votes       map[string]int

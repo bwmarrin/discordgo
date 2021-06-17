@@ -2307,7 +2307,7 @@ func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *W
 // WebhookMessageDelete deletes a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
-// messageID : The ID of message to edit
+// messageID : The ID of a message to edit
 func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
 
@@ -2315,6 +2315,10 @@ func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err 
 	return
 }
 
+// WebhookMessage retrieves and returnes the message sent by a webhook.
+// webhookID : The webhook ID
+// token     : The auth token for the webhook
+// messageID : The ID of a message to retrieve
 func (s *Session) WebhookMessage(webhookID, token, messageID string) (st *Message, err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
 
@@ -2641,6 +2645,9 @@ func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction
 	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
 }
 
+// InteractionResponse retrieves and returns the interaction response message.
+// appID       : The application ID.
+// interaction : Interaction instance.
 func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*Message, error) {
 	return s.WebhookMessage(appID, interaction.Token, "@original")
 }
