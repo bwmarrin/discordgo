@@ -101,7 +101,6 @@ func (b Button) Type() ComponentType {
 	return ButtonComponent
 }
 
-
 type SelectMenuOption struct {
 	Label       string         `json:"label,omitempty"`
 	Value       string         `json:"value"`
@@ -110,13 +109,12 @@ type SelectMenuOption struct {
 	Default     bool           `json:"default"`
 }
 
-
 type SelectMenu struct {
-	CustomID    string `json:"custom_id,omitempty"`
-	Placeholder string `json:"placeholder"`
-	MinValues   int    `json:"min_values,omitempty"`
-	MaxValues   int    `json:"max_values,omitempty"`
-	Options []SelectMenuOption `json:"options"`
+	CustomID    string             `json:"custom_id,omitempty"`
+	Placeholder string             `json:"placeholder"`
+	MinValues   int                `json:"min_values,omitempty"`
+	MaxValues   int                `json:"max_values,omitempty"`
+	Options     []SelectMenuOption `json:"options"`
 }
 
 func (m SelectMenu) Type() ComponentType {
@@ -132,8 +130,6 @@ func (m SelectMenu) MarshalJSON() ([]byte, error) {
 		Type ComponentType `json:"type"`
 	}{
 		selectMenu: selectMenu(m),
-		Type:   m.Type(),
+		Type:       m.Type(),
 	})
 }
-
-

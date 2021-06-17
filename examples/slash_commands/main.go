@@ -88,24 +88,6 @@ var (
 			},
 		},
 		{
-			Name: "tic",
-			Description: "something 2",
-			Options: []*discordgo.ApplicationCommandOption {
-				{
-					Name: "tac",
-					Description: "tac 2",
-					Type: discordgo.ApplicationCommandOptionSubCommandGroup,
-					Options: []*discordgo.ApplicationCommandOption {
-						{
-							Name: "toe",
-							Description: "toe 3",
-							Type: discordgo.ApplicationCommandOptionSubCommand,
-						},
-					},
-				},
-			},
-		},
-		{
 			Name:        "subcommands",
 			Description: "Subcommands and command groups example",
 			Options: []*discordgo.ApplicationCommandOption{
