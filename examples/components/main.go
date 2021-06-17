@@ -202,7 +202,7 @@ func main() {
 			}
 			return
 		}
-		// Type for button press will be always InteractionButton (3)
+		// Type for all components will be always InteractionMessageComponent
 		if i.Type != discordgo.InteractionMessageComponent {
 			return
 		}
