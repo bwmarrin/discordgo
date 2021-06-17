@@ -93,7 +93,7 @@ var (
 			Options: []*discordgo.ApplicationCommandOption {
 				{
 					Name: "tac",
-					Description: "tac 2"
+					Description: "tac 2",
 					Type: discordgo.ApplicationCommandOptionSubCommandGroup,
 					Options: []*discordgo.ApplicationCommandOption {
 						{
@@ -288,7 +288,7 @@ var (
 				return
 			}
 			time.AfterFunc(time.Second*5, func() {
-				err = s.InteractionResponseEdit(s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
+				_, err = s.InteractionResponseEdit(s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
 					Content: content + "\n\nWell, now you know how to create and edit responses. " +
 						"But you still don't know how to delete them... so... wait 10 seconds and this " +
 						"message will be deleted.",
