@@ -163,6 +163,9 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 type MessageComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
+
+	// NOTE: Only filled when ComponentType is SelectMenuComponent (3). Otherwise is nil.
+	Values []string `json:"values"`
 }
 
 // Type returns the type of interaction data.

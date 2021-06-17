@@ -11,6 +11,7 @@ type ComponentType uint
 const (
 	ActionsRowComponent ComponentType = 1
 	ButtonComponent     ComponentType = 2
+	SelectMenuComponent ComponentType = 3
 )
 
 // MessageComponent is a base interface for all message components.
@@ -59,8 +60,8 @@ const (
 	LinkButton ButtonStyle = 5
 )
 
-// ButtonEmoji represents button emoji, if it does have one.
-type ButtonEmoji struct {
+// ComponentEmoji represents button emoji, if it does have one.
+type ComponentEmoji struct {
 	Name     string `json:"name,omitempty"`
 	ID       string `json:"id,omitempty"`
 	Animated bool   `json:"animated,omitempty"`
@@ -68,10 +69,10 @@ type ButtonEmoji struct {
 
 // Button represents button component.
 type Button struct {
-	Label    string      `json:"label"`
-	Style    ButtonStyle `json:"style"`
-	Disabled bool        `json:"disabled"`
-	Emoji    ButtonEmoji `json:"emoji"`
+	Label    string         `json:"label"`
+	Style    ButtonStyle    `json:"style"`
+	Disabled bool           `json:"disabled"`
+	Emoji    ComponentEmoji `json:"emoji"`
 
 	// NOTE: Only button with LinkButton style can have link. Also, Link is mutually exclusive with CustomID.
 	Link     string `json:"url,omitempty"`
@@ -99,3 +100,40 @@ func (b Button) MarshalJSON() ([]byte, error) {
 func (b Button) Type() ComponentType {
 	return ButtonComponent
 }
+
+
+type SelectMenuOption struct {
+	Label       string         `json:"label,omitempty"`
+	Value       string         `json:"value"`
+	Description string         `json:"description"`
+	Emoji       ComponentEmoji `json:"emoji"`
+	Default     bool           `json:"default"`
+}
+
+
+type SelectMenu struct {
+	CustomID    string `json:"custom_id,omitempty"`
+	Placeholder string `json:"placeholder"`
+	MinValues   int    `json:"min_values,omitempty"`
+	MaxValues   int    `json:"max_values,omitempty"`
+	Options []SelectMenuOption `json:"options"`
+}
+
+func (m SelectMenu) Type() ComponentType {
+	return SelectMenuComponent
+}
+
+// MarshalJSON is a method for marshaling SelectMenu to a JSON object.
+func (m SelectMenu) MarshalJSON() ([]byte, error) {
+	type selectMenu SelectMenu
+
+	return json.Marshal(struct {
+		selectMenu
+		Type ComponentType `json:"type"`
+	}{
+		selectMenu: selectMenu(m),
+		Type:   m.Type(),
+	})
+}
+
+

@@ -2236,32 +2236,71 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 	return
 }
 
-// WebhookMessage gets a webhook message.
+// WebhookMessageEdit edits a webhook message and returns a new one.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
-// messageID : The ID of message to get
-func (s *Session) WebhookMessage(webhookID, token, messageID string) (message *Message, err error) {
+// messageID : The ID of message to edit
+func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (st *Message, err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
+	var response []byte
+	if len(data.Files) > 0 {
+		body := &bytes.Buffer{}
+		bodywriter := multipart.NewWriter(body)
 
-	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointWebhookToken("", ""))
+		var payload []byte
+		payload, err = json.Marshal(data)
+		if err != nil {
+			return
+		}
+
+		var p io.Writer
+
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", `form-data; name="payload_json"`)
+		h.Set("Content-Type", "application/json")
+
+		p, err = bodywriter.CreatePart(h)
+		if err != nil {
+			return
+		}
+
+		if _, err = p.Write(payload); err != nil {
+			return
+		}
+
+		for i, file := range data.Files {
+			h := make(textproto.MIMEHeader)
+			h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file%d"; filename="%s"`, i, quoteEscaper.Replace(file.Name)))
+			contentType := file.ContentType
+			if contentType == "" {
+				contentType = "application/octet-stream"
+			}
+			h.Set("Content-Type", contentType)
+
+			p, err = bodywriter.CreatePart(h)
+			if err != nil {
+				return
+			}
+
+			if _, err = io.Copy(p, file.Reader); err != nil {
+				return
+			}
+		}
+
+		err = bodywriter.Close()
+		if err != nil {
+			return
+		}
+
+		response, err = s.request("PATCH", uri, bodywriter.FormDataContentType(), body.Bytes(), uri, 0)
+	} else {
+		response, err = s.RequestWithBucketID("PATCH", uri, data, uri)
+	}
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(body, &message)
-
-	return
-}
-
-// WebhookMessageEdit edits a webhook message.
-// webhookID : The ID of a webhook
-// token     : The auth token for the webhook
-// messageID : The ID of message to edit
-func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (err error) {
-	uri := EndpointWebhookMessage(webhookID, token, messageID)
-
-	_, err = s.RequestWithBucketID("PATCH", uri, data, EndpointWebhookToken("", ""))
-
+	err = unmarshal(response, &st)
 	return
 }
 
@@ -2273,6 +2312,19 @@ func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err 
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
 
 	_, err = s.RequestWithBucketID("DELETE", uri, nil, EndpointWebhookToken("", ""))
+	return
+}
+
+func (s *Session) WebhookMessage(webhookID, token, messageID string) (st *Message, err error) {
+	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	response, err := s.RequestWithBucketID("GET", uri, nil, uri)
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
 	return
 }
 
@@ -2585,8 +2637,12 @@ func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*
 // appID       : The application ID.
 // interaction : Interaction instance.
 // newresp     : Updated response message data.
-func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) error {
+func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) (*Message, error) {
 	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
+}
+
+func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*Message, error) {
+	return s.WebhookMessage(appID, interaction.Token, "@original")
 }
 
 // InteractionResponseDelete deletes the response to an interaction.
@@ -2614,7 +2670,7 @@ func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, 
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
 // data        : Data to update the message
-func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) error {
+func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) (*Message, error) {
 	return s.WebhookMessageEdit(appID, interaction.Token, messageID, data)
 }
 
