@@ -19,6 +19,37 @@ type MessageComponent interface {
 	Type() ComponentType
 }
 
+type UnmarshableMessageComponent struct {
+	MessageComponent
+}
+
+func (umc *UnmarshableMessageComponent) UnmarshalJSON(src []byte) (err error) {
+	var v struct {
+		Type ComponentType `json:"type"`
+	}
+	err = json.Unmarshal(src, &v)
+	if err != nil {
+		return
+	}
+
+	var data MessageComponent
+	switch v.Type {
+	case ActionsRowComponent:
+		v := ActionsRow{}
+		err = json.Unmarshal(src, &v)
+		data = v
+	case ButtonComponent:
+		v := Button{}
+		err = json.Unmarshal(src, &v)
+		data = v
+	}
+	if err != nil {
+		return
+	}
+	umc.MessageComponent = data
+	return
+}
+
 // ActionsRow is a container for components within one row.
 type ActionsRow struct {
 	Components []MessageComponent `json:"components"`
@@ -26,14 +57,14 @@ type ActionsRow struct {
 
 // MarshalJSON is a method for marshaling ActionsRow to a JSON object.
 func (r ActionsRow) MarshalJSON() ([]byte, error) {
-	type actionRow ActionsRow
+	type actionsRow ActionsRow
 
 	return json.Marshal(struct {
-		actionRow
+		actionsRow
 		Type ComponentType `json:"type"`
 	}{
-		actionRow: actionRow(r),
-		Type:      r.Type(),
+		actionsRow: actionsRow(r),
+		Type:       r.Type(),
 	})
 }
 
