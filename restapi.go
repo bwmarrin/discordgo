@@ -2453,7 +2453,7 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if len(resp.Files) > 0 {
-		contentType, body, err := EncodeWithFiles(interaction, resp.Files)
+		contentType, body, err := EncodeWithFiles(resp, resp.Files)
 		if err != nil {
 			return err
 		}

@@ -40,6 +40,10 @@ var (
 			Description: "Basic command",
 		},
 		{
+			Name: "basic-command-with-files",
+			Description: "Basic command with files",
+		},
+		{
 			Name:        "options",
 			Description: "Command for demonstrating options",
 			Options: []*discordgo.ApplicationCommandOption{
@@ -165,6 +169,21 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionApplicationCommandResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
+				},
+			})
+		},
+		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Files: []*discordgo.File{
+					{
+						ContentType: "text/plain",
+						Name: "test.txt",
+						Reader: strings.NewReader("Hello Discord!!"),
+					},
+				},
+				Data: &discordgo.InteractionApplicationCommandResponseData{
+					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
 				},
 			})
 		},
