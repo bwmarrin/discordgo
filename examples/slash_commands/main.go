@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -40,7 +41,7 @@ var (
 			Description: "Basic command",
 		},
 		{
-			Name: "basic-command-with-files",
+			Name:        "basic-command-with-files",
 			Description: "Basic command with files",
 		},
 		{
@@ -178,8 +179,8 @@ var (
 				Files: []*discordgo.File{
 					{
 						ContentType: "text/plain",
-						Name: "test.txt",
-						Reader: strings.NewReader("Hello Discord!!"),
+						Name:        "test.txt",
+						Reader:      strings.NewReader("Hello Discord!!"),
 					},
 				},
 				Data: &discordgo.InteractionApplicationCommandResponseData{
