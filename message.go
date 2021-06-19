@@ -10,6 +10,7 @@
 package discordgo
 
 import (
+	"encoding/json"
 	"io"
 	"regexp"
 	"strings"
@@ -81,7 +82,7 @@ type Message struct {
 	Attachments []*MessageAttachment `json:"attachments"`
 
 	// A list of components attached to the message.
-	Components []UnmarshableMessageComponent `json:"components"`
+	Components []MessageComponent `json:"-"`
 
 	// A list of embeds present in the message. Multiple
 	// embeds can currently only be sent by webhooks.
@@ -126,6 +127,26 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+}
+
+// UnmarshalJSON is a helper function to unmarshal the message.
+// NOTE: It exists only because message components can't be unmarshaled by default, so we need to apply manual unmarshaling.
+func (m *Message) UnmarshalJSON(data []byte) (err error) {
+	type message Message
+	var v struct {
+		message
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err = json.Unmarshal(data, &v)
+	if err != nil {
+		return
+	}
+	*m = Message(v.message)
+	m.Components = make([]MessageComponent, len(v.Components))
+	for i, v := range v.RawComponents {
+		m.Components[i] = v
+	}
+	return
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
