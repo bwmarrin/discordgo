@@ -20,14 +20,12 @@ type MessageComponent interface {
 	Type() ComponentType
 }
 
-// UnmarshableMessageComponent a helper for components which need to be unmarshaled (like the ones in message object).
-// Since interfaces can't be unmarshaled this exists.
-type UnmarshableMessageComponent struct {
+type unmarshalableMessageComponent struct {
 	MessageComponent
 }
 
 // UnmarshalJSON is a helper function to unmarshal MessageComponent object.
-func (umc *UnmarshableMessageComponent) UnmarshalJSON(src []byte) (err error) {
+func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) (err error) {
 	var v struct {
 		Type ComponentType `json:"type"`
 	}
