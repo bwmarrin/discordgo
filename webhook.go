@@ -41,4 +41,5 @@ type WebhookEdit struct {
 	Content         string                  `json:"content,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	Components      []*MessageComponent     `json:"components,omitempty"`
 }
