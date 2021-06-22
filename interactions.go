@@ -99,7 +99,6 @@ type ApplicationCommandInteractionData struct {
 	Name          string                                     `json:"name"`
 	Resolved      *ApplicationCommandInteractionDataResolved `json:"resolved"`
 	Options       []*ApplicationCommandInteractionDataOption `json:"options"`
-	Message       *Message                                   `json:"message"`
 	CustomID      string                                     `json:"custom_id"`      // for components, the custom_id of the component
 	ComponentType MessageComponentType                       `json:"component_type"` // for components, the type of the component
 }
