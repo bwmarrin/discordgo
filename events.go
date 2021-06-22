@@ -186,7 +186,7 @@ type MessageDelete struct {
 }
 
 // UnmarshalJSON is a helper function to unmarshal MessageDelete object.
-func (m *MessageDelete) UnmarshalJSON(b []byte) error {
+func (m *MessageDelete) UnmarshalJSON(b []byte) (err error) {
 	return json.Unmarshal(b, &m.Message)
 }
 
@@ -289,9 +289,6 @@ type InteractionCreate struct {
 }
 
 // UnmarshalJSON is a helper function to unmarshal Interaction object.
-// Since it's a pointer json.Unmarshal does not unmarshals it correctly (Interaction field is nil).
-// And so we need to unmarshal it manually.
 func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
-	i.Interaction = new(Interaction)
 	return json.Unmarshal(b, &i.Interaction)
 }

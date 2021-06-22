@@ -129,8 +129,7 @@ type Message struct {
 	Flags MessageFlags `json:"flags"`
 }
 
-// UnmarshalJSON is a helper function to unmarshal the message.
-// NOTE: It exists only because message components can't be unmarshaled by default, so we need to apply manual unmarshaling.
+// UnmarshalJSON is a helper function to unmarshal the Message.
 func (m *Message) UnmarshalJSON(data []byte) (err error) {
 	type message Message
 	var v struct {
@@ -142,9 +141,9 @@ func (m *Message) UnmarshalJSON(data []byte) (err error) {
 		return
 	}
 	*m = Message(v.message)
-	m.Components = make([]MessageComponent, len(v.Components))
+	m.Components = make([]MessageComponent, len(v.RawComponents))
 	for i, v := range v.RawComponents {
-		m.Components[i] = v
+		m.Components[i] = v.MessageComponent
 	}
 	return
 }
