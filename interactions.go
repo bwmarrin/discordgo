@@ -86,6 +86,8 @@ type Interaction struct {
 	// if it was invoked in a guild, the `Member` field will be filled instead.
 	// Make sure to check for `nil` before using this field.
 	User *User `json:"user"`
+	// For components, the message they were attached to
+	Message *Message `json:"message"`
 
 	Token   string `json:"token"`
 	Version int    `json:"version"`
