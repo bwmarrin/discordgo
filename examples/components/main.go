@@ -11,10 +11,9 @@ import (
 
 // Bot parameters
 var (
-	GuildID   = flag.String("guild", "", "Test guild ID")
-	ChannelID = flag.String("channel", "", "Test channel ID")
-	BotToken  = flag.String("token", "", "Bot access token")
-	AppID     = flag.String("app", "", "Application ID")
+	GuildID  = flag.String("guild", "", "Test guild ID")
+	BotToken = flag.String("token", "", "Bot access token")
+	AppID    = flag.String("app", "", "Application ID")
 )
 
 var s *discordgo.Session
@@ -145,7 +144,7 @@ func main() {
 	}
 	defer s.Close()
 
-	stop := make(chan os.Signal)
+	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
 	log.Println("Graceful shutdown")
