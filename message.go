@@ -389,9 +389,9 @@ type MessageComponentButtonStyle int
 const (
 	MessageComponentButtonStylePrimary   = 1
 	MessageComponentButtonStyleSecondary = 2
-	MessageComponentButtonStyleSuccess   = 2
-	MessageComponentButtonStyleDanger    = 3
-	MessageComponentButtonStyleLink      = 4
+	MessageComponentButtonStyleSuccess   = 3
+	MessageComponentButtonStyleDanger    = 4
+	MessageComponentButtonStyleLink      = 5
 )
 
 // MessageComponent are a framework for adding interactive elements to the messages your app or bot sends.
