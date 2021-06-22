@@ -90,6 +90,9 @@ type Message struct {
 	// A list of reactions to the message.
 	Reactions []*MessageReactions `json:"reactions"`
 
+	// A list of message components
+	Components []*MessageComponent `json:"components"`
+
 	// Whether the message is pinned or not.
 	Pinned bool `json:"pinned"`
 
@@ -370,6 +373,37 @@ type MessageApplication struct {
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
 	Name        string `json:"name"`
+}
+
+// MessageComponentType type
+type MessageComponentType int
+
+const (
+	MessageComponentTypeActionRow MessageComponentType = 1
+	MessageComponentTypeButton    MessageComponentType = 2
+)
+
+// MessageComponentButtonStyle style
+type MessageComponentButtonStyle int
+
+const (
+	MessageComponentButtonStylePrimary   = 1
+	MessageComponentButtonStyleSecondary = 2
+	MessageComponentButtonStyleSuccess   = 2
+	MessageComponentButtonStyleDanger    = 3
+	MessageComponentButtonStyleLink      = 4
+)
+
+// MessageComponent are a framework for adding interactive elements to the messages your app or bot sends.
+type MessageComponent struct {
+	Type       MessageComponentType        `json:"type"`
+	Style      MessageComponentButtonStyle `json:"style"`
+	Label      string                      `json:"label"`
+	Emoji      *Emoji                      `json:"emoji"`
+	CustomID   string                      `json:"custom_id"`
+	URL        string                      `json:"url"`
+	Disabled   bool                        `json:"disabled"`
+	Components []*MessageComponent         `json:"components"`
 }
 
 // MessageReference contains reference data sent with crossposted messages

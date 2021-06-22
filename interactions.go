@@ -65,6 +65,7 @@ type InteractionType uint8
 const (
 	InteractionPing               InteractionType = 1
 	InteractionApplicationCommand InteractionType = 2
+	InteractionMessageComponent   InteractionType = 3
 )
 
 // Interaction represents an interaction event created via a slash command.
@@ -92,10 +93,13 @@ type Interaction struct {
 
 // ApplicationCommandInteractionData contains data received in an interaction event.
 type ApplicationCommandInteractionData struct {
-	ID       string                                     `json:"id"`
-	Name     string                                     `json:"name"`
-	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
-	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
+	ID            string                                     `json:"id"`
+	Name          string                                     `json:"name"`
+	Resolved      *ApplicationCommandInteractionDataResolved `json:"resolved"`
+	Options       []*ApplicationCommandInteractionDataOption `json:"options"`
+	Message       *Message                                   `json:"message"`
+	CustomID      string                                     `json:"custom_id"`      // for components, the custom_id of the component
+	ComponentType MessageComponentType                       `json:"component_type"` // for components, the type of the component
 }
 
 // ApplicationCommandInteractionDataResolved contains resolved data for command arguments.
@@ -243,6 +247,10 @@ const (
 	InteractionResponseChannelMessageWithSource InteractionResponseType = 4
 	// InteractionResponseDeferredChannelMessageWithSource acknowledges that the event was received, and that a follow-up will come later.
 	InteractionResponseDeferredChannelMessageWithSource InteractionResponseType = 5
+	// InteractionResponseDeferredMessageUpdate acknowledges that the message component interaction event was received, and message will be updated later.
+	InteractionResponseDeferredMessageUpdate InteractionResponseType = 6
+	// InteractionResponseUpdateMessage is for updating the message to which message component was attached to.
+	InteractionResponseUpdateMessage InteractionResponseType = 7
 )
 
 // InteractionResponse represents a response for an interaction event.
@@ -256,6 +264,7 @@ type InteractionApplicationCommandResponseData struct {
 	TTS             bool                    `json:"tts,omitempty"`
 	Content         string                  `json:"content,omitempty"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Components      []*MessageComponent     `json:"components,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
 	// NOTE: Undocumented feature, be careful with it.
