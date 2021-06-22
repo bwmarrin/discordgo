@@ -69,6 +69,22 @@ func (r ActionsRow) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// UnmarshalJSON is a helper function to unmarshal Actions Row.
+func (r *ActionsRow) UnmarshalJSON(data []byte) (err error) {
+	var v struct {
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err = json.Unmarshal(data, &v)
+	if err != nil {
+		return
+	}
+	r.Components = make([]MessageComponent, len(v.RawComponents))
+	for i, v := range v.RawComponents {
+		r.Components[i] = v.MessageComponent
+	}
+	return
+}
+
 // Type is a method to get the type of a component.
 func (r ActionsRow) Type() ComponentType {
 	return ActionsRowComponent
