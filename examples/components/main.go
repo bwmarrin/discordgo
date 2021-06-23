@@ -62,7 +62,7 @@ func main() {
 										Style:    discordgo.LinkButton,
 										Disabled: false,
 										// Link buttons doesn't require CustomID and does not trigger the gateway/HTTP event
-										Link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+										URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 										Emoji: discordgo.ButtonEmoji{
 											Name: "🤷",
 										},
@@ -76,7 +76,7 @@ func main() {
 										Label:    "Discord Developers server",
 										Style:    discordgo.LinkButton,
 										Disabled: false,
-										Link:     "https://discord.gg/discord-developers",
+										URL:      "https://discord.gg/discord-developers",
 									},
 								},
 							},
@@ -118,7 +118,7 @@ func main() {
 								Label:    "Our sponsor",
 								Style:    discordgo.LinkButton,
 								Disabled: false,
-								Link:     "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+								URL:      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								Emoji: discordgo.ButtonEmoji{
 									Name: "💠",
 								},
