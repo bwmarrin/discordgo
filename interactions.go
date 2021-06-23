@@ -104,11 +104,11 @@ type rawInteraction struct {
 }
 
 // UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
-func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
+func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	var tmp rawInteraction
-	err = json.Unmarshal(raw, &tmp)
+	err := json.Unmarshal(raw, &tmp)
 	if err != nil {
-		return
+		return err
 	}
 
 	*i = Interaction(tmp.interaction)
@@ -118,14 +118,14 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 		v := ApplicationCommandInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
 		if err != nil {
-			return
+			return err
 		}
 		i.Data = v
 	case InteractionMessageComponent:
 		v := MessageComponentInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
 		if err != nil {
-			return
+			return err
 		}
 		i.Data = v
 	}
