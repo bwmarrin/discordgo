@@ -24,13 +24,13 @@ type unmarshalableMessageComponent struct {
 }
 
 // UnmarshalJSON is a helper function to unmarshal MessageComponent object.
-func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) (err error) {
+func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	var v struct {
 		Type ComponentType `json:"type"`
 	}
-	err = json.Unmarshal(src, &v)
+	err := json.Unmarshal(src, &v)
 	if err != nil {
-		return
+		return err
 	}
 
 	var data MessageComponent
@@ -45,10 +45,10 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) (err error) 
 		data = v
 	}
 	if err != nil {
-		return
+		return err
 	}
 	umc.MessageComponent = data
-	return
+	return err
 }
 
 // ActionsRow is a container for components within one row.
@@ -121,8 +121,8 @@ type Button struct {
 	Disabled bool        `json:"disabled"`
 	Emoji    ButtonEmoji `json:"emoji"`
 
-	// NOTE: Only button with LinkButton style can have link. Also, Link is mutually exclusive with CustomID.
-	Link     string `json:"url,omitempty"`
+	// NOTE: Only button with LinkButton style can have link. Also, URL is mutually exclusive with CustomID.
+	URL      string `json:"url,omitempty"`
 	CustomID string `json:"custom_id,omitempty"`
 }
 

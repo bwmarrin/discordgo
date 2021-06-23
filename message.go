@@ -130,22 +130,22 @@ type Message struct {
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
-func (m *Message) UnmarshalJSON(data []byte) (err error) {
+func (m *Message) UnmarshalJSON(data []byte) error {
 	type message Message
 	var v struct {
 		message
 		RawComponents []unmarshalableMessageComponent `json:"components"`
 	}
-	err = json.Unmarshal(data, &v)
+	err := json.Unmarshal(data, &v)
 	if err != nil {
-		return
+		return err
 	}
 	*m = Message(v.message)
 	m.Components = make([]MessageComponent, len(v.RawComponents))
 	for i, v := range v.RawComponents {
 		m.Components[i] = v.MessageComponent
 	}
-	return
+	return err
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
