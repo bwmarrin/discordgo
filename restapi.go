@@ -12,7 +12,6 @@ package discordgo
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -32,7 +31,7 @@ import (
 
 // All error constants
 var (
-	ErrJSONUnmarshal           = errors.New("json unmarshal")
+	ErrJSONUnmarshal           = errors.New("json s.unmarshal")
 	ErrStatusOffline           = errors.New("You can't set your Status to offline")
 	ErrVerificationLevelBounds = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
 	ErrPruneDaysBounds         = errors.New("the number of days should be more than or equal to 1")
@@ -50,7 +49,7 @@ func (s *Session) Request(method, urlStr string, data interface{}) (response []b
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
 	var body []byte
 	if data != nil {
-		body, err = json.Marshal(data)
+		body, err = s.MarshalFunc(data)
 		if err != nil {
 			return
 		}
@@ -149,9 +148,9 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		}
 	case 429: // TOO MANY REQUESTS - Rate limiting
 		rl := TooManyRequests{}
-		err = json.Unmarshal(response, &rl)
+		err = s.UnmarshalFunc(response, &rl)
 		if err != nil {
-			s.log(LogError, "rate limit unmarshal error, %s", err)
+			s.log(LogError, "rate limit s.unmarshal error, %s", err)
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
@@ -169,14 +168,14 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		}
 		fallthrough
 	default: // Error condition
-		err = newRestError(req, resp, response)
+		err = s.newRestError(req, resp, response)
 	}
 
 	return
 }
 
-func unmarshal(data []byte, v interface{}) error {
-	err := json.Unmarshal(data, v)
+func (s *Session) unmarshal(data []byte, v interface{}) error {
+	err := s.UnmarshalFunc(data, v)
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrJSONUnmarshal, err)
 	}
@@ -212,7 +211,7 @@ func (s *Session) Login(email, password string) (err error) {
 		MFA   bool   `json:"mfa"`
 	}{}
 
-	err = unmarshal(response, &temp)
+	err = s.unmarshal(response, &temp)
 	if err != nil {
 		return
 	}
@@ -240,7 +239,7 @@ func (s *Session) Register(username string) (token string, err error) {
 		Token string `json:"token"`
 	}{}
 
-	err = unmarshal(response, &temp)
+	err = s.unmarshal(response, &temp)
 	if err != nil {
 		return
 	}
@@ -282,7 +281,7 @@ func (s *Session) User(userID string) (st *User, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -330,7 +329,7 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -342,7 +341,7 @@ func (s *Session) UserSettings() (st *Settings, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -363,7 +362,7 @@ func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -374,7 +373,7 @@ func (s *Session) UserConnections() (conn []*UserConnection, err error) {
 		return nil, err
 	}
 
-	err = unmarshal(response, &conn)
+	err = s.unmarshal(response, &conn)
 	if err != nil {
 		return
 	}
@@ -391,7 +390,7 @@ func (s *Session) UserChannels() (st []*Channel, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -408,7 +407,7 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -441,7 +440,7 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string) (st []*UserGui
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -455,7 +454,7 @@ func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSetti
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -584,7 +583,7 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -596,7 +595,7 @@ func (s *Session) GuildPreview(guildID string) (st *GuildPreview, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -613,7 +612,7 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -655,7 +654,7 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -668,7 +667,7 @@ func (s *Session) GuildDelete(guildID string) (st *Guild, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -690,7 +689,7 @@ func (s *Session) GuildBans(guildID string) (st []*GuildBan, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -711,7 +710,7 @@ func (s *Session) GuildBan(guildID, userID string) (st *GuildBan, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -777,7 +776,7 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -791,7 +790,7 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -950,7 +949,7 @@ func (s *Session) GuildChannels(guildID string) (st []*Channel, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -978,7 +977,7 @@ func (s *Session) GuildChannelCreateComplex(guildID string, data GuildChannelCre
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1020,7 +1019,7 @@ func (s *Session) GuildInvites(guildID string) (st []*Invite, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1033,7 +1032,7 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return // TODO return pointer
 }
@@ -1047,7 +1046,7 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -1081,7 +1080,7 @@ func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist b
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -1096,7 +1095,7 @@ func (s *Session) GuildRoleReorder(guildID string, roles []*Role) (st []*Role, e
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -1133,7 +1132,7 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 		return
 	}
 
-	err = unmarshal(body, &p)
+	err = s.unmarshal(body, &p)
 	if err != nil {
 		return
 	}
@@ -1169,7 +1168,7 @@ func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err err
 		return
 	}
 
-	err = unmarshal(body, &p)
+	err = s.unmarshal(body, &p)
 	if err != nil {
 		return
 	}
@@ -1188,7 +1187,7 @@ func (s *Session) GuildIntegrations(guildID string) (st []*Integration, err erro
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -1298,7 +1297,7 @@ func (s *Session) GuildEmbed(guildID string) (st *GuildEmbed, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1344,7 +1343,7 @@ func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, li
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1357,7 +1356,7 @@ func (s *Session) GuildEmojis(guildID string) (emoji []*Emoji, err error) {
 		return
 	}
 
-	err = unmarshal(body, &emoji)
+	err = s.unmarshal(body, &emoji)
 	return
 }
 
@@ -1379,7 +1378,7 @@ func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) 
 		return
 	}
 
-	err = unmarshal(body, &emoji)
+	err = s.unmarshal(body, &emoji)
 	return
 }
 
@@ -1400,7 +1399,7 @@ func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) 
 		return
 	}
 
-	err = unmarshal(body, &emoji)
+	err = s.unmarshal(body, &emoji)
 	return
 }
 
@@ -1425,7 +1424,7 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1447,7 +1446,7 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *C
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1460,7 +1459,7 @@ func (s *Session) ChannelDelete(channelID string) (st *Channel, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1506,7 +1505,7 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1520,7 +1519,7 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 		return
 	}
 
-	err = unmarshal(response, &st)
+	err = s.unmarshal(response, &st)
 	return
 }
 
@@ -1535,7 +1534,7 @@ func (s *Session) ChannelMessageAck(channelID, messageID, lastToken string) (st 
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1577,7 +1576,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		bodywriter := multipart.NewWriter(body)
 
 		var payload []byte
-		payload, err = json.Marshal(data)
+		payload, err = s.MarshalFunc(data)
 		if err != nil {
 			return
 		}
@@ -1629,7 +1628,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 		return
 	}
 
-	err = unmarshal(response, &st)
+	err = s.unmarshal(response, &st)
 	return
 }
 
@@ -1684,7 +1683,7 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit) (st *Message, err er
 		return
 	}
 
-	err = unmarshal(response, &st)
+	err = s.unmarshal(response, &st)
 	return
 }
 
@@ -1760,7 +1759,7 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1791,7 +1790,7 @@ func (s *Session) ChannelInvites(channelID string) (st []*Invite, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1812,7 +1811,7 @@ func (s *Session) ChannelInviteCreate(channelID string, i Invite) (st *Invite, e
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1853,7 +1852,7 @@ func (s *Session) ChannelMessageCrosspost(channelID, messageID string) (st *Mess
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1873,7 +1872,7 @@ func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFoll
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1890,7 +1889,7 @@ func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1903,7 +1902,7 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1916,7 +1915,7 @@ func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1929,7 +1928,7 @@ func (s *Session) InviteAccept(inviteID string) (st *Invite, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1945,7 +1944,7 @@ func (s *Session) VoiceRegions() (st []*VoiceRegion, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1957,7 +1956,7 @@ func (s *Session) VoiceICE() (st *VoiceICE, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -1977,7 +1976,7 @@ func (s *Session) Gateway() (gateway string, err error) {
 		URL string `json:"url"`
 	}{}
 
-	err = unmarshal(response, &temp)
+	err = s.unmarshal(response, &temp)
 	if err != nil {
 		return
 	}
@@ -2001,7 +2000,7 @@ func (s *Session) GatewayBot() (st *GatewayBotResponse, err error) {
 		return
 	}
 
-	err = unmarshal(response, &st)
+	err = s.unmarshal(response, &st)
 	if err != nil {
 		return
 	}
@@ -2033,7 +2032,7 @@ func (s *Session) WebhookCreate(channelID, name, avatar string) (st *Webhook, er
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2047,7 +2046,7 @@ func (s *Session) ChannelWebhooks(channelID string) (st []*Webhook, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2061,7 +2060,7 @@ func (s *Session) GuildWebhooks(guildID string) (st []*Webhook, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2075,7 +2074,7 @@ func (s *Session) Webhook(webhookID string) (st *Webhook, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2090,7 +2089,7 @@ func (s *Session) WebhookWithToken(webhookID, token string) (st *Webhook, err er
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2112,7 +2111,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string) (st *Ro
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2134,7 +2133,7 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string) (s
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2158,7 +2157,7 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 
 	return
 }
@@ -2180,7 +2179,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 		bodywriter := multipart.NewWriter(body)
 
 		var payload []byte
-		payload, err = json.Marshal(data)
+		payload, err = s.MarshalFunc(data)
 		if err != nil {
 			return
 		}
@@ -2232,7 +2231,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 		return
 	}
 
-	err = unmarshal(response, &st)
+	err = s.unmarshal(response, &st)
 	return
 }
 
@@ -2248,7 +2247,7 @@ func (s *Session) WebhookMessage(webhookID, token, messageID string) (message *M
 		return
 	}
 
-	err = json.Unmarshal(body, &message)
+	err = s.UnmarshalFunc(body, &message)
 
 	return
 }
@@ -2360,7 +2359,7 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -2389,7 +2388,7 @@ func (s *Session) RelationshipsGet() (r []*Relationship, err error) {
 		return
 	}
 
-	err = unmarshal(body, &r)
+	err = s.unmarshal(body, &r)
 	return
 }
 
@@ -2440,7 +2439,7 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 		return
 	}
 
-	err = unmarshal(body, &mf)
+	err = s.unmarshal(body, &mf)
 	return
 }
 
@@ -2463,7 +2462,7 @@ func (s *Session) ApplicationCommandCreate(appID string, guildID string, cmd *Ap
 		return
 	}
 
-	err = unmarshal(body, &ccmd)
+	err = s.unmarshal(body, &ccmd)
 
 	return
 }
@@ -2484,7 +2483,7 @@ func (s *Session) ApplicationCommandEdit(appID, guildID, cmdID string, cmd *Appl
 		return
 	}
 
-	err = unmarshal(body, &updated)
+	err = s.unmarshal(body, &updated)
 
 	return
 }
@@ -2503,7 +2502,7 @@ func (s *Session) ApplicationCommandBulkOverwrite(appID string, guildID string, 
 		return
 	}
 
-	err = unmarshal(body, &createdCommands)
+	err = s.unmarshal(body, &createdCommands)
 
 	return
 }
@@ -2538,7 +2537,7 @@ func (s *Session) ApplicationCommand(appID, guildID, cmdID string) (cmd *Applica
 		return
 	}
 
-	err = unmarshal(body, &cmd)
+	err = s.unmarshal(body, &cmd)
 
 	return
 }
@@ -2557,7 +2556,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 		return
 	}
 
-	err = unmarshal(body, &cmd)
+	err = s.unmarshal(body, &cmd)
 
 	return
 }

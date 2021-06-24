@@ -104,6 +104,18 @@ type Session struct {
 	// used to deal with rate limits
 	Ratelimiter *RateLimiter
 
+	// The function used to encode object instances
+	// into JSON data
+	//
+	// Defaults to json.Marshal
+	MarshalFunc MarshalFunc
+
+	// The function used to decode JSON data into
+	// object instances
+	//
+	// Defaults to json.Unmarshal
+	UnmarshalFunc UnmarshalFunc
+
 	// Event handlers
 	handlersMu   sync.RWMutex
 	handlers     map[string][]*eventHandlerInstance

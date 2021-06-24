@@ -11,7 +11,6 @@ package discordgo
 
 import (
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"net"
 	"strconv"
@@ -400,7 +399,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 	v.log(LogDebug, "received: %s", string(message))
 
 	var e Event
-	if err := json.Unmarshal(message, &e); err != nil {
+	if err := v.session.UnmarshalFunc(message, &e); err != nil {
 		v.log(LogError, "unmarshall error, %s", err)
 		return
 	}
@@ -409,7 +408,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 	case 2: // READY
 
-		if err := json.Unmarshal(e.RawData, &v.op2); err != nil {
+		if err := v.session.UnmarshalFunc(e.RawData, &v.op2); err != nil {
 			v.log(LogError, "OP2 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
@@ -452,7 +451,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		defer v.Unlock()
 
 		v.op4 = voiceOP4{}
-		if err := json.Unmarshal(e.RawData, &v.op4); err != nil {
+		if err := v.session.UnmarshalFunc(e.RawData, &v.op4); err != nil {
 			v.log(LogError, "OP4 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
@@ -464,7 +463,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		}
 
 		voiceSpeakingUpdate := &VoiceSpeakingUpdate{}
-		if err := json.Unmarshal(e.RawData, voiceSpeakingUpdate); err != nil {
+		if err := v.session.UnmarshalFunc(e.RawData, voiceSpeakingUpdate); err != nil {
 			v.log(LogError, "OP5 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}

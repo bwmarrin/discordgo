@@ -116,7 +116,7 @@ func (s *Session) Open() error {
 	s.log(LogInformational, "Op 10 Hello Packet received from Discord")
 	s.LastHeartbeatAck = time.Now().UTC()
 	var h helloOp
-	if err = json.Unmarshal(e.RawData, &h); err != nil {
+	if err = s.UnmarshalFunc(e.RawData, &h); err != nil {
 		err = fmt.Errorf("error unmarshalling helloOp, %s", err)
 		return err
 	}
@@ -581,7 +581,7 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 		e.Struct = eh.New()
 
 		// Attempt to unmarshal our event.
-		if err = json.Unmarshal(e.RawData, e.Struct); err != nil {
+		if err = s.UnmarshalFunc(e.RawData, e.Struct); err != nil {
 			s.log(LogError, "error unmarshalling %s event, %s", e.Type, err)
 		}
 

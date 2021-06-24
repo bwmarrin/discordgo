@@ -10,7 +10,6 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 )
@@ -35,7 +34,7 @@ type RESTError struct {
 	Message *APIErrorMessage // Message may be nil.
 }
 
-func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTError {
+func (s *Session) newRestError(req *http.Request, resp *http.Response, body []byte) *RESTError {
 	restErr := &RESTError{
 		Request:      req,
 		Response:     resp,
@@ -44,7 +43,7 @@ func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTErro
 
 	// Attempt to decode the error and assume no message was provided if it fails
 	var msg *APIErrorMessage
-	err := json.Unmarshal(body, &msg)
+	err := s.UnmarshalFunc(body, &msg)
 	if err == nil {
 		restErr.Message = msg
 	}
@@ -55,3 +54,9 @@ func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTErro
 func (r RESTError) Error() string {
 	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
 }
+
+// MarshalFunc encodes an object instance into JSON byte data.
+type MarshalFunc func(v interface{}) (data []byte, err error)
+
+// UnmarshalFunc decodes JSON byte data into an object instance.
+type UnmarshalFunc func(data []byte, v interface{}) (err error)

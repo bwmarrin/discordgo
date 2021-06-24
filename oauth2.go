@@ -66,7 +66,7 @@ func (s *Session) Application(appID string) (st *Application, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -78,7 +78,7 @@ func (s *Session) Applications() (st []*Application, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -98,7 +98,7 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -117,7 +117,7 @@ func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Applicat
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }
 
@@ -148,7 +148,7 @@ func (s *Session) ApplicationAssets(appID string) (ass []*Asset, err error) {
 		return
 	}
 
-	err = unmarshal(body, &ass)
+	err = s.unmarshal(body, &ass)
 	return
 }
 
@@ -168,6 +168,6 @@ func (s *Session) ApplicationBotCreate(appID string) (st *User, err error) {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = s.unmarshal(body, &st)
 	return
 }

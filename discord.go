@@ -14,6 +14,7 @@
 package discordgo
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -65,6 +66,8 @@ func New(args ...interface{}) (s *Session, err error) {
 		UserAgent:              "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
 		sequence:               new(int64),
 		LastHeartbeatAck:       time.Now().UTC(),
+		MarshalFunc:            json.Marshal,
+		UnmarshalFunc:          json.Unmarshal,
 	}
 
 	// Initilize the Identify Package with defaults
