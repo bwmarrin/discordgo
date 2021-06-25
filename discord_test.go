@@ -7,8 +7,6 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,8 +23,6 @@ var (
 )
 
 func init() {
-	godotenv.Load()
-
 	fmt.Println("Init is being called.")
 	if envBotToken != "" {
 		if d, err := New(envBotToken); err == nil {
