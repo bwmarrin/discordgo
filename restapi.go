@@ -31,7 +31,7 @@ import (
 
 // All error constants
 var (
-	ErrJSONUnmarshal           = errors.New("json s.unmarshal")
+	ErrJSONUnmarshal           = errors.New("json unmarshal")
 	ErrStatusOffline           = errors.New("You can't set your Status to offline")
 	ErrVerificationLevelBounds = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
 	ErrPruneDaysBounds         = errors.New("the number of days should be more than or equal to 1")
@@ -150,7 +150,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		rl := TooManyRequests{}
 		err = s.UnmarshalFunc(response, &rl)
 		if err != nil {
-			s.log(LogError, "rate limit s.unmarshal error, %s", err)
+			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
 		}
 		s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
