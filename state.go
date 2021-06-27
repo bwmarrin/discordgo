@@ -655,6 +655,9 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Author != nil {
 				m.Author = message.Author
 			}
+			if message.Components != nil {
+				m.Components = message.Components
+			}
 
 			return nil
 		}

@@ -32,6 +32,7 @@ type WebhookParams struct {
 	AvatarURL       string                  `json:"avatar_url,omitempty"`
 	TTS             bool                    `json:"tts,omitempty"`
 	Files           []*File                 `json:"-"`
+	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
@@ -39,6 +40,7 @@ type WebhookParams struct {
 // WebhookEdit stores data for editing of a webhook message.
 type WebhookEdit struct {
 	Content         string                  `json:"content,omitempty"`
+	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
