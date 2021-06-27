@@ -78,7 +78,7 @@ type Interaction struct {
 	ChannelID string          `json:"channel_id"`
 
 	// The message on which interaction was used.
-	// NOTE: this field is only filled when the button click interaction triggered. Otherwise it will be nil.
+	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
 	Message *Message `json:"message"`
 
 	// The member who invoked this interaction.
@@ -132,12 +132,14 @@ func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	return nil
 }
 
-// MessageComponentData is helper function to convert InteractionData to MessageComponentInteractionData.
+// MessageComponentData is helper function to assert the inner InteractionData to MessageComponentInteractionData.
+// Make sure to check that the Type of the interaction is InteractionMessageComponent before calling.
 func (i Interaction) MessageComponentData() (data MessageComponentInteractionData) {
 	return i.Data.(MessageComponentInteractionData)
 }
 
-// ApplicationCommandData is helper function to convert InteractionData to ApplicationCommandInteractionData.
+// ApplicationCommandData is helper function to assert the inner InteractionData to ApplicationCommandInteractionData.
+// Make sure to check that the Type of the interaction is InteractionApplicationCommand before calling.
 func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractionData) {
 	return i.Data.(ApplicationCommandInteractionData)
 }
@@ -318,7 +320,7 @@ const (
 	InteractionResponseDeferredChannelMessageWithSource InteractionResponseType = 5
 	// InteractionResponseDeferredMessageUpdate acknowledges that the message component interaction event was received, and message will be updated later.
 	InteractionResponseDeferredMessageUpdate InteractionResponseType = 6
-	// InteractionResponseUpdateMessage is for updating the message to which message component was attached to.
+	// InteractionResponseUpdateMessage is for updating the message to which message component was attached.
 	InteractionResponseUpdateMessage InteractionResponseType = 7
 )
 

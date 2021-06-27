@@ -61,7 +61,7 @@ func main() {
 										Label:    "I don't know",
 										Style:    discordgo.LinkButton,
 										Disabled: false,
-										// Link buttons doesn't require CustomID and does not trigger the gateway/HTTP event
+										// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
 										URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 										Emoji: discordgo.ButtonEmoji{
 											Name: "🤷",
@@ -105,7 +105,7 @@ func main() {
 		}
 
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Buttons also may update the message which they was attached to.
+			// Buttons also may update the message which to which they are attached.
 			// Or may just acknowledge (InteractionResponseDeferredMessageUpdate) that the event was received and not update the message.
 			// To update it later you need to use interaction response edit endpoint.
 			Type: discordgo.InteractionResponseUpdateMessage,
