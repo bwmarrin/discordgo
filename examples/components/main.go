@@ -120,7 +120,7 @@ func main() {
 									Style:    discordgo.LinkButton,
 									Disabled: false,
 									// Link buttons doesn't require CustomID and does not trigger the gateway/HTTP event
-									Link: "https://discord.dev/interactions/message-components",
+									URL: "https://discord.dev/interactions/message-components",
 									Emoji: discordgo.ComponentEmoji{
 										Name: "🤷",
 									},
@@ -134,7 +134,7 @@ func main() {
 									Label:    "Ask the question in #buttons on Discord Developers server",
 									Style:    discordgo.LinkButton,
 									Disabled: false,
-									Link:     "https://discord.gg/discord-developers",
+									URL:      "https://discord.gg/discord-developers",
 								},
 							},
 						},
