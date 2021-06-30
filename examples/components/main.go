@@ -90,7 +90,7 @@ func main() {
 		defer pollVotesMtx.Unlock()
 		pollVotes = make(map[string]MessageVoteStats)
 	})
-	// Buttons are part of interactions, so we register InteractionCreate handler
+	// Components are part of interactions, so we register InteractionCreate handler
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if i.Type == discordgo.InteractionApplicationCommand {
 			var data *discordgo.InteractionResponseData

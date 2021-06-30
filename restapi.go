@@ -2315,23 +2315,6 @@ func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err 
 	return
 }
 
-// WebhookMessage retrieves and returnes the message sent by a webhook.
-// webhookID : The webhook ID
-// token     : The auth token for the webhook
-// messageID : The ID of a message to retrieve
-func (s *Session) WebhookMessage(webhookID, token, messageID string) (st *Message, err error) {
-	uri := EndpointWebhookMessage(webhookID, token, messageID)
-
-	response, err := s.RequestWithBucketID("GET", uri, nil, uri)
-
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(response, &st)
-	return
-}
-
 // MessageReactionAdd creates an emoji reaction to a message.
 // channelID : The channel ID.
 // messageID : The message ID.
