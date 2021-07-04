@@ -175,7 +175,7 @@ var (
 						Reader:      strings.NewReader("Hello Discord!!"),
 					},
 				},
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
 				},
 			})
