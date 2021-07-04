@@ -107,7 +107,7 @@ var (
 					Description: "Subcommands group",
 					Options: []*discordgo.ApplicationCommandOption{
 						// Also, subcommand groups aren't capable of
-						// containg options, by the name of them, you can see
+						// containing options, by the name of them, you can see
 						// they can only contain subcommands
 						{
 							Name:        "nst-subcmd",
@@ -139,19 +139,11 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Choices: []*discordgo.ApplicationCommandOptionChoice{
 						{
-							Name:  "Acknowledge",
-							Value: 2,
-						},
-						{
-							Name:  "Channel message",
-							Value: 3,
-						},
-						{
 							Name:  "Channel message with source",
 							Value: 4,
 						},
 						{
-							Name:  "Acknowledge with source",
+							Name:  "Deferred response With Source",
 							Value: 5,
 						},
 					},
@@ -168,7 +160,7 @@ var (
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
 				},
 			})
@@ -194,9 +186,9 @@ var (
 				// Also, as you can see, here is used utility functions to convert the value
 				// to particular type. Yeah, you can use just switch type,
 				// but this is much simpler
-				i.Data.Options[0].StringValue(),
-				i.Data.Options[1].IntValue(),
-				i.Data.Options[2].BoolValue(),
+				i.ApplicationCommandData().Options[0].StringValue(),
+				i.ApplicationCommandData().Options[1].IntValue(),
+				i.ApplicationCommandData().Options[2].BoolValue(),
 			}
 			msgformat :=
 				` Now you just learned how to use command options. Take a look to the value of which you've just entered:
@@ -204,22 +196,22 @@ var (
 				> integer_option: %d
 				> bool_option: %v
 `
-			if len(i.Data.Options) >= 4 {
-				margs = append(margs, i.Data.Options[3].ChannelValue(nil).ID)
+			if len(i.ApplicationCommandData().Options) >= 4 {
+				margs = append(margs, i.ApplicationCommandData().Options[3].ChannelValue(nil).ID)
 				msgformat += "> channel-option: <#%s>\n"
 			}
-			if len(i.Data.Options) >= 5 {
-				margs = append(margs, i.Data.Options[4].UserValue(nil).ID)
+			if len(i.ApplicationCommandData().Options) >= 5 {
+				margs = append(margs, i.ApplicationCommandData().Options[4].UserValue(nil).ID)
 				msgformat += "> user-option: <@%s>\n"
 			}
-			if len(i.Data.Options) >= 6 {
-				margs = append(margs, i.Data.Options[5].RoleValue(nil, "").ID)
+			if len(i.ApplicationCommandData().Options) >= 6 {
+				margs = append(margs, i.ApplicationCommandData().Options[5].RoleValue(nil, "").ID)
 				msgformat += "> role-option: <@&%s>\n"
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				// Ignore type for now, we'll discuss them in "responses" part
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf(
 						msgformat,
 						margs...,
@@ -232,15 +224,15 @@ var (
 
 			// As you can see, the name of subcommand (nested, top-level) or subcommand group
 			// is provided through arguments.
-			switch i.Data.Options[0].Name {
+			switch i.ApplicationCommandData().Options[0].Name {
 			case "subcmd":
 				content =
 					"The top-level subcommand is executed. Now try to execute the nested one."
 			default:
-				if i.Data.Options[0].Name != "scmd-grp" {
+				if i.ApplicationCommandData().Options[0].Name != "scmd-grp" {
 					return
 				}
-				switch i.Data.Options[0].Options[0].Name {
+				switch i.ApplicationCommandData().Options[0].Options[0].Name {
 				case "nst-subcmd":
 					content = "Nice, now you know how to execute nested commands too"
 				default:
@@ -251,7 +243,7 @@ var (
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
@@ -266,13 +258,7 @@ var (
 			content := ""
 			// As you can see, the response type names used here are pretty self-explanatory,
 			// but for those who want more information see the official documentation
-			switch i.Data.Options[0].IntValue() {
-			case int64(discordgo.InteractionResponseChannelMessage):
-				content =
-					"Well, you just responded to an interaction, and sent a message.\n" +
-						"That's all what I wanted to say, yeah."
-				content +=
-					"\nAlso... you can edit your response, wait 5 seconds and this message will be changed"
+			switch i.ApplicationCommandData().Options[0].IntValue() {
 			case int64(discordgo.InteractionResponseChannelMessageWithSource):
 				content =
 					"You just responded to an interaction, sent a message and showed the original one. " +
@@ -281,7 +267,7 @@ var (
 					"\nAlso... you can edit your response, wait 5 seconds and this message will be changed"
 			default:
 				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseType(i.Data.Options[0].IntValue()),
+					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
 					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
@@ -292,8 +278,8 @@ var (
 			}
 
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseType(i.Data.Options[0].IntValue()),
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
+				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
@@ -326,7 +312,7 @@ var (
 
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
+				Data: &discordgo.InteractionResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
 					// This flag just allows you to create messages visible only for the caller of the command
 					// (user who triggered the command)
@@ -364,7 +350,7 @@ var (
 
 func init() {
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := commandHandlers[i.Data.Name]; ok {
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})

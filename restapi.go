@@ -176,7 +176,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 func unmarshal(data []byte, v interface{}) error {
 	err := json.Unmarshal(data, v)
 	if err != nil {
-		return ErrJSONUnmarshal
+		return fmt.Errorf("%w: %s", ErrJSONUnmarshal, err)
 	}
 
 	return nil
@@ -2148,6 +2148,23 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 	return
 }
 
+// WebhookMessage gets a webhook message.
+// webhookID : The ID of a webhook
+// token     : The auth token for the webhook
+// messageID : The ID of message to get
+func (s *Session) WebhookMessage(webhookID, token, messageID string) (message *Message, err error) {
+	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointWebhookToken("", ""))
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(body, &message)
+
+	return
+}
+
 // WebhookMessageEdit edits a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
@@ -2391,6 +2408,25 @@ func (s *Session) ApplicationCommandEdit(appID, guildID, cmdID string, cmd *Appl
 	return
 }
 
+// ApplicationCommandBulkOverwrite Creates commands overwriting existing commands. Returns a list of commands.
+// appID    : The application ID.
+// commands : The commands to create.
+func (s *Session) ApplicationCommandBulkOverwrite(appID string, guildID string, commands []*ApplicationCommand) (createdCommands []*ApplicationCommand, err error) {
+	endpoint := EndpointApplicationGlobalCommands(appID)
+	if guildID != "" {
+		endpoint = EndpointApplicationGuildCommands(appID, guildID)
+	}
+
+	body, err := s.RequestWithBucketID("PUT", endpoint, commands, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &createdCommands)
+
+	return
+}
+
 // ApplicationCommandDelete deletes application command by ID.
 // appID       : The application ID.
 // cmdID       : Application command ID to delete.
@@ -2463,6 +2499,13 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 		_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
 	}
 	return err
+}
+
+// InteractionResponse gets the response to an interaction.
+// appID       : The application ID.
+// interaction : Interaction instance.
+func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*Message, error) {
+	return s.WebhookMessage(appID, interaction.Token, "@original")
 }
 
 // InteractionResponseEdit edits the response to an interaction.

@@ -14,7 +14,7 @@ A bot application is a special program that interacts with the Discord servers
 to perform some form of automation or provide some type of service.  Examples 
 are things like number trivia games, music streaming, channel moderation, 
 sending reminders, playing loud airhorn sounds, comic generators, YouTube 
-integration, Twitch integration.. You're *almost* only limited by your imagination.
+integration, Twitch integration... You're *almost* only limited by your imagination.
 
 Bot applications require the use of a special Bot account.  These accounts are
 tied to your personal user account. Bot accounts cannot login with the normal
@@ -28,26 +28,26 @@ page and click on the **New Application** box.  Follow the prompts from there
 to finish creating your account.
 
 
-**More information about Bots vs Client accounts can be found [here](https://discord.com/developers/docs/topics/oauth2#bot-vs-user-accounts)**
+**More information about Bot vs Client accounts can be found [here](https://discord.com/developers/docs/topics/oauth2#bot-vs-user-accounts).**
 
 # Requirements
 
 DiscordGo requires Go version 1.4 or higher.  It has been tested to compile and
 run successfully on Debian Linux 8, FreeBSD 10, and Windows 7.  It is expected 
 that it should work anywhere Go 1.4 or higher works. If you run into problems
-please let us know :)
+please let us know :).
 
 You must already have a working Go environment setup to use DiscordGo.  If you 
 are new to Go and have not yet installed and tested it on your computer then 
 please visit [this page](https://golang.org/doc/install) first then I highly
 recommend you walk though [A Tour of Go](https://tour.golang.org/welcome/1) to
 help get your familiar with the Go language.  Also checkout the relevent Go plugin 
-for your editor - they are hugely helpful when developing Go code.
+for your editor &mdash; they are hugely helpful when developing Go code.
 
-* Vim - [vim-go](https://github.com/fatih/vim-go)
-* Sublime - [GoSublime](https://github.com/DisposaBoy/GoSublime)
-* Atom - [go-plus](https://atom.io/packages/go-plus)
-* Visual Studio - [vscode-go](https://github.com/Microsoft/vscode-go)
+* Vim &mdash; [vim-go](https://github.com/fatih/vim-go)
+* Sublime &mdash; [GoSublime](https://github.com/DisposaBoy/GoSublime)
+* Atom &mdash; [go-plus](https://atom.io/packages/go-plus)
+* Visual Studio &mdash; [vscode-go](https://github.com/Microsoft/vscode-go)
 
 
 # Install DiscordGo
