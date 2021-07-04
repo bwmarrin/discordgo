@@ -1571,7 +1571,7 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 
 	var response []byte
 	if len(files) > 0 {
-		contentType, body, encodeErr := EncodeWithFiles(data, files)
+		contentType, body, encodeErr := MultipartBodyWithJSON(data, files)
 		if encodeErr != nil {
 			return st, encodeErr
 		}
@@ -2131,7 +2131,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 
 	var response []byte
 	if len(data.Files) > 0 {
-		contentType, body, encodeErr := EncodeWithFiles(data, data.Files)
+		contentType, body, encodeErr := MultipartBodyWithJSON(data, data.Files)
 		if encodeErr != nil {
 			return st, encodeErr
 		}
@@ -2155,7 +2155,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
 	if len(data.Files) > 0 {
-		contentType, body, err := EncodeWithFiles(data, data.Files)
+		contentType, body, err := MultipartBodyWithJSON(data, data.Files)
 		if err != nil {
 			return err
 		}
@@ -2453,7 +2453,7 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if len(resp.Files) > 0 {
-		contentType, body, err := EncodeWithFiles(resp, resp.Files)
+		contentType, body, err := MultipartBodyWithJSON(resp, resp.Files)
 		if err != nil {
 			return err
 		}
