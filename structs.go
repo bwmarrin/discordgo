@@ -1087,7 +1087,7 @@ type UserGuildSettingsEdit struct {
 	Muted                bool                                         `json:"muted"`
 	MobilePush           bool                                         `json:"mobile_push"`
 	MessageNotifications int                                          `json:"message_notifications"`
-	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
+	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
 // An APIErrorMessage is an api error message returned from discord
