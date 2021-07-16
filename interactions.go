@@ -38,6 +38,7 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
+	ApplicationCommandOptionNumber          ApplicationCommandOptionType = 10
 )
 
 // ApplicationCommandOption represents an option/subcommand/subcommands group.
