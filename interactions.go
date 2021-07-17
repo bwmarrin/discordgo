@@ -326,9 +326,8 @@ const (
 
 // InteractionResponse represents a response for an interaction event.
 type InteractionResponse struct {
-	Type  InteractionResponseType  `json:"type,omitempty"`
-	Files []*File                  `json:"-"`
-	Data  *InteractionResponseData `json:"data,omitempty"`
+	Type InteractionResponseType  `json:"type,omitempty"`
+	Data *InteractionResponseData `json:"data,omitempty"`
 }
 
 // InteractionResponseData is response data for an interaction.
@@ -341,6 +340,8 @@ type InteractionResponseData struct {
 
 	// NOTE: Undocumented feature, be careful with it.
 	Flags uint64 `json:"flags,omitempty"`
+
+	Files []*File `json:"-"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api

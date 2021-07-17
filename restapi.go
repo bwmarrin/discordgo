@@ -2488,8 +2488,8 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
-	if len(resp.Files) > 0 {
-		contentType, body, err := MultipartBodyWithJSON(resp, resp.Files)
+	if resp.Data != nil && len(resp.Data.Files) > 0 {
+		contentType, body, err := MultipartBodyWithJSON(resp, resp.Data.Files)
 		if err != nil {
 			return err
 		}
