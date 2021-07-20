@@ -345,11 +345,15 @@ func main() {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
+	var registeredCommands []*discordgo.ApplicationCommand
+
 	for _, v := range commands {
-		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		log.Printf("Register command: %s\n", v.Name)
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
+		registeredCommands = append(registeredCommands, cmd)
 	}
 
 	defer s.Close()
@@ -357,5 +361,14 @@ func main() {
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
-	log.Println("Gracefully shutdowning")
+	log.Println("Gracefully shutting down")
+	if RemoveCommands != nil && *RemoveCommands {
+		for _, cmd := range registeredCommands {
+			log.Printf("Unregister command: %s\n", cmd.Name)
+			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, cmd.ID)
+			if err != nil {
+				log.Panicf("Cannot unregister command '%s' command: %v", cmd.Name, err)
+			}
+		}
+	}
 }
