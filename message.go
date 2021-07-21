@@ -209,7 +209,7 @@ type MessageEdit struct {
 	Components      []MessageComponent      `json:"components"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           MessageFlags            `json:"flags"`
+	Flags           MessageFlags            `json:"flags,omitempty"`
 
 	ID      string
 	Channel string
