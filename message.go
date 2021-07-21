@@ -174,7 +174,7 @@ type MessageFlags int
 const (
 	MessageFlagsCrossPosted          MessageFlags = 1 << 0
 	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
-	// Deprecated, use MessageFlagsSuppressEmbeds
+	// Deprecated: use MessageFlagsSuppressEmbeds
 	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
 	MessageFlagsSuppressEmbeds       MessageFlags = 1 << 2
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
