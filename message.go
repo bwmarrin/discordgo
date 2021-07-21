@@ -174,7 +174,9 @@ type MessageFlags int
 const (
 	MessageFlagsCrossPosted          MessageFlags = 1 << 0
 	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
+	// Deprecated, use MessageFlagsSuppressEmbeds
 	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
+	MessageFlagsSuppressEmbeds       MessageFlags = 1 << 2
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
 	MessageFlagsUrgent               MessageFlags = 1 << 4
 )
@@ -207,6 +209,7 @@ type MessageEdit struct {
 	Components      []MessageComponent      `json:"components"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags            `json:"flags"`
 
 	ID      string
 	Channel string
@@ -232,6 +235,13 @@ func (m *MessageEdit) SetContent(str string) *MessageEdit {
 // so you can chain commands.
 func (m *MessageEdit) SetEmbed(embed *MessageEmbed) *MessageEdit {
 	m.Embed = embed
+	return m
+}
+
+// SuppressEmbeds is a convenience function that sets the
+// SUPPRESS_EMBEDS flag on the message.
+func (m *MessageEdit) SuppressEmbeds() *MessageEdit {
+	m.Flags = MessageFlagsSupressEmbeds
 	return m
 }
 
