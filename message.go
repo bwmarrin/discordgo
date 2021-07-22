@@ -238,13 +238,6 @@ func (m *MessageEdit) SetEmbed(embed *MessageEmbed) *MessageEdit {
 	return m
 }
 
-// SuppressEmbeds is a convenience function that sets the
-// SUPPRESS_EMBEDS flag on the message.
-func (m *MessageEdit) SuppressEmbeds() *MessageEdit {
-	m.Flags = MessageFlagsSupressEmbeds
-	return m
-}
-
 // AllowedMentionType describes the types of mentions used
 // in the MessageAllowedMentions type.
 type AllowedMentionType string
