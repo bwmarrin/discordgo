@@ -180,7 +180,9 @@ const (
 )
 
 // Deprecated: use MessageFlagsSuppressEmbeds
-const MessageFlagsSupressEmbeds MessageFlags = 1 << 2
+const (
+	MessageFlagsSupressEmbeds MessageFlags = 1 << 2
+)
 
 // File stores info about files you e.g. send in messages.
 type File struct {
