@@ -174,12 +174,13 @@ type MessageFlags int
 const (
 	MessageFlagsCrossPosted          MessageFlags = 1 << 0
 	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
-	// Deprecated: use MessageFlagsSuppressEmbeds
-	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
 	MessageFlagsSuppressEmbeds       MessageFlags = 1 << 2
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
 	MessageFlagsUrgent               MessageFlags = 1 << 4
 )
+
+// Deprecated: use MessageFlagsSuppressEmbeds
+const MessageFlagsSupressEmbeds MessageFlags = 1 << 2
 
 // File stores info about files you e.g. send in messages.
 type File struct {
