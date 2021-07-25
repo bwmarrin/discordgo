@@ -56,12 +56,12 @@ type Application struct {
 	Bot                 *User     `json:"bot"`
 	Team                *Team     `json:"team"`
 	VerifyKey           string    `json:"verify_key"`
-	RpcOrigins          *[]string `json:"rpc_origins,omitempty"`
-	TeamsOfServiceUrl   string    `json:"teams_of_service_url,omitempty"`
-	PrivacyPolicyUrl    string    `json:"privacy_policy_url,omitempty"`
+	RPCOrigins          *[]string `json:"rpc_origins,omitempty"`
+	TeamsOfServiceURL   string    `json:"teams_of_service_url,omitempty"`
+	PrivacyPolicyURL    string    `json:"privacy_policy_url,omitempty"`
 	Summary             string    `json:"summary"`
-	GuildId             string    `json:"guild_id,omitempty"`
-	PrimarySkuId        string    `json:"primary_sku_id,omitempty"`
+	GuildID             string    `json:"guild_id,omitempty"`
+	PrimarySkuID        string    `json:"primary_sku_id,omitempty"`
 	Slug                string    `json:"slug,omitempty"`
 	CoverImage          string    `json:"cover_image,omitempty"`
 }
