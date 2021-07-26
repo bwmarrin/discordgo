@@ -328,9 +328,7 @@ type InteractionResponseData struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
-
-	// NOTE: Undocumented feature, be careful with it.
-	Flags uint64 `json:"flags,omitempty"`
+	Flags           uint64                  `json:"flags,omitempty"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
