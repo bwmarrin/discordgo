@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"sort"
-	"sync"
+	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -31,96 +31,212 @@ func init() {
 	}
 }
 
-// MessageVoteStats represents user votes for a particular message
-type MessageVoteStats struct {
-	PeopleVoted map[string]string
-	Votes       map[string]int
-	Author      string
-}
+// Important note: call every command in order it's placed in the example.
 
-var pollVotes map[string]MessageVoteStats
-var pollVotesMtx sync.RWMutex
+var (
+	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"fd_no": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Huh. I see, maybe some of these resources might help you?",
+					Flags:   1 << 6,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "📜",
+									},
+									Label: "Documentation",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.com/developers/docs/interactions/message-components#buttons",
+								},
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🔧",
+									},
+									Label: "Discord developers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/discord-developers",
+								},
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🦫",
+									},
+									Label: "Discord Gophers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/7RuRrVHyXF",
+								},
+							},
+						},
+					},
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"fd_yes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Great! If you wanna know more or just have questions, feel free to visit Discord Devs and Discord Gophers server. " +
+						"But now, when you know how buttons work, let's move onto select menus (execute `/selects single`)",
+					Flags: 1 << 6,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🔧",
+									},
+									Label: "Discord developers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/discord-developers",
+								},
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🦫",
+									},
+									Label: "Discord Gophers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/7RuRrVHyXF",
+								},
+							},
+						},
+					},
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			var response *discordgo.InteractionResponse
 
-func constructVotesEmbed(stats MessageVoteStats) *discordgo.MessageEmbed {
-	var votes []struct {
-		label   string
-		count   int
-		percent float32
+			data := i.MessageComponentData()
+			switch data.Values[0] {
+			case "go":
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "This is the way.",
+						Flags:   1 << 6,
+					},
+				}
+			default:
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "It is not the way to go.",
+						Flags:   1 << 6,
+					},
+				}
+			}
+			err := s.InteractionRespond(i.Interaction, response)
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(time.Second) // Doing that so user won't see instant response.
+			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
+					"Try calling `/selects multi` command.",
+				Flags: 1 << 6,
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"stackoverflow_tags": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.MessageComponentData()
+
+			const stackoverflowFormat = `https://stackoverflow.com/questions/tagged/%s`
+
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Here is your stackoverflow link: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
+					Flags:   1 << 6,
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(time.Second) // Doing that so user won't see instant response.
+			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: "Now you know everything about select component. If you want to know more or ask a question - feel free to.",
+				Components: []discordgo.MessageComponent{
+					discordgo.ActionsRow{
+						Components: []discordgo.MessageComponent{
+							discordgo.Button{
+								Emoji: discordgo.ComponentEmoji{
+									Name: "📜",
+								},
+								Label: "Documentation",
+								Style: discordgo.LinkButton,
+								URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
+							},
+							discordgo.Button{
+								Emoji: discordgo.ComponentEmoji{
+									Name: "🔧",
+								},
+								Label: "Discord developers",
+								Style: discordgo.LinkButton,
+								URL:   "https://discord.gg/discord-developers",
+							},
+							discordgo.Button{
+								Emoji: discordgo.ComponentEmoji{
+									Name: "🦫",
+								},
+								Label: "Discord Gophers",
+								Style: discordgo.LinkButton,
+								URL:   "https://discord.gg/7RuRrVHyXF",
+							},
+						},
+					},
+				},
+				Flags: 1 << 6,
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
 	}
-	if len(stats.PeopleVoted) == 0 {
-		return &discordgo.MessageEmbed{
-			Fields: []*discordgo.MessageEmbedField{
-				{Name: "Go", Value: "Percentage: 0.0%\nPeople voted: 0"},
-				{Name: "JS", Value: "Percentage: 0.0%\nPeople voted: 0"},
-				{Name: "Python", Value: "Percentage: 0.0%\nPeople voted: 0"},
-			},
-			Color:  0xFFA1F0,
-			Footer: &discordgo.MessageEmbedFooter{Text: fmt.Sprintf("%d people voted", len(stats.PeopleVoted))},
-		}
-	}
-	for k, v := range stats.Votes {
-		votes = append(votes, struct {
-			label   string
-			count   int
-			percent float32
-		}{label: k, count: v, percent: (100.0 / float32(len(stats.PeopleVoted))) * float32(v)})
-	}
-	sort.Slice(votes, func(i, j int) bool { return votes[i].count > votes[j].count })
-
-	var fields []*discordgo.MessageEmbedField
-
-	for _, v := range votes {
-		fields = append(fields, &discordgo.MessageEmbedField{
-			Name:  v.label,
-			Value: fmt.Sprintf("Percentage: %.1f%%\nPeople voted: %d", v.percent, v.count),
-		})
-	}
-
-	return &discordgo.MessageEmbed{
-		Fields: fields,
-		Color:  0xFFA1F0,
-		Footer: &discordgo.MessageEmbedFooter{Text: fmt.Sprintf("%d people voted", len(stats.PeopleVoted))},
-	}
-}
-
-func main() {
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up!")
-		pollVotesMtx.Lock()
-		defer pollVotesMtx.Unlock()
-		pollVotes = make(map[string]MessageVoteStats)
-	})
-	// Components are part of interactions, so we register InteractionCreate handler
-	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if i.Type == discordgo.InteractionApplicationCommand {
-			var data *discordgo.InteractionResponseData
-			switch i.ApplicationCommandData().Name {
-			case "buttons":
-				data = &discordgo.InteractionResponseData{
-					Content: "Are you satisfied with Buttons?",
+	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"buttons": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Are you comfortable with buttons and other message components?",
+					Flags:   1 << 6,
 					// Buttons and other components are specified in Components field.
 					Components: []discordgo.MessageComponent{
 						// ActionRow is a container of all buttons within the same row.
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.Button{
-									Label:    "Yes",
-									Style:    discordgo.SuccessButton,
+									// Label is what the user will see on the button.
+									Label: "Yes",
+									// Style provides coloring of the button. There are not so many styles tho.
+									Style: discordgo.SuccessButton,
+									// Disabled allows bot to disable some buttons for users.
 									Disabled: false,
-									CustomID: "yes",
+									// CustomID is a thing telling Discord which data to send when this button will be pressed.
+									CustomID: "fd_yes",
 								},
 								discordgo.Button{
 									Label:    "No",
 									Style:    discordgo.DangerButton,
 									Disabled: false,
-									CustomID: "no",
+									CustomID: "fd_no",
 								},
 								discordgo.Button{
 									Label:    "I don't know",
 									Style:    discordgo.LinkButton,
 									Disabled: false,
-									// Link buttons doesn't require CustomID and does not trigger the gateway/HTTP event
-									URL: "https://discord.dev/interactions/message-components",
+									// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
+									URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 									Emoji: discordgo.ComponentEmoji{
 										Name: "🤷",
 									},
@@ -131,7 +247,7 @@ func main() {
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.Button{
-									Label:    "Ask the question in #buttons on Discord Developers server",
+									Label:    "Discord Developers server",
 									Style:    discordgo.LinkButton,
 									Disabled: false,
 									URL:      "https://discord.gg/discord-developers",
@@ -139,247 +255,156 @@ func main() {
 							},
 						},
 					},
-				}
-			case "poll":
-				data = &discordgo.InteractionResponseData{
-					TTS:     false,
-					Content: "What's your favorite most beloved programming languages?",
-					Components: []discordgo.MessageComponent{
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.SelectMenu{
-									CustomID:    "choice",
-									Placeholder: "Select your favorite language",
-									Options: []discordgo.SelectMenuOption{
-										{
-											Label:       "Go",
-											Value:       "Go",
-											Description: "Go programming language.",
-											Emoji:       discordgo.ComponentEmoji{},
-											Default:     false,
-										},
-										{
-											Label:       "JS",
-											Value:       "JS",
-											Description: "JavaScript programming language.",
-											Emoji:       discordgo.ComponentEmoji{},
-											Default:     false,
-										},
-										{
-											Label:       "Python",
-											Value:       "Python",
-											Description: "Python programming language.",
-											Emoji:       discordgo.ComponentEmoji{Name: ""},
-											Default:     false,
-										},
-									},
-								},
-							},
-						},
-					},
-					Flags: 0,
-				}
-			}
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: data,
+				},
 			})
 			if err != nil {
 				panic(err)
 			}
-			if i.ApplicationCommandData().Name == "poll" {
-				msg, err := s.InteractionResponse(*AppID, i.Interaction)
-				if err != nil {
-					panic(err)
-				}
-				pollVotesMtx.Lock()
-				defer pollVotesMtx.Unlock()
-				pollVotes[msg.ID] = MessageVoteStats{
-					Votes:       map[string]int{"Go": 0, "JS": 0, "Python": 0},
-					Author:      i.Member.User.ID,
-					PeopleVoted: make(map[string]string),
-				}
-				fmt.Println(pollVotes[msg.ID])
-			}
-			return
-		}
-		// Type for all components will be always InteractionMessageComponent
-		if i.Type != discordgo.InteractionMessageComponent {
-			return
-		}
-
-		// CustomID field contains the same id as when was sent. It's used to identify the which button was clicked.
-		switch i.MessageComponentData().CustomID {
-		case "yes", "no":
-			content := "Thanks for your feedback " + i.MessageComponentData().CustomID
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// Buttons also may update the message which they was attached to.
-				// Or may just acknowledge (InteractionResponseDeferredMessageUpdate) that the event was received and not update the message.
-				// To update it later you need to use interaction response edit endpoint.
-				Type: discordgo.InteractionResponseUpdateMessage,
-				Data: &discordgo.InteractionResponseData{
-					TTS:     false,
-					Content: content,
-					Flags:   1 << 6, // Ephemeral message
-				},
-			})
-		case "end_poll":
-			if i.Member.User.ID != pollVotes[i.Message.ID].Author {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		},
+		"selects": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			var response *discordgo.InteractionResponse
+			switch i.ApplicationCommandData().Options[0].Name {
+			case "single":
+				response = &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
-						Content: "You didn't start this poll, so you can't end it",
+						Content: "Now let's take a look on selects. This is single item select menu.",
 						Flags:   1 << 6,
-					},
-				})
-				return
-			}
-			pollVotesMtx.Lock()
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseUpdateMessage,
-				Data: &discordgo.InteractionResponseData{
-					Embeds:     []*discordgo.MessageEmbed{constructVotesEmbed(pollVotes[i.Message.ID])},
-					Components: []discordgo.MessageComponent{},
-				},
-			})
-			delete(pollVotes, i.Message.ID)
-			pollVotesMtx.Unlock()
-
-		case "choice":
-			pollVotesMtx.Lock()
-			defer pollVotesMtx.Unlock()
-			stats := pollVotes[i.Message.ID]
-			fmt.Println(stats)
-			if len(i.MessageComponentData().Values) == 0 {
-				stats.Votes[stats.PeopleVoted[i.Member.User.ID]]--
-				delete(stats.PeopleVoted, i.Member.User.ID)
-				pollVotes[i.Message.ID] = stats
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseUpdateMessage,
-					Data: &discordgo.InteractionResponseData{
-						Embeds: []*discordgo.MessageEmbed{
-							constructVotesEmbed(pollVotes[i.Message.ID]),
-						},
 						Components: []discordgo.MessageComponent{
 							discordgo.ActionsRow{
 								Components: []discordgo.MessageComponent{
 									discordgo.SelectMenu{
-										CustomID:    "choice",
-										Placeholder: "Select your favorite language",
+										// Select menu, as other components, must have a customID, so we set it to this value.
+										CustomID:    "select",
+										Placeholder: "Choose your favorite programming language 👇",
+										Options: []discordgo.SelectMenuOption{
+											{
+												Label: "Go",
+												// As with components, this things must have their own unique "id" to identify which is which.
+												// In this case such id is Value field.
+												Value: "go",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🦦",
+												},
+												// You can also make it a default option, but in this case we won't.
+												Default:     false,
+												Description: "Go programming language",
+											},
+											{
+												Label: "JS",
+												Value: "js",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🟨",
+												},
+												Description: "JavaScript programming language",
+											},
+											{
+												Label: "Python",
+												Value: "py",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🐍",
+												},
+												Description: "Python programming language",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+			case "multi":
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works:" +
+							"try generating your own stackoverflow search link",
+						Flags: 1 << 6,
+						Components: []discordgo.MessageComponent{
+							discordgo.ActionsRow{
+								Components: []discordgo.MessageComponent{
+									discordgo.SelectMenu{
+										CustomID:    "stackoverflow_tags",
+										Placeholder: "Select tags to search on StackOverflow",
+										// This is where confusion comes from. If you don't specify these things you will get single item select.
+										// These fields control the minimum and maximum amount of selected items.
+										MinValues: 1,
+										MaxValues: 3,
 										Options: []discordgo.SelectMenuOption{
 											{
 												Label:       "Go",
-												Value:       "Go",
-												Description: "Go programming language.",
-												Emoji:       discordgo.ComponentEmoji{},
-												Default:     false,
+												Description: "Simple yet powerful programming language",
+												Value:       "go",
+												// Default works the same for multi-select menus.
+												Default: false,
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🦦",
+												},
 											},
 											{
 												Label:       "JS",
+												Description: "Multiparadigm OOP language",
 												Value:       "javascript",
-												Description: "JavaScript programming language.",
-												Emoji:       discordgo.ComponentEmoji{},
-												Default:     false,
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🟨",
+												},
 											},
 											{
 												Label:       "Python",
-												Value:       "py",
-												Description: "Python programming language.",
-												Emoji:       discordgo.ComponentEmoji{Name: ""},
-												Default:     false,
+												Description: "OOP prototyping programming language",
+												Value:       "python",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🐍",
+												},
+											},
+											{
+												Label:       "Web",
+												Description: "Web related technologies",
+												Value:       "web",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🌐",
+												},
+											},
+											{
+												Label:       "Desktop",
+												Description: "Desktop applications",
+												Value:       "desktop",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "💻",
+												},
 											},
 										},
 									},
 								},
 							},
-							discordgo.ActionsRow{
-								Components: []discordgo.MessageComponent{
-									discordgo.Button{
-										Label:    "End the poll",
-										CustomID: "end_poll",
-										Style:    discordgo.DangerButton,
-										Disabled: false,
-									},
-								},
-							},
 						},
 					},
-				})
-				if err != nil {
-					panic(err)
 				}
-				return
-			}
-			if _, ok := stats.PeopleVoted[i.Member.User.ID]; ok {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "You already voted",
-						Flags:   1 << 6,
-					},
-				})
-				return
-			}
-			stats.PeopleVoted[i.Member.User.ID] = i.MessageComponentData().Values[0]
-			if stats.Votes == nil {
-				stats.Votes = map[string]int{"Go": 0, "Python": 0, "JS": 0}
-			}
 
-			stats.Votes[i.MessageComponentData().Values[0]]++
-			pollVotes[i.Message.ID] = stats
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseUpdateMessage,
-				Data: &discordgo.InteractionResponseData{
-					Embeds: []*discordgo.MessageEmbed{
-						constructVotesEmbed(pollVotes[i.Message.ID]),
-					},
-					Components: []discordgo.MessageComponent{
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.SelectMenu{
-									CustomID:    "choice",
-									Placeholder: "Select your favorite language",
-									Options: []discordgo.SelectMenuOption{
-										{
-											Label:       "Go",
-											Value:       "Go",
-											Description: "Go programming language.",
-											Emoji:       discordgo.ComponentEmoji{},
-											Default:     false,
-										},
-										{
-											Label:       "JS",
-											Value:       "JS",
-											Description: "JavaScript programming language.",
-											Emoji:       discordgo.ComponentEmoji{},
-											Default:     false,
-										},
-										{
-											Label:       "Python",
-											Value:       "Python",
-											Description: "Python programming language.",
-											Emoji:       discordgo.ComponentEmoji{Name: ""},
-											Default:     false,
-										},
-									},
-								},
-							},
-						},
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.Button{
-									Label:    "End the poll",
-									CustomID: "end_poll",
-									Style:    discordgo.DangerButton,
-									Disabled: false,
-								},
-							},
-						},
-					},
-				},
-			})
+			}
+			err := s.InteractionRespond(i.Interaction, response)
 			if err != nil {
 				panic(err)
+			}
+		},
+	}
+)
+
+func main() {
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Println("Bot is up!")
+	})
+	// Components are part of interactions, so we register InteractionCreate handler
+	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		switch i.Type {
+		case discordgo.InteractionApplicationCommand:
+			if h, ok := commandsHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
+		case discordgo.InteractionMessageComponent:
+
+			if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+				h(s, i)
 			}
 		}
 	})
@@ -392,7 +417,19 @@ func main() {
 		log.Fatalf("Cannot create slash command: %v", err)
 	}
 	_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
-		Name:        "poll",
+		Name: "selects",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+				Name:        "multi",
+				Description: "Multi-item select menu",
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+				Name:        "single",
+				Description: "Single-item select menu",
+			},
+		},
 		Description: "Lo and behold: dropdowns are coming",
 	})
 
