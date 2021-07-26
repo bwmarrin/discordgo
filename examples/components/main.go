@@ -317,7 +317,7 @@ var (
 				response = &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
-						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works:" +
+						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works: " +
 							"try generating your own stackoverflow search link",
 						Flags: 1 << 6,
 						Components: []discordgo.MessageComponent{
