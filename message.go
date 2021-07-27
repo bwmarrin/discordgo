@@ -127,6 +127,9 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// An array of Sticker objects, if any were sent.
+	StickerItems []*Sticker `json:"sticker_items"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
@@ -184,6 +187,29 @@ type File struct {
 	Name        string
 	ContentType string
 	Reader      io.Reader
+}
+
+// StickerType is the file format of the Sticker.
+type StickerType int
+
+const (
+	StickerTypePNG    StickerType = 1
+	StickerTypeAPNG   StickerType = 2
+	StickerTypeLottie StickerType = 3
+)
+
+// Sticker represents a sticker object that can be sent in a Message.
+type Sticker struct {
+	ID          string      `json:"id"`
+	PackID      *string     `json:"pack_id,omitempty"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Tags        string      `json:"tags"`
+	FormatType  StickerType `json:"format_type"`
+	Available   *bool       `json:"available,omitempty"`
+	GuildID     *string     `json:"guild_id,omitempty"`
+	User        *User       `json:"user,omitempty"`
+	SortValue   *int        `json:"sort_value,omitempty"`
 }
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
