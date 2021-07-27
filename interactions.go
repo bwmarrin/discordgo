@@ -15,8 +15,10 @@ import (
 // InteractionDeadline is the time allowed to respond to an interaction.
 const InteractionDeadline = time.Second * 3
 
+// ApplicationCommandType represents the type of application command.
 type ApplicationCommandType uint8
 
+// Application command types
 const (
 	// ChatApplicationCommand is default command type. They are slash commands (i.e. called directly from the chat).
 	ChatApplicationCommand ApplicationCommandType = 1
