@@ -44,6 +44,10 @@ func searchLink(message, format, sep string) string {
 var (
 	commands = []discordgo.ApplicationCommand{
 		{
+			Name: "rickroll-em",
+			Type: discordgo.UserApplicationCommand,
+		},
+		{
 			Name: "google-it",
 			Type: discordgo.MessageApplicationCommand,
 		},
@@ -65,6 +69,38 @@ var (
 		},
 	}
 	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"rickroll-em": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Operation rickroll has begun",
+					Flags:   1 << 6,
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+
+			ch, err := s.UserChannelCreate(
+				i.ApplicationCommandData().TargetID,
+			)
+			if err != nil {
+				_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+					Content: fmt.Sprintf("Mission failed. Cannot send a message to this user: %q", err.Error()),
+					Flags:   1 << 6,
+				})
+				if err != nil {
+					panic(err)
+				}
+			}
+			_, err = s.ChannelMessageSend(
+				ch.ID,
+				fmt.Sprintf("%s sent you this: https://youtu.be/dQw4w9WgXcQ", i.Member.Mention()),
+			)
+			if err != nil {
+				panic(err)
+			}
+		},
 		"google-it": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
