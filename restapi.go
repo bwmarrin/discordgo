@@ -1935,9 +1935,16 @@ func (s *Session) RemoveThreadMember(channelID string, userID string) (err error
 }
 
 // StartThreadWithMessage creates a thread in the channel ID given, using a message ID as the starting message in the thread.
-func (s *Session) StartThreadWithMessage(channelID, messageID string, d StartThreadWithMessageStruct) (c *Channel, err error) {
+func (s *Session) StartThreadWithMessage(channelID, messageID, name string, autoArchiveDuration ArchiveDuration) (c *Channel, err error) {
 
 	endpoint := EndpointChannelStartThreadWithMessage(channelID, messageID)
+	d := struct {
+		Name                string          `json:"name"`
+		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+	}{
+		name,
+		autoArchiveDuration,
+	}
 
 	b, err := s.RequestWithBucketID("POST", endpoint, d, endpoint)
 	if err != nil {
@@ -1951,28 +1958,28 @@ func (s *Session) StartThreadWithMessage(channelID, messageID string, d StartThr
 // StartThreadWithoutMessage creates a thread in the channel ID given, without needing a message.
 // Private threads are available when using this. The default thread type is public.
 // News channels can NOT create private threads.
-func (s *Session) StartThreadWithoutMessage(channelID string, d StartThreadWithoutMessageStruct) (c *Channel, err error) {
+func (s *Session) StartThreadWithoutMessage(channelID, name string, autoArchiveDuration ArchiveDuration, private bool) (c *Channel, err error) {
 
 	endpoint := EndpointChannelStartThreadWithoutMessage(channelID)
-	cType := ChannelGuildPublicThread
-	if d.Private {
-		cType = ChannelGuildPrivateThread
-	}
-	if d.AutoArchiveDuration == 0 {
-		d.AutoArchiveDuration = ArchiveDuration1Hour
-	}
-
-	d2 := struct {
+	d := struct {
 		Name                string          `json:"name"`
 		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
 		Type                ChannelType     `json:"type"`
 	}{
-		d.Name,
-		d.AutoArchiveDuration,
-		cType,
+		name,
+		autoArchiveDuration,
+		ChannelGuildPublicThread,
 	}
 
-	b, err := s.RequestWithBucketID("POST", endpoint, d2, endpoint)
+	if private {
+		d.Type = ChannelGuildPrivateThread
+	}
+
+	if d.AutoArchiveDuration == 0 {
+		d.AutoArchiveDuration = ArchiveDuration1Hour
+	}
+
+	b, err := s.RequestWithBucketID("POST", endpoint, d, endpoint)
 	if err != nil {
 		return nil, err
 	}
