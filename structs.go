@@ -366,6 +366,7 @@ type ThreadMetadata struct {
 // ArchiveDuration represents the increments of time at which a thread auto-archives, in seconds.
 type ArchiveDuration int
 
+// Defines the increments at which a thread archives due to inactivity.
 const (
 	ArchiveDuration1Hour ArchiveDuration = 60
 	ArchiveDuration1Day  ArchiveDuration = ArchiveDuration1Hour * 24

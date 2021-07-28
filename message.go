@@ -208,6 +208,7 @@ type File struct {
 // StickerType is the file format of the Sticker.
 type StickerType int
 
+// Defines all known Sticker types.
 const (
 	StickerTypePNG    StickerType = 1
 	StickerTypeAPNG   StickerType = 2
