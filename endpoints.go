@@ -14,7 +14,7 @@ package discordgo
 import "strconv"
 
 // APIVersion is the Discord API version used for the REST and Websocket API.
-var APIVersion = "8"
+var APIVersion = "9"
 
 // Known Discord API Endpoints.
 var (
@@ -116,6 +116,16 @@ var (
 	EndpointChannelMessagePin         = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
 	EndpointChannelMessageCrosspost   = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
 	EndpointChannelFollow             = func(cID string) string { return EndpointChannel(cID) + "/followers" }
+
+	EndpointChannelStartThreadWithMessage           = func(cID string, mID string) string { return EndpointChannels + cID + "/messages/" + mID + "/threads" }
+	EndpointChannelStartThreadWithoutMessage        = func(cID string) string { return EndpointChannels + cID + "/threads" }
+	EndpointChannelThread                           = func(cID string) string { return EndpointChannels + cID + "/thread-members/@me" }
+	EndpointChannelMember                           = func(cID string, uID string) string { return EndpointChannels + cID + "/thread-members/" + uID }
+	EndpointChannelListMembers                      = func(cID string) string { return EndpointChannels + cID + "/thread-members" }
+	EndpointChannelListActiveThreads                = func(cID string) string { return EndpointChannels + cID + "/threads/active" }
+	EndpointChannelListPublicArchivedThreads        = func(cID string) string { return EndpointChannels + cID + "/threads/archived/public" }
+	EndpointChannelListPrivateArchivedThreads       = func(cID string) string { return EndpointChannels + cID + "/threads/archived/private" }
+	EndpointChannelListJoinedPrivateArchivedThreads = func(cID string) string { return EndpointChannels + cID + "/users/@me/threads/archived/private" }
 
 	EndpointGroupIcon = func(cID, hash string) string { return EndpointCDNChannelIcons + cID + "/" + hash + ".png" }
 

@@ -226,13 +226,16 @@ type ChannelType int
 
 // Block contains known ChannelType values
 const (
-	ChannelTypeGuildText     ChannelType = 0
-	ChannelTypeDM            ChannelType = 1
-	ChannelTypeGuildVoice    ChannelType = 2
-	ChannelTypeGroupDM       ChannelType = 3
-	ChannelTypeGuildCategory ChannelType = 4
-	ChannelTypeGuildNews     ChannelType = 5
-	ChannelTypeGuildStore    ChannelType = 6
+	ChannelTypeGuildText      ChannelType = 0
+	ChannelTypeDM             ChannelType = 1
+	ChannelTypeGuildVoice     ChannelType = 2
+	ChannelTypeGroupDM        ChannelType = 3
+	ChannelTypeGuildCategory  ChannelType = 4
+	ChannelTypeGuildNews      ChannelType = 5
+	ChannelTypeGuildStore     ChannelType = 6
+	ChannelGuildNewsThread    ChannelType = 10
+	ChannelGuildPublicThread  ChannelType = 11
+	ChannelGuildPrivateThread ChannelType = 12
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -287,17 +290,38 @@ type Channel struct {
 	UserLimit int `json:"user_limit"`
 
 	// The ID of the parent channel, if the channel is under a category
+	// If this channel is a thread, this will be the ID of the channel it was created from.
 	ParentID string `json:"parent_id"`
 
 	// Amount of seconds a user has to wait before sending another message (0-21600)
 	// bots, as well as users with the permission manage_messages or manage_channel, are unaffected
 	RateLimitPerUser int `json:"rate_limit_per_user"`
 
-	// ID of the DM creator Zeroed if guild channel
+	// ID of the DM creator. Will be zero if this is a guild channel.
+	// If this channel is a thread, it will be the ID of the user who started the thread.
 	OwnerID string `json:"owner_id"`
 
 	// ApplicationID of the DM creator Zeroed if guild channel or not a bot user
 	ApplicationID string `json:"application_id"`
+
+	// Only applicable to the thread channel type.
+	// MessageCount is an approximation of how many messages are in the thread, and stops counting at 50.
+	MessageCount int `json:"message_count,omitempty"`
+
+	// Only applicable to the thread channel type.
+	// MemberCount is an approximation of how many members are in the thread, and stops counting at 50.
+	MemberCount int `json:"member_count,omitempty"`
+
+	// Only applicable to the thread channel type.
+	// ThreadMetadata contains information about the thread.
+	ThreadMetadata *ThreadMetadata `json:"thread_metadata,omitempty"`
+
+	// Default duration for new threads, in minutes, before they are archived due to inactivity.
+	DefaultAutoArchiveDuration int `json:"default_auto_archive_duration,omitempty"`
+
+	// Only applicable to the thread channel type.
+	// ThreadMember is the information for the current user, if they joined the thread.
+	Member *ThreadMember `json:"member,omitempty"`
 }
 
 // Mention returns a string which mentions the channel
@@ -322,6 +346,71 @@ type ChannelEdit struct {
 type ChannelFollow struct {
 	ChannelID string `json:"channel_id"`
 	WebhookID string `json:"webhook_id"`
+}
+
+// ThreadMetadata holds information about a thread.
+type ThreadMetadata struct {
+	// Whether the channel is archived.
+	Archived bool `json:"archived"`
+
+	// The period of inactivity allowed before the channel automatically archives.
+	AutoArchiveDuration int `json:"auto_archive_duration"`
+
+	// A timestamp of when the channel was archived.
+	ArchiveTimestamp Timestamp `json:"archive_timestamp"`
+
+	// Whether the thread is locked.
+	Locked bool `json:"locked"`
+}
+
+// ArchiveDuration represents the increments of time at which a thread auto-archives, in seconds.
+type ArchiveDuration int
+
+const (
+	ArchiveDuration1Hour ArchiveDuration = 60
+	ArchiveDuration1Day  ArchiveDuration = ArchiveDuration1Hour * 24
+	ArchiveDuration3Days ArchiveDuration = ArchiveDuration1Day * 3
+	ArchiveDuration1Week ArchiveDuration = ArchiveDuration1Day * 7
+)
+
+// StartThreadWithoutMessageStruct defines the data that is sent to the API concerning starting a thread.
+type StartThreadWithoutMessageStruct struct {
+	Name                string
+	AutoArchiveDuration ArchiveDuration
+	Private             bool
+}
+
+// StartThreadWithMessageStruct defines the data that is sent to the API concerning starting a thread from a message.
+type StartThreadWithMessageStruct struct {
+	Name                string          `json:"name"`
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+}
+
+// ThreadListResponse is the response when getting a list of threads.
+type ThreadListResponse struct {
+	Threads []Channel      `json:"threads"`
+	Members []ThreadMember `json:"members"`
+	HasMore bool           `json:"has_more"`
+}
+
+// ThreadListFilter specifies the options available for getting a list threads.
+type ThreadListFilter struct {
+	Before int `json:"before"`
+	Limit  int `json:"limit"`
+}
+
+// ThreadMember is used to determine whether a user is in a thread or not.
+// ID and UserID are omitted in the member sent within each thread in the Guild Create event
+type ThreadMember struct {
+	ID string `json:"id,omitempty"`
+
+	UserID string `json:"userid,omitempty"`
+
+	// JoinTimestamp is a timestamp of when the user last joined the thread.
+	JoinTimestamp Timestamp `json:"join_timestamp"`
+
+	// Currently only used for notifications.
+	Flags int `json:"flags"`
 }
 
 // PermissionOverwriteType represents the type of resource on which
@@ -1278,6 +1367,9 @@ const (
 	PermissionViewAuditLogs       = 0x0000000000000080
 	PermissionViewChannel         = 0x0000000000000400
 	PermissionViewGuildInsights   = 0x0000000000080000
+	PermissionManageThreads       = 0x0000000400000000
+	PermissionUsePublicThreads    = 0x0000000800000000
+	PermissionUsePrivateThreads   = 0x0000001000000000
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
@@ -1286,7 +1378,9 @@ const (
 		PermissionEmbedLinks |
 		PermissionAttachFiles |
 		PermissionReadMessageHistory |
-		PermissionMentionEveryone
+		PermissionMentionEveryone |
+		PermissionUsePublicThreads |
+		PermissionUsePrivateThreads
 	PermissionAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
@@ -1301,7 +1395,8 @@ const (
 		PermissionManageRoles |
 		PermissionManageChannels |
 		PermissionAddReactions |
-		PermissionViewAuditLogs
+		PermissionViewAuditLogs |
+		PermissionManageThreads
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |

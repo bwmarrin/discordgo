@@ -1878,6 +1878,184 @@ func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFoll
 }
 
 // ------------------------------------------------------------------------------------------------
+// Functions specific to Threads
+// ------------------------------------------------------------------------------------------------
+
+// BuildFilter puts together a query string for use when getting a thread list.
+func buildFilter(f ThreadListFilter) (q string) {
+	query := url.Values{}
+	if f.Before != 0 {
+		query.Add("before", strconv.Itoa(f.Before))
+	}
+	if f.Limit != 0 {
+		query.Add("limit", strconv.Itoa(f.Limit))
+	}
+	if f.Before != 0 || f.Limit != 0 {
+		return "?" + query.Encode()
+	}
+	return
+}
+
+// JoinThread joins the user to a thread.
+func (s *Session) JoinThread(channelID string) (err error) {
+
+	endpoint := EndpointChannelThread(channelID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	return
+}
+
+// AddThreadMember adds a member to a thread. Requires the ability to send messages in the thread, and that
+// it is not archived.
+func (s *Session) AddThreadMember(channelID string, userID string) (err error) {
+
+	endpoint := EndpointChannelMember(channelID, userID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	return
+}
+
+// LeaveThread removes the user from a thread. This should only be called if the channel is not archived.
+func (s *Session) LeaveThread(channelID string) (err error) {
+
+	endpoint := EndpointChannelThread(channelID)
+
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return
+}
+
+// RemoveThreadMember removes a member from the thread. Requires the Manage Threads permission, or the creator of the
+// thread, if the type is private.
+func (s *Session) RemoveThreadMember(channelID string, userID string) (err error) {
+
+	endpoint := EndpointChannelMember(channelID, userID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	return
+}
+
+// StartThreadWithMessage creates a thread in the channel ID given, using a message ID as the starting message in the thread.
+func (s *Session) StartThreadWithMessage(channelID, messageID string, d StartThreadWithMessageStruct) (c *Channel, err error) {
+
+	endpoint := EndpointChannelStartThreadWithMessage(channelID, messageID)
+
+	b, err := s.RequestWithBucketID("POST", endpoint, d, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &c)
+	return
+}
+
+// StartThreadWithoutMessage creates a thread in the channel ID given, without needing a message.
+// Private threads are available when using this. The default thread type is public.
+// News channels can NOT create private threads.
+func (s *Session) StartThreadWithoutMessage(channelID string, d StartThreadWithoutMessageStruct) (c *Channel, err error) {
+
+	endpoint := EndpointChannelStartThreadWithoutMessage(channelID)
+	cType := ChannelGuildPublicThread
+	if d.Private {
+		cType = ChannelGuildPrivateThread
+	}
+	if d.AutoArchiveDuration == 0 {
+		d.AutoArchiveDuration = ArchiveDuration1Hour
+	}
+
+	d2 := struct {
+		Name                string          `json:"name"`
+		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+		Type                ChannelType     `json:"type"`
+	}{
+		d.Name,
+		d.AutoArchiveDuration,
+		cType,
+	}
+
+	b, err := s.RequestWithBucketID("POST", endpoint, d2, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &c)
+	return
+}
+
+// ListThreadMembers lists all members of the thread as a slice of ThreadMember. Guild member intent is required
+// to call this path.
+func (s *Session) ListThreadMembers(channelID string) (t []*ThreadMember, err error) {
+
+	endpoint := EndpointChannelListMembers(channelID)
+
+	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &t)
+	return
+}
+
+// ListActiveThreads lists all active threads in the channel, whether public or private.
+// Ordered by ID, descending order.
+func (s *Session) ListActiveThreads(channelID string) (a *ThreadListResponse, err error) {
+
+	endpoint := EndpointChannelListActiveThreads(channelID)
+
+	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &a)
+	return
+}
+
+// ListPublicArchivedThreads lists all public threads that have been archived. Requires permission to view message
+// history.
+func (s *Session) ListPublicArchivedThreads(channelID string, f ThreadListFilter) (a *ThreadListResponse, err error) {
+
+	endpoint := EndpointChannelListPublicArchivedThreads(channelID) + buildFilter(f)
+
+	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &a)
+	return
+}
+
+// ListPrivateArchivedThreads lists all public threads that have been archived. Requires permission to view message
+// history and manage threads.
+func (s *Session) ListPrivateArchivedThreads(channelID string, f ThreadListFilter) (a *ThreadListResponse, err error) {
+	endpoint := EndpointChannelListPrivateArchivedThreads(channelID) + buildFilter(f)
+
+	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &a)
+	return
+}
+
+// ListJoinedPrivateArchivedThreads lists all private threads that the client has joined in the channel. Requires
+// permission to read message history. Ordered by ID
+func (s *Session) ListJoinedPrivateArchivedThreads(channelID string, f ThreadListFilter) (a *ThreadListResponse, err error) {
+
+	endpoint := EndpointChannelListJoinedPrivateArchivedThreads(channelID) + buildFilter(f)
+
+	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &a)
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Invites
 // ------------------------------------------------------------------------------------------------
 
