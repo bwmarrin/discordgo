@@ -1,9 +1,9 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img alt="discordgo-logo" align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
 ## DiscordGo Direct Message Ping Pong Example
 
 This example demonstrates how to utilize DiscordGo to create a Ping Pong Bot
-that sends the response through Direct Message.
+that sends the response through a Direct Message.
 
 This Bot will respond to "ping" in any server it's in with "Pong!" in the
 sender's DM.

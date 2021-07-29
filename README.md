@@ -2,14 +2,13 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/bwmarrin/discordgo.svg)](https://pkg.go.dev/github.com/bwmarrin/discordgo) [![Go Report Card](https://goreportcard.com/badge/github.com/bwmarrin/discordgo)](https://goreportcard.com/report/github.com/bwmarrin/discordgo) [![Build Status](https://travis-ci.com/bwmarrin/discordgo.svg?branch=master)](https://travis-ci.com/bwmarrin/discordgo) [![Discord Gophers](https://img.shields.io/badge/Discord%20Gophers-%23discordgo-blue.svg)](https://discord.gg/golang) [![Discord API](https://img.shields.io/badge/Discord%20API-%23go_discordgo-blue.svg)](https://discord.com/invite/discord-api)
 
-<img align="right" src="https://github.com/bwmarrin/discordgo/blob/master/docs/img/discordgo.png">
+<img alt="discordgo-logo" align="right" src="https://github.com/bwmarrin/discordgo/blob/master/docs/img/discordgo.png">
 
-DiscordGo is a [Go](https://golang.org/) package that provides low level 
-bindings to the [Discord](https://discord.com/) chat client API. DiscordGo 
-has nearly complete support for all of the Discord API endpoints, websocket
+DiscordGo is a [Go](https://golang.org/) package that provides low-level 
+bindings to the [Discord](https://discord.com/) chat client API. DiscordGo has nearly complete support for all of the Discord API endpoints, WebSocket
 interface, and voice interface.
 
-If you would like to help the DiscordGo package please use 
+If you would like to help with the DiscordGo package please use 
 [this link](https://discord.com/oauth2/authorize?client_id=173113690092994561&scope=bot)
 to add the official DiscordGo test bot **dgo** to your server. This provides 
 indispensable help to this project.
@@ -18,7 +17,7 @@ indispensable help to this project.
 additional voice helper functions and features for DiscordGo.
 
 * See [dca](https://github.com/bwmarrin/dca) for an **experimental** stand alone
-tool that wraps `ffmpeg` to create opus encoded audio appropriate for use with
+tool that wraps `FFmpeg to create opus encoded audio appropriately for use with
 Discord (and DiscordGo).
 
 **For help with this package or general Go discussion, please join the [Discord 
@@ -58,7 +57,7 @@ See Documentation and Examples below for more detailed information.
 ## Documentation
 
 **NOTICE**: This library and the Discord API are unfinished.
-Because of that there may be major changes to library in the future.
+Because of that, there may be major changes to the library in the future.
 
 The DiscordGo code is fairly well documented at this point and is currently
 the only documentation available.  Both GoDoc and GoWalker (below) present
@@ -66,7 +65,7 @@ that information in a nice format.
 
 - [![Go Reference](https://pkg.go.dev/badge/github.com/bwmarrin/discordgo.svg)](https://pkg.go.dev/github.com/bwmarrin/discordgo)
 - [![Go Walker](https://gowalker.org/api/v1/badge)](https://gowalker.org/github.com/bwmarrin/discordgo) 
-- Hand crafted documentation coming eventually.
+- Hand-crafted documentation coming eventually.
 
 
 ## Examples
@@ -75,7 +74,7 @@ Below is a list of examples and other projects using DiscordGo.  Please submit
 an issue if you would like your project added or removed from this list. 
 
 - [DiscordGo Examples](https://github.com/bwmarrin/discordgo/tree/master/examples) - A collection of example programs written with DiscordGo
-- [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) - A curated list of high quality projects using DiscordGo
+- [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) - A curated list of high-quality projects using DiscordGo
 
 ## Troubleshooting
 For help with common problems please reference the 
@@ -84,14 +83,13 @@ section of the project wiki.
 
 
 ## Contributing
-Contributions are very welcomed, however please follow the below guidelines.
+Contributions are very welcomed, however, please follow the below guidelines.
 
-- First open an issue describing the bug or enhancement so it can be
+- First, open an issue describing the bug or enhancement so it can be
 discussed.  
 - Try to match current naming conventions as closely as possible.  
-- This package is intended to be a low level direct mapping of the Discord API, 
-so please avoid adding enhancements outside of that scope without first 
-discussing it.
+- This package is intended to be a low-level direct mapping of the Discord API, 
+so please avoid adding enhancements outside of that scope without first discussing it.
 - Create a Pull Request with your changes against the master branch.
 
 

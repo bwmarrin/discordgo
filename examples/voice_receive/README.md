@@ -3,15 +3,15 @@
 ## DiscordGo Voice Receive Example
 
 This example experiments with receiving voice data from Discord. It joins
-a specified voice channel, listens for 10 seconds and saves .ogg files for each
+a specified voice channel, listens for 10 seconds, and saves .ogg files for each
 SSRC that it finds in the channel. An exercise left to the reader is to translate
 these SSRCs to user IDs; see speaking update events for this information. :)
 
 This example makes heavy use of the [Pion](https://github.com/pion) family of libraries.
-Go check them out for anything to do with voice, video or WebRTC; it's a great
+Go check them out for anything to do with voice, video, or WebRTC; it's a great
 group of people maintaining the project!
 
-Please note that voice receive is **not** officially supported, any may break
+Please note that voice receive is **not** officially supported, and may break
 at essentially any time (and has in the past). This code works at the time of
 its writing, but YMMV in the future.
 
