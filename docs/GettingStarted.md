@@ -44,7 +44,7 @@ help get your familiar with the Go language.  Also, check out the relevant Go pl
 
 # Install DiscordGo
 
-Like any other Go package, the first step is to `go get the package.  This will
+Like any other Go package, the first step is to `go get` the package.  This will
 always pull the latest tagged release from the master branch. Then run
 `go install` to compile and install the libraries on your system.
 

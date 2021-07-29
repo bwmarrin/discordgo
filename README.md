@@ -17,7 +17,7 @@ indispensable help to this project.
 additional voice helper functions and features for DiscordGo.
 
 * See [dca](https://github.com/bwmarrin/dca) for an **experimental** stand alone
-tool that wraps `FFmpeg to create opus encoded audio appropriately for use with
+tool that wraps `FFmpeg` to create opus encoded audio appropriate for use with
 Discord (and DiscordGo).
 
 **For help with this package or general Go discussion, please join the [Discord 
@@ -83,7 +83,7 @@ section of the project wiki.
 
 
 ## Contributing
-Contributions are very welcomed, however, please follow the below guidelines.
+Contributions are very welcomed, however please follow the below guidelines.
 
 - First, open an issue describing the bug or enhancement so it can be
 discussed.  
