@@ -35,6 +35,7 @@ type WebhookParams struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	ThreadID        string                  `json:"thread_id,omitempty"`
 }
 
 // WebhookEdit stores data for editing of a webhook message.
