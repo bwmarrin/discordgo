@@ -112,8 +112,8 @@ const (
 	ButtonLink ButtonStyle = 5
 )
 
-// ButtonEmoji represents button emoji, if it does have one.
-type ButtonEmoji struct {
+// ComponentEmoji represents a component's emoji, if it has one.
+type ComponentEmoji struct {
 	Name     string `json:"name,omitempty"`
 	ID       string `json:"id,omitempty"`
 	Animated bool   `json:"animated,omitempty"`
@@ -121,10 +121,10 @@ type ButtonEmoji struct {
 
 // Button represents button component.
 type Button struct {
-	Label    string      `json:"label"`
-	Style    ButtonStyle `json:"style"`
-	Disabled bool        `json:"disabled"`
-	Emoji    ButtonEmoji `json:"emoji"`
+	Label    string         `json:"label"`
+	Style    ButtonStyle    `json:"style"`
+	Disabled bool           `json:"disabled"`
+	Emoji    ComponentEmoji `json:"emoji"`
 
 	// NOTE: Only button with ButtonLink style can have link. Also, URL is mutually exclusive with CustomID.
 	URL      string `json:"url,omitempty"`
@@ -165,11 +165,11 @@ type SelectMenu struct {
 
 // SelectOption is a choice on the SelectMenu component.
 type SelectOption struct {
-	Label       string `json:"string"`
-	Value       string `json:"value"`
-	Description string `json:"description,omitempty"`
-	Emoji       Emoji  `json:"emoji,omitempty"`
-	Default     bool   `json:"default,omitempty"`
+	Label       string         `json:"label"`
+	Value       string         `json:"value"`
+	Description string         `json:"description,omitempty"`
+	Emoji       ComponentEmoji `json:"emoji,omitempty"`
+	Default     bool           `json:"default,omitempty"`
 }
 
 // MarshalJSON is a method for marshaling SelectMenu to a JSON object.
