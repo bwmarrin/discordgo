@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -38,6 +39,10 @@ var (
 			// Commands/options without description will fail the registration
 			// of the command.
 			Description: "Basic command",
+		},
+		{
+			Name:        "basic-command-with-files",
+			Description: "Basic command with files",
 		},
 		{
 			Name:        "options",
@@ -157,6 +162,21 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
+				},
+			})
+		},
+		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
+					Files: []*discordgo.File{
+						{
+							ContentType: "text/plain",
+							Name:        "test.txt",
+							Reader:      strings.NewReader("Hello Discord!!"),
+						},
+					},
 				},
 			})
 		},
