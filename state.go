@@ -40,7 +40,6 @@ type State struct {
 	// MaxMessageCount represents how many messages per channel the state will store.
 	MaxMessageCount int
 	TrackChannels   bool
-	//TrackThreads    bool
 	TrackEmojis    bool
 	TrackMembers   bool
 	TrackRoles     bool
@@ -49,7 +48,6 @@ type State struct {
 
 	guildMap   map[string]*Guild
 	channelMap map[string]*Channel
-	//threadMap  map[string]*Channel
 	memberMap map[string]map[string]*Member
 }
 
@@ -61,7 +59,6 @@ func NewState() *State {
 			Guilds:          []*Guild{},
 		},
 		TrackChannels: true,
-		//TrackThreads:   true,
 		TrackEmojis:    true,
 		TrackMembers:   true,
 		TrackRoles:     true,
@@ -69,7 +66,6 @@ func NewState() *State {
 		TrackPresences: true,
 		guildMap:       make(map[string]*Guild),
 		channelMap:     make(map[string]*Channel),
-		//threadMap:      make(map[string]*Channel),
 		memberMap: make(map[string]map[string]*Member),
 	}
 }

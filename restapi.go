@@ -2068,17 +2068,9 @@ func (s *Session) ListJoinedPrivateArchivedThreads(channelID string, f ThreadLis
 
 // Invite returns an Invite structure of the given invite
 // inviteID : The invite code
-func (s *Session) Invite(inviteID string, withCounts, withExpiration bool) (st *Invite, err error) {
+func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 
-	v := url.Values{}
-	if withCounts {
-		v.Add("with_counts", "true")
-	}
-	if withExpiration {
-		v.Add("with_expiration", "true")
-	}
-
-	body, err := s.RequestWithBucketID("GET", EndpointInvite(inviteID)+"?"+v.Encode(), nil, EndpointInvite(""))
+	body, err := s.RequestWithBucketID("GET", EndpointInvite(inviteID), nil, EndpointInvite(""))
 	if err != nil {
 		return
 	}
@@ -2092,6 +2084,27 @@ func (s *Session) Invite(inviteID string, withCounts, withExpiration bool) (st *
 func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointInvite(inviteID)+"?with_counts=true", nil, EndpointInvite(""))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// InviteComplex returns an Invite, with the option to also include
+// the number of times it has been used and when it expires.
+func (s *Session) InviteComplex(inviteID string, withCounts, withExpiration bool) (st *Invite, err error) {
+
+	v := url.Values{}
+	if withCounts {
+		v.Add("with_counts", "true")
+	}
+	if withExpiration {
+		v.Add("with_expiration", "true")
+	}
+
+	body, err := s.RequestWithBucketID("GET", EndpointInvite(inviteID)+"?"+v.Encode(), nil, EndpointInvite(""))
 	if err != nil {
 		return
 	}
