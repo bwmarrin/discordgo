@@ -359,7 +359,7 @@ type ThreadMetadata struct {
 	Archived bool `json:"archived"`
 
 	// The period of inactivity allowed before the channel automatically archives.
-	AutoArchiveDuration int `json:"auto_archive_duration"`
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
 
 	// A timestamp of when the thread's archive status was last changed.
 	ArchiveTimestamp Timestamp `json:"archive_timestamp"`
