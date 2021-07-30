@@ -45,5 +45,6 @@ type WebhookEdit struct {
 	Components      []MessageComponent      `json:"components"`
 	Files           []*File                 `json:"-"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
