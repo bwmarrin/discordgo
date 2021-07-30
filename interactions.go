@@ -89,9 +89,9 @@ type InteractionType uint8
 
 // Interaction types
 const (
-	InteractionPing InteractionType = iota + 1
-	InteractionApplicationCommand
-	InteractionMessageComponent
+	InteractionPing               InteractionType = 1
+	InteractionApplicationCommand InteractionType = 2
+	InteractionMessageComponent   InteractionType = 3
 )
 
 func (t InteractionType) String() string {
@@ -115,7 +115,7 @@ type Interaction struct {
 	ChannelID string          `json:"channel_id"`
 
 	// The message on which interaction was used.
-	// NOTE: this field is only filled when the button click interaction triggered. Otherwise it will be nil.
+	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
 	Message *Message `json:"message"`
 
 	// The member who invoked this interaction.
@@ -141,11 +141,11 @@ type rawInteraction struct {
 }
 
 // UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
-func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
+func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	var tmp rawInteraction
-	err = json.Unmarshal(raw, &tmp)
+	err := json.Unmarshal(raw, &tmp)
 	if err != nil {
-		return
+		return err
 	}
 
 	*i = Interaction(tmp.interaction)
@@ -155,14 +155,14 @@ func (i *Interaction) UnmarshalJSON(raw []byte) (err error) {
 		v := ApplicationCommandInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
 		if err != nil {
-			return
+			return err
 		}
 		i.Data = v
 	case InteractionMessageComponent:
 		v := MessageComponentInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
 		if err != nil {
-			return
+			return err
 		}
 		i.Data = v
 	}
@@ -178,7 +178,8 @@ func (i Interaction) MessageComponentData() (data MessageComponentInteractionDat
 	return i.Data.(MessageComponentInteractionData)
 }
 
-// ApplicationCommandData is helper function to convert InteractionData to ApplicationCommandInteractionData.
+// ApplicationCommandData is helper function to assert the inner InteractionData to ApplicationCommandInteractionData.
+// Make sure to check that the Type of the interaction is InteractionApplicationCommand before calling.
 func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractionData) {
 	if i.Type != InteractionApplicationCommand {
 		panic("ApplicationCommandData called on interaction of type " + i.Type.String())
@@ -210,6 +211,22 @@ type MessageComponentInteractionData struct {
 
 	// NOTE: Only filled when ComponentType is SelectMenuComponent (3). Otherwise is nil.
 	Values []string `json:"values"`
+}
+
+// Type returns the type of interaction data.
+func (MessageComponentInteractionData) Type() InteractionType {
+	return InteractionMessageComponent
+}
+
+// Type returns the type of interaction data.
+func (ApplicationCommandInteractionData) Type() InteractionType {
+	return InteractionApplicationCommand
+}
+
+// MessageComponentInteractionData contains the data of message component interaction.
+type MessageComponentInteractionData struct {
+	CustomID      string        `json:"custom_id"`
+	ComponentType ComponentType `json:"component_type"`
 }
 
 // Type returns the type of interaction data.
@@ -352,7 +369,7 @@ const (
 	InteractionResponseDeferredChannelMessageWithSource InteractionResponseType = 5
 	// InteractionResponseDeferredMessageUpdate acknowledges that the message component interaction event was received, and message will be updated later.
 	InteractionResponseDeferredMessageUpdate InteractionResponseType = 6
-	// InteractionResponseUpdateMessage is for updating the message to which message component was attached to.
+	// InteractionResponseUpdateMessage is for updating the message to which message component was attached.
 	InteractionResponseUpdateMessage InteractionResponseType = 7
 )
 

@@ -2166,7 +2166,6 @@ func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *W
 		if err != nil {
 			return nil, err
 		}
-
 	} else {
 		response, err = s.RequestWithBucketID("PATCH", uri, data, EndpointWebhookToken("", ""))
 

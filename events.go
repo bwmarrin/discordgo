@@ -186,7 +186,7 @@ type MessageDelete struct {
 }
 
 // UnmarshalJSON is a helper function to unmarshal MessageDelete object.
-func (m *MessageDelete) UnmarshalJSON(b []byte) (err error) {
+func (m *MessageDelete) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &m.Message)
 }
 
