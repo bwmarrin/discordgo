@@ -141,7 +141,7 @@ type Message struct {
 	ReferencedMessage *Message `json:"referenced_message"`
 
 	// The message's response to an Interaction.
-	Interaction *Interaction `json:"interaction"`
+	Interaction *MessageInteraction `json:"interaction"`
 
 	// The thread that was started from this message.
 	Thread *Channel `json:"thread"`

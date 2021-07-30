@@ -107,11 +107,12 @@ func (t InteractionType) String() string {
 
 // Interaction represents data of an interaction.
 type Interaction struct {
-	ID        string          `json:"id"`
-	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"-"`
-	GuildID   string          `json:"guild_id"`
-	ChannelID string          `json:"channel_id"`
+	ID            string          `json:"id"`
+	ApplicationID string          `json:"application_id"`
+	Type          InteractionType `json:"type"`
+	Data          InteractionData `json:"-"`
+	GuildID       string          `json:"guild_id"`
+	ChannelID     string          `json:"channel_id"`
 
 	// The message on which interaction was used.
 	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
@@ -218,6 +219,10 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 type MessageComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
+
+	// Only populated when the component type is a select menu.
+	// Note: this is not documented in the API yet.
+	Values []string `json:"values,omitempty"`
 }
 
 // Type returns the type of interaction data.
@@ -387,6 +392,14 @@ type InteractionResponseData struct {
 	Embeds          []*MessageEmbed             `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions     `json:"allowed_mentions,omitempty"`
 	Flags           InteractionResponseDataFlag `json:"flags,omitempty"`
+}
+
+// MessageInteraction is the data for an Interaction, when in a Message object.
+type MessageInteraction struct {
+	ID   string          `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User User            `json:"user"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
