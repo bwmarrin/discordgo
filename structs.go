@@ -193,21 +193,26 @@ type ICEServer struct {
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild          *Guild         `json:"guild"`
-	Channel        *Channel       `json:"channel"`
-	Inviter        *User          `json:"inviter"`
-	Code           string         `json:"code"`
-	CreatedAt      Timestamp      `json:"created_at"`
-	MaxAge         int            `json:"max_age"`
-	Uses           int            `json:"uses"`
-	MaxUses        int            `json:"max_uses"`
-	Revoked        bool           `json:"revoked"`
-	Temporary      bool           `json:"temporary"`
-	Unique         bool           `json:"unique"`
-	TargetUser     *User          `json:"target_user"`
-	TargetUserType TargetUserType `json:"target_user_type"`
+	Guild             *Guild               `json:"guild"`
+	Channel           *Channel             `json:"channel"`
+	Inviter           *User                `json:"inviter"`
+	Code              string               `json:"code"`
+	CreatedAt         Timestamp            `json:"created_at"`
+	MaxAge            int                  `json:"max_age"`
+	Uses              int                  `json:"uses"`
+	MaxUses           int                  `json:"max_uses"`
+	Revoked           bool                 `json:"revoked"`
+	Temporary         bool                 `json:"temporary"`
+	Unique            bool                 `json:"unique"`
+	TargetUser        *User                `json:"target_user"`
+	TargetUserType    TargetUserType       `json:"target_user_type"`
+	TargetApplication *Application         `json:"target_application"`
+	StageInstance     *InviteStageInstance `json:"stage_instance"`
 
-	// will only be filled when using InviteWithCounts
+	// with_expiration only
+	ExpiresAt Timestamp `json:"expires_at"`
+
+	// with_counts only
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
@@ -226,16 +231,16 @@ type ChannelType int
 
 // Block contains known ChannelType values
 const (
-	ChannelTypeGuildText      ChannelType = 0
-	ChannelTypeDM             ChannelType = 1
-	ChannelTypeGuildVoice     ChannelType = 2
-	ChannelTypeGroupDM        ChannelType = 3
-	ChannelTypeGuildCategory  ChannelType = 4
-	ChannelTypeGuildNews      ChannelType = 5
-	ChannelTypeGuildStore     ChannelType = 6
-	ChannelGuildNewsThread    ChannelType = 10
-	ChannelGuildPublicThread  ChannelType = 11
-	ChannelGuildPrivateThread ChannelType = 12
+	ChannelTypeGuildText          ChannelType = 0
+	ChannelTypeDM                 ChannelType = 1
+	ChannelTypeGuildVoice         ChannelType = 2
+	ChannelTypeGroupDM            ChannelType = 3
+	ChannelTypeGuildCategory      ChannelType = 4
+	ChannelTypeGuildNews          ChannelType = 5
+	ChannelTypeGuildStore         ChannelType = 6
+	ChannelTypeGuildNewsThread    ChannelType = 10
+	ChannelTypeGuildPublicThread  ChannelType = 11
+	ChannelTypeGuildPrivateThread ChannelType = 12
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -354,9 +359,9 @@ type ThreadMetadata struct {
 	Archived bool `json:"archived"`
 
 	// The period of inactivity allowed before the channel automatically archives.
-	AutoArchiveDuration int `json:"auto_archive_duration"`
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
 
-	// A timestamp of when the channel was archived.
+	// A timestamp of when the thread's archive status was last changed.
 	ArchiveTimestamp Timestamp `json:"archive_timestamp"`
 
 	// Whether the thread is locked.
@@ -529,7 +534,8 @@ type Guild struct {
 	Icon string `json:"icon"`
 
 	// The voice region of the guild.
-	Region string `json:"region"`
+	// Changed from region -> rtc_reg
+	RTCRegion string `json:"rtc_region"`
 
 	// The ID of the AFK voice channel.
 	AfkChannelID string `json:"afk_channel_id"`
@@ -597,6 +603,10 @@ type Guild struct {
 	// update events, and thus is only present in state-cached guilds.
 	Channels []*Channel `json:"channels"`
 
+	// A list of threads in the guild.
+	// This field is only present in GUILD_CREATE events and websocket
+	// update events, and thus is only present in state-cached guilds.
+	Threads []*Channel `json:"threads"`
 	// A list of voice states for the guild.
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
@@ -666,6 +676,9 @@ type Guild struct {
 
 	// Permissions of our user
 	Permissions int64 `json:"permissions,string"`
+
+	// A list of stickers present in the guild.
+	Stickers []*Sticker `json:"stickers"`
 }
 
 // A GuildPreview holds data related to a specific public Discord Guild, even if the user is not in the guild.
@@ -1193,6 +1206,28 @@ type MessageReaction struct {
 	Emoji     Emoji  `json:"emoji"`
 	ChannelID string `json:"channel_id"`
 	GuildID   string `json:"guild_id,omitempty"`
+}
+
+// StagePrivacyLevel is the privacy level of the stage.
+type StagePrivacyLevel int
+
+// Contains all known values for stage privacy level.
+const (
+	StagePrivacyPublic    StagePrivacyLevel = 1
+	StagePrivacyGuildOnly StagePrivacyLevel = 2
+)
+
+// StageInstance holds information about a live stage.
+type StageInstance struct {
+	ID                string            `json:"id"`
+	GuildID           string            `json:"guild_id"`
+	ChannelID         string            `json:"channel_id"`
+	Topic             string            `json:"topic"`
+	PrivacyLevel      StagePrivacyLevel `json:"privacy_level"`
+	DiscoveryDisabled bool              `json:"discovery_disabled"`
+}
+
+type InviteStageInstance struct {
 }
 
 // GatewayBotResponse stores the data for the gateway/bot response

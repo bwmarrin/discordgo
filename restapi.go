@@ -1912,7 +1912,7 @@ func (s *Session) StartThreadWithMessage(channelID, messageID, name string, auto
 
 // StartThreadWithoutMessage creates a thread in the channel ID given, without needing a message.
 // Private threads are available when using this. The default thread type is public.
-// News channels can NOT create private threads.
+// Private threads cannot be created from news channels.
 func (s *Session) StartThreadWithoutMessage(channelID, name string, autoArchiveDuration ArchiveDuration, private bool) (c *Channel, err error) {
 
 	endpoint := EndpointChannelStartThreadWithoutMessage(channelID)
@@ -1923,11 +1923,11 @@ func (s *Session) StartThreadWithoutMessage(channelID, name string, autoArchiveD
 	}{
 		name,
 		autoArchiveDuration,
-		ChannelGuildPublicThread,
+		ChannelTypeGuildPublicThread,
 	}
 
 	if private {
-		d.Type = ChannelGuildPrivateThread
+		d.Type = ChannelTypeGuildPrivateThread
 	}
 
 	if d.AutoArchiveDuration == 0 {
@@ -2039,6 +2039,27 @@ func (s *Session) Invite(inviteID string) (st *Invite, err error) {
 func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointInvite(inviteID)+"?with_counts=true", nil, EndpointInvite(""))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// InviteComplex returns an Invite, with the option to also include
+// the number of times it has been used and when it expires.
+func (s *Session) InviteComplex(inviteID string, withCounts, withExpiration bool) (st *Invite, err error) {
+
+	v := url.Values{}
+	if withCounts {
+		v.Add("with_counts", "true")
+	}
+	if withExpiration {
+		v.Add("with_expiration", "true")
+	}
+
+	body, err := s.RequestWithBucketID("GET", EndpointInvite(inviteID)+"?"+v.Encode(), nil, EndpointInvite(""))
 	if err != nil {
 		return
 	}

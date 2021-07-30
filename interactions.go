@@ -70,8 +70,7 @@ type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType `json:"type"`
 	Name        string                       `json:"name"`
 	Description string                       `json:"description,omitempty"`
-	// NOTE: This feature was on the API, but at some point developers decided to remove it.
-	// So I commented it, until it will be officially on the docs.
+	// note: Default is no longer a field on the application command option structure
 	// Default     bool                              `json:"default"`
 	Required bool                              `json:"required"`
 	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
@@ -108,11 +107,12 @@ func (t InteractionType) String() string {
 
 // Interaction represents data of an interaction.
 type Interaction struct {
-	ID        string          `json:"id"`
-	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"-"`
-	GuildID   string          `json:"guild_id"`
-	ChannelID string          `json:"channel_id"`
+	ID            string          `json:"id"`
+	ApplicationID string          `json:"application_id"`
+	Type          InteractionType `json:"type"`
+	Data          InteractionData `json:"-"`
+	GuildID       string          `json:"guild_id"`
+	ChannelID     string          `json:"channel_id"`
 
 	// The message on which interaction was used.
 	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
@@ -219,6 +219,10 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 type MessageComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
+
+	// Only populated when the component type is a select menu.
+	// Note: this is not documented in the API yet.
+	Values []string `json:"values,omitempty"`
 }
 
 // Type returns the type of interaction data.
@@ -371,18 +375,32 @@ type InteractionResponse struct {
 	Data *InteractionResponseData `json:"data,omitempty"`
 }
 
+// InteractionResponseDataFlag are the flags for InteractionResponseData
+type InteractionResponseDataFlag int
+
+// All known flags for InteractionResponseData
+const (
+	// InteractionResponseDataEphemeral means only the user receiving the message can see it.
+	InteractionResponseDataEphemeral InteractionResponseDataFlag = 1 << 6
+)
+
 // InteractionResponseData is response data for an interaction.
 type InteractionResponseData struct {
-	TTS             bool                    `json:"tts"`
-	Content         string                  `json:"content"`
-	Components      []MessageComponent      `json:"components"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
-	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	TTS             bool                        `json:"tts"`
+	Content         string                      `json:"content"`
+	Components      []MessageComponent          `json:"components"`
+	Embeds          []*MessageEmbed             `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions     `json:"allowed_mentions,omitempty"`
+	Flags           InteractionResponseDataFlag `json:"flags,omitempty"`
+	Files           []*File                     `json:"-"`
+}
 
-	// NOTE: Undocumented feature, be careful with it.
-	Flags uint64 `json:"flags,omitempty"`
-
-	Files []*File `json:"-"`
+// MessageInteraction is the data for an Interaction, when in a Message object.
+type MessageInteraction struct {
+	ID   string          `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User User            `json:"user"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api

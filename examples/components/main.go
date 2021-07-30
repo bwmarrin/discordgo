@@ -47,23 +47,23 @@ func main() {
 								Components: []discordgo.MessageComponent{
 									discordgo.Button{
 										Label:    "Yes",
-										Style:    discordgo.SuccessButton,
+										Style:    discordgo.ButtonSuccess,
 										Disabled: false,
 										CustomID: "yes_btn",
 									},
 									discordgo.Button{
 										Label:    "No",
-										Style:    discordgo.DangerButton,
+										Style:    discordgo.ButtonDanger,
 										Disabled: false,
 										CustomID: "no_btn",
 									},
 									discordgo.Button{
 										Label:    "I don't know",
-										Style:    discordgo.LinkButton,
+										Style:    discordgo.ButtonLink,
 										Disabled: false,
 										// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
 										URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-										Emoji: discordgo.ButtonEmoji{
+										Emoji: discordgo.ComponentEmoji{
 											Name: "🤷",
 										},
 									},
@@ -74,9 +74,36 @@ func main() {
 								Components: []discordgo.MessageComponent{
 									discordgo.Button{
 										Label:    "Discord Developers server",
-										Style:    discordgo.LinkButton,
+										Style:    discordgo.ButtonLink,
 										Disabled: false,
 										URL:      "https://discord.gg/discord-developers",
+									},
+								},
+							},
+							// If a select menu is used in an action row, buttons cannot be used in the same row,
+							// and only one select menu is allowed per row.
+							discordgo.ActionsRow{
+								Components: []discordgo.MessageComponent{
+									discordgo.SelectMenu{
+										CustomID:    "select_menu_rating",
+										Placeholder: "Or do you like Select Menus?",
+										Options: []discordgo.SelectOption{
+											{
+												Label:       "Yes",
+												Value:       "select_menu_yes",
+												Description: "I like them more than buttons",
+											},
+											{
+												Label:       "I like both",
+												Value:       "select_menu_both",
+												Description: "Both select menus and buttons are good",
+											},
+											{
+												Label:       "No",
+												Value:       "select_menu_no",
+												Description: "Buttons for life",
+											},
+										},
 									},
 								},
 							},
@@ -96,15 +123,30 @@ func main() {
 
 		content := "Thanks for your feedback "
 
-		// CustomID field contains the same id as when was sent. It's used to identify the which button was clicked.
-		switch i.MessageComponentData().CustomID {
-		case "yes_btn":
-			content += "(yes)"
-		case "no_btn":
-			content += "(no)"
+		// Values contain the values currently selected from the select menu component.
+		if len(i.MessageComponentData().Values) > 0 {
+			// The select menu is set to only allow one value to be selected.
+			// It can be configured to allow more than one value to be selected at a time.
+			switch i.MessageComponentData().Values[0] {
+			case "select_menu_yes":
+				content += "(yes to select menus)"
+			case "select_menu_both":
+				content += "(likes both buttons and select menus)"
+			case "select_menu_no":
+				content += "(no to select menus)"
+			}
+		} else {
+			// CustomID field contains the same id as when was sent. It's used to identify the which button was clicked.
+			switch i.MessageComponentData().CustomID {
+			case "yes_btn":
+				content += "(yes to buttons)"
+			case "no_btn":
+				content += "(no to buttons)"
+			}
+
 		}
 
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		e := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			// Buttons also may update the message which to which they are attached.
 			// Or may just acknowledge (InteractionResponseDeferredMessageUpdate) that the event was received and not update the message.
 			// To update it later you need to use interaction response edit endpoint.
@@ -116,10 +158,10 @@ func main() {
 						Components: []discordgo.MessageComponent{
 							discordgo.Button{
 								Label:    "Our sponsor",
-								Style:    discordgo.LinkButton,
+								Style:    discordgo.ButtonLink,
 								Disabled: false,
 								URL:      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-								Emoji: discordgo.ButtonEmoji{
+								Emoji: discordgo.ComponentEmoji{
 									Name: "💠",
 								},
 							},
@@ -128,6 +170,9 @@ func main() {
 				},
 			},
 		})
+		if e != nil {
+			panic(e)
+		}
 	})
 	_, err := s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
 		Name:        "feedback",
