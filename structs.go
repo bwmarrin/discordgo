@@ -1048,12 +1048,18 @@ type AuditLogChangeKey string
 // Block of valid AuditLogChangeKey
 const (
 	AuditLogChangeKeyName                       AuditLogChangeKey = "name"
+	AuditLogChangeKeyDescription                AuditLogChangeKey = "description"
 	AuditLogChangeKeyIconHash                   AuditLogChangeKey = "icon_hash"
 	AuditLogChangeKeySplashHash                 AuditLogChangeKey = "splash_hash"
+	AuditLogChangeKeyDiscoverySplashHash        AuditLogChangeKey = "discovery_splash_hash"
+	AuditLogChangeKeyBannerHash                 AuditLogChangeKey = "banner_hash"
 	AuditLogChangeKeyOwnerID                    AuditLogChangeKey = "owner_id"
 	AuditLogChangeKeyRegion                     AuditLogChangeKey = "region"
+	AuditLogChangeKeyPreferredLocale            AuditLogChangeKey = "preferred_locale"
 	AuditLogChangeKeyAfkChannelID               AuditLogChangeKey = "afk_channel_id"
 	AuditLogChangeKeyAfkTimeout                 AuditLogChangeKey = "afk_timeout"
+	AuditLogChangeKeyRulesChannelID             AuditLogChangeKey = "rules_channel_id"
+	AuditLogChangeKeyPublicUpdatesChannelID     AuditLogChangeKey = "public_updates_channel_id"
 	AuditLogChangeKeyMfaLevel                   AuditLogChangeKey = "mfa_level"
 	AuditLogChangeKeyVerificationLevel          AuditLogChangeKey = "verification_level"
 	AuditLogChangeKeyExplicitContentFilter      AuditLogChangeKey = "explicit_content_filter"
@@ -1084,7 +1090,7 @@ const (
 	AuditLogChangeKeyMaxUses                    AuditLogChangeKey = "max_uses"
 	AuditLogChangeKeyUses                       AuditLogChangeKey = "uses"
 	AuditLogChangeKeyMaxAge                     AuditLogChangeKey = "max_age"
-	AuditLogChangeKeyTempoary                   AuditLogChangeKey = "temporary"
+	AuditLogChangeKeyTemporary                  AuditLogChangeKey = "temporary"
 	AuditLogChangeKeyDeaf                       AuditLogChangeKey = "deaf"
 	AuditLogChangeKeyMute                       AuditLogChangeKey = "mute"
 	AuditLogChangeKeyNick                       AuditLogChangeKey = "nick"
@@ -1094,6 +1100,13 @@ const (
 	AuditLogChangeKeyEnableEmoticons            AuditLogChangeKey = "enable_emoticons"
 	AuditLogChangeKeyExpireBehavior             AuditLogChangeKey = "expire_behavior"
 	AuditLogChangeKeyExpireGracePeriod          AuditLogChangeKey = "expire_grace_period"
+	AuditLogChangeKeyUserLimit                  AuditLogChangeKey = "user_limit"
+	AuditLogChangeKeyPrivacyLevel               AuditLogChangeKey = "privacy_level"
+	AuditLogChangeKeyTags                       AuditLogChangeKey = "tags"
+	AuditLogChangeKeyFormatType                 AuditLogChangeKey = "format_type"
+	AuditLogChangeKeyAsset                      AuditLogChangeKey = "asset"
+	AuditLogChangeKeyAvailable                  AuditLogChangeKey = "available"
+	AuditLogChangeKeyGuildID                    AuditLogChangeKey = "guild_id"
 )
 
 // AuditLogOptions optional data for the AuditLog
@@ -1140,6 +1153,10 @@ const (
 	AuditLogActionMemberBanRemove  AuditLogAction = 23
 	AuditLogActionMemberUpdate     AuditLogAction = 24
 	AuditLogActionMemberRoleUpdate AuditLogAction = 25
+	AuditLogActionMemberMove       AuditLogAction = 26
+	AuditLogActionMemberDisconnect AuditLogAction = 27
+
+	AuditLogActionBotAdd AuditLogAction = 28
 
 	AuditLogActionRoleCreate AuditLogAction = 30
 	AuditLogActionRoleUpdate AuditLogAction = 31
@@ -1165,6 +1182,14 @@ const (
 	AuditLogActionIntegrationCreate AuditLogAction = 80
 	AuditLogActionIntegrationUpdate AuditLogAction = 81
 	AuditLogActionIntegrationDelete AuditLogAction = 82
+
+	AuditLogActionStageInstanceCreate AuditLogAction = 83
+	AuditLogActionStageInstanceUpdate AuditLogAction = 84
+	AuditLogActionStageInstanceDelete AuditLogAction = 85
+
+	AuditLogActionStickerCreate AuditLogAction = 90
+	AuditLogActionStickerUpdate AuditLogAction = 91
+	AuditLogActionStickerDelete AuditLogAction = 92
 )
 
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
@@ -1213,7 +1238,9 @@ type StagePrivacyLevel int
 
 // Contains all known values for stage privacy level.
 const (
-	StagePrivacyPublic    StagePrivacyLevel = 1
+	// StagePrivacyPublic means the stage can be seen in stage discovery.
+	StagePrivacyPublic StagePrivacyLevel = 1
+	// StagePrivacyGuildOnly means the stage can only be seen by guild members.
 	StagePrivacyGuildOnly StagePrivacyLevel = 2
 )
 
@@ -1227,7 +1254,12 @@ type StageInstance struct {
 	DiscoveryDisabled bool              `json:"discovery_disabled"`
 }
 
+// InviteStageInstance is used in an Invite to a stage instance.
 type InviteStageInstance struct {
+	Members          []*Member `json:"members"`
+	ParticipantCount int       `json:"participant_count"`
+	SpeakerCount     int       `json:"speaker_count"`
+	Topic            string    `json:"topic"`
 }
 
 // GatewayBotResponse stores the data for the gateway/bot response

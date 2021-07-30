@@ -23,15 +23,16 @@ var (
 	EndpointSmActive   = EndpointSm + "active.json"
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
-	EndpointDiscord    = "https://discord.com/"
-	EndpointAPI        = EndpointDiscord + "api/v" + APIVersion + "/"
-	EndpointGuilds     = EndpointAPI + "guilds/"
-	EndpointChannels   = EndpointAPI + "channels/"
-	EndpointUsers      = EndpointAPI + "users/"
-	EndpointGateway    = EndpointAPI + "gateway"
-	EndpointGatewayBot = EndpointGateway + "/bot"
-	EndpointWebhooks   = EndpointAPI + "webhooks/"
-	EndpointStickers   = EndpointAPI + "stickers/"
+	EndpointDiscord        = "https://discord.com/"
+	EndpointAPI            = EndpointDiscord + "api/v" + APIVersion + "/"
+	EndpointGuilds         = EndpointAPI + "guilds/"
+	EndpointChannels       = EndpointAPI + "channels/"
+	EndpointUsers          = EndpointAPI + "users/"
+	EndpointGateway        = EndpointAPI + "gateway"
+	EndpointGatewayBot     = EndpointGateway + "/bot"
+	EndpointWebhooks       = EndpointAPI + "webhooks/"
+	EndpointStickers       = EndpointAPI + "stickers/"
+	EndpointStageInstances = EndpointAPI + "stage-instances/"
 
 	EndpointCDN             = "https://cdn.discordapp.com/"
 	EndpointCDNAttachments  = EndpointCDN + "attachments/"
@@ -134,6 +135,8 @@ var (
 
 	EndpointSticker           = func(sID string) string { return EndpointStickers + sID }
 	EndpointNitroStickerPacks = EndpointAPI + "/sticker-packs"
+
+	EndpointStageInstance = func(cID string) string { return EndpointStageInstances + cID }
 
 	EndpointChannelWebhooks = func(cID string) string { return EndpointChannel(cID) + "/webhooks" }
 	EndpointWebhook         = func(wID string) string { return EndpointWebhooks + wID }

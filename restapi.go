@@ -2026,7 +2026,7 @@ func (s *Session) Sticker(sID string) (a *Sticker, err error) {
 
 	endpoint := EndpointSticker(sID)
 
-	b, err := s.RequestWithBucketID("GET", endpoint, nil, EndpointSticker(""))
+	b, err := s.RequestWithBucketID("GET", endpoint, nil, EndpointSticker(sID))
 	if err != nil {
 		return nil, err
 	}
@@ -2140,6 +2140,81 @@ func (s *Session) GuildStickerDelete(gID, sID string) (err error) {
 	endpoint := EndpointGuildSticker(gID, sID)
 
 	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, EndpointGuildStickers(gID))
+	if err != nil {
+		return err
+	}
+
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
+// Functions specific to Stage Instances
+// ------------------------------------------------------------------------------------------------
+
+// StageInstance gets a stage instance.
+func (s *Session) StageInstance(cID string) (st *StageInstance, err error) {
+
+	endpoint := EndpointStageInstance(cID)
+
+	_, err = s.RequestWithBucketID("GET", endpoint, nil, EndpointStageInstances)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+// StageInstanceCreate creates a stage instance in the channel ID given.
+// It is not clear what this endpoint returns because its return value is not specified.
+func (s *Session) StageInstanceCreate(cID, topic string, privacyLevel StagePrivacyLevel) (err error) {
+
+	endpoint := EndpointStageInstances
+
+	data := struct {
+		ChannelID    string            `json:"channel_id"`
+		Topic        string            `json:"topic"`
+		PrivacyLevel StagePrivacyLevel `json:"privacy_level,omitempty"`
+	}{
+		cID,
+		topic,
+		privacyLevel,
+	}
+
+	_, err = s.RequestWithBucketID("POST", endpoint, data, EndpointStageInstances)
+	if err != nil {
+		return err
+	}
+
+	return
+}
+
+// StageInstanceModify modifies the properties of a stage channel.
+func (s *Session) StageInstanceModify(cID string, topic string, privacyLevel StagePrivacyLevel) (st *StageInstance, err error) {
+
+	endpoint := EndpointStageInstance(cID)
+
+	data := struct {
+		Topic        string            `json:"topic"`
+		PrivacyLevel StagePrivacyLevel `json:"privacy_level,omitempty"`
+	}{
+		topic,
+		privacyLevel,
+	}
+
+	_, err = s.RequestWithBucketID("PATCH", endpoint, data, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+// StageInstanceDelete removes the stage channel.
+func (s *Session) StageInstanceDelete(cID string) (err error) {
+
+	endpoint := EndpointStageInstance(cID)
+
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 	if err != nil {
 		return err
 	}
