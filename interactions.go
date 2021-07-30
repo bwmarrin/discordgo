@@ -381,6 +381,8 @@ type InteractionResponseData struct {
 
 	// NOTE: Undocumented feature, be careful with it.
 	Flags uint64 `json:"flags,omitempty"`
+
+	Files []*File `json:"-"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
