@@ -70,8 +70,7 @@ type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType `json:"type"`
 	Name        string                       `json:"name"`
 	Description string                       `json:"description,omitempty"`
-	// NOTE: This feature was on the API, but at some point developers decided to remove it.
-	// So I commented it, until it will be officially on the docs.
+	// note: Default is no longer a field on the application command option structure
 	// Default     bool                              `json:"default"`
 	Required bool                              `json:"required"`
 	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
@@ -371,16 +370,23 @@ type InteractionResponse struct {
 	Data *InteractionResponseData `json:"data,omitempty"`
 }
 
+// InteractionResponseDataFlag are the flags for InteractionResponseData
+type InteractionResponseDataFlag int
+
+// All known flags for InteractionResponseData
+const (
+	// InteractionResponseDataEphemeral means only the user receiving the message can see it.
+	InteractionResponseDataEphemeral InteractionResponseDataFlag = 1 << 6
+)
+
 // InteractionResponseData is response data for an interaction.
 type InteractionResponseData struct {
-	TTS             bool                    `json:"tts"`
-	Content         string                  `json:"content"`
-	Components      []MessageComponent      `json:"components"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
-	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
-
-	// NOTE: Undocumented feature, be careful with it.
-	Flags uint64 `json:"flags,omitempty"`
+	TTS             bool                        `json:"tts"`
+	Content         string                      `json:"content"`
+	Components      []MessageComponent          `json:"components"`
+	Embeds          []*MessageEmbed             `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions     `json:"allowed_mentions,omitempty"`
+	Flags           InteractionResponseDataFlag `json:"flags,omitempty"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api

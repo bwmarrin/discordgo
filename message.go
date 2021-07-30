@@ -10,7 +10,6 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"io"
 	"regexp"
 	"strings"
@@ -125,6 +124,9 @@ type Message struct {
 	// Is sent with Rich Presence-related chat embeds
 	Application *MessageApplication `json:"application"`
 
+	// If the message is a response to an Interaction, the interaction's application ID
+	ApplicationID string `json:"application_id"`
+
 	// MessageReference contains reference data sent with crossposted messages
 	MessageReference *MessageReference `json:"message_reference"`
 
@@ -146,25 +148,6 @@ type Message struct {
 
 	// An array of Sticker objects, if any were sent.
 	StickerItems []*Sticker `json:"sticker_items"`
-}
-
-// UnmarshalJSON is a helper function to unmarshal the Message.
-func (m *Message) UnmarshalJSON(data []byte) error {
-	type message Message
-	var v struct {
-		message
-		RawComponents []unmarshalableMessageComponent `json:"components"`
-	}
-	err := json.Unmarshal(data, &v)
-	if err != nil {
-		return err
-	}
-	*m = Message(v.message)
-	m.Components = make([]MessageComponent, len(v.RawComponents))
-	for i, v := range v.RawComponents {
-		m.Components[i] = v.MessageComponent
-	}
-	return err
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.

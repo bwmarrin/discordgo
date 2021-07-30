@@ -47,19 +47,19 @@ func main() {
 								Components: []discordgo.MessageComponent{
 									discordgo.Button{
 										Label:    "Yes",
-										Style:    discordgo.SuccessButton,
+										Style:    discordgo.ButtonSuccess,
 										Disabled: false,
 										CustomID: "yes_btn",
 									},
 									discordgo.Button{
 										Label:    "No",
-										Style:    discordgo.DangerButton,
+										Style:    discordgo.ButtonDanger,
 										Disabled: false,
 										CustomID: "no_btn",
 									},
 									discordgo.Button{
 										Label:    "I don't know",
-										Style:    discordgo.LinkButton,
+										Style:    discordgo.ButtonLink,
 										Disabled: false,
 										// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
 										URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -74,7 +74,7 @@ func main() {
 								Components: []discordgo.MessageComponent{
 									discordgo.Button{
 										Label:    "Discord Developers server",
-										Style:    discordgo.LinkButton,
+										Style:    discordgo.ButtonLink,
 										Disabled: false,
 										URL:      "https://discord.gg/discord-developers",
 									},
@@ -116,7 +116,7 @@ func main() {
 						Components: []discordgo.MessageComponent{
 							discordgo.Button{
 								Label:    "Our sponsor",
-								Style:    discordgo.LinkButton,
+								Style:    discordgo.ButtonLink,
 								Disabled: false,
 								URL:      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 								Emoji: discordgo.ButtonEmoji{
