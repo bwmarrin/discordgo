@@ -43,7 +43,6 @@ type WebhookParams struct {
 type WebhookEdit struct {
 	Content         string                  `json:"content,omitempty"`
 	Components      []MessageComponent      `json:"components"`
-	Files           []*File                 `json:"-"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`

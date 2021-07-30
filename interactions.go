@@ -218,22 +218,6 @@ func (MessageComponentInteractionData) Type() InteractionType {
 	return InteractionMessageComponent
 }
 
-// Type returns the type of interaction data.
-func (ApplicationCommandInteractionData) Type() InteractionType {
-	return InteractionApplicationCommand
-}
-
-// MessageComponentInteractionData contains the data of message component interaction.
-type MessageComponentInteractionData struct {
-	CustomID      string        `json:"custom_id"`
-	ComponentType ComponentType `json:"component_type"`
-}
-
-// Type returns the type of interaction data.
-func (MessageComponentInteractionData) Type() InteractionType {
-	return InteractionMessageComponent
-}
-
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
 type ApplicationCommandInteractionDataOption struct {
 	Name string                       `json:"name"`

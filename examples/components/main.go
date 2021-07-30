@@ -50,7 +50,7 @@ var (
 									},
 									Label: "Documentation",
 									Style: discordgo.LinkButton,
-									Link:  "https://discord.com/developers/docs/interactions/message-components#buttons",
+									URL:   "https://discord.com/developers/docs/interactions/message-components#buttons",
 								},
 								discordgo.Button{
 									Emoji: discordgo.ComponentEmoji{
@@ -58,7 +58,7 @@ var (
 									},
 									Label: "Discord developers",
 									Style: discordgo.LinkButton,
-									Link:  "https://discord.gg/discord-developers",
+									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
 									Emoji: discordgo.ComponentEmoji{
@@ -66,7 +66,7 @@ var (
 									},
 									Label: "Discord Gophers",
 									Style: discordgo.LinkButton,
-									Link:  "https://discord.gg/7RuRrVHyXF",
+									URL:   "https://discord.gg/7RuRrVHyXF",
 								},
 							},
 						},
@@ -93,7 +93,7 @@ var (
 									},
 									Label: "Discord developers",
 									Style: discordgo.LinkButton,
-									Link:  "https://discord.gg/discord-developers",
+									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
 									Emoji: discordgo.ComponentEmoji{
@@ -101,7 +101,7 @@ var (
 									},
 									Label: "Discord Gophers",
 									Style: discordgo.LinkButton,
-									Link:  "https://discord.gg/7RuRrVHyXF",
+									URL:   "https://discord.gg/7RuRrVHyXF",
 								},
 							},
 						},
@@ -156,7 +156,7 @@ var (
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
-					Content: "Here is your stackoverflow link: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
+					Content: "Here is your stackoverflow URL: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
 					Flags:   1 << 6,
 				},
 			})
@@ -175,7 +175,7 @@ var (
 								},
 								Label: "Documentation",
 								Style: discordgo.LinkButton,
-								Link:  "https://discord.com/developers/docs/interactions/message-components#select-menus",
+								URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
 							},
 							discordgo.Button{
 								Emoji: discordgo.ComponentEmoji{
@@ -183,7 +183,7 @@ var (
 								},
 								Label: "Discord developers",
 								Style: discordgo.LinkButton,
-								Link:  "https://discord.gg/discord-developers",
+								URL:   "https://discord.gg/discord-developers",
 							},
 							discordgo.Button{
 								Emoji: discordgo.ComponentEmoji{
@@ -191,7 +191,7 @@ var (
 								},
 								Label: "Discord Gophers",
 								Style: discordgo.LinkButton,
-								Link:  "https://discord.gg/7RuRrVHyXF",
+								URL:   "https://discord.gg/7RuRrVHyXF",
 							},
 						},
 					},
@@ -236,7 +236,7 @@ var (
 									Style:    discordgo.LinkButton,
 									Disabled: false,
 									// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
-									Link: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+									URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
 									Emoji: discordgo.ComponentEmoji{
 										Name: "🤷",
 									},
@@ -250,7 +250,7 @@ var (
 									Label:    "Discord Developers server",
 									Style:    discordgo.LinkButton,
 									Disabled: false,
-									Link:     "https://discord.gg/discord-developers",
+									URL:      "https://discord.gg/discord-developers",
 								},
 							},
 						},

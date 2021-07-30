@@ -118,10 +118,10 @@ type ComponentEmoji struct {
 
 // Button represents button component.
 type Button struct {
-	Label    string      `json:"label"`
-	Style    ButtonStyle `json:"style"`
-	Disabled bool        `json:"disabled"`
-	Emoji    ButtonEmoji `json:"emoji"`
+	Label    string         `json:"label"`
+	Style    ButtonStyle    `json:"style"`
+	Disabled bool           `json:"disabled"`
+	Emoji    ComponentEmoji `json:"emoji"`
 
 	// NOTE: Only button with LinkButton style can have link. Also, URL is mutually exclusive with CustomID.
 	URL      string `json:"url,omitempty"`
@@ -190,4 +190,3 @@ func (m SelectMenu) MarshalJSON() ([]byte, error) {
 		Type:       m.Type(),
 	})
 }
-
