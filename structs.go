@@ -373,10 +373,10 @@ type ArchiveDuration int
 
 // Defines the increments at which a thread archives due to inactivity.
 const (
-	ArchiveDuration1Hour ArchiveDuration = 60
-	ArchiveDuration1Day  ArchiveDuration = ArchiveDuration1Hour * 24
-	ArchiveDuration3Days ArchiveDuration = ArchiveDuration1Day * 3
-	ArchiveDuration1Week ArchiveDuration = ArchiveDuration1Day * 7
+	ArchiveDurationOneHour   ArchiveDuration = 60 * 60
+	ArchiveDurationOneDay    ArchiveDuration = ArchiveDurationOneHour * 24
+	ArchiveDurationThreeDays ArchiveDuration = ArchiveDurationOneDay * 3
+	ArchiveDurationOneWeek   ArchiveDuration = ArchiveDurationOneDay * 7
 )
 
 // StartThreadWithoutMessageStruct defines the data that is sent to the API concerning starting a thread.

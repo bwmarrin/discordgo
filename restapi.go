@@ -1931,7 +1931,7 @@ func (s *Session) ThreadStartWithoutMessage(channelID, name string, autoArchiveD
 	}
 
 	if d.AutoArchiveDuration == 0 {
-		d.AutoArchiveDuration = ArchiveDuration1Hour
+		d.AutoArchiveDuration = ArchiveDurationOneHour
 	}
 
 	b, err := s.RequestWithBucketID("POST", endpoint, d, endpoint)
