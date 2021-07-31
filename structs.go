@@ -373,7 +373,7 @@ type ArchiveDuration int
 
 // Defines the increments at which a thread archives due to inactivity.
 const (
-	ArchiveDurationOneHour   ArchiveDuration = 60 * 60
+	ArchiveDurationOneHour   ArchiveDuration = 60
 	ArchiveDurationOneDay    ArchiveDuration = ArchiveDurationOneHour * 24
 	ArchiveDurationThreeDays ArchiveDuration = ArchiveDurationOneDay * 3
 	ArchiveDurationOneWeek   ArchiveDuration = ArchiveDurationOneDay * 7
