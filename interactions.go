@@ -194,9 +194,20 @@ type InteractionData interface {
 
 // ApplicationCommandInteractionData contains the data of application command interaction.
 type ApplicationCommandInteractionData struct {
-	ID      string                                     `json:"id"`
-	Name    string                                     `json:"name"`
-	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+	ID       string                                     `json:"id"`
+	Name     string                                     `json:"name"`
+	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
+	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
+}
+
+// ApplicationCommandInteractionDataResolved contains resolved data for command arguments.
+// Partial Member objects are missing user, deaf and mute fields.
+// Partial Channel objects only have id, name, type and permissions fields.
+type ApplicationCommandInteractionDataResolved struct {
+	Users    map[string]*User    `json:"users"`
+	Members  map[string]*Member  `json:"members"`
+	Roles    map[string]*Role    `json:"roles"`
+	Channels map[string]*Channel `json:"channels"`
 }
 
 // Type returns the type of interaction data.
