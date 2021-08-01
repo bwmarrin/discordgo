@@ -368,7 +368,7 @@ type ThreadMetadata struct {
 	Locked bool `json:"locked"`
 }
 
-// ArchiveDuration represents the increments of time at which a thread auto-archives, in seconds.
+// ArchiveDuration represents the increments of time at which a thread auto-archives, in minutes.
 type ArchiveDuration int
 
 // Defines the increments at which a thread archives due to inactivity.

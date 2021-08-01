@@ -10,6 +10,7 @@
 package discordgo
 
 import (
+	"encoding/json"
 	"io"
 	"regexp"
 	"strings"
@@ -150,6 +151,25 @@ type Message struct {
 	StickerItems []*Sticker `json:"sticker_items"`
 }
 
+// UnmarshalJSON is a helper function to unmarshal the Message.
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var v struct {
+		message
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return err
+	}
+	*m = Message(v.message)
+	m.Components = make([]MessageComponent, len(v.RawComponents))
+	for i, v := range v.RawComponents {
+		m.Components[i] = v.MessageComponent
+	}
+	return err
+}
+
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
 func (m *Message) GetCustomEmojis() []*Emoji {
 	var toReturn []*Emoji
@@ -188,14 +208,14 @@ type File struct {
 	Reader      io.Reader
 }
 
-// StickerFormatType is the file format of the Sticker.
-type StickerFormatType int
+// StickerFormat is the file format of the Sticker.
+type StickerFormat int
 
 // Defines all known Sticker types.
 const (
-	StickerFormatTypePNG    StickerFormatType = 1
-	StickerFormatTypeAPNG   StickerFormatType = 2
-	StickerFormatTypeLottie StickerFormatType = 3
+	StickerFormatTypePNG    StickerFormat = 1
+	StickerFormatTypeAPNG   StickerFormat = 2
+	StickerFormatTypeLottie StickerFormat = 3
 )
 
 // StickerType is the type of sticker.
@@ -209,16 +229,16 @@ const (
 
 // Sticker represents a sticker object that can be sent in a Message.
 type Sticker struct {
-	ID          string            `json:"id"`
-	PackID      string            `json:"pack_id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Tags        string            `json:"tags"`
-	FormatType  StickerFormatType `json:"format_type"`
-	Available   bool              `json:"available"`
-	GuildID     string            `json:"guild_id"`
-	User        *User             `json:"user"`
-	SortValue   int               `json:"sort_value"`
+	ID          string        `json:"id"`
+	PackID      string        `json:"pack_id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Tags        string        `json:"tags"`
+	FormatType  StickerFormat `json:"format_type"`
+	Available   bool          `json:"available"`
+	GuildID     string        `json:"guild_id"`
+	User        *User         `json:"user"`
+	SortValue   int           `json:"sort_value"`
 }
 
 // StickerPack represents a pack of standard stickers.
