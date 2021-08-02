@@ -105,3 +105,21 @@ func (u *User) AvatarURL(size string) string {
 	}
 	return URL
 }
+
+// GuildAvatarURL returns the guild member's avatar URL.
+// Returns the default avatar if none is set.
+func (m *Member) GuildAvatarURL(size string) string {
+	var URL string
+	if m.Avatar == "" {
+		URL = EndpointDefaultUserAvatar(m.User.Discriminator)
+	} else if strings.HasPrefix(m.Avatar, "a_") {
+		URL = EndpointGuildMemberAvatar(m.GuildID, m.User.ID, m.Avatar)
+	} else {
+		URL = EndpointGuildMemberAvatarAnimated(m.GuildID, m.User.ID, m.Avatar)
+	}
+
+	if size != "" {
+		return URL + "?size=" + size
+	}
+	return URL
+}

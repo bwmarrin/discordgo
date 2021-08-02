@@ -780,6 +780,11 @@ type Member struct {
 	// The nickname of the member, if they have one.
 	Nick string `json:"nick"`
 
+	// The member's guild avatar hash.
+	// This avatar is only shown inside the guild this member is a part of.
+	// NOTE: This is not documented in the API yet. Guild-specific avatars are subject to change.
+	Avatar string `json:"avatar"`
+
 	// Whether the member is deafened at a guild level.
 	Deaf bool `json:"deaf"`
 
