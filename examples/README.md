@@ -1,4 +1,4 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img align="right" src="https://github.com/bwmarrin/discordgo/blob/master/docs/img/discordgo.png">
 
 # DiscordGo Examples
 

@@ -1,15 +1,15 @@
 ## DiscordGo
 <hr>
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img align="right" src="https://github.com/bwmarrin/discordgo/blob/master/docs/img/discordgo.png">
 
-[Go](https://golang.org/) (golang) interface for the [Discord](https://discord.com/) 
+[Go](https://golang.org/) (Golang) interface for the [Discord](https://discord.com/) 
 chat service.  Provides both low-level direct bindings to the 
 Discord API and helper functions that allow you to make custom clients and chat 
 bot applications easily.
 
 [Discord](https://discord.com/) is an all-in-one voice and text chat for 
 gamers that's free, secure, and works on both your desktop and phone. 
- 
+
 ### Why DiscordGo?
 * High Performance
 * Minimal Memory & CPU Load
@@ -19,7 +19,7 @@ gamers that's free, secure, and works on both your desktop and phone.
 * State tracking and caching
 
 ### Learn More
-* Check out the [Getting Started](GettingStarted) section
+* Check out the [Getting Started](GettingStarted.md) section
 * Read the reference docs on [Godoc](https://godoc.org/github.com/bwmarrin/discordgo) or [GoWalker](https://gowalker.org/github.com/bwmarrin/discordgo)
 * Try the [examples](https://github.com/bwmarrin/discordgo/tree/master/examples)
 * Explore [Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo)
@@ -27,7 +27,7 @@ gamers that's free, secure, and works on both your desktop and phone.
 ### Join Us!
 Both of the below links take you to chat channels where you can get more 
 information and support for DiscordGo.  There's also a chance to make some 
-friends :)
+friends :).
 
 * Join the [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP) chat server dedicated to Go programming.
 * Join the [Discord API](https://discord.com/invite/discord-API) chat server dedicated to the Discord API.

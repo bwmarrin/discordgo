@@ -10,6 +10,7 @@
 package discordgo
 
 import (
+	"encoding/json"
 	"io"
 	"regexp"
 	"strings"
@@ -21,29 +22,28 @@ type MessageType int
 
 // Block contains the valid known MessageType values
 const (
-	MessageTypeDefault MessageType = iota
-	MessageTypeRecipientAdd
-	MessageTypeRecipientRemove
-	MessageTypeCall
-	MessageTypeChannelNameChange
-	MessageTypeChannelIconChange
-	MessageTypeChannelPinnedMessage
-	MessageTypeGuildMemberJoin
-	MessageTypeUserPremiumGuildSubscription
-	MessageTypeUserPremiumGuildSubscriptionTierOne
-	MessageTypeUserPremiumGuildSubscriptionTierTwo
-	MessageTypeUserPremiumGuildSubscriptionTierThree
-	MessageTypeChannelFollowAdd
-
-	MessageTypeGuildDiscoveryDisqualified = iota + 1
-	MessageTypeGuildDiscoveryRequalified
-	MessageTypeGuildDiscoveryGracePeriodInitialWarning
-	MessageTypeGuildDiscoveryGracePeriodFinalWarning
-	MessageThreadCreated
-	MessageTypeReply
-	MessageTypeApplicationCommand
-	MessageThreadStarterMessage
-	MessageGuildInviteReminder
+	MessageTypeDefault                                 MessageType = 0
+	MessageTypeRecipientAdd                            MessageType = 1
+	MessageTypeRecipientRemove                         MessageType = 2
+	MessageTypeCall                                    MessageType = 3
+	MessageTypeChannelNameChange                       MessageType = 4
+	MessageTypeChannelIconChange                       MessageType = 5
+	MessageTypeChannelPinnedMessage                    MessageType = 6
+	MessageTypeGuildMemberJoin                         MessageType = 7
+	MessageTypeUserPremiumGuildSubscription            MessageType = 8
+	MessageTypeUserPremiumGuildSubscriptionTierOne     MessageType = 9
+	MessageTypeUserPremiumGuildSubscriptionTierTwo     MessageType = 10
+	MessageTypeUserPremiumGuildSubscriptionTierThree   MessageType = 11
+	MessageTypeChannelFollowAdd                        MessageType = 12
+	MessageTypeGuildDiscoveryDisqualified              MessageType = 14
+	MessageTypeGuildDiscoveryRequalified               MessageType = 15
+	MessageTypeGuildDiscoveryGracePeriodInitialWarning MessageType = 16
+	MessageTypeGuildDiscoveryGracePeriodFinalWarning   MessageType = 17
+	MessageTypeThreadCreated                           MessageType = 18
+	MessageTypeReply                                   MessageType = 19
+	MessageTypeApplicationCommand                      MessageType = 20
+	MessageTypeThreadStarterMessage                    MessageType = 21
+	MessageTypeInviteReminder                          MessageType = 22
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -85,6 +85,9 @@ type Message struct {
 
 	// A list of attachments present in the message.
 	Attachments []*MessageAttachment `json:"attachments"`
+
+	// A list of components attached to the message.
+	Components []MessageComponent `json:"-"`
 
 	// A list of embeds present in the message. Multiple
 	// embeds can currently only be sent by webhooks.
@@ -134,6 +137,25 @@ type Message struct {
 	Thread *Channel `json:"thread"`
 }
 
+// UnmarshalJSON is a helper function to unmarshal the Message.
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var v struct {
+		message
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return err
+	}
+	*m = Message(v.message)
+	m.Components = make([]MessageComponent, len(v.RawComponents))
+	for i, v := range v.RawComponents {
+		m.Components[i] = v.MessageComponent
+	}
+	return err
+}
+
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
 func (m *Message) GetCustomEmojis() []*Emoji {
 	var toReturn []*Emoji
@@ -158,14 +180,14 @@ type MessageFlags int
 
 // Valid MessageFlags values
 const (
-	MessageFlagsCrossPosted MessageFlags = 1 << iota
-	MessageFlagsIsCrossPosted
-	MessageFlagsSupressEmbeds
-	MessageFlagsSourceMessageDeleted
-	MessageFlagsUrgent
-	MessageHasThread
-	MessageEphemeral
-	MessageLoading
+	MessageFlagsCrossPosted          MessageFlags = 1 << 0
+	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
+	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
+	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
+	MessageFlagsUrgent               MessageFlags = 1 << 4
+	MessageFlagsHasThread            MessageFlags = 1 << 5
+	MessageFlagsEphemeral            MessageFlags = 1 << 6
+	MessageFlagsLoading              MessageFlags = 1 << 7
 )
 
 // File stores info about files you e.g. send in messages.
@@ -180,6 +202,7 @@ type MessageSend struct {
 	Content         string                  `json:"content,omitempty"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	TTS             bool                    `json:"tts"`
+	Components      []MessageComponent      `json:"components"`
 	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Reference       *MessageReference       `json:"message_reference,omitempty"`
@@ -192,6 +215,7 @@ type MessageSend struct {
 // is also where you should get the instance from.
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
+	Components      []MessageComponent      `json:"components"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
@@ -369,23 +393,10 @@ type MessageActivityType int
 
 // Constants for the different types of Message Activity
 const (
-	MessageActivityTypeJoin MessageActivityType = iota + 1
-	MessageActivityTypeSpectate
-	MessageActivityTypeListen
-	MessageActivityTypeJoinRequest
-)
-
-// MessageFlag describes an extra feature of the message
-type MessageFlag int
-
-// Constants for the different bit offsets of Message Flags
-const (
-	// This message has been published to subscribed channels (via Channel Following)
-	MessageFlagCrossposted MessageFlag = 1 << iota
-	// This message originated from a message in another channel (via Channel Following)
-	MessageFlagIsCrosspost
-	// Do not include any embeds when serializing this message
-	MessageFlagSuppressEmbeds
+	MessageActivityTypeJoin        MessageActivityType = 1
+	MessageActivityTypeSpectate    MessageActivityType = 2
+	MessageActivityTypeListen      MessageActivityType = 3
+	MessageActivityTypeJoinRequest MessageActivityType = 5
 )
 
 // MessageApplication is sent with Rich Presence-related chat embeds

@@ -95,7 +95,7 @@ type Session struct {
 	// The user agent used for REST APIs
 	UserAgent string
 
-	// Stores the last HeartbeatAck that was recieved (in UTC)
+	// Stores the last HeartbeatAck that was received (in UTC)
 	LastHeartbeatAck time.Time
 
 	// Stores the last Heartbeat sent (in UTC)
@@ -159,8 +159,8 @@ type ExpireBehavior int
 
 // Block of valid ExpireBehaviors
 const (
-	ExpireBehaviorRemoveRole ExpireBehavior = iota
-	ExpireBehaviorKick
+	ExpireBehaviorRemoveRole ExpireBehavior = 0
+	ExpireBehaviorKick       ExpireBehavior = 1
 )
 
 // IntegrationAccount is integration account information
@@ -222,7 +222,7 @@ type TargetUserType int
 
 // Block contains known TargetUserType values
 const (
-	TargetUserTypeStream TargetUserType = iota
+	TargetUserTypeStream TargetUserType = 1
 )
 
 // ChannelType is the type of a Channel
@@ -230,17 +230,17 @@ type ChannelType int
 
 // Block contains known ChannelType values
 const (
-	ChannelTypeGuildText ChannelType = iota
-	ChannelTypeDM
-	ChannelTypeGuildVoice
-	ChannelTypeGroupDM
-	ChannelTypeGuildCategory
-	ChannelTypeGuildNews
-	ChannelTypeGuildStore
-	ChannelTypeGuildNewsThread = iota + 3
-	ChannelTypeGuildPublicThread
-	ChannelTypeGuildPrivateThread
-	ChannelTypeGuildStageVoice
+	ChannelTypeGuildText          ChannelType = 0
+	ChannelTypeDM                 ChannelType = 1
+	ChannelTypeGuildVoice         ChannelType = 2
+	ChannelTypeGroupDM            ChannelType = 3
+	ChannelTypeGuildCategory      ChannelType = 4
+	ChannelTypeGuildNews          ChannelType = 5
+	ChannelTypeGuildStore         ChannelType = 6
+	ChannelTypeGuildNewsThread    ChannelType = 10
+	ChannelTypeGuildPublicThread  ChannelType = 11
+	ChannelTypeGuildPrivateThread ChannelType = 12
+	ChannelTypeGuildStageVoice    ChannelType = 13
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -409,8 +409,8 @@ type PermissionOverwriteType int
 
 // The possible permission overwrite types.
 const (
-	PermissionOverwriteTypeRole PermissionOverwriteType = iota
-	PermissionOverwriteTypeMember
+	PermissionOverwriteTypeRole   PermissionOverwriteType = 0
+	PermissionOverwriteTypeMember PermissionOverwriteType = 1
 )
 
 // A PermissionOverwrite holds permission overwrite data for a Channel
@@ -467,11 +467,11 @@ type VerificationLevel int
 
 // Constants for VerificationLevel levels from 0 to 4 inclusive
 const (
-	VerificationLevelNone VerificationLevel = iota
-	VerificationLevelLow
-	VerificationLevelMedium
-	VerificationLevelHigh
-	VerificationLevelVeryHigh
+	VerificationLevelNone     VerificationLevel = 0
+	VerificationLevelLow      VerificationLevel = 1
+	VerificationLevelMedium   VerificationLevel = 2
+	VerificationLevelHigh     VerificationLevel = 3
+	VerificationLevelVeryHigh VerificationLevel = 4
 )
 
 // ExplicitContentFilterLevel type definition
@@ -479,9 +479,9 @@ type ExplicitContentFilterLevel int
 
 // Constants for ExplicitContentFilterLevel levels from 0 to 2 inclusive
 const (
-	ExplicitContentFilterDisabled ExplicitContentFilterLevel = iota
-	ExplicitContentFilterMembersWithoutRoles
-	ExplicitContentFilterAllMembers
+	ExplicitContentFilterDisabled            ExplicitContentFilterLevel = 0
+	ExplicitContentFilterMembersWithoutRoles ExplicitContentFilterLevel = 1
+	ExplicitContentFilterAllMembers          ExplicitContentFilterLevel = 2
 )
 
 // MfaLevel type definition
@@ -489,8 +489,8 @@ type MfaLevel int
 
 // Constants for MfaLevel levels from 0 to 1 inclusive
 const (
-	MfaLevelNone MfaLevel = iota
-	MfaLevelElevated
+	MfaLevelNone     MfaLevel = 0
+	MfaLevelElevated MfaLevel = 1
 )
 
 // PremiumTier type definition
@@ -498,10 +498,10 @@ type PremiumTier int
 
 // Constants for PremiumTier levels from 0 to 3 inclusive
 const (
-	PremiumTierNone PremiumTier = iota
-	PremiumTier1
-	PremiumTier2
-	PremiumTier3
+	PremiumTierNone PremiumTier = 0
+	PremiumTier1    PremiumTier = 1
+	PremiumTier2    PremiumTier = 2
+	PremiumTier3    PremiumTier = 3
 )
 
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
@@ -701,8 +701,8 @@ type MessageNotifications int
 
 // Block containing known MessageNotifications values
 const (
-	MessageNotificationsAllMessages MessageNotifications = iota
-	MessageNotificationsOnlyMentions
+	MessageNotificationsAllMessages  MessageNotifications = 0
+	MessageNotificationsOnlyMentions MessageNotifications = 1
 )
 
 // SystemChannelFlag is the type of flags in the system channel (see SystemChannelFlag* consts)
@@ -711,8 +711,8 @@ type SystemChannelFlag int
 
 // Block containing known SystemChannelFlag values
 const (
-	SystemChannelFlagsSuppressJoin SystemChannelFlag = 1 << iota
-	SystemChannelFlagsSuppressPremium
+	SystemChannelFlagsSuppressJoin    SystemChannelFlag = 1 << 0
+	SystemChannelFlagsSuppressPremium SystemChannelFlag = 1 << 1
 )
 
 // IconURL returns a URL to the guild's icon.
@@ -1282,11 +1282,11 @@ type ActivityType int
 
 // Valid ActivityType values
 const (
-	ActivityTypeGame ActivityType = iota
-	ActivityTypeStreaming
-	ActivityTypeListening
+	ActivityTypeGame      ActivityType = 0
+	ActivityTypeStreaming ActivityType = 1
+	ActivityTypeListening ActivityType = 2
 	//	ActivityTypeWatching // not valid in this use case?
-	ActivityTypeCustom = 4
+	ActivityTypeCustom ActivityType = 4
 )
 
 // Identify is sent during initial handshake with the discord gateway.
@@ -1464,21 +1464,21 @@ type Intent int
 
 // Constants for the different bit offsets of intents
 const (
-	IntentsGuilds Intent = 1 << iota
-	IntentsGuildMembers
-	IntentsGuildBans
-	IntentsGuildEmojis
-	IntentsGuildIntegrations
-	IntentsGuildWebhooks
-	IntentsGuildInvites
-	IntentsGuildVoiceStates
-	IntentsGuildPresences
-	IntentsGuildMessages
-	IntentsGuildMessageReactions
-	IntentsGuildMessageTyping
-	IntentsDirectMessages
-	IntentsDirectMessageReactions
-	IntentsDirectMessageTyping
+	IntentsGuilds                 Intent = 1 << 0
+	IntentsGuildMembers           Intent = 1 << 1
+	IntentsGuildBans              Intent = 1 << 2
+	IntentsGuildEmojis            Intent = 1 << 3
+	IntentsGuildIntegrations      Intent = 1 << 4
+	IntentsGuildWebhooks          Intent = 1 << 5
+	IntentsGuildInvites           Intent = 1 << 6
+	IntentsGuildVoiceStates       Intent = 1 << 7
+	IntentsGuildPresences         Intent = 1 << 8
+	IntentsGuildMessages          Intent = 1 << 9
+	IntentsGuildMessageReactions  Intent = 1 << 10
+	IntentsGuildMessageTyping     Intent = 1 << 11
+	IntentsDirectMessages         Intent = 1 << 12
+	IntentsDirectMessageReactions Intent = 1 << 13
+	IntentsDirectMessageTyping    Intent = 1 << 14
 
 	IntentsAllWithoutPrivileged = IntentsGuilds |
 		IntentsGuildBans |
