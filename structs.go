@@ -325,6 +325,11 @@ type Channel struct {
 	// Thread member object for the current user, if they have joined the thread
 	// Only included on certain API endpoints
 	Member *ThreadMember `json:"member"`
+
+	// Default duration for newly created threads, in minutes,
+	// to automatically archive the thread after recent activity,
+	// can be set to: 60, 1440, 4320, 10080
+	DefaultAutoArchiveDuration int `json:"default_auto_archive_duration,omitempty"`
 }
 
 // Mention returns a string which mentions the channel
@@ -336,7 +341,6 @@ func (c *Channel) Mention() string {
 // channel fields that are not needed by other channel types.
 type ThreadMetadata struct {
 	Archived            bool      `json:"archived"`
-	ArchiverID          string    `json:"archiver_id,omitempty"`
 	AutoArchiveDuration int       `json:"auto_archive_duration"`
 	ArchiveTimestamp    Timestamp `json:"archive_timestamp"`
 	Locked              bool      `json:"locked,omitempty"`
@@ -353,12 +357,17 @@ type ThreadMember struct {
 
 // ThreadCreateData is the data used to create threads
 type ThreadCreateData struct {
+	// 2-100 character channel name
 	Name string `json:"name"`
 
 	// Duration in minutes to automatically archive the thread
 	// after recent activity.
 	// Can be set to: 60, 1440, 4320, 10080
 	AutoArchiveDuration int `json:"auto_archive_duration"`
+
+	// Defaults to `PRIVATE_THREAD` in order to match the behavior
+	// when thread documentation was first published.
+	Type ChannelType `json:"type"`
 }
 
 // ThreadEditData is the data used to edit threads
@@ -1000,6 +1009,7 @@ type GuildAuditLog struct {
 	Users           []*User          `json:"users,omitempty"`
 	AuditLogEntries []*AuditLogEntry `json:"audit_log_entries"`
 	Integrations    []*Integration   `json:"integrations"`
+	Threads         []*Channel       `json:"threads"`
 }
 
 // AuditLogEntry for a GuildAuditLog
@@ -1074,6 +1084,10 @@ const (
 	AuditLogChangeKeyEnableEmoticons            AuditLogChangeKey = "enable_emoticons"
 	AuditLogChangeKeyExpireBehavior             AuditLogChangeKey = "expire_behavior"
 	AuditLogChangeKeyExpireGracePeriod          AuditLogChangeKey = "expire_grace_period"
+	AuditLogChangeKeyArchived                   AuditLogChangeKey = "archived"
+	AuditLogChangeKeyLocked                     AuditLogChangeKey = "locked"
+	AuditLogChangeKeyAutoArchiveDuration        AuditLogChangeKey = "auto_archive_duration"
+	AuditLogChangeKeyDefaultAutoArchiveDuration AuditLogChangeKey = "default_auto_archive_duration"
 )
 
 // AuditLogOptions optional data for the AuditLog
@@ -1145,6 +1159,10 @@ const (
 	AuditLogActionIntegrationCreate AuditLogAction = 80
 	AuditLogActionIntegrationUpdate AuditLogAction = 81
 	AuditLogActionIntegrationDelete AuditLogAction = 82
+
+	AuditLogActionThreadCreate AuditLogAction = 110
+	AuditLogActionThreadUpdate AuditLogAction = 111
+	AuditLogActionThreadDelete AuditLogAction = 112
 )
 
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
@@ -1422,11 +1440,12 @@ const (
 	ErrCodeBotsCannotUseEndpoint  = 20001
 	ErrCodeOnlyBotsCanUseEndpoint = 20002
 
-	ErrCodeMaximumGuildsReached     = 30001
-	ErrCodeMaximumFriendsReached    = 30002
-	ErrCodeMaximumPinsReached       = 30003
-	ErrCodeMaximumGuildRolesReached = 30005
-	ErrCodeTooManyReactions         = 30010
+	ErrCodeMaximumGuildsReached                     = 30001
+	ErrCodeMaximumFriendsReached                    = 30002
+	ErrCodeMaximumPinsReached                       = 30003
+	ErrCodeMaximumGuildRolesReached                 = 30005
+	ErrCodeTooManyReactions                         = 30010
+	ErrCodeMaximumNumberOfThreadParticipantsReached = 30033
 
 	ErrCodeUnauthorized = 40001
 
@@ -1456,6 +1475,11 @@ const (
 	ErrCodeBeforeValueIsEarlierThanThreadCreationDate = 50085
 
 	ErrCodeReactionBlocked = 90001
+
+	ErrCodeThreadAlreadyCreatedForThisMessage              = 160004
+	ErrCodeThreadIsLocked                                  = 160005
+	ErrCodeMaximumNumberOfActiveThreadsReached             = 160006
+	ErrCodeMaximumNumberOfActiveAnnouncementThreadsReached = 160007
 )
 
 // Intent is the type of a Gateway Intent

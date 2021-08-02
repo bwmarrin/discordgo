@@ -102,6 +102,7 @@ var (
 	EndpointGuildEmojis          = func(gID string) string { return EndpointGuilds + gID + "/emojis" }
 	EndpointGuildEmoji           = func(gID, eID string) string { return EndpointGuilds + gID + "/emojis/" + eID }
 	EndpointGuildBanner          = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
+	EndpointGuildActiveThreads   = func(cID string) string { return EndpointGuilds + cID + "/threads/active" }
 
 	EndpointChannel                      = func(cID string) string { return EndpointChannels + cID }
 	EndpointChannelPermissions           = func(cID string) string { return EndpointChannels + cID + "/permissions" }
@@ -118,7 +119,7 @@ var (
 	EndpointChannelUsers                 = func(cID string) string { return EndpointChannel(cID) + "/users" }
 	EndpointThreads                      = func(cID string) string { return EndpointChannel(cID) + "/threads" }
 	EndpointThreadMembers                = func(cID string) string { return EndpointChannel(cID) + "/thread-members/" }
-	EndpointActiveThreads                = func(cID string) string { return EndpointThreads(cID) + "/active" }
+	EndpointChannelActiveThreads         = func(cID string) string { return EndpointThreads(cID) + "/active" }
 	EndpointArchivedThreads              = func(cID string) string { return EndpointThreads(cID) + "/archived" }
 	EndpointPublicArchivedThreads        = func(cID string) string { return EndpointArchivedThreads(cID) + "/public" }
 	EndpointPrivateArchivedThreads       = func(cID string) string { return EndpointArchivedThreads(cID) + "/private" }

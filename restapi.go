@@ -2653,7 +2653,7 @@ type ThreadsResponseBody struct {
 // ActiveThreads returns all active threads in the channel
 // GET /channels/{channel.id}/threads/active
 func (s *Session) ActiveThreads(channelID string) (st *ThreadsResponseBody, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointActiveThreads(channelID), nil, EndpointThreadMembers(""))
+	body, err := s.RequestWithBucketID("GET", EndpointChannelActiveThreads(channelID), nil, EndpointThreadMembers(""))
 	if err != nil {
 		return
 	}
@@ -2767,6 +2767,25 @@ func (s *Session) ThreadEdit(channelID string, name string) (*Channel, error) {
 // data          : The thread struct to send
 func (s *Session) ThreadEditComplex(threadID string, data *ThreadEditData) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(threadID), data, EndpointChannel(threadID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// ListActiveThreadsResponseBody is the returned data from ListActiveThreads
+type ListActiveThreadsResponseBody struct {
+	Threads []*Channel      `json:"threads"`
+	Members []*ThreadMember `json:"members"`
+}
+
+// ListActiveThreads returns all active threads in the guild,
+// including public and private threads.
+// Threads are ordered by their `id`, in descending order.
+func (s *Session) ListActiveThreads(guildID string) (st *ListActiveThreadsResponseBody, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildActiveThreads(guildID), nil, EndpointGuildActiveThreads(guildID))
 	if err != nil {
 		return
 	}
