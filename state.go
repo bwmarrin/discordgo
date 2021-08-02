@@ -125,6 +125,9 @@ func (s *State) GuildAdd(guild *Guild) error {
 		if guild.VoiceStates == nil {
 			guild.VoiceStates = g.VoiceStates
 		}
+		if guild.Threads == nil {
+			guild.Threads = g.Threads
+		}
 		*g = *guild
 		return nil
 	}
@@ -557,6 +560,98 @@ func (s *State) Channel(channelID string) (*Channel, error) {
 	return nil, ErrStateNotFound
 }
 
+// ThreadMemberUpdate updates the ThreadMember object for the user,
+// in a specific thread.
+func (s *State) ThreadMemberUpdate(t *ThreadMember) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	channel, ok := s.channelMap[t.ID]
+	if ok {
+		s.Lock()
+		defer s.Unlock()
+
+		channel.Member = t
+		return nil
+	}
+
+	return ErrStateNotFound
+}
+
+// ThreadMembersUpdate updates the member object of the thread.
+// If the user was removed,  the ThreadMember object in the state
+// will be set to nil.
+func (s *State) ThreadMembersUpdate(t *ThreadMembersUpdate) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	thread, ok := s.channelMap[t.ID]
+	if ok {
+		for _, memberID := range t.RemovedMembersIDs {
+			if memberID == s.User.ID {
+				thread.Member = nil
+				break
+			}
+		}
+	}
+
+	return ErrStateNotFound
+}
+
+// ThreadListSync syncs new threads and threads member that
+// the bot gained access to.
+// https://discord.com/developers/docs/topics/gateway#thread-list-sync
+func (s *State) ThreadListSync(t *ThreadListSync) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	g, err := s.Guild(t.GuildID)
+	if err != nil {
+		return err
+	}
+
+	if len(t.ChannelIDs) > 0 {
+		s.Lock()
+		defer s.Unlock()
+
+		for _, parentChannelID := range t.ChannelIDs {
+			for _, stateChannel := range s.channelMap {
+				if stateChannel.IsThread() && stateChannel.ParentID == parentChannelID && !stateChannel.ThreadMetadata.Archived {
+					for i, c := range g.Channels {
+						if c.ID == stateChannel.ID {
+							g.Channels = append(g.Channels[:i], g.Channels[i+1:]...)
+							break
+						}
+					}
+					delete(s.channelMap, stateChannel.ID)
+				}
+			}
+		}
+
+		for _, channel := range t.Threads {
+			s.channelMap[channel.ID] = channel
+			g.Channels = append(g.Channels, channel)
+		}
+
+		for _, member := range t.Members {
+			channel, ok := s.channelMap[member.ID]
+			if ok {
+				channel.Member = member
+			}
+		}
+
+		return nil
+	}
+
+	return ErrStateNotFound
+}
+
 // Emoji returns an emoji for a guild and emoji id.
 func (s *State) Emoji(guildID, emojiID string) (*Emoji, error) {
 	if s == nil {
@@ -905,6 +1000,30 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *ChannelDelete:
 		if s.TrackChannels {
 			err = s.ChannelRemove(t.Channel)
+		}
+	case *ThreadCreate:
+		if s.TrackChannels {
+			err = s.ChannelAdd(t.Channel)
+		}
+	case *ThreadUpdate:
+		if s.TrackChannels {
+			err = s.ChannelAdd(t.Channel)
+		}
+	case *ThreadDelete:
+		if s.TrackChannels {
+			err = s.ChannelRemove(t.Channel)
+		}
+	case *ThreadMemberUpdate:
+		if s.TrackChannels {
+			err = s.ThreadMemberUpdate(t.ThreadMember)
+		}
+	case *ThreadMembersUpdate:
+		if s.TrackChannels {
+			err = s.ThreadMembersUpdate(t)
+		}
+	case *ThreadListSync:
+		if s.TrackChannels {
+			err = s.ThreadListSync(t)
 		}
 	case *MessageCreate:
 		if s.MaxMessageCount != 0 {

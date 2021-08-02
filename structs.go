@@ -328,8 +328,7 @@ type Channel struct {
 
 	// Default duration for newly created threads, in minutes,
 	// to automatically archive the thread after recent activity,
-	// can be set to: 60, 1440, 4320, 10080
-	DefaultAutoArchiveDuration int `json:"default_auto_archive_duration,omitempty"`
+	DefaultAutoArchiveDuration ArchiveDuration `json:"default_auto_archive_duration,omitempty"`
 }
 
 // Mention returns a string which mentions the channel
@@ -337,13 +336,18 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
+// IsThread returns wether the specific channel is a thread
+func (c *Channel) IsThread() bool {
+	return c.Type == ChannelTypeGuildNewsThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildPublicThread
+}
+
 // ThreadMetadata contains a number of thread-specific
 // channel fields that are not needed by other channel types.
 type ThreadMetadata struct {
-	Archived            bool      `json:"archived"`
-	AutoArchiveDuration int       `json:"auto_archive_duration"`
-	ArchiveTimestamp    Timestamp `json:"archive_timestamp"`
-	Locked              bool      `json:"locked,omitempty"`
+	Archived            bool            `json:"archived"`
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+	ArchiveTimestamp    Timestamp       `json:"archive_timestamp"`
+	Locked              bool            `json:"locked,omitempty"`
 }
 
 // ThreadMember is used to indicate whether a user has joined
@@ -362,8 +366,7 @@ type ThreadCreateData struct {
 
 	// Duration in minutes to automatically archive the thread
 	// after recent activity.
-	// Can be set to: 60, 1440, 4320, 10080
-	AutoArchiveDuration int `json:"auto_archive_duration"`
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
 
 	// Defaults to `PRIVATE_THREAD` in order to match the behavior
 	// when thread documentation was first published.
@@ -379,9 +382,19 @@ type ThreadEditData struct {
 
 	// Duration in minutes to automatically archive the thread
 	// after recent activity.
-	// Can be set to: 60, 1440, 4320, 10080
-	AutoArchiveDuration int `json:"auto_archive_duration"`
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
 }
+
+// ArchiveDuration is the time it takes to auto-archive a thread in minutes
+type ArchiveDuration int
+
+// Allowed values for ArchiveDuration by discord
+const (
+	ArchiveDurationOneHour   ArchiveDuration = 60
+	ArchiveDurationOneDay    ArchiveDuration = 1440
+	ArchiveDurationThreeDays ArchiveDuration = 4320
+	ArchiveDurationOneWeek   ArchiveDuration = 10080
+)
 
 // VideoQualityMode of the voice channel
 // 1 when not present
