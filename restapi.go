@@ -1833,6 +1833,129 @@ func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFoll
 }
 
 // ------------------------------------------------------------------------------------------------
+// Functions specific to Direct Messages
+// ------------------------------------------------------------------------------------------------
+
+// UserMessageSend sends a message to a user.
+// userID : The ID of a User.
+// content   : The message to send.
+func (s *Session) UserMessageSend(userID, content string) (*Message, error) {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.ChannelMessageSendComplex(userChannel.ID, &MessageSend{
+		Content: content,
+	})
+}
+
+// UserMessageSendEmbed sends a message to the given private channel with embedded data.
+// userID : The ID of a User.
+// embed : The embed data to send.
+func (s *Session) UserMessageSendEmbed(userID string, embed *MessageEmbed) (*Message, error) {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.ChannelMessageSendComplex(userChannel.ID, &MessageSend{
+		Embed: embed,
+	})
+
+}
+
+// UserMessageSendReply sends a message to the given private channel with reference data.
+// userID : The ID of a User.
+// content   : The message to send.
+// messageID : The messageID to create reference data from.
+func (s *Session) UserMessageSendReply(userID, content, messageID string) (*Message, error) {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	reference := &MessageReference{
+		MessageID: messageID,
+		ChannelID: userChannel.ID,
+	}
+
+	return s.ChannelMessageSendComplex(userChannel.ID, &MessageSend{
+		Content:   content,
+		Reference: reference,
+	})
+}
+
+// UserMessageEdit edits an existing message, replacing it entirely with
+// the given content.
+// userID : The ID of a User.
+// messageID  : The ID of a Message
+// content    : The contents of the message
+func (s *Session) UserMessageEdit(userID, messageID, content string) (*Message, error) {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return nil, err
+	}
+	return s.ChannelMessageEditComplex(NewMessageEdit(userChannel.ID, messageID).SetContent(content))
+}
+
+// UserMessageDelete deletes a message from a private channel.
+// userID : The ID of a User.
+// messageID  : The ID of a Message
+func (s *Session) UserMessageDelete(userID, messageID string) error {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return err
+	}
+	return s.ChannelMessageDelete(userChannel.ID, messageID)
+}
+
+// UserMessagePin pins a message within a given channel
+// userID : The ID of a User.
+// messageID  : The ID of a Message
+func (s *Session) UserMessagePin(userID, messageID string) error {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return err
+	}
+	return s.ChannelMessagePin(userChannel.ID, messageID)
+}
+
+// UserMessageUnpin unpins a message within a given channel
+// userID : The ID of a User.
+// messageID  : The ID of a Message
+func (s *Session) UserMessageUnpin(userID, messageID string) error {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return err
+	}
+	return s.ChannelMessageUnpin(userChannel.ID, messageID)
+}
+
+// UserMessagesPinned returns an array of Message structures for pinned messages
+// within a given private channel
+// userID : The ID of a User.
+func (s *Session) UserMessagesPinned(userID string) (st []*Message, err error) {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return nil, err
+	}
+	return s.ChannelMessagesPinned(userChannel.ID)
+}
+
+// UserFileSend sends a file to the given channel.
+// userID : The ID of a User.
+// name: The name of the file.
+// io.Reader : A reader for the file contents.
+func (s *Session) UserFileSend(userID, name string, r io.Reader) (*Message, error) {
+	userChannel, err := s.UserChannelCreate(userID)
+	if err != nil {
+		return nil, err
+	}
+	return s.ChannelMessageSendComplex(userChannel.ID, &MessageSend{File: &File{Name: name, Reader: r}})
+}
+
+// ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Invites
 // ------------------------------------------------------------------------------------------------
 
