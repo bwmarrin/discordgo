@@ -598,6 +598,13 @@ func (s *State) ThreadMembersUpdate(t *ThreadMembersUpdate) error {
 				break
 			}
 		}
+
+		for _, member := range t.AddedMembers {
+			if member.ID == s.User.ID {
+				thread.Member = member
+				break
+			}
+		}
 	}
 
 	return ErrStateNotFound
