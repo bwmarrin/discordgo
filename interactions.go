@@ -400,6 +400,7 @@ type InteractionResponseData struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	Files           []*File                 `json:"-"`
 	Flags           uint64                  `json:"flags,omitempty"`
 }
 
