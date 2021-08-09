@@ -600,7 +600,7 @@ func (s *State) ThreadMembersUpdate(t *ThreadMembersUpdate) error {
 		}
 
 		for _, member := range t.AddedMembers {
-			if member.ID == s.User.ID {
+			if member.UserID == s.User.ID {
 				thread.Member = member
 				break
 			}
