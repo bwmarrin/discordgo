@@ -355,7 +355,7 @@ type ThreadMetadata struct {
 type ThreadMember struct {
 	ID            string    `json:"id,omitempty"`
 	UserID        string    `json:"user_id,omitempty"`
-	JoinTimeStamp Timestamp `json:"join_timestamp"`
+	JoinTimestamp Timestamp `json:"join_timestamp"`
 	Flags         int       `json:"flags"`
 }
 
@@ -368,8 +368,6 @@ type ThreadCreateData struct {
 	// after recent activity.
 	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
 
-	// Defaults to `PRIVATE_THREAD` in order to match the behavior
-	// when thread documentation was first published.
 	Type ChannelType `json:"type"`
 }
 
@@ -538,9 +536,6 @@ type Guild struct {
 	// The hash of the guild's icon. Use Session.GuildIcon
 	// to retrieve the icon itself.
 	Icon string `json:"icon"`
-
-	// The voice region of the guild.
-	Region string `json:"region"`
 
 	// The ID of the AFK voice channel.
 	AfkChannelID string `json:"afk_channel_id"`
