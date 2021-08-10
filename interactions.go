@@ -241,6 +241,9 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 type MessageComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
+
+	// NOTE: Only filled when ComponentType is SelectMenuComponent (3). Otherwise is nil.
+	Values []string `json:"values"`
 }
 
 // Type returns the type of interaction data.
@@ -400,8 +403,10 @@ type InteractionResponseData struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
-	Files           []*File                 `json:"-"`
-	Flags           uint64                  `json:"flags,omitempty"`
+
+	Flags uint64 `json:"flags,omitempty"`
+
+	Files []*File `json:"-"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
