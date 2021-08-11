@@ -1612,6 +1612,9 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // content   : The message to send.
 // reference : The message reference to send.
 func (s *Session) ChannelMessageSendReply(channelID string, content string, reference *MessageReference) (*Message, error) {
+	if reference == nil {
+		return nil, fmt.Errorf("reply attempted with nil message reference")
+	}
 	return s.ChannelMessageSendComplex(channelID, &MessageSend{
 		Content:   content,
 		Reference: reference,

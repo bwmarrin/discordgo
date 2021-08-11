@@ -120,7 +120,9 @@ type Message struct {
 	// Is sent with Rich Presence-related chat embeds
 	Application *MessageApplication `json:"application"`
 
-	// MessageReference contains reference data sent with crossposted messages
+	// MessageReference contains reference data sent with crossposted or reply messages.
+	// This does not contain the reference *to* this message; this is for when *this* message references another.
+	// To generate a reference to this message, use (*Message).Reference().
 	MessageReference *MessageReference `json:"message_reference"`
 
 	// The flags of the message, which describe extra features of a message.
