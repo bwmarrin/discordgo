@@ -1311,8 +1311,8 @@ const (
 	ActivityTypeGame      ActivityType = 0
 	ActivityTypeStreaming ActivityType = 1
 	ActivityTypeListening ActivityType = 2
-	//	ActivityTypeWatching // not valid in this use case?
-	ActivityTypeCustom ActivityType = 4
+	ActivityTypeWatching  ActivityType = 3
+	ActivityTypeCustom    ActivityType = 4
 )
 
 // Identify is sent during initial handshake with the discord gateway.

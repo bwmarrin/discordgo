@@ -1612,6 +1612,9 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // content   : The message to send.
 // reference : The message reference to send.
 func (s *Session) ChannelMessageSendReply(channelID string, content string, reference *MessageReference) (*Message, error) {
+	if reference == nil {
+		return nil, fmt.Errorf("reply attempted with nil message reference")
+	}
 	return s.ChannelMessageSendComplex(channelID, &MessageSend{
 		Content:   content,
 		Reference: reference,
@@ -2175,29 +2178,40 @@ func (s *Session) WebhookMessage(webhookID, token, messageID string) (message *M
 	return
 }
 
-// WebhookMessageEdit edits a webhook message.
+// WebhookMessageEdit edits a webhook message and returns a new one.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
 // messageID : The ID of message to edit
-func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (err error) {
+func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *WebhookEdit) (st *Message, err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	var response []byte
 	if len(data.Files) > 0 {
 		contentType, body, err := MultipartBodyWithJSON(data, data.Files)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		_, err = s.request("PATCH", uri, contentType, body, uri, 0)
+		response, err = s.request("PATCH", uri, contentType, body, uri, 0)
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		_, err = s.RequestWithBucketID("PATCH", uri, data, EndpointWebhookToken("", ""))
+		response, err = s.RequestWithBucketID("PATCH", uri, data, EndpointWebhookToken("", ""))
+
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	err = unmarshal(response, &st)
 	return
 }
 
 // WebhookMessageDelete deletes a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
-// messageID : The ID of message to edit
+// messageID : The ID of a message to edit
 func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err error) {
 	uri := EndpointWebhookMessage(webhookID, token, messageID)
 
@@ -2522,7 +2536,7 @@ func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*
 // appID       : The application ID.
 // interaction : Interaction instance.
 // newresp     : Updated response message data.
-func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) error {
+func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) (*Message, error) {
 	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
 }
 
@@ -2551,7 +2565,7 @@ func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, 
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
 // data        : Data to update the message
-func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) error {
+func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) (*Message, error) {
 	return s.WebhookMessageEdit(appID, interaction.Token, messageID, data)
 }
 
