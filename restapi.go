@@ -2128,8 +2128,18 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
+	v := url.Values{}
+
 	if wait {
-		uri += "?wait=true"
+		v.Set("wait", "true")
+	}
+
+	if data.ThreadID != "" {
+		v.Set("thread_id", data.ThreadID)
+	}
+
+	if len(v) > 0 {
+		uri += "?" + v.Encode()
 	}
 
 	var response []byte

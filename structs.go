@@ -400,8 +400,8 @@ type VideoQualityMode int
 
 // Constants for the Video Quality Modes of a channel
 const (
-	VideoQualityModeAuto VideoQualityMode = iota + 1
-	VideoQualityModeFull
+	VideoQualityModeAuto VideoQualityMode = 1
+	VideoQualityModeFull VideoQualityMode = 2
 )
 
 // A ChannelEdit holds Channel Field data for a channel edit.
