@@ -38,7 +38,8 @@ const (
 	MessageTypeGuildDiscoveryDisqualified            MessageType = 14
 	MessageTypeGuildDiscoveryRequalified             MessageType = 15
 	MessageTypeReply                                 MessageType = 19
-	MessageTypeApplicationCommand                    MessageType = 20
+	MessageTypeChatInputCommand                      MessageType = 20
+	MessageTypeContextMenuCommand                    MessageType = 23
 )
 
 // A Message stores all data related to a specific Discord message.
