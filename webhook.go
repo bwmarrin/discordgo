@@ -23,6 +23,7 @@ type WebhookType int
 const (
 	WebhookTypeIncoming        WebhookType = 1
 	WebhookTypeChannelFollower WebhookType = 2
+	WebhookTypeApplication     WebhookType = 3
 )
 
 // WebhookParams is a struct for webhook params, used in the WebhookExecute command.
@@ -35,6 +36,7 @@ type WebhookParams struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	ThreadID        string                  `json:"thread_id,omitempty"`
 	// NOTE: Works only for followup messages.
 	Flags uint64 `json:"flags,omitempty"`
 }
