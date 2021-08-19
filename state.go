@@ -567,16 +567,16 @@ func (s *State) ThreadMemberUpdate(t *ThreadMember) error {
 		return ErrNilState
 	}
 
-	channel, ok := s.channelMap[t.ID]
-	if ok {
-		s.Lock()
-		defer s.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
-		channel.Member = t
-		return nil
+	channel, ok := s.channelMap[t.ID]
+	if !ok {
+		return ErrStateNotFound
 	}
 
-	return ErrStateNotFound
+	channel.Member = t
+	return nil
 }
 
 // ThreadMembersUpdate updates the member object of the thread.
@@ -591,23 +591,25 @@ func (s *State) ThreadMembersUpdate(t *ThreadMembersUpdate) error {
 	defer s.Unlock()
 
 	thread, ok := s.channelMap[t.ID]
-	if ok {
-		for _, memberID := range t.RemovedMembersIDs {
-			if memberID == s.User.ID {
-				thread.Member = nil
-				break
-			}
-		}
+	if !ok {
+		return ErrStateNotFound
+	}
 
-		for _, member := range t.AddedMembers {
-			if member.UserID == s.User.ID {
-				thread.Member = member
-				break
-			}
+	for _, memberID := range t.RemovedMembersIDs {
+		if memberID == s.User.ID {
+			thread.Member = nil
+			break
 		}
 	}
 
-	return ErrStateNotFound
+	for _, member := range t.AddedMembers {
+		if member.UserID == s.User.ID {
+			thread.Member = member
+			break
+		}
+	}
+
+	return nil
 }
 
 // ThreadListSync syncs new threads and threads member that
