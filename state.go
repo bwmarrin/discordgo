@@ -623,40 +623,49 @@ func (s *State) ThreadListSync(t *ThreadListSync) error {
 		return err
 	}
 
-	if len(t.ChannelIDs) > 0 {
-		s.Lock()
-		defer s.Unlock()
+	s.Lock()
+	defer s.Unlock()
+
+	var index int
+
+OUTER:
+	for _, c := range g.Channels {
+		if !c.IsThread() || c.ThreadMetadata.Archived {
+			g.Channels[index] = c
+			index++
+			continue OUTER
+		}
+
+		if len(t.ChannelIDs) == 0 {
+			delete(s.channelMap, c.ID)
+			continue OUTER
+		}
 
 		for _, parentChannelID := range t.ChannelIDs {
-			for _, stateChannel := range s.channelMap {
-				if stateChannel.IsThread() && stateChannel.ParentID == parentChannelID && !stateChannel.ThreadMetadata.Archived {
-					for i, c := range g.Channels {
-						if c.ID == stateChannel.ID {
-							g.Channels = append(g.Channels[:i], g.Channels[i+1:]...)
-							break
-						}
-					}
-					delete(s.channelMap, stateChannel.ID)
-				}
+			if c.ParentID == parentChannelID {
+				delete(s.channelMap, c.ID)
+				continue OUTER
 			}
 		}
 
-		for _, channel := range t.Threads {
-			s.channelMap[channel.ID] = channel
-			g.Channels = append(g.Channels, channel)
-		}
+		g.Channels[index] = c
+		index++
+	}
+	g.Channels = g.Channels[:index]
 
-		for _, member := range t.Members {
-			channel, ok := s.channelMap[member.ID]
-			if ok {
-				channel.Member = member
-			}
-		}
-
-		return nil
+	for _, channel := range t.Threads {
+		s.channelMap[channel.ID] = channel
+		g.Channels = append(g.Channels, channel)
 	}
 
-	return ErrStateNotFound
+	for _, member := range t.Members {
+		channel, ok := s.channelMap[member.ID]
+		if ok {
+			channel.Member = member
+		}
+	}
+
+	return nil
 }
 
 // Emoji returns an emoji for a guild and emoji id.
