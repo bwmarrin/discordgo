@@ -118,7 +118,8 @@ var (
 	EndpointChannelMessageCrosspost      = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
 	EndpointChannelUsers                 = func(cID string) string { return EndpointChannel(cID) + "/users" }
 	EndpointThreads                      = func(cID string) string { return EndpointChannel(cID) + "/threads" }
-	EndpointThreadMembers                = func(cID string) string { return EndpointChannel(cID) + "/thread-members/" }
+	EndpointThreadMembers                = func(cID string) string { return EndpointChannel(cID) + "/thread-members" }
+	EndpointThreadMembersWithUserID      = func(cID, uID string) string { return EndpointChannel(cID) + "/thread-members/" + uID }
 	EndpointArchivedThreads              = func(cID string) string { return EndpointThreads(cID) + "/archived" }
 	EndpointPublicArchivedThreads        = func(cID string) string { return EndpointArchivedThreads(cID) + "/public" }
 	EndpointPrivateArchivedThreads       = func(cID string) string { return EndpointArchivedThreads(cID) + "/private" }
