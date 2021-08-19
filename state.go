@@ -633,12 +633,15 @@ OUTER:
 		if !c.IsThread() || c.ThreadMetadata.Archived {
 			g.Channels[index] = c
 			index++
-			continue OUTER
+			continue
 		}
 
+		// If len(t.ChannelIDs) == 0, this means this event
+		// is happening for the whole guild.
+		// In this case we can remove all threads unconditionally.
 		if len(t.ChannelIDs) == 0 {
 			delete(s.channelMap, c.ID)
-			continue OUTER
+			continue
 		}
 
 		for _, parentChannelID := range t.ChannelIDs {
