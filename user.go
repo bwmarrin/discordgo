@@ -112,6 +112,7 @@ func (u *User) AvatarURL(size string) string {
 	return URL
 }
 
+// BannerURL returns a URL to the user's banner.
 // An empty string is returned if the user banner is unset.
 func (u *User) BannerURL() string {
 	var URL string
