@@ -114,9 +114,14 @@ func (u *User) AvatarURL(size string) string {
 
 // An empty string is returned if the user banner is unset.
 func (u *User) BannerURL() string {
+	var URL string
 	if u.Banner == "" {
-		return ""
+		URL = ""
+	} else if strings.HasPrefix(u.Banner, "a_") {
+		URL = EndpointUserBannerAnimated(u.ID, u.Avatar)
+	} else {
+		URL = EndpointUserBanner(u.ID, u.Banner)
 	}
 
-	return EndpointUserBanner(u.ID, u.Banner)
+	return URL
 }
