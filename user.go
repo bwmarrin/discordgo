@@ -74,6 +74,12 @@ type User struct {
 	// The flags on a user's account.
 	// Only available when the request is authorized via a Bearer token.
 	Flags int `json:"flags"`
+
+	// Banner is the user's banner, or an empty string if unset.
+	Banner string `json:"banner,omitempty"`
+
+	// Accent is the user's banner color encoded as an integer representation of hexadecimal color code
+	Accent int `json:"accent_color,omitempty"`
 }
 
 // String returns a unique identifier of the form username#discriminator
@@ -104,4 +110,13 @@ func (u *User) AvatarURL(size string) string {
 		return URL + "?size=" + size
 	}
 	return URL
+}
+
+// An empty string is returned if the user banner is unset.
+func (u *User) BannerURL() string {
+	if u.Banner == "" {
+		return ""
+	}
+
+	return EndpointUserBanner(u.ID, u.Banner)
 }

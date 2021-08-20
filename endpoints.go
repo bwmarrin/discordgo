@@ -76,6 +76,7 @@ var (
 	EndpointUserDevices       = func(uID string) string { return EndpointUsers + uID + "/devices" }
 	EndpointUserConnections   = func(uID string) string { return EndpointUsers + uID + "/connections" }
 	EndpointUserNotes         = func(uID string) string { return EndpointUsers + "@me/notes/" + uID }
+	EndpointUserBanner        = func(uID, hash string) string { return EndpointCDNBanners + uID + "/" + hash + ".png" }
 
 	EndpointGuild                = func(gID string) string { return EndpointGuilds + gID }
 	EndpointGuildPreview         = func(gID string) string { return EndpointGuilds + gID + "/preview" }
