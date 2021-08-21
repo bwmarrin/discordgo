@@ -130,6 +130,9 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// ReferencedMessage is the message associated with the `message_reference`.
+	ReferencedMessage *Message `json:"referenced_message,omitempty"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
