@@ -1107,8 +1107,17 @@ type MessageReaction struct {
 
 // GatewayBotResponse stores the data for the gateway/bot response
 type GatewayBotResponse struct {
-	URL    string `json:"url"`
-	Shards int    `json:"shards"`
+	URL               string             `json:"url"`
+	Shards            int                `json:"shards"`
+	SessionStartLimit SessionInformation `json:"session_start_limit"`
+}
+
+// SessionInformation provides the information for max concurrency sharding
+type SessionInformation struct {
+	Total          int `json:"total,omitempty"`
+	Remaining      int `json:"remaining,omitempty"`
+	ResetAfter     int `json:"reset_after,omitempty"`
+	MaxConcurrency int `json:"max_concurrency,omitempty"`
 }
 
 // GatewayStatusUpdate is sent by the client to indicate a presence or status update
@@ -1204,6 +1213,7 @@ const (
 	ActivityTypeListening ActivityType = 2
 	ActivityTypeWatching  ActivityType = 3
 	ActivityTypeCustom    ActivityType = 4
+	ActivityTypeCompeting ActivityType = 5
 )
 
 // Identify is sent during initial handshake with the discord gateway.
