@@ -56,7 +56,7 @@ type Application struct {
 	Bot                 *User     `json:"bot"`
 	Team                *Team     `json:"team"`
 	VerifyKey           string    `json:"verify_key"`
-	RPCOrigins          *[]string `json:"rpc_origins,omitempty"`
+	RPCOrigins          []string  `json:"rpc_origins,omitempty"`
 	TeamsOfServiceURL   string    `json:"teams_of_service_url,omitempty"`
 	PrivacyPolicyURL    string    `json:"privacy_policy_url,omitempty"`
 	Summary             string    `json:"summary"`
