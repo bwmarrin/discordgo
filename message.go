@@ -276,13 +276,14 @@ type MessageAllowedMentions struct {
 
 // A MessageAttachment stores data for message attachments.
 type MessageAttachment struct {
-	ID       string `json:"id"`
-	URL      string `json:"url"`
-	ProxyURL string `json:"proxy_url"`
-	Filename string `json:"filename"`
-	Width    int    `json:"width"`
-	Height   int    `json:"height"`
-	Size     int    `json:"size"`
+	ID          string `json:"id"`
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type,omitempty"`
+	Size        int    `json:"size"`
+	URL         string `json:"url"`
+	ProxyURL    string `json:"proxy_url"`
+	Height      int    `json:"height"`
+	Width       int    `json:"width"`
 }
 
 // MessageEmbedFooter is a part of a MessageEmbed struct.
