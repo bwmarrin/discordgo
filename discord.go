@@ -71,7 +71,6 @@ func New(args ...interface{}) (s *Session, err error) {
 	// These can be modified prior to calling Open()
 	s.Identify.Compress = true
 	s.Identify.LargeThreshold = 250
-	s.Identify.GuildSubscriptions = true
 	s.Identify.Properties.OS = runtime.GOOS
 	s.Identify.Properties.Browser = "DiscordGo v" + VERSION
 	s.Identify.Intents = MakeIntent(IntentsAllWithoutPrivileged)

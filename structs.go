@@ -1219,14 +1219,13 @@ const (
 // Identify is sent during initial handshake with the discord gateway.
 // https://discord.com/developers/docs/topics/gateway#identify
 type Identify struct {
-	Token              string              `json:"token"`
-	Properties         IdentifyProperties  `json:"properties"`
-	Compress           bool                `json:"compress"`
-	LargeThreshold     int                 `json:"large_threshold"`
-	Shard              *[2]int             `json:"shard,omitempty"`
-	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
-	GuildSubscriptions bool                `json:"guild_subscriptions"`
-	Intents            Intent              `json:"intents"`
+	Token          string              `json:"token"`
+	Properties     IdentifyProperties  `json:"properties"`
+	Compress       bool                `json:"compress"`
+	LargeThreshold int                 `json:"large_threshold"`
+	Shard          *[2]int             `json:"shard,omitempty"`
+	Presence       GatewayStatusUpdate `json:"presence,omitempty"`
+	Intents        Intent              `json:"intents"`
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
