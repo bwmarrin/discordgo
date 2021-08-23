@@ -1213,6 +1213,7 @@ const (
 	ActivityTypeListening ActivityType = 2
 	ActivityTypeWatching  ActivityType = 3
 	ActivityTypeCustom    ActivityType = 4
+	ActivityTypeCompeting ActivityType = 5
 )
 
 // Identify is sent during initial handshake with the discord gateway.
