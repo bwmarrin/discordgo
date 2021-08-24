@@ -1943,6 +1943,31 @@ func (s *Session) ThreadStartWithoutMessage(channelID, name string, autoArchiveD
 	return
 }
 
+// ThreadEdit updates an existing thread
+func (s *Session) ThreadEdit(channelID, name string, archived bool, locked bool, autoArchiveDuration ArchiveDuration) (c *Channel, err error) {
+
+	endpoint := EndpointChannel(channelID)
+	d := struct {
+		Name                string          `json:"name"`
+		Archived            bool            `json:"archived"`
+		Locked              bool            `json:"locked"`
+		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+	}{
+		name,
+		archived,
+		locked,
+		autoArchiveDuration,
+	}
+
+	b, err := s.RequestWithBucketID("PATCH", endpoint, d, endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(b, &c)
+	return
+}
+
 // ThreadMembers lists all members of the thread as a slice of ThreadMember. Guild member intent is required
 // to call this path.
 func (s *Session) ThreadMembers(channelID string) (t []*ThreadMember, err error) {
