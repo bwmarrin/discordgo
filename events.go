@@ -320,10 +320,10 @@ type ThreadMembersUpdate struct {
 
 // ThreadListSync is the data for a ThreadListSync event
 type ThreadListSync struct {
-	GuildID    string         `json:"guild_id"`
-	ChannelIDs []string       `json:"channel_ids,omitempty"`
-	Threads    []Channel      `json:"threads"`
-	Members    []ThreadMember `json:"members"`
+	GuildID    string          `json:"guild_id"`
+	ChannelIDs []string        `json:"channel_ids"`
+	Threads    []*Channel      `json:"threads"`
+	Members    []*ThreadMember `json:"members"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal Interaction object.

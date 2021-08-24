@@ -1839,209 +1839,190 @@ func (s *Session) ChannelNewsFollow(channelID, targetID string) (st *ChannelFoll
 // Functions specific to Threads
 // ------------------------------------------------------------------------------------------------
 
-// BuildFilter puts together a query string for use when getting a thread list.
-func buildFilter(f ThreadListFilter) (q string) {
+// ThreadListFilter is the struct that can be passed to buildFilter.
+type ThreadListFilter struct {
+	// Threads before this timestamp
+	Before *time.Time
+
+	// Optional; limit the number of threads returned
+	Limit int
+}
+
+// buildFilter puts together a query string for use when getting a thread list.
+func buildFilter(f *ThreadListFilter) (q string) {
+	if f == nil {
+		return
+	}
 	query := url.Values{}
-	if f.Before != 0 {
-		query.Add("before", strconv.Itoa(f.Before))
+	if f.Before != nil {
+		query.Set("before", f.Before.Format(time.RFC3339))
 	}
 	if f.Limit != 0 {
 		query.Add("limit", strconv.Itoa(f.Limit))
 	}
-	if f.Before != 0 || f.Limit != 0 {
+	if len(query) > 0 {
 		return "?" + query.Encode()
 	}
+
 	return
 }
 
-// ThreadJoin joins the user to a thread.
+// ThreadJoin joins the session user to a thread
+// PUT/channels/{channel.id}/thread-members/@me
 func (s *Session) ThreadJoin(channelID string) (err error) {
-
-	endpoint := EndpointChannelThread(channelID)
-
-	_, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	_, err = s.RequestWithBucketID("PUT", EndpointThreadMember(channelID, "@me"), nil, EndpointChannel(channelID))
 	return
 }
 
-// ThreadMemberAdd adds a member to a thread. Requires the ability to send messages in the thread, and that
-// it is not archived.
-func (s *Session) ThreadMemberAdd(channelID string, userID string) (err error) {
-
-	endpoint := EndpointChannelMember(channelID, userID)
-
-	_, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+// ThreadMemberAdd adds another user to a thread
+// PUT /channels/{channel.id}/thread-members/{user.id}
+func (s *Session) ThreadMemberAdd(channelID, uID string) (err error) {
+	_, err = s.RequestWithBucketID("PUT", EndpointThreadMember(channelID, uID), nil, EndpointChannel(channelID))
 	return
 }
 
-// ThreadLeave removes the client from a thread. This should only be called if the channel is not archived.
+// ThreadLeave removes the session user from a thread
+// DELETE /channels/{channel.id}/thread-members/@me
 func (s *Session) ThreadLeave(channelID string) (err error) {
-
-	endpoint := EndpointChannelThread(channelID)
-
-	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	_, err = s.RequestWithBucketID("DELETE", EndpointThreadMember(channelID, "@me"), nil, EndpointChannel(channelID))
 	return
 }
 
-// ThreadMemberRemove removes a member from the thread. Requires the Manage Threads permission, or the creator of the
-// thread, if the type is private.
-func (s *Session) ThreadMemberRemove(channelID string, userID string) (err error) {
-
-	endpoint := EndpointChannelMember(channelID, userID)
-
-	_, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+// ThreadMemberRemove removes another user from a thread
+// PUT /channels/{channel.id}/thread-members/{user.id}
+func (s *Session) ThreadMemberRemove(channelID, uID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointThreadMember(channelID, uID), nil, EndpointChannel(channelID))
 	return
 }
 
-// ThreadStartWithMessage creates a thread in the channel ID given, using a message ID as the starting message in the thread.
-func (s *Session) ThreadStartWithMessage(channelID, messageID, name string, autoArchiveDuration ArchiveDuration) (c *Channel, err error) {
+// ThreadStartWithMessage creates a new public thread from an existing message.
+// When called on a ChannelTypeGuildText channel, creates a ChannelTypeGuildPublicThread.
+// When called on a ChannelTypeGuildNews channel, creates a ChannelTypeGuildNewsThread.
+// The id of the created thread will be the same as the id of the message,
+// and as such a message can only have a single thread created from it.
+//
+// POST /channels/{channel.id}/messages/{message.id}/threads
+func (s *Session) ThreadStartWithMessage(channelID, messageID string, data *ThreadCreateData) (st *Channel, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointChannelMessageThreads(channelID, messageID), data, EndpointChannel(channelID))
 
-	endpoint := EndpointChannelStartThreadWithMessage(channelID, messageID)
-	d := struct {
-		Name                string          `json:"name"`
-		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
-	}{
-		name,
-		autoArchiveDuration,
-	}
-
-	b, err := s.RequestWithBucketID("POST", endpoint, d, endpoint)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &c)
+	err = unmarshal(body, &st)
 	return
 }
 
-// ThreadStartWithoutMessage creates a thread in the channel ID given, without needing a message.
-// Private threads are available when using this. The default thread type is public.
-// Private threads cannot be created from news channels.
-func (s *Session) ThreadStartWithoutMessage(channelID, name string, autoArchiveDuration ArchiveDuration, private bool) (c *Channel, err error) {
-
-	endpoint := EndpointChannelStartThreadWithoutMessage(channelID)
-	d := struct {
-		Name                string          `json:"name"`
-		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
-		Type                ChannelType     `json:"type"`
-	}{
-		name,
-		autoArchiveDuration,
-		ChannelTypeGuildPublicThread,
-	}
-
-	if private {
-		d.Type = ChannelTypeGuildPrivateThread
-	}
-
-	if d.AutoArchiveDuration == 0 {
-		d.AutoArchiveDuration = ArchiveDurationOneHour
-	}
-
-	b, err := s.RequestWithBucketID("POST", endpoint, d, endpoint)
+// ThreadStartWithoutMessage creates a new thread that is not connected
+// to an existing message.
+// The created thread is always a ChannelTypeGuildPrivateThread
+//
+// POST /channels/{channel.id}/threads
+func (s *Session) ThreadStartWithoutMessage(channelID string, data *ThreadCreateData) (st *Channel, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointThreads(channelID), data, EndpointChannel(channelID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &c)
+	err = unmarshal(body, &st)
 	return
 }
 
-// ThreadEdit updates an existing thread
-func (s *Session) ThreadEdit(channelID, name string, archived bool, locked bool, autoArchiveDuration ArchiveDuration) (c *Channel, err error) {
-
-	endpoint := EndpointChannel(channelID)
-	d := struct {
-		Name                string          `json:"name"`
-		Archived            bool            `json:"archived"`
-		Locked              bool            `json:"locked"`
-		AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
-	}{
-		name,
-		archived,
-		locked,
-		autoArchiveDuration,
-	}
-
-	b, err := s.RequestWithBucketID("PATCH", endpoint, d, endpoint)
+// ThreadEditComplex edits an existing thread, replacing the parameters entirely with ThreadEdit struct
+// threadID  : The ID of a Thread
+// data          : The thread struct to send
+func (s *Session) ThreadEditComplex(threadID string, data *ThreadEditData) (st *Channel, err error) {
+	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(threadID), data, EndpointChannel(threadID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &c)
+	err = unmarshal(body, &st)
 	return
 }
 
-// ThreadMembers lists all members of the thread as a slice of ThreadMember. Guild member intent is required
-// to call this path.
-func (s *Session) ThreadMembers(channelID string) (t []*ThreadMember, err error) {
-
-	endpoint := EndpointChannelListMembers(channelID)
-
-	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+// ThreadMembers lists the members of a thread
+// GET /channels/{channel.id}/thread-members
+func (s *Session) ThreadMembers(channelID string) (st []*ThreadMember, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointThreadMembers(channelID), nil, EndpointChannel(channelID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &t)
+	err = unmarshal(body, &st)
 	return
 }
 
-// ThreadsActive lists all active threads in the channel, whether public or private.
-// Ordered by ID, descending order.
-func (s *Session) ThreadsActive(channelID string) (a *ThreadListResponse, err error) {
+// ThreadsResponseBody is the returned data from the discord gateway
+// of some specific threads requests
+type ThreadsResponseBody struct {
+	Threads []*Channel      `json:"threads"`
+	Members []*ThreadMember `json:"members"`
 
-	endpoint := EndpointChannelListActiveThreads(channelID)
+	// Whether there are potentially additional threads
+	// that could be returned on a subsequent call
+	HasMore bool `json:"has_more"`
+}
 
-	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+// listActiveThreadsResponseBody is the returned data from ListActiveThreads
+type listActiveThreadsResponseBody struct {
+	Threads []*Channel      `json:"threads"`
+	Members []*ThreadMember `json:"members"`
+}
+
+// ThreadsListActive returns all active threads in the guild,
+// including public and private threads.
+// Threads are ordered by their `id`, in descending order.
+func (s *Session) ThreadsListActive(guildID string) (t *listActiveThreadsResponseBody, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildActiveThreads(guildID), nil, EndpointGuild(guildID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &a)
+	err = unmarshal(body, &t)
 	return
 }
 
-// ThreadsPublicArchived lists all public threads that have been archived. Requires permission to view message
-// history.
-func (s *Session) ThreadsPublicArchived(channelID string, f ThreadListFilter) (a *ThreadListResponse, err error) {
+// ThreadsListPublicArchived returns archived threads in the channel that are public
+// GET /channels/{channel.id}/threads/archived/public
+func (s *Session) ThreadsListPublicArchived(channelID string, filter *ThreadListFilter) (st *ThreadsResponseBody, err error) {
+	uri := EndpointThreadsPublicArchived(channelID) + buildFilter(filter)
 
-	endpoint := EndpointChannelListPublicArchivedThreads(channelID) + buildFilter(f)
-
-	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointChannel(channelID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &a)
+	err = unmarshal(body, &st)
 	return
 }
 
-// ThreadsPrivateArchived lists all public threads that have been archived. Requires permission to view message
-// history and manage threads.
-func (s *Session) ThreadsPrivateArchived(channelID string, f ThreadListFilter) (a *ThreadListResponse, err error) {
-	endpoint := EndpointChannelListPrivateArchivedThreads(channelID) + buildFilter(f)
+// ThreadsListPrivateArchived returns archived threads in the channel that are private
+// GET /channels/{channel.id}/threads/archived/private
+func (s *Session) ThreadsListPrivateArchived(channelID string, filter *ThreadListFilter) (st *ThreadsResponseBody, err error) {
+	uri := EndpointThreadsPrivateArchived(channelID) + buildFilter(filter)
 
-	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointChannel(channelID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &a)
+	err = unmarshal(body, &st)
 	return
 }
 
-// ThreadsJoinedPrivateArchived lists all private threads that the client has joined in the channel. Requires
-// permission to read message history. Ordered by ID
-func (s *Session) ThreadsJoinedPrivateArchived(channelID string, f ThreadListFilter) (a *ThreadListResponse, err error) {
+// ThreadsListJoinedPrivateArchived returns archived threads in the channel
+// that are of type GUILD_PRIVATE_THREAD, and the user has joined
+// GET /channels/{channel.id}/users/@me/threads/archived/private
+func (s *Session) ThreadsListJoinedPrivateArchived(channelID string, filter *ThreadListFilter) (st *ThreadsResponseBody, err error) {
+	uri := EndpointThreadsPrivateArchived(channelID) + buildFilter(filter)
 
-	endpoint := EndpointChannelListJoinedPrivateArchivedThreads(channelID) + buildFilter(f)
-
-	b, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointChannel(channelID))
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	err = unmarshal(b, &a)
+	err = unmarshal(body, &st)
 	return
 }
 
@@ -2569,8 +2550,18 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
+	v := url.Values{}
+
 	if wait {
-		uri += "?wait=true"
+		v.Set("wait", "true")
+	}
+
+	if data.ThreadID != "" {
+		v.Set("thread_id", data.ThreadID)
+	}
+
+	if len(v) > 0 {
+		uri += "?" + v.Encode()
 	}
 
 	var response []byte

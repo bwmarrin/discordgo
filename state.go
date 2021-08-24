@@ -561,26 +561,28 @@ func (s *State) Channel(channelID string) (*Channel, error) {
 	return nil, ErrStateNotFound
 }
 
-// ThreadMemberUpdate updates the ThreadMember object for the user, in a specific thread.
+// ThreadMemberUpdate updates the ThreadMember object for the user,
+// in a specific thread.
 func (s *State) ThreadMemberUpdate(t *ThreadMember) error {
 	if s == nil {
 		return ErrNilState
 	}
 
-	// If the channel exists in the state, update the thread member of that channel
-	if channel, ok := s.channelMap[t.ID]; ok {
-		s.Lock()
-		defer s.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
-		channel.Member = t
-		return nil
+	channel, ok := s.channelMap[t.ID]
+	if !ok {
+		return ErrStateNotFound
 	}
 
-	return ErrStateNotFound
+	channel.Member = t
+	return nil
 }
 
-// ThreadMembersUpdate updates the member object of the thread. If the user was removed
-// from the thread, it will set the ThreadMember object in the state to nil.
+// ThreadMembersUpdate updates the member object of the thread.
+// If the user was removed, the ThreadMember object in the state
+// will be set to nil.
 func (s *State) ThreadMembersUpdate(t *ThreadMembersUpdate) error {
 	if s == nil {
 		return ErrNilState
@@ -589,22 +591,31 @@ func (s *State) ThreadMembersUpdate(t *ThreadMembersUpdate) error {
 	s.Lock()
 	defer s.Unlock()
 
-	if thread, ok := s.channelMap[t.ID]; ok {
-		for _, memberID := range t.RemovedMemberIDs {
-			if memberID == s.User.ID {
-				// Remove the thread member object from the channel, since we no longer have access to it.
-				thread.Member = nil
-				break
-			}
+	thread, ok := s.channelMap[t.ID]
+	if !ok {
+		return ErrStateNotFound
+	}
+
+	for _, memberID := range t.RemovedMemberIDs {
+		if memberID == s.User.ID {
+			thread.Member = nil
+			break
 		}
 	}
 
-	return ErrStateNotFound
+	for _, member := range t.AddedMembers {
+		if member.UserID == s.User.ID {
+			thread.Member = member
+			break
+		}
+	}
+
+	return nil
 }
 
-// ThreadListSync syncs the new threads and thread member objects made available
-// after a permission change that allows the client to see more channels.
-// See: https://discord.com/developers/docs/topics/threads#gaining-access-to-a-channel
+// ThreadListSync syncs new threads and threads member that
+// the bot gained access to.
+// https://discord.com/developers/docs/topics/gateway#thread-list-sync
 func (s *State) ThreadListSync(t *ThreadListSync) error {
 	if s == nil {
 		return ErrNilState
@@ -615,47 +626,52 @@ func (s *State) ThreadListSync(t *ThreadListSync) error {
 		return err
 	}
 
-	// if no channel IDs were given, all channel IDs were already synchronized
-	if len(t.ChannelIDs) != 0 {
+	s.Lock()
+	defer s.Unlock()
 
-		s.Lock()
-		defer s.Unlock()
+	var index int
 
-		// All channel IDs provided are the parent channel IDs that we need to synchronize.
-		// The Discord API tells us that we should use this info to clear out all active threads whose
-		// parent channel IDs are specified.
+OUTER:
+	for _, c := range g.Channels {
+		if !c.IsThread() || c.ThreadMetadata.Archived {
+			g.Channels[index] = c
+			index++
+			continue
+		}
+
+		// If len(t.ChannelIDs) == 0, this means this event
+		// is happening for the whole guild.
+		// In this case we can remove all threads unconditionally.
+		if len(t.ChannelIDs) == 0 {
+			delete(s.channelMap, c.ID)
+			continue
+		}
+
 		for _, parentChannelID := range t.ChannelIDs {
-			for _, stateChannel := range s.channelMap {
-				if stateChannel.ParentID == parentChannelID && (stateChannel.Type == ChannelTypeGuildPublicThread || stateChannel.Type == ChannelTypeGuildPrivateThread || stateChannel.Type == ChannelTypeGuildNewsThread) && !stateChannel.ThreadMetadata.Archived {
-					for i, c := range g.Channels {
-						if c.ID == stateChannel.ID {
-							g.Channels = append(g.Channels[:i], g.Channels[i+1:]...)
-							break
-						}
-					}
-					delete(s.channelMap, stateChannel.ID)
-				}
+			if c.ParentID == parentChannelID {
+				delete(s.channelMap, c.ID)
+				continue OUTER
 			}
 		}
 
-		// Ingest new threads given to us by the sync event. This will contain all NEW active threads
-		// that our client can see.
-		for _, channel := range t.Threads {
-			s.channelMap[channel.ID] = &channel
-			g.Channels = append(g.Channels, &channel)
-		}
+		g.Channels[index] = c
+		index++
+	}
+	g.Channels = g.Channels[:index]
 
-		// Set the member field of the threads based on the list of thread member data given to us by the sync event.
-		for _, member := range t.Members {
-			if channel, ok := s.channelMap[member.ID]; ok {
-				channel.Member = &member
-			}
-		}
-
-		return nil
+	for _, channel := range t.Threads {
+		s.channelMap[channel.ID] = channel
+		g.Channels = append(g.Channels, channel)
 	}
 
-	return ErrStateNotFound
+	for _, member := range t.Members {
+		channel, ok := s.channelMap[member.ID]
+		if ok {
+			channel.Member = member
+		}
+	}
+
+	return nil
 }
 
 // Emoji returns an emoji for a guild and emoji id.

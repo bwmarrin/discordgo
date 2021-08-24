@@ -172,10 +172,14 @@ type IntegrationAccount struct {
 
 // A VoiceRegion stores data for a specific voice region server.
 type VoiceRegion struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Hostname string `json:"sample_hostname"`
-	Port     int    `json:"sample_port"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Hostname   string `json:"sample_hostname"`
+	Port       int    `json:"sample_port"`
+	VIP        bool   `json:"vip"`
+	Optimal    bool   `json:"optimal"`
+	Deprecated bool   `json:"deprecated"`
+	Custom     bool   `json:"custom"`
 }
 
 // A VoiceICE stores data for voice ICE servers.
@@ -241,6 +245,7 @@ const (
 	ChannelTypeGuildNewsThread    ChannelType = 10
 	ChannelTypeGuildPublicThread  ChannelType = 11
 	ChannelTypeGuildPrivateThread ChannelType = 12
+	ChannelTypeGuildStageVoice    ChannelType = 13
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -309,6 +314,9 @@ type Channel struct {
 	// ApplicationID of the DM creator Zeroed if guild channel or not a bot user
 	ApplicationID string `json:"application_id"`
 
+	// Voice region ID for the voice channel, automatic when set to null
+	RTCRegion *string `json:"rtc_region"`
+
 	// Only applicable to the thread channel type.
 	// MessageCount is an approximation of how many messages are in the thread, and stops counting at 50.
 	MessageCount int `json:"message_count,omitempty"`
@@ -327,11 +335,19 @@ type Channel struct {
 	// Only applicable to the thread channel type.
 	// ThreadMember is the information for the current user, if they joined the thread.
 	Member *ThreadMember `json:"member,omitempty"`
+
+	// The camera video quality mode of the voice channel, 1 when not present
+	VideoQualityMode VideoQualityMode `json:"video_quality_mode,omitempty"`
 }
 
 // Mention returns a string which mentions the channel
 func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
+}
+
+// IsThread returns wether the specific channel is a thread
+func (c *Channel) IsThread() bool {
+	return c.Type == ChannelTypeGuildNewsThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildPublicThread
 }
 
 // A ChannelEdit holds Channel Field data for a channel edit.
@@ -365,44 +381,7 @@ type ThreadMetadata struct {
 	ArchiveTimestamp Timestamp `json:"archive_timestamp"`
 
 	// Whether the thread is locked.
-	Locked bool `json:"locked"`
-}
-
-// ArchiveDuration represents the increments of time at which a thread auto-archives, in minutes.
-type ArchiveDuration int
-
-// Defines the increments at which a thread archives due to inactivity.
-const (
-	ArchiveDurationOneHour   ArchiveDuration = 60
-	ArchiveDurationOneDay    ArchiveDuration = ArchiveDurationOneHour * 24
-	ArchiveDurationThreeDays ArchiveDuration = ArchiveDurationOneDay * 3
-	ArchiveDurationOneWeek   ArchiveDuration = ArchiveDurationOneDay * 7
-)
-
-// StartThreadWithoutMessageStruct defines the data that is sent to the API concerning starting a thread.
-type StartThreadWithoutMessageStruct struct {
-	Name                string
-	AutoArchiveDuration ArchiveDuration
-	Private             bool
-}
-
-// StartThreadWithMessageStruct defines the data that is sent to the API concerning starting a thread from a message.
-type StartThreadWithMessageStruct struct {
-	Name                string          `json:"name"`
-	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
-}
-
-// ThreadListResponse is the response when getting a list of threads.
-type ThreadListResponse struct {
-	Threads []Channel      `json:"threads"`
-	Members []ThreadMember `json:"members"`
-	HasMore bool           `json:"has_more"`
-}
-
-// ThreadListFilter specifies the options available for getting a list threads.
-type ThreadListFilter struct {
-	Before int `json:"before"`
-	Limit  int `json:"limit"`
+	Locked bool `json:"locked,omitempty"`
 }
 
 // ThreadMember is used to determine whether a user is in a thread or not.
@@ -417,6 +396,58 @@ type ThreadMember struct {
 
 	// Currently only used for notifications.
 	Flags int `json:"flags"`
+}
+
+// ArchiveDuration represents the increments of time at which a thread auto-archives, in minutes.
+type ArchiveDuration int
+
+// Defines the increments at which a thread archives due to inactivity.
+const (
+	ArchiveDurationOneHour   ArchiveDuration = 60
+	ArchiveDurationOneDay    ArchiveDuration = ArchiveDurationOneHour * 24
+	ArchiveDurationThreeDays ArchiveDuration = ArchiveDurationOneDay * 3
+	ArchiveDurationOneWeek   ArchiveDuration = ArchiveDurationOneDay * 7
+)
+
+// VideoQualityMode of the voice channel
+// 1 when not present
+type VideoQualityMode int
+
+// Constants for the Video Quality Modes of a channel
+const (
+	VideoQualityModeAuto VideoQualityMode = 1
+	VideoQualityModeFull VideoQualityMode = 2
+)
+
+// ThreadCreateData is the data used to create threads
+type ThreadCreateData struct {
+	// 2-100 character channel name
+	Name string `json:"name"`
+
+	// Duration in minutes to automatically archive the thread
+	// after recent activity.
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+
+	Type ChannelType `json:"type"`
+}
+
+// ThreadEditData is the data used to edit threads
+type ThreadEditData struct {
+	Name             string `json:"name"`
+	Archived         bool   `json:"archived"`
+	Locked           bool   `json:"locked"`
+	RateLimitPerUser *int   `json:"rate_limit_per_user,omitempty"`
+
+	// Duration in minutes to automatically archive the thread
+	// after recent activity.
+	AutoArchiveDuration ArchiveDuration `json:"auto_archive_duration"`
+}
+
+// ThreadListResponse is the response when getting a list of threads.
+type ThreadListResponse struct {
+	Threads []Channel      `json:"threads"`
+	Members []ThreadMember `json:"members"`
+	HasMore bool           `json:"has_more"`
 }
 
 // PermissionOverwriteType represents the type of resource on which
@@ -607,6 +638,7 @@ type Guild struct {
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
 	Threads []*Channel `json:"threads"`
+
 	// A list of voice states for the guild.
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
@@ -1020,6 +1052,7 @@ type GuildAuditLog struct {
 	Users           []*User          `json:"users,omitempty"`
 	AuditLogEntries []*AuditLogEntry `json:"audit_log_entries"`
 	Integrations    []*Integration   `json:"integrations"`
+	Threads         []*Channel       `json:"threads"`
 }
 
 // AuditLogEntry for a GuildAuditLog
@@ -1107,6 +1140,10 @@ const (
 	AuditLogChangeKeyAsset                      AuditLogChangeKey = "asset"
 	AuditLogChangeKeyAvailable                  AuditLogChangeKey = "available"
 	AuditLogChangeKeyGuildID                    AuditLogChangeKey = "guild_id"
+	AuditLogChangeKeyArchived                   AuditLogChangeKey = "archived"
+	AuditLogChangeKeyLocked                     AuditLogChangeKey = "locked"
+	AuditLogChangeKeyAutoArchiveDuration        AuditLogChangeKey = "auto_archive_duration"
+	AuditLogChangeKeyDefaultAutoArchiveDuration AuditLogChangeKey = "default_auto_archive_duration"
 )
 
 // AuditLogOptions optional data for the AuditLog
@@ -1190,6 +1227,10 @@ const (
 	AuditLogActionStickerCreate AuditLogAction = 90
 	AuditLogActionStickerUpdate AuditLogAction = 91
 	AuditLogActionStickerDelete AuditLogAction = 92
+
+	AuditLogActionThreadCreate AuditLogAction = 110
+	AuditLogActionThreadUpdate AuditLogAction = 111
+	AuditLogActionThreadDelete AuditLogAction = 112
 )
 
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
@@ -1458,7 +1499,8 @@ const (
 		PermissionReadMessageHistory |
 		PermissionMentionEveryone |
 		PermissionUsePublicThreads |
-		PermissionUsePrivateThreads
+		PermissionUsePrivateThreads |
+		PermissionManageThreads
 	PermissionAllVoice = PermissionViewChannel |
 		PermissionVoiceConnect |
 		PermissionVoiceSpeak |
@@ -1473,8 +1515,7 @@ const (
 		PermissionManageRoles |
 		PermissionManageChannels |
 		PermissionAddReactions |
-		PermissionViewAuditLogs |
-		PermissionManageThreads
+		PermissionViewAuditLogs
 	PermissionAll = PermissionAllChannel |
 		PermissionKickMembers |
 		PermissionBanMembers |
@@ -1506,37 +1547,46 @@ const (
 	ErrCodeBotsCannotUseEndpoint  = 20001
 	ErrCodeOnlyBotsCanUseEndpoint = 20002
 
-	ErrCodeMaximumGuildsReached     = 30001
-	ErrCodeMaximumFriendsReached    = 30002
-	ErrCodeMaximumPinsReached       = 30003
-	ErrCodeMaximumGuildRolesReached = 30005
-	ErrCodeTooManyReactions         = 30010
+	ErrCodeMaximumGuildsReached                     = 30001
+	ErrCodeMaximumFriendsReached                    = 30002
+	ErrCodeMaximumPinsReached                       = 30003
+	ErrCodeMaximumGuildRolesReached                 = 30005
+	ErrCodeTooManyReactions                         = 30010
+	ErrCodeMaximumNumberOfThreadParticipantsReached = 30033
 
 	ErrCodeUnauthorized = 40001
 
-	ErrCodeMissingAccess                             = 50001
-	ErrCodeInvalidAccountType                        = 50002
-	ErrCodeCannotExecuteActionOnDMChannel            = 50003
-	ErrCodeEmbedDisabled                             = 50004
-	ErrCodeCannotEditFromAnotherUser                 = 50005
-	ErrCodeCannotSendEmptyMessage                    = 50006
-	ErrCodeCannotSendMessagesToThisUser              = 50007
-	ErrCodeCannotSendMessagesInVoiceChannel          = 50008
-	ErrCodeChannelVerificationLevelTooHigh           = 50009
-	ErrCodeOAuth2ApplicationDoesNotHaveBot           = 50010
-	ErrCodeOAuth2ApplicationLimitReached             = 50011
-	ErrCodeInvalidOAuthState                         = 50012
-	ErrCodeMissingPermissions                        = 50013
-	ErrCodeInvalidAuthenticationToken                = 50014
-	ErrCodeNoteTooLong                               = 50015
-	ErrCodeTooFewOrTooManyMessagesToDelete           = 50016
-	ErrCodeCanOnlyPinMessageToOriginatingChannel     = 50019
-	ErrCodeCannotExecuteActionOnSystemMessage        = 50021
-	ErrCodeMessageProvidedTooOldForBulkDelete        = 50034
-	ErrCodeInvalidFormBody                           = 50035
-	ErrCodeInviteAcceptedToGuildApplicationsBotNotIn = 50036
+	ErrCodeMissingAccess                              = 50001
+	ErrCodeInvalidAccountType                         = 50002
+	ErrCodeCannotExecuteActionOnDMChannel             = 50003
+	ErrCodeEmbedDisabled                              = 50004
+	ErrCodeCannotEditFromAnotherUser                  = 50005
+	ErrCodeCannotSendEmptyMessage                     = 50006
+	ErrCodeCannotSendMessagesToThisUser               = 50007
+	ErrCodeCannotSendMessagesInVoiceChannel           = 50008
+	ErrCodeChannelVerificationLevelTooHigh            = 50009
+	ErrCodeOAuth2ApplicationDoesNotHaveBot            = 50010
+	ErrCodeOAuth2ApplicationLimitReached              = 50011
+	ErrCodeInvalidOAuthState                          = 50012
+	ErrCodeMissingPermissions                         = 50013
+	ErrCodeInvalidAuthenticationToken                 = 50014
+	ErrCodeNoteTooLong                                = 50015
+	ErrCodeTooFewOrTooManyMessagesToDelete            = 50016
+	ErrCodeCanOnlyPinMessageToOriginatingChannel      = 50019
+	ErrCodeCannotExecuteActionOnSystemMessage         = 50021
+	ErrCodeMessageProvidedTooOldForBulkDelete         = 50034
+	ErrCodeInvalidFormBody                            = 50035
+	ErrCodeInviteAcceptedToGuildApplicationsBotNotIn  = 50036
+	ErrCodePerformedOperationOnArchivedThread         = 50083
+	ErrCodeInvalidThreadNotificationSettings          = 50084
+	ErrCodeBeforeValueIsEarlierThanThreadCreationDate = 50085
 
 	ErrCodeReactionBlocked = 90001
+
+	ErrCodeThreadAlreadyCreatedForThisMessage              = 160004
+	ErrCodeThreadIsLocked                                  = 160005
+	ErrCodeMaximumNumberOfActiveThreadsReached             = 160006
+	ErrCodeMaximumNumberOfActiveAnnouncementThreadsReached = 160007
 )
 
 // Intent is the type of a Gateway Intent

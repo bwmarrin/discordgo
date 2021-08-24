@@ -147,7 +147,7 @@ type Message struct {
 	// The message's response to an Interaction.
 	Interaction *MessageInteraction `json:"interaction"`
 
-	// The thread that was started from this message.
+	// The thread that was started from this message. Includes the thread member object.
 	Thread *Channel `json:"thread"`
 
 	// An array of Sticker objects, if any were sent.
@@ -199,9 +199,12 @@ type MessageFlags int
 const (
 	MessageFlagsCrossPosted          MessageFlags = 1 << 0
 	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
-	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
+	MessageFlagsSuppressEmbeds       MessageFlags = 1 << 2
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
 	MessageFlagsUrgent               MessageFlags = 1 << 4
+	MessageFlagsHasThread            MessageFlags = 1 << 5
+	MessageFlagsEphemeral            MessageFlags = 1 << 6
+	MessageFlagsLoading              MessageFlags = 1 << 7
 )
 
 // File stores info about files you e.g. send in messages.

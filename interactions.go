@@ -414,7 +414,7 @@ type InteractionResponseData struct {
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
-	Flags uint64 `json:"flags,omitempty"`
+	Flags InteractionResponseDataFlag `json:"flags,omitempty"`
 
 	Files []*File `json:"-"`
 }

@@ -106,6 +106,7 @@ var (
 	EndpointGuildBanner          = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
 	EndpointGuildStickers        = func(gID string) string { return EndpointGuilds + gID + "/stickers" }
 	EndpointGuildSticker         = func(gID, sID string) string { return EndpointGuilds + gID + "/stickers/" + sID }
+	EndpointGuildActiveThreads   = func(gID string) string { return EndpointGuilds + gID + "/threads/active" }
 
 	EndpointChannel                   = func(cID string) string { return EndpointChannels + cID }
 	EndpointChannelPermissions        = func(cID string) string { return EndpointChannels + cID + "/permissions" }
@@ -119,17 +120,20 @@ var (
 	EndpointChannelMessagesPins       = func(cID string) string { return EndpointChannel(cID) + "/pins" }
 	EndpointChannelMessagePin         = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
 	EndpointChannelMessageCrosspost   = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
-	EndpointChannelFollow             = func(cID string) string { return EndpointChannel(cID) + "/followers" }
+	EndpointChannelUsers              = func(cID string) string { return EndpointChannel(cID) + "/users" }
+	EndpointChannelMessageThreads     = func(cID, mID string) string {
+		return EndpointChannels + cID + "/messages/" + mID + "/threads"
+	}
 
-	EndpointChannelStartThreadWithMessage           = func(cID string, mID string) string { return EndpointChannels + cID + "/messages/" + mID + "/threads" }
-	EndpointChannelStartThreadWithoutMessage        = func(cID string) string { return EndpointChannels + cID + "/threads" }
-	EndpointChannelThread                           = func(cID string) string { return EndpointChannels + cID + "/thread-members/@me" }
-	EndpointChannelMember                           = func(cID string, uID string) string { return EndpointChannels + cID + "/thread-members/" + uID }
-	EndpointChannelListMembers                      = func(cID string) string { return EndpointChannels + cID + "/thread-members" }
-	EndpointChannelListActiveThreads                = func(cID string) string { return EndpointChannels + cID + "/threads/active" }
-	EndpointChannelListPublicArchivedThreads        = func(cID string) string { return EndpointChannels + cID + "/threads/archived/public" }
-	EndpointChannelListPrivateArchivedThreads       = func(cID string) string { return EndpointChannels + cID + "/threads/archived/private" }
-	EndpointChannelListJoinedPrivateArchivedThreads = func(cID string) string { return EndpointChannels + cID + "/users/@me/threads/archived/private" }
+	EndpointThreads                      = func(cID string) string { return EndpointChannel(cID) + "/threads" }
+	EndpointThreadMembers                = func(cID string) string { return EndpointChannel(cID) + "/thread-members" }
+	EndpointThreadMember                 = func(cID, uID string) string { return EndpointChannel(cID) + "/thread-members/" + uID }
+	EndpointThreadsArchived              = func(cID string) string { return EndpointThreads(cID) + "/archived" }
+	EndpointThreadsPublicArchived        = func(cID string) string { return EndpointThreadsArchived(cID) + "/public" }
+	EndpointThreadsPrivateArchived       = func(cID string) string { return EndpointThreadsArchived(cID) + "/private" }
+	EndpointThreadsJoinedPrivateArchived = func(cID string) string { return EndpointChannelUsers(cID) + "/@me/threads/archived/private" }
+
+	EndpointChannelFollow = func(cID string) string { return EndpointChannel(cID) + "/followers" }
 
 	EndpointGroupIcon = func(cID, hash string) string { return EndpointCDNChannelIcons + cID + "/" + hash + ".png" }
 
