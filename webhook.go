@@ -41,8 +41,8 @@ type WebhookParams struct {
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	// NOTE: Works only for followup messages.
-	Flags uint64 `json:"flags,omitempty"`
-	ThreadID        string                  `json:"thread_id,omitempty"`
+	Flags    uint64 `json:"flags,omitempty"`
+	ThreadID string `json:"thread_id,omitempty"`
 }
 
 // WebhookEdit stores data for editing of a webhook message.

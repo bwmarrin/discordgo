@@ -49,7 +49,7 @@ var (
 										Name: "📜",
 									},
 									Label: "Documentation",
-									Style: discordgo.LinkButton,
+									Style: discordgo.ButtonLink,
 									URL:   "https://discord.com/developers/docs/interactions/message-components#buttons",
 								},
 								discordgo.Button{
@@ -57,7 +57,7 @@ var (
 										Name: "🔧",
 									},
 									Label: "Discord developers",
-									Style: discordgo.LinkButton,
+									Style: discordgo.ButtonLink,
 									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
@@ -65,7 +65,7 @@ var (
 										Name: "🦫",
 									},
 									Label: "Discord Gophers",
-									Style: discordgo.LinkButton,
+									Style: discordgo.ButtonLink,
 									URL:   "https://discord.gg/7RuRrVHyXF",
 								},
 							},
@@ -92,7 +92,7 @@ var (
 										Name: "🔧",
 									},
 									Label: "Discord developers",
-									Style: discordgo.LinkButton,
+									Style: discordgo.ButtonLink,
 									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
@@ -100,7 +100,7 @@ var (
 										Name: "🦫",
 									},
 									Label: "Discord Gophers",
-									Style: discordgo.LinkButton,
+									Style: discordgo.ButtonLink,
 									URL:   "https://discord.gg/7RuRrVHyXF",
 								},
 							},
@@ -174,7 +174,7 @@ var (
 									Name: "📜",
 								},
 								Label: "Documentation",
-								Style: discordgo.LinkButton,
+								Style: discordgo.ButtonLink,
 								URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
 							},
 							discordgo.Button{
@@ -182,7 +182,7 @@ var (
 									Name: "🔧",
 								},
 								Label: "Discord developers",
-								Style: discordgo.LinkButton,
+								Style: discordgo.ButtonLink,
 								URL:   "https://discord.gg/discord-developers",
 							},
 							discordgo.Button{
@@ -190,7 +190,7 @@ var (
 									Name: "🦫",
 								},
 								Label: "Discord Gophers",
-								Style: discordgo.LinkButton,
+								Style: discordgo.ButtonLink,
 								URL:   "https://discord.gg/7RuRrVHyXF",
 							},
 						},
@@ -219,7 +219,7 @@ var (
 									// Label is what the user will see on the button.
 									Label: "Yes",
 									// Style provides coloring of the button. There are not so many styles tho.
-									Style: discordgo.SuccessButton,
+									Style: discordgo.ButtonSuccess,
 									// Disabled allows bot to disable some buttons for users.
 									Disabled: false,
 									// CustomID is a thing telling Discord which data to send when this button will be pressed.
@@ -227,13 +227,13 @@ var (
 								},
 								discordgo.Button{
 									Label:    "No",
-									Style:    discordgo.DangerButton,
+									Style:    discordgo.ButtonDanger,
 									Disabled: false,
 									CustomID: "fd_no",
 								},
 								discordgo.Button{
 									Label:    "I don't know",
-									Style:    discordgo.LinkButton,
+									Style:    discordgo.ButtonLink,
 									Disabled: false,
 									// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
 									URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -248,7 +248,7 @@ var (
 							Components: []discordgo.MessageComponent{
 								discordgo.Button{
 									Label:    "Discord Developers server",
-									Style:    discordgo.LinkButton,
+									Style:    discordgo.ButtonLink,
 									Disabled: false,
 									URL:      "https://discord.gg/discord-developers",
 								},
