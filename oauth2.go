@@ -61,7 +61,7 @@ type Application struct {
 	PrivacyPolicyURL    string    `json:"privacy_policy_url,omitempty"`
 	Summary             string    `json:"summary"`
 	GuildID             string    `json:"guild_id,omitempty"`
-	PrimarySkuID        string    `json:"primary_sku_id,omitempty"`
+	PrimarySKUID        string    `json:"primary_sku_id,omitempty"`
 	Slug                string    `json:"slug,omitempty"`
 	CoverImage          string    `json:"cover_image,omitempty"`
 }
