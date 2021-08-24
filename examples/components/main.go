@@ -2,9 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -28,155 +31,406 @@ func init() {
 	}
 }
 
-func main() {
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up!")
-	})
-	// Buttons are part of interactions, so we register InteractionCreate handler
-	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if i.Type == discordgo.InteractionApplicationCommand {
-			if i.ApplicationCommandData().Name == "feedback" {
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Are you satisfied with Buttons?",
-						// Buttons and other components are specified in Components field.
-						Components: []discordgo.MessageComponent{
-							// ActionRow is a container of all buttons within the same row.
-							discordgo.ActionsRow{
-								Components: []discordgo.MessageComponent{
-									discordgo.Button{
-										Label:    "Yes",
-										Style:    discordgo.ButtonSuccess,
-										Disabled: false,
-										CustomID: "yes_btn",
+// Important note: call every command in order it's placed in the example.
+
+var (
+	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"fd_no": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Huh. I see, maybe some of these resources might help you?",
+					Flags:   1 << 6,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "📜",
 									},
-									discordgo.Button{
-										Label:    "No",
-										Style:    discordgo.ButtonDanger,
-										Disabled: false,
-										CustomID: "no_btn",
-									},
-									discordgo.Button{
-										Label:    "I don't know",
-										Style:    discordgo.ButtonLink,
-										Disabled: false,
-										// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
-										URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-										Emoji: discordgo.ComponentEmoji{
-											Name: "🤷",
-										},
-									},
+									Label: "Documentation",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.com/developers/docs/interactions/message-components#buttons",
 								},
-							},
-							// The message may have multiple actions rows.
-							discordgo.ActionsRow{
-								Components: []discordgo.MessageComponent{
-									discordgo.Button{
-										Label:    "Discord Developers server",
-										Style:    discordgo.ButtonLink,
-										Disabled: false,
-										URL:      "https://discord.gg/discord-developers",
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🔧",
 									},
+									Label: "Discord developers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/discord-developers",
 								},
-							},
-							// If a select menu is used in an action row, buttons cannot be used in the same row,
-							// and only one select menu is allowed per row.
-							discordgo.ActionsRow{
-								Components: []discordgo.MessageComponent{
-									discordgo.SelectMenu{
-										CustomID:    "select_menu_rating",
-										Placeholder: "Or do you like Select Menus?",
-										Options: []discordgo.SelectOption{
-											{
-												Label:       "Yes",
-												Value:       "select_menu_yes",
-												Description: "I like them more than buttons",
-											},
-											{
-												Label:       "I like both",
-												Value:       "select_menu_both",
-												Description: "Both select menus and buttons are good",
-											},
-											{
-												Label:       "No",
-												Value:       "select_menu_no",
-												Description: "Buttons for life",
-											},
-										},
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🦫",
 									},
-								},
-							},
-						},
-					},
-				})
-				if err != nil {
-					panic(err)
-				}
-			}
-			return
-		}
-		// Type for button press will be always InteractionButton (3)
-		if i.Type != discordgo.InteractionMessageComponent {
-			return
-		}
-
-		content := "Thanks for your feedback "
-
-		// Values contain the values currently selected from the select menu component.
-		if len(i.MessageComponentData().Values) > 0 {
-			// The select menu is set to only allow one value to be selected.
-			// It can be configured to allow more than one value to be selected at a time.
-			switch i.MessageComponentData().Values[0] {
-			case "select_menu_yes":
-				content += "(yes to select menus)"
-			case "select_menu_both":
-				content += "(likes both buttons and select menus)"
-			case "select_menu_no":
-				content += "(no to select menus)"
-			}
-		} else {
-			// CustomID field contains the same id as when was sent. It's used to identify the which button was clicked.
-			switch i.MessageComponentData().CustomID {
-			case "yes_btn":
-				content += "(yes to buttons)"
-			case "no_btn":
-				content += "(no to buttons)"
-			}
-
-		}
-
-		e := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Buttons also may update the message which to which they are attached.
-			// Or may just acknowledge (InteractionResponseDeferredMessageUpdate) that the event was received and not update the message.
-			// To update it later you need to use interaction response edit endpoint.
-			Type: discordgo.InteractionResponseUpdateMessage,
-			Data: &discordgo.InteractionResponseData{
-				Content: content,
-				Components: []discordgo.MessageComponent{
-					discordgo.ActionsRow{
-						Components: []discordgo.MessageComponent{
-							discordgo.Button{
-								Label:    "Our sponsor",
-								Style:    discordgo.ButtonLink,
-								Disabled: false,
-								URL:      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-								Emoji: discordgo.ComponentEmoji{
-									Name: "💠",
+									Label: "Discord Gophers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/7RuRrVHyXF",
 								},
 							},
 						},
 					},
 				},
-			},
-		})
-		if e != nil {
-			panic(e)
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"fd_yes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Great! If you wanna know more or just have questions, feel free to visit Discord Devs and Discord Gophers server. " +
+						"But now, when you know how buttons work, let's move onto select menus (execute `/selects single`)",
+					Flags: 1 << 6,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🔧",
+									},
+									Label: "Discord developers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/discord-developers",
+								},
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🦫",
+									},
+									Label: "Discord Gophers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/7RuRrVHyXF",
+								},
+							},
+						},
+					},
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			var response *discordgo.InteractionResponse
+
+			data := i.MessageComponentData()
+			switch data.Values[0] {
+			case "go":
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "This is the way.",
+						Flags:   1 << 6,
+					},
+				}
+			default:
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "It is not the way to go.",
+						Flags:   1 << 6,
+					},
+				}
+			}
+			err := s.InteractionRespond(i.Interaction, response)
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(time.Second) // Doing that so user won't see instant response.
+			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
+					"Try calling `/selects multi` command.",
+				Flags: 1 << 6,
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"stackoverflow_tags": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			data := i.MessageComponentData()
+
+			const stackoverflowFormat = `https://stackoverflow.com/questions/tagged/%s`
+
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Here is your stackoverflow URL: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
+					Flags:   1 << 6,
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(time.Second) // Doing that so user won't see instant response.
+			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: "Now you know everything about select component. If you want to know more or ask a question - feel free to.",
+				Components: []discordgo.MessageComponent{
+					discordgo.ActionsRow{
+						Components: []discordgo.MessageComponent{
+							discordgo.Button{
+								Emoji: discordgo.ComponentEmoji{
+									Name: "📜",
+								},
+								Label: "Documentation",
+								Style: discordgo.LinkButton,
+								URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
+							},
+							discordgo.Button{
+								Emoji: discordgo.ComponentEmoji{
+									Name: "🔧",
+								},
+								Label: "Discord developers",
+								Style: discordgo.LinkButton,
+								URL:   "https://discord.gg/discord-developers",
+							},
+							discordgo.Button{
+								Emoji: discordgo.ComponentEmoji{
+									Name: "🦫",
+								},
+								Label: "Discord Gophers",
+								Style: discordgo.LinkButton,
+								URL:   "https://discord.gg/7RuRrVHyXF",
+							},
+						},
+					},
+				},
+				Flags: 1 << 6,
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+	}
+	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"buttons": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Are you comfortable with buttons and other message components?",
+					Flags:   1 << 6,
+					// Buttons and other components are specified in Components field.
+					Components: []discordgo.MessageComponent{
+						// ActionRow is a container of all buttons within the same row.
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									// Label is what the user will see on the button.
+									Label: "Yes",
+									// Style provides coloring of the button. There are not so many styles tho.
+									Style: discordgo.SuccessButton,
+									// Disabled allows bot to disable some buttons for users.
+									Disabled: false,
+									// CustomID is a thing telling Discord which data to send when this button will be pressed.
+									CustomID: "fd_yes",
+								},
+								discordgo.Button{
+									Label:    "No",
+									Style:    discordgo.DangerButton,
+									Disabled: false,
+									CustomID: "fd_no",
+								},
+								discordgo.Button{
+									Label:    "I don't know",
+									Style:    discordgo.LinkButton,
+									Disabled: false,
+									// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
+									URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🤷",
+									},
+								},
+							},
+						},
+						// The message may have multiple actions rows.
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Label:    "Discord Developers server",
+									Style:    discordgo.LinkButton,
+									Disabled: false,
+									URL:      "https://discord.gg/discord-developers",
+								},
+							},
+						},
+					},
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"selects": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			var response *discordgo.InteractionResponse
+			switch i.ApplicationCommandData().Options[0].Name {
+			case "single":
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Now let's take a look on selects. This is single item select menu.",
+						Flags:   1 << 6,
+						Components: []discordgo.MessageComponent{
+							discordgo.ActionsRow{
+								Components: []discordgo.MessageComponent{
+									discordgo.SelectMenu{
+										// Select menu, as other components, must have a customID, so we set it to this value.
+										CustomID:    "select",
+										Placeholder: "Choose your favorite programming language 👇",
+										Options: []discordgo.SelectMenuOption{
+											{
+												Label: "Go",
+												// As with components, this things must have their own unique "id" to identify which is which.
+												// In this case such id is Value field.
+												Value: "go",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🦦",
+												},
+												// You can also make it a default option, but in this case we won't.
+												Default:     false,
+												Description: "Go programming language",
+											},
+											{
+												Label: "JS",
+												Value: "js",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🟨",
+												},
+												Description: "JavaScript programming language",
+											},
+											{
+												Label: "Python",
+												Value: "py",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🐍",
+												},
+												Description: "Python programming language",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+			case "multi":
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works: " +
+							"try generating your own stackoverflow search link",
+						Flags: 1 << 6,
+						Components: []discordgo.MessageComponent{
+							discordgo.ActionsRow{
+								Components: []discordgo.MessageComponent{
+									discordgo.SelectMenu{
+										CustomID:    "stackoverflow_tags",
+										Placeholder: "Select tags to search on StackOverflow",
+										// This is where confusion comes from. If you don't specify these things you will get single item select.
+										// These fields control the minimum and maximum amount of selected items.
+										MinValues: 1,
+										MaxValues: 3,
+										Options: []discordgo.SelectMenuOption{
+											{
+												Label:       "Go",
+												Description: "Simple yet powerful programming language",
+												Value:       "go",
+												// Default works the same for multi-select menus.
+												Default: false,
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🦦",
+												},
+											},
+											{
+												Label:       "JS",
+												Description: "Multiparadigm OOP language",
+												Value:       "javascript",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🟨",
+												},
+											},
+											{
+												Label:       "Python",
+												Description: "OOP prototyping programming language",
+												Value:       "python",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🐍",
+												},
+											},
+											{
+												Label:       "Web",
+												Description: "Web related technologies",
+												Value:       "web",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "🌐",
+												},
+											},
+											{
+												Label:       "Desktop",
+												Description: "Desktop applications",
+												Value:       "desktop",
+												Emoji: discordgo.ComponentEmoji{
+													Name: "💻",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+
+			}
+			err := s.InteractionRespond(i.Interaction, response)
+			if err != nil {
+				panic(err)
+			}
+		},
+	}
+)
+
+func main() {
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Println("Bot is up!")
+	})
+	// Components are part of interactions, so we register InteractionCreate handler
+	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		switch i.Type {
+		case discordgo.InteractionApplicationCommand:
+			if h, ok := commandsHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
+		case discordgo.InteractionMessageComponent:
+
+			if h, ok := componentsHandlers[i.MessageComponentData().CustomID]; ok {
+				h(s, i)
+			}
 		}
 	})
 	_, err := s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
-		Name:        "feedback",
-		Description: "Give your feedback",
+		Name:        "buttons",
+		Description: "Test the buttons if you got courage",
+	})
+
+	if err != nil {
+		log.Fatalf("Cannot create slash command: %v", err)
+	}
+	_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
+		Name: "selects",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+				Name:        "multi",
+				Description: "Multi-item select menu",
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+				Name:        "single",
+				Description: "Single-item select menu",
+			},
+		},
+		Description: "Lo and behold: dropdowns are coming",
 	})
 
 	if err != nil {

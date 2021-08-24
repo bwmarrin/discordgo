@@ -15,14 +15,30 @@ import (
 // InteractionDeadline is the time allowed to respond to an interaction.
 const InteractionDeadline = time.Second * 3
 
+// ApplicationCommandType represents the type of application command.
+type ApplicationCommandType uint8
+
+// Application command types
+const (
+	// ChatApplicationCommand is default command type. They are slash commands (i.e. called directly from the chat).
+	ChatApplicationCommand ApplicationCommandType = 1
+	// UserApplicationCommand adds command to user context menu.
+	UserApplicationCommand ApplicationCommandType = 2
+	// MessageApplicationCommand adds command to message context menu.
+	MessageApplicationCommand ApplicationCommandType = 3
+)
+
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID            string                      `json:"id,omitempty"`
-	ApplicationID string                      `json:"application_id,omitempty"`
-	Name          string                      `json:"name"`
-	Description   string                      `json:"description,omitempty"`
-	Version       string                      `json:"version,omitempty"`
-	Options       []*ApplicationCommandOption `json:"options"`
+	ID            string                 `json:"id,omitempty"`
+	ApplicationID string                 `json:"application_id,omitempty"`
+	Type          ApplicationCommandType `json:"type,omitempty"`
+	Name          string                 `json:"name"`
+	// NOTE: Chat commands only. Otherwise it mustn't be set.
+	Description string `json:"description,omitempty"`
+	Version     string `json:"version,omitempty"`
+	// NOTE: Chat commands only. Otherwise it mustn't be set.
+	Options []*ApplicationCommandOption `json:"options"`
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
@@ -70,7 +86,8 @@ type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType `json:"type"`
 	Name        string                       `json:"name"`
 	Description string                       `json:"description,omitempty"`
-	// note: Default is no longer a field on the application command option structure
+	// NOTE: This feature was on the API, but at some point developers decided to remove it.
+	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
 	Required bool                              `json:"required"`
 	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
@@ -197,10 +214,15 @@ type ApplicationCommandInteractionData struct {
 	ID       string                                     `json:"id"`
 	Name     string                                     `json:"name"`
 	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
-	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
+
+	// Slash command options
+	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+	// Target (user/message) id on which context menu command was called.
+	// The details are stored in Resolved according to command type.
+	TargetID string `json:"target_id"`
 }
 
-// ApplicationCommandInteractionDataResolved contains resolved data for command arguments.
+// ApplicationCommandInteractionDataResolved contains resolved data of command execution.
 // Partial Member objects are missing user, deaf and mute fields.
 // Partial Channel objects only have id, name, type and permissions fields.
 type ApplicationCommandInteractionDataResolved struct {
@@ -208,6 +230,7 @@ type ApplicationCommandInteractionDataResolved struct {
 	Members  map[string]*Member  `json:"members"`
 	Roles    map[string]*Role    `json:"roles"`
 	Channels map[string]*Channel `json:"channels"`
+	Messages map[string]*Message `json:"messages"`
 }
 
 // Type returns the type of interaction data.
@@ -220,9 +243,8 @@ type MessageComponentInteractionData struct {
 	CustomID      string        `json:"custom_id"`
 	ComponentType ComponentType `json:"component_type"`
 
-	// Only populated when the component type is a select menu.
-	// Note: this is not documented in the API yet.
-	Values []string `json:"values,omitempty"`
+	// NOTE: Only filled when ComponentType is SelectMenuComponent (3). Otherwise is nil.
+	Values []string `json:"values"`
 }
 
 // Type returns the type of interaction data.
@@ -376,7 +398,7 @@ type InteractionResponse struct {
 }
 
 // InteractionResponseDataFlag are the flags for InteractionResponseData
-type InteractionResponseDataFlag int
+type InteractionResponseDataFlag uint64
 
 // All known flags for InteractionResponseData
 const (
@@ -386,13 +408,15 @@ const (
 
 // InteractionResponseData is response data for an interaction.
 type InteractionResponseData struct {
-	TTS             bool                        `json:"tts"`
-	Content         string                      `json:"content"`
-	Components      []MessageComponent          `json:"components"`
-	Embeds          []*MessageEmbed             `json:"embeds,omitempty"`
-	AllowedMentions *MessageAllowedMentions     `json:"allowed_mentions,omitempty"`
-	Flags           InteractionResponseDataFlag `json:"flags,omitempty"`
-	Files           []*File                     `json:"-"`
+	TTS             bool                    `json:"tts"`
+	Content         string                  `json:"content"`
+	Components      []MessageComponent      `json:"components"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+
+	Flags uint64 `json:"flags,omitempty"`
+
+	Files []*File `json:"-"`
 }
 
 // MessageInteraction is the data for an Interaction, when in a Message object.

@@ -86,6 +86,7 @@ type GuildUpdate struct {
 // GuildDelete is the data for a GuildDelete event.
 type GuildDelete struct {
 	*Guild
+	BeforeDelete *Guild `json:"-"`
 }
 
 // GuildBanAdd is the data for a GuildBanAdd event.

@@ -22,28 +22,30 @@ type MessageType int
 
 // Block contains the valid known MessageType values
 const (
-	MessageTypeDefault                                 MessageType = 0
-	MessageTypeRecipientAdd                            MessageType = 1
-	MessageTypeRecipientRemove                         MessageType = 2
-	MessageTypeCall                                    MessageType = 3
-	MessageTypeChannelNameChange                       MessageType = 4
-	MessageTypeChannelIconChange                       MessageType = 5
-	MessageTypeChannelPinnedMessage                    MessageType = 6
-	MessageTypeGuildMemberJoin                         MessageType = 7
-	MessageTypeUserPremiumGuildSubscription            MessageType = 8
-	MessageTypeUserPremiumGuildSubscriptionTierOne     MessageType = 9
-	MessageTypeUserPremiumGuildSubscriptionTierTwo     MessageType = 10
-	MessageTypeUserPremiumGuildSubscriptionTierThree   MessageType = 11
-	MessageTypeChannelFollowAdd                        MessageType = 12
-	MessageTypeGuildDiscoveryDisqualified              MessageType = 14
-	MessageTypeGuildDiscoveryRequalified               MessageType = 15
+	MessageTypeDefault                               MessageType = 0
+	MessageTypeRecipientAdd                          MessageType = 1
+	MessageTypeRecipientRemove                       MessageType = 2
+	MessageTypeCall                                  MessageType = 3
+	MessageTypeChannelNameChange                     MessageType = 4
+	MessageTypeChannelIconChange                     MessageType = 5
+	MessageTypeChannelPinnedMessage                  MessageType = 6
+	MessageTypeGuildMemberJoin                       MessageType = 7
+	MessageTypeUserPremiumGuildSubscription          MessageType = 8
+	MessageTypeUserPremiumGuildSubscriptionTierOne   MessageType = 9
+	MessageTypeUserPremiumGuildSubscriptionTierTwo   MessageType = 10
+	MessageTypeUserPremiumGuildSubscriptionTierThree MessageType = 11
+	MessageTypeChannelFollowAdd                      MessageType = 12
+	MessageTypeGuildDiscoveryDisqualified            MessageType = 14
+	MessageTypeGuildDiscoveryRequalified             MessageType = 15
 	MessageTypeGuildDiscoveryGracePeriodInitialWarning MessageType = 16
 	MessageTypeGuildDiscoveryGracePeriodFinalWarning   MessageType = 17
 	MessageTypeThreadCreated                           MessageType = 18
-	MessageTypeReply                                   MessageType = 19
-	MessageTypeApplicationCommand                      MessageType = 20
+	MessageTypeReply                                 MessageType = 19
+	MessageTypeChatInputCommand                    MessageType = 20
 	MessageTypeThreadStarterMessage                    MessageType = 21
 	MessageTypeGuildInviteReminder                     MessageType = 22
+	MessageTypeContextMenuCommand                    MessageType = 23
+
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -128,7 +130,9 @@ type Message struct {
 	// If the message is a response to an Interaction, the interaction's application ID
 	ApplicationID string `json:"application_id"`
 
-	// MessageReference contains reference data sent with crossposted messages
+	// MessageReference contains reference data sent with crossposted or reply messages.
+	// This does not contain the reference *to* this message; this is for when *this* message references another.
+	// To generate a reference to this message, use (*Message).Reference().
 	MessageReference *MessageReference `json:"message_reference"`
 
 	// The flags of the message, which describe extra features of a message.

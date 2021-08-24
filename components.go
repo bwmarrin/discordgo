@@ -44,10 +44,6 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 		v := Button{}
 		err = json.Unmarshal(src, &v)
 		data = v
-	case ComponentSelectMenu:
-		v := SelectMenu{}
-		err = json.Unmarshal(src, &v)
-		data = v
 	}
 	if err != nil {
 		return err
@@ -87,6 +83,7 @@ func (r *ActionsRow) UnmarshalJSON(data []byte) error {
 	for i, v := range v.RawComponents {
 		r.Components[i] = v.MessageComponent
 	}
+
 	return err
 }
 
@@ -112,7 +109,7 @@ const (
 	ButtonLink ButtonStyle = 5
 )
 
-// ComponentEmoji represents a component's emoji, if it has one.
+// ComponentEmoji represents a button's emoji, if it has one.
 type ComponentEmoji struct {
 	Name     string `json:"name,omitempty"`
 	ID       string `json:"id,omitempty"`
@@ -153,39 +150,43 @@ func (b Button) Type() ComponentType {
 	return ComponentButton
 }
 
-// SelectMenu is the select menu component.
-type SelectMenu struct {
-	CustomID    string         `json:"custom_id"`
-	Options     []SelectOption `json:"options"`
-	Placeholder string         `json:"placeholder,omitempty"`
-	MinValues   int            `json:"min_values,omitempty"`
-	MaxValues   int            `json:"max_values,omitempty"`
-	Disabled    bool           `json:"disabled"`
+// SelectMenuOption represents an option for a select menu.
+type SelectMenuOption struct {
+	Label       string         `json:"label,omitempty"`
+	Value       string         `json:"value"`
+	Description string         `json:"description"`
+	Emoji       ComponentEmoji `json:"emoji"`
+	// Determines whenever option is selected by default or not.
+	Default bool `json:"default"`
 }
 
-// SelectOption is a choice on the SelectMenu component.
-type SelectOption struct {
-	Label       string         `json:"label"`
-	Value       string         `json:"value"`
-	Description string         `json:"description,omitempty"`
-	Emoji       ComponentEmoji `json:"emoji,omitempty"`
-	Default     bool           `json:"default,omitempty"`
+// SelectMenu represents select menu component.
+type SelectMenu struct {
+	CustomID string `json:"custom_id,omitempty"`
+	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
+	Placeholder string `json:"placeholder"`
+	// This value determines the minimal amount of selected items in the menu.
+	MinValues int `json:"min_values,omitempty"`
+	// This value determines the maximal amount of selected items in the menu.
+	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
+	MaxValues int                `json:"max_values,omitempty"`
+	Options   []SelectMenuOption `json:"options"`
+}
+
+// Type is a method to get the type of a component.
+func (SelectMenu) Type() ComponentType {
+	return ComponentSelectMenu
 }
 
 // MarshalJSON is a method for marshaling SelectMenu to a JSON object.
-func (b SelectMenu) MarshalJSON() ([]byte, error) {
+func (m SelectMenu) MarshalJSON() ([]byte, error) {
 	type selectMenu SelectMenu
 
 	return json.Marshal(struct {
 		selectMenu
 		Type ComponentType `json:"type"`
 	}{
-		selectMenu: selectMenu(b),
-		Type:       b.Type(),
+		selectMenu: selectMenu(m),
+		Type:       m.Type(),
 	})
-}
-
-// Type is a method to get the type of a component.
-func (b SelectMenu) Type() ComponentType {
-	return ComponentSelectMenu
 }

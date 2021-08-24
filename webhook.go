@@ -40,6 +40,8 @@ type WebhookParams struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	// NOTE: Works only for followup messages.
+	Flags uint64 `json:"flags,omitempty"`
 	ThreadID        string                  `json:"thread_id,omitempty"`
 }
 
