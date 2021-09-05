@@ -403,7 +403,7 @@ type MessageApplication struct {
 // MessageReference contains reference data sent with crossposted messages
 type MessageReference struct {
 	MessageID string `json:"message_id"`
-	ChannelID string `json:"channel_id"`
+	ChannelID string `json:"channel_id,omitempty"`
 	GuildID   string `json:"guild_id,omitempty"`
 }
 
