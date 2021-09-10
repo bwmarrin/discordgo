@@ -39,6 +39,20 @@ type ApplicationCommand struct {
 	Version     string `json:"version,omitempty"`
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 	Options []*ApplicationCommandOption `json:"options"`
+	// Discord defaults permission to true, so we invert it in MarshalJSON
+	DefaultPermissionDisabled bool `json:"-"`
+}
+
+// MarshalJSON is a method for marshaling ApplicationCommand to a JSON object.
+func (a ApplicationCommand) MarshalJSON() ([]byte, error) {
+	type applicationCommand ApplicationCommand
+	return json.Marshal(struct {
+		applicationCommand
+		DefaultPermission bool `json:"default_permission"`
+	}{
+		applicationCommand: applicationCommand(a),
+		DefaultPermission:  !a.DefaultPermissionDisabled,
+	})
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
