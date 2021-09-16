@@ -870,6 +870,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 		// Removes member from the cache if tracking is enabled.
 		if s.TrackMembers {
+			var old *Member
+			old, err = s.Member(t.Member.GuildID, t.Member.User.ID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeDelete = &oldCopy
+			}
+
 			err = s.MemberRemove(t.Member)
 		}
 	case *GuildMembersChunk:

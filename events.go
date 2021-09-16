@@ -114,6 +114,7 @@ type GuildMemberUpdate struct {
 // GuildMemberRemove is the data for a GuildMemberRemove event.
 type GuildMemberRemove struct {
 	*Member
+	BeforeDelete *Member
 }
 
 // GuildRoleCreate is the data for a GuildRoleCreate event.
