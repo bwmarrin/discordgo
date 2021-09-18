@@ -274,7 +274,7 @@ type MessageAllowedMentions struct {
 	Users []string `json:"users,omitempty"`
 
 	// For inline replies, whether to mention the author of the message being replied to.
-	RepliedUser bool `json:"replied_user"`
+	RepliedUser bool `json:"replied_user,omitempty"`
 }
 
 // A MessageAttachment stores data for message attachments.
