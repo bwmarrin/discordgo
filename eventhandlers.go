@@ -52,6 +52,8 @@ const (
 	voiceServerUpdateEventType        = "VOICE_SERVER_UPDATE"
 	voiceStateUpdateEventType         = "VOICE_STATE_UPDATE"
 	webhooksUpdateEventType           = "WEBHOOKS_UPDATE"
+	inviteCreateEventType             = "INVITE_CREATE"
+	inviteDeleteEventType             = "INVITE_DELETE"
 )
 
 // channelCreateEventHandler is an event handler for ChannelCreate events.
@@ -934,6 +936,46 @@ func (eh webhooksUpdateEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// inviteCreateEventHandler is an event handler for InviteCreate events.
+type inviteCreateEventHandler func(*Session, *InviteCreate)
+
+// Type returns the event type for InviteCreate events.
+func (eh inviteCreateEventHandler) Type() string {
+	return inviteCreateEventType
+}
+
+// New returns a new instance of InviteCreate.
+func (eh inviteCreateEventHandler) New() interface{} {
+	return &InviteCreate{}
+}
+
+// Handle is the handler for InviteCreate events.
+func (eh inviteCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*InviteCreate); ok {
+		eh(s, t)
+	}
+}
+
+// inviteDeleteEventHandler is an event handler for InviteDelete events.
+type inviteDeleteEventHandler func(*Session, *InviteDelete)
+
+// Type returns the event type for InviteDelete events.
+func (eh inviteDeleteEventHandler) Type() string {
+	return inviteDeleteEventType
+}
+
+// New returns a new instance of InviteDelete.
+func (eh inviteDeleteEventHandler) New() interface{} {
+	return &InviteDelete{}
+}
+
+// Handle is the handler for InviteDelete events.
+func (eh inviteDeleteEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*InviteDelete); ok {
+		eh(s, t)
+	}
+}
+
 func handlerForInterface(handler interface{}) EventHandler {
 	switch v := handler.(type) {
 	case func(*Session, interface{}):
@@ -1028,6 +1070,10 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return voiceStateUpdateEventHandler(v)
 	case func(*Session, *WebhooksUpdate):
 		return webhooksUpdateEventHandler(v)
+	case func(*Session, *InviteCreate):
+		return inviteCreateEventHandler(v)
+	case func(*Session, *InviteDelete):
+		return inviteDeleteEventHandler(v)
 	}
 
 	return nil
@@ -1075,4 +1121,6 @@ func init() {
 	registerInterfaceProvider(voiceServerUpdateEventHandler(nil))
 	registerInterfaceProvider(voiceStateUpdateEventHandler(nil))
 	registerInterfaceProvider(webhooksUpdateEventHandler(nil))
+	registerInterfaceProvider(inviteCreateEventHandler(nil))
+	registerInterfaceProvider(inviteDeleteEventHandler(nil))
 }

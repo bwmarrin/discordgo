@@ -293,3 +293,13 @@ type InteractionCreate struct {
 func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &i.Interaction)
 }
+
+// InviteCreate is the data for a InviteCreate event.
+type InviteCreate struct {
+	*Invite
+}
+
+// InviteDelete is the data for a InviteDelete event.
+type InviteDelete struct {
+	*Invite
+}
