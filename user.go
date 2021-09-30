@@ -76,10 +76,10 @@ type User struct {
 	Flags int `json:"flags"`
 
 	// The hash of the user's banner hash.
-	Banner *string
+	Banner *string `json:"banner"`
 
 	// The user's banner color encoded as an integer representation of hexadecimal color code.
-	Accent *int
+	Accent *int `json:"accent_color"`
 }
 
 // String returns a unique identifier of the form username#discriminator
