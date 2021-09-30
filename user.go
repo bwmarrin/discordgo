@@ -122,7 +122,7 @@ func (u *User) BannerURL(size string) string {
 
 	if u.Banner == nil {
 		URL = ""
-	} else if strings.HasPrefix(*u.Banner, "_a") {
+	} else if strings.HasPrefix(*u.Banner, "a_") {
 		URL = EndpointUserBannerAnimated(u.ID, *u.Banner)
 	} else {
 		URL = EndpointUserBanner(u.ID, *u.Banner)
