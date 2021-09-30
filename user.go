@@ -76,10 +76,10 @@ type User struct {
 	Flags int `json:"flags"`
 
 	// The hash of the user's banner hash.
-	Banner *string `json:"banner"`
+	Banner *string `json:"banner,omitempty"`
 
 	// The user's banner color encoded as an integer representation of hexadecimal color code.
-	Accent *int `json:"accent_color"`
+	Accent *int `json:"accent_color,omitempty"`
 }
 
 // String returns a unique identifier of the form username#discriminator
@@ -131,6 +131,5 @@ func (u *User) BannerURL(size string) string {
 	if size != "" && URL != "" {
 		return URL + "?size=" + size
 	}
-
 	return URL
 }
