@@ -1611,13 +1611,17 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // channelID : The ID of a Channel.
 // content   : The message to send.
 // reference : The message reference to send.
-func (s *Session) ChannelMessageSendReply(channelID string, content string, reference *MessageReference) (*Message, error) {
+// mention   : Whether to mention the author of the reference message in the message or not.
+func (s *Session) ChannelMessageSendReply(channelID string, content string, reference *MessageReference, mention bool) (*Message, error) {
 	if reference == nil {
 		return nil, fmt.Errorf("reply attempted with nil message reference")
 	}
 	return s.ChannelMessageSendComplex(channelID, &MessageSend{
 		Content:   content,
 		Reference: reference,
+		AllowedMentions: &MessageAllowedMentions{
+			RepliedUser: mention,
+		},
 	})
 }
 
