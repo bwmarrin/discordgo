@@ -1610,9 +1610,9 @@ func (s *Session) ChannelMessageSendEmbed(channelID string, embed *MessageEmbed)
 // ChannelMessageSendReply sends a message to the given channel with reference data.
 // channelID : The ID of a Channel.
 // content   : The message to send.
-// reference : The message reference to send.
 // mention   : Whether to mention the author of the reference message in the message or not.
-func (s *Session) ChannelMessageSendReply(channelID string, content string, reference *MessageReference, mention bool) (*Message, error) {
+// reference : The message reference to send.
+func (s *Session) ChannelMessageSendReply(channelID string, content string, mention bool, reference *MessageReference) (*Message, error) {
 	if reference == nil {
 		return nil, fmt.Errorf("reply attempted with nil message reference")
 	}
