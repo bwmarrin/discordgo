@@ -412,7 +412,7 @@ type InteractionResponseData struct {
 
 // VerifyInteraction implements message verification of the discord interactions api
 // signing algorithm, as documented here:
-// https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
+// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
 func VerifyInteraction(r *http.Request, key ed25519.PublicKey) bool {
 	var msg bytes.Buffer
 
