@@ -76,7 +76,12 @@ var (
 					Type:        discordgo.ApplicationCommandOptionChannel,
 					Name:        "channel-option",
 					Description: "Channel option",
-					Required:    false,
+					// Channel type mask
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText,
+						discordgo.ChannelTypeGuildVoice,
+					},
+					Required: false,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,

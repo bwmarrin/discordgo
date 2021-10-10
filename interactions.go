@@ -89,9 +89,10 @@ type ApplicationCommandOption struct {
 	// NOTE: This feature was on the API, but at some point developers decided to remove it.
 	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
-	Required bool                              `json:"required"`
-	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
-	Options  []*ApplicationCommandOption       `json:"options"`
+	Required     bool                              `json:"required"`
+	Choices      []*ApplicationCommandOptionChoice `json:"choices"`
+	Options      []*ApplicationCommandOption       `json:"options"`
+	ChannelTypes []ChannelType                     `json:"channel_types"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.
