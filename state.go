@@ -655,6 +655,9 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Author != nil {
 				m.Author = message.Author
 			}
+			if message.Components != nil {
+				m.Components = message.Components
+			}
 
 			return nil
 		}
@@ -833,6 +836,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *GuildUpdate:
 		err = s.GuildAdd(t.Guild)
 	case *GuildDelete:
+		var old *Guild
+		old, err = s.Guild(t.ID)
+		if err == nil {
+			oldCopy := *old
+			t.BeforeDelete = &oldCopy
+		}
+
 		err = s.GuildRemove(t.Guild)
 	case *GuildMemberAdd:
 		// Updates the MemberCount of the guild.

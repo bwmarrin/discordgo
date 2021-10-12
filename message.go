@@ -10,6 +10,7 @@
 package discordgo
 
 import (
+	"encoding/json"
 	"io"
 	"regexp"
 	"strings"
@@ -21,23 +22,24 @@ type MessageType int
 
 // Block contains the valid known MessageType values
 const (
-	MessageTypeDefault MessageType = iota
-	MessageTypeRecipientAdd
-	MessageTypeRecipientRemove
-	MessageTypeCall
-	MessageTypeChannelNameChange
-	MessageTypeChannelIconChange
-	MessageTypeChannelPinnedMessage
-	MessageTypeGuildMemberJoin
-	MessageTypeUserPremiumGuildSubscription
-	MessageTypeUserPremiumGuildSubscriptionTierOne
-	MessageTypeUserPremiumGuildSubscriptionTierTwo
-	MessageTypeUserPremiumGuildSubscriptionTierThree
-	MessageTypeChannelFollowAdd
-	MessageTypeGuildDiscoveryDisqualified = iota + 1
-	MessageTypeGuildDiscoveryRequalified
-	MessageTypeReply = iota + 4
-	MessageTypeApplicationCommand
+	MessageTypeDefault                               MessageType = 0
+	MessageTypeRecipientAdd                          MessageType = 1
+	MessageTypeRecipientRemove                       MessageType = 2
+	MessageTypeCall                                  MessageType = 3
+	MessageTypeChannelNameChange                     MessageType = 4
+	MessageTypeChannelIconChange                     MessageType = 5
+	MessageTypeChannelPinnedMessage                  MessageType = 6
+	MessageTypeGuildMemberJoin                       MessageType = 7
+	MessageTypeUserPremiumGuildSubscription          MessageType = 8
+	MessageTypeUserPremiumGuildSubscriptionTierOne   MessageType = 9
+	MessageTypeUserPremiumGuildSubscriptionTierTwo   MessageType = 10
+	MessageTypeUserPremiumGuildSubscriptionTierThree MessageType = 11
+	MessageTypeChannelFollowAdd                      MessageType = 12
+	MessageTypeGuildDiscoveryDisqualified            MessageType = 14
+	MessageTypeGuildDiscoveryRequalified             MessageType = 15
+	MessageTypeReply                                 MessageType = 19
+	MessageTypeChatInputCommand                      MessageType = 20
+	MessageTypeContextMenuCommand                    MessageType = 23
 )
 
 // A Message stores all data related to a specific Discord message.
@@ -80,8 +82,10 @@ type Message struct {
 	// A list of attachments present in the message.
 	Attachments []*MessageAttachment `json:"attachments"`
 
-	// A list of embeds present in the message. Multiple
-	// embeds can currently only be sent by webhooks.
+	// A list of components attached to the message.
+	Components []MessageComponent `json:"-"`
+
+	// A list of embeds present in the message.
 	Embeds []*MessageEmbed `json:"embeds"`
 
 	// A list of users mentioned in the message.
@@ -116,7 +120,9 @@ type Message struct {
 	// Is sent with Rich Presence-related chat embeds
 	Application *MessageApplication `json:"application"`
 
-	// MessageReference contains reference data sent with crossposted messages
+	// MessageReference contains reference data sent with crossposted or reply messages.
+	// This does not contain the reference *to* this message; this is for when *this* message references another.
+	// To generate a reference to this message, use (*Message).Reference().
 	MessageReference *MessageReference `json:"message_reference"`
 
 	// Interaction represents an interaction event created via a slash command.
@@ -126,6 +132,25 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+}
+
+// UnmarshalJSON is a helper function to unmarshal the Message.
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type message Message
+	var v struct {
+		message
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return err
+	}
+	*m = Message(v.message)
+	m.Components = make([]MessageComponent, len(v.RawComponents))
+	for i, v := range v.RawComponents {
+		m.Components[i] = v.MessageComponent
+	}
+	return err
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
@@ -152,11 +177,11 @@ type MessageFlags int
 
 // Valid MessageFlags values
 const (
-	MessageFlagsCrossPosted MessageFlags = 1 << iota
-	MessageFlagsIsCrossPosted
-	MessageFlagsSupressEmbeds
-	MessageFlagsSourceMessageDeleted
-	MessageFlagsUrgent
+	MessageFlagsCrossPosted          MessageFlags = 1 << 0
+	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
+	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
+	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
+	MessageFlagsUrgent               MessageFlags = 1 << 4
 )
 
 // File stores info about files you e.g. send in messages.
@@ -169,25 +194,33 @@ type File struct {
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
 	Content         string                  `json:"content,omitempty"`
-	Embed           *MessageEmbed           `json:"embed,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	TTS             bool                    `json:"tts"`
+	Components      []MessageComponent      `json:"components"`
 	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Reference       *MessageReference       `json:"message_reference,omitempty"`
 
 	// TODO: Remove this when compatibility is not required.
 	File *File `json:"-"`
+
+	// TODO: Remove this when compatibility is not required.
+	Embed *MessageEmbed `json:"-"`
 }
 
 // MessageEdit is used to chain parameters via ChannelMessageEditComplex, which
 // is also where you should get the instance from.
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
-	Embed           *MessageEmbed           `json:"embed,omitempty"`
+	Components      []MessageComponent      `json:"components"`
+	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
 	ID      string
 	Channel string
+
+	// TODO: Remove this when compatibility is not required.
+	Embed *MessageEmbed `json:"-"`
 }
 
 // NewMessageEdit returns a MessageEdit struct, initialized
@@ -209,7 +242,14 @@ func (m *MessageEdit) SetContent(str string) *MessageEdit {
 // SetEmbed is a convenience function for setting the embed,
 // so you can chain commands.
 func (m *MessageEdit) SetEmbed(embed *MessageEmbed) *MessageEdit {
-	m.Embed = embed
+	m.Embeds = []*MessageEmbed{embed}
+	return m
+}
+
+// SetEmbeds is a convenience function for setting the embeds,
+// so you can chain commands.
+func (m *MessageEdit) SetEmbeds(embeds []*MessageEmbed) *MessageEdit {
+	m.Embeds = embeds
 	return m
 }
 
@@ -251,13 +291,14 @@ type MessageAllowedMentions struct {
 
 // A MessageAttachment stores data for message attachments.
 type MessageAttachment struct {
-	ID       string `json:"id"`
-	URL      string `json:"url"`
-	ProxyURL string `json:"proxy_url"`
-	Filename string `json:"filename"`
-	Width    int    `json:"width"`
-	Height   int    `json:"height"`
-	Size     int    `json:"size"`
+	ID        string `json:"id"`
+	URL       string `json:"url"`
+	ProxyURL  string `json:"proxy_url"`
+	Filename  string `json:"filename"`
+	Width     int    `json:"width"`
+	Height    int    `json:"height"`
+	Size      int    `json:"size"`
+	Ephemeral bool   `json:"ephemeral"`
 }
 
 // MessageEmbedFooter is a part of a MessageEmbed struct.
@@ -360,23 +401,10 @@ type MessageActivityType int
 
 // Constants for the different types of Message Activity
 const (
-	MessageActivityTypeJoin MessageActivityType = iota + 1
-	MessageActivityTypeSpectate
-	MessageActivityTypeListen
-	MessageActivityTypeJoinRequest
-)
-
-// MessageFlag describes an extra feature of the message
-type MessageFlag int
-
-// Constants for the different bit offsets of Message Flags
-const (
-	// This message has been published to subscribed channels (via Channel Following)
-	MessageFlagCrossposted MessageFlag = 1 << iota
-	// This message originated from a message in another channel (via Channel Following)
-	MessageFlagIsCrosspost
-	// Do not include any embeds when serializing this message
-	MessageFlagSuppressEmbeds
+	MessageActivityTypeJoin        MessageActivityType = 1
+	MessageActivityTypeSpectate    MessageActivityType = 2
+	MessageActivityTypeListen      MessageActivityType = 3
+	MessageActivityTypeJoinRequest MessageActivityType = 5
 )
 
 // MessageApplication is sent with Rich Presence-related chat embeds
