@@ -779,6 +779,36 @@ func (s *Session) GuildMembers(guildID string, after string, limit int) (st []*M
 	return
 }
 
+// GuildMembersSearch returns a list of members for a guild.
+//  guildID  : The ID of a Guild.
+//  query    : Query string to match username(s) and nickname(s) against
+//  limit    : max number of members to return (max 1000)
+func (s *Session) GuildMembersSearch(guildID string, query string, limit int) (st []*Member, err error) {
+	uri := EndpointGuildMembers(guildID)
+
+	v := url.Values{}
+
+	if query != "" {
+		v.Set("query", query)
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri += "?" + v.Encode()
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildMembersSearch(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildMember returns a member of a guild.
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User
