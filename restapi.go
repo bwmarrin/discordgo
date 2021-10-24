@@ -1390,7 +1390,7 @@ func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) 
 
 	data := struct {
 		Name  string   `json:"name"`
-		Roles []string `json:"roles,omitempty"`
+		Roles []string `json:"roles"`
 	}{name, roles}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildEmoji(guildID, emojiID), data, EndpointGuildEmojis(guildID))
