@@ -645,6 +645,14 @@ func (g *Guild) IconURL() string {
 	return EndpointGuildIcon(g.ID, g.Icon)
 }
 
+// BannerURL returns a URL to the guild's banner.
+func (g *Guild) BannerURL() string {
+	if g.Banner == "" {
+		return ""
+	}
+	return EndpointGuildBanner(g.ID, g.Banner)
+}
+
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
 	ID          string `json:"id"`
