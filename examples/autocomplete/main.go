@@ -86,7 +86,7 @@ var (
 				if err != nil {
 					panic(err)
 				}
-			// Autocomplete options introduce a new interaction type (8) for returining custom autocomplete results.
+			// Autocomplete options introduce a new interaction type (8) for returning custom autocomplete results.
 			case discordgo.InteractionApplicationCommandAutocomplete:
 				data := i.ApplicationCommandData()
 				choices := []*discordgo.ApplicationCommandOptionChoice{
