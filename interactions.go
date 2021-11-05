@@ -95,9 +95,9 @@ type ApplicationCommandOption struct {
 
 	ChannelTypes []ChannelType `json:"channel_types"`
 	// Minimal value of number/integer option.
-	MinValue interface{} `json:"min_value,omitempty"`
+	MinValue float64 `json:"min_value,omitempty"`
 	// Maximum value of number/integer option.
-	MaxValue interface{} `json:"max_value,omitempty"`
+	MaxValue float64 `json:"max_value,omitempty"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.
