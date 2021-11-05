@@ -89,10 +89,15 @@ type ApplicationCommandOption struct {
 	// NOTE: This feature was on the API, but at some point developers decided to remove it.
 	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
-	Required     bool                              `json:"required"`
-	Choices      []*ApplicationCommandOptionChoice `json:"choices"`
-	Options      []*ApplicationCommandOption       `json:"options"`
-	ChannelTypes []ChannelType                     `json:"channel_types"`
+	Required bool                              `json:"required"`
+	Choices  []*ApplicationCommandOptionChoice `json:"choices"`
+	Options  []*ApplicationCommandOption       `json:"options"`
+
+	ChannelTypes []ChannelType `json:"channel_types"`
+	// Minimal value of number/integer option.
+	MinValue interface{} `json:"min_value,omitempty"`
+	// Maximum valeu of number/integer option.
+	MaxValue interface{} `json:"max_value,omitempty"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.
