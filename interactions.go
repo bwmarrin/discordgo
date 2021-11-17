@@ -89,10 +89,13 @@ type ApplicationCommandOption struct {
 	// NOTE: This feature was on the API, but at some point developers decided to remove it.
 	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
-	Required     bool                              `json:"required"`
+	ChannelTypes []ChannelType               `json:"channel_types"`
+	Required     bool                        `json:"required"`
+	Options      []*ApplicationCommandOption `json:"options"`
+
+	// NOTE: mutually exclusive with Choices.
+	Autocomplete bool                              `json:"autocomplete"`
 	Choices      []*ApplicationCommandOptionChoice `json:"choices"`
-	Options      []*ApplicationCommandOption       `json:"options"`
-	ChannelTypes []ChannelType                     `json:"channel_types"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.
@@ -106,9 +109,10 @@ type InteractionType uint8
 
 // Interaction types
 const (
-	InteractionPing               InteractionType = 1
-	InteractionApplicationCommand InteractionType = 2
-	InteractionMessageComponent   InteractionType = 3
+	InteractionPing                           InteractionType = 1
+	InteractionApplicationCommand             InteractionType = 2
+	InteractionMessageComponent               InteractionType = 3
+	InteractionApplicationCommandAutocomplete InteractionType = 4
 )
 
 func (t InteractionType) String() string {
@@ -168,7 +172,7 @@ func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	*i = Interaction(tmp.interaction)
 
 	switch tmp.Type {
-	case InteractionApplicationCommand:
+	case InteractionApplicationCommand, InteractionApplicationCommandAutocomplete:
 		v := ApplicationCommandInteractionData{}
 		err = json.Unmarshal(tmp.Data, &v)
 		if err != nil {
@@ -198,7 +202,7 @@ func (i Interaction) MessageComponentData() (data MessageComponentInteractionDat
 // ApplicationCommandData is helper function to assert the inner InteractionData to ApplicationCommandInteractionData.
 // Make sure to check that the Type of the interaction is InteractionApplicationCommand before calling.
 func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractionData) {
-	if i.Type != InteractionApplicationCommand {
+	if i.Type != InteractionApplicationCommand && i.Type != InteractionApplicationCommandAutocomplete {
 		panic("ApplicationCommandData called on interaction of type " + i.Type.String())
 	}
 	return i.Data.(ApplicationCommandInteractionData)
@@ -259,6 +263,9 @@ type ApplicationCommandInteractionDataOption struct {
 	// NOTE: Contains the value specified by Type.
 	Value   interface{}                                `json:"value,omitempty"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
+
+	// NOTE: autocomplete interaction only.
+	Focused bool `json:"focused,omitempty"`
 }
 
 // IntValue is a utility function for casting option value to integer
@@ -389,6 +396,8 @@ const (
 	InteractionResponseDeferredMessageUpdate InteractionResponseType = 6
 	// InteractionResponseUpdateMessage is for updating the message to which message component was attached.
 	InteractionResponseUpdateMessage InteractionResponseType = 7
+	// InteractionApplicationCommandAutocompleteResult shows autocompletion results. Autocomplete interaction only.
+	InteractionApplicationCommandAutocompleteResult InteractionResponseType = 8
 )
 
 // InteractionResponse represents a response for an interaction event.
@@ -404,10 +413,11 @@ type InteractionResponseData struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           uint64                  `json:"flags,omitempty"`
+	Files           []*File                 `json:"-"`
 
-	Flags uint64 `json:"flags,omitempty"`
-
-	Files []*File `json:"-"`
+	// NOTE: autocomplete interaction only.
+	Choices []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
