@@ -552,7 +552,7 @@ const (
 	ExplicitContentFilterAllMembers          ExplicitContentFilterLevel = 2
 )
 
-// GuikdNSFWLevel type definition
+// GuildNSFWLevel type definition
 type GuildNSFWLevel int
 
 // Constants for GuildNsfwLefel levels from 0 to 3 inclusive
