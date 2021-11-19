@@ -2536,7 +2536,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 // appID       : The application ID.
 // interaction : Interaction instance.
 // resp        : Response message data.
-func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
+func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if resp.Data != nil && len(resp.Data.Files) > 0 {
@@ -2546,9 +2546,10 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 		}
 
 		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
-	} else {
-		_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
+		return err
 	}
+
+	_, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
 	return err
 }
 

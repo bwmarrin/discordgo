@@ -845,8 +845,9 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 		err = s.GuildRemove(t.Guild)
 	case *GuildMemberAdd:
+		var guild *Guild
 		// Updates the MemberCount of the guild.
-		guild, err := s.Guild(t.Member.GuildID)
+		guild, err = s.Guild(t.Member.GuildID)
 		if err != nil {
 			return err
 		}
@@ -861,8 +862,9 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 			err = s.MemberAdd(t.Member)
 		}
 	case *GuildMemberRemove:
+		var guild *Guild
 		// Updates the MemberCount of the guild.
-		guild, err := s.Guild(t.Member.GuildID)
+		guild, err = s.Guild(t.Member.GuildID)
 		if err != nil {
 			return err
 		}
