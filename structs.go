@@ -1488,6 +1488,7 @@ const (
 	IntentsDirectMessages         Intent = 1 << 12
 	IntentsDirectMessageReactions Intent = 1 << 13
 	IntentsDirectMessageTyping    Intent = 1 << 14
+	IntentsGuildScheduledEvents   Intent = 1 << 16
 
 	IntentsAllWithoutPrivileged = IntentsGuilds |
 		IntentsGuildBans |
@@ -1501,7 +1502,8 @@ const (
 		IntentsGuildMessageTyping |
 		IntentsDirectMessages |
 		IntentsDirectMessageReactions |
-		IntentsDirectMessageTyping
+		IntentsDirectMessageTyping |
+		IntentsGuildScheduledEvents
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentsGuildMembers |
 		IntentsGuildPresences

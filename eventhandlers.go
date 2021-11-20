@@ -29,7 +29,6 @@ const (
 	guildRoleUpdateEventType           = "GUILD_ROLE_UPDATE"
 	guildUpdateEventType               = "GUILD_UPDATE"
 	interactionCreateEventType         = "INTERACTION_CREATE"
-	guildScheduledEventsType           = "GUILD_SCHEDULED_EVENTS"
 	guildScheduledEventCreateEventType = "GUILD_SCHEDULED_EVENT_CREATE"
 	guildScheduledEventUpdateEventType = "GUILD_SCHEDULED_EVENT_UPDATE"
 	guildScheduledEventDeleteEventType = "GUILD_SCHEDULED_EVENT_DELETE"
