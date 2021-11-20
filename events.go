@@ -152,6 +152,18 @@ type GuildIntegrationsUpdate struct {
 	GuildID string `json:"guild_id"`
 }
 
+type GuildScheduledEventCreate struct {
+	*GuildScheduledEvent
+}
+
+type GuildScheduledEventUpdate struct {
+	*GuildScheduledEvent
+}
+
+type GuildScheduledEventDelete struct {
+	*GuildScheduledEvent
+}
+
 // MessageAck is the data for a MessageAck event.
 type MessageAck struct {
 	MessageID string `json:"message_id"`

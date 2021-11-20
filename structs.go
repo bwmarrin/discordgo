@@ -612,6 +612,89 @@ type GuildPreview struct {
 	Description string `json:"description"`
 }
 
+// A representation of a scheduled event in a guild.
+// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event
+type GuildScheduledEvent struct {
+	// The ID of the scheduled event
+	ID string `json:"id"`
+	// The guild id which the scheduled event belongs to
+	GuildID string `json:"guild_id"`
+	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
+	ChannelID *string `json:"channel_id"`
+	// the id of the user that created the scheduled event
+	CreatorID *string `json:"creator_id"`
+	// The name of the scheduled event (1-100 characters)
+	Name string `json:"name"`
+	// The description of the scheduled event (1-1000 characters)
+	Description string `json:"description"`
+	// The time the scheduled event will start
+	ScheduledStartTime Timestamp `json:"scheduled_start_time"`
+	// The time the scheduled event will end, required if entity_type is EXTERNAL
+	ScheduledEndTime Timestamp `json:"scheduled_end_time"`
+	// The privacy level of the scheduled event
+	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level"`
+	// The status of the scheduled event
+	Status GuildScheduledEventStatus `json:"status"`
+	// See the requirement fields
+	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
+	EntityType GuildScheduledEventEntityType `json:"entity_type"`
+	// The id of an entity associated with a guild scheduled event
+	EntityID string `json:"entity_id"`
+	// Additional metadata for the guild scheduled event
+	EntityMetadata GuildScheduledEventEntityMetadata `json:"entity_metadata"`
+	// The user that created the scheduled event
+	Creator *User `json:"creator"`
+	// The number of users subscribed to the scheduled event
+	UserCount int `json:"user_count"`
+}
+
+type GuildScheduledEventEntityMetadata struct {
+	// location of the event (1-100 characters)
+	// required for events with 'entity_type': EXTERNAL
+	Location string `json:"location"`
+}
+
+// Guild Scheduled Event Privacy Level
+// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level
+type GuildScheduledEventPrivacyLevel int
+
+const (
+	// The scheduled event is only accessible to guild members
+	GuildScheduledEventPrivacyLevelGuildOnly GuildScheduledEventPrivacyLevel = 2
+)
+
+// Guild Scheduled Event Status
+// Valid Guild Scheduled Event Status Transitions :
+// SCHEDULED --> ACTIVE --> COMPLETED
+// SCHEDULED --> CANCELED
+// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-status
+type GuildScheduledEventStatus int
+
+const (
+	GuildScheduledEventStatusScheduled = 1
+	GuildScheduledEventStatusActive    = 2
+	GuildScheduledEventStatusCompleted = 3
+	GuildScheduledEventStatusCanceled  = 4
+)
+
+// Guild Scheduled Event Entity Types
+// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types
+type GuildScheduledEventEntityType int
+
+const (
+	GuildScheduledEventEntityTypeStageInstance = 1
+	GuildScheduledEventEntityTypeVoice         = 2
+	GuildScheduledEventEntityTypeExternal      = 3
+)
+
+// Guild Scheduled Event User Object
+// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-user-object
+type GuildScheduledEventUser struct {
+	GuildScheduledEventID string  `json:"guild_scheduled_event_id"`
+	User                  *User   `json:"user"`
+	Member                *Member `json:"member"`
+}
+
 // MessageNotifications is the notification level for a guild
 // https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
 type MessageNotifications int
