@@ -55,6 +55,7 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
+	ApplicationCommandOptionNumber          ApplicationCommandOptionType = 10
 )
 
 func (t ApplicationCommandOptionType) String() string {
@@ -77,6 +78,8 @@ func (t ApplicationCommandOptionType) String() string {
 		return "Role"
 	case ApplicationCommandOptionMentionable:
 		return "Mentionable"
+	case ApplicationCommandOptionNumber:
+		return "Number"
 	}
 	return fmt.Sprintf("ApplicationCommandOptionType(%d)", t)
 }
@@ -379,6 +382,14 @@ func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	}
 
 	return u
+}
+
+// BoolValue is a utility function for casting option value to bool
+func (o ApplicationCommandInteractionDataOption) NumberValue() float64 {
+	if o.Type != ApplicationCommandOptionNumber {
+		panic("NumberValue called on data option of type " + o.Type.String())
+	}
+	return o.Value.(float64)
 }
 
 // InteractionResponseType is type of interaction response.
