@@ -20,6 +20,8 @@ var APIVersion = "8"
 var (
 	EndpointStatus     = "https://status.discord.com/api/v2/"
 	EndpointSm         = EndpointStatus + "scheduled-maintenances/"
+	EndpointSm         = EndpointStatus + "scheduled-maintenances.json"
+	EndpointSm         = EndpointStatus + "components.json"
 	EndpointSmActive   = EndpointSm + "active.json"
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
