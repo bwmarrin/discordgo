@@ -1599,6 +1599,22 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend)
 	return
 }
 
+// ChannelMessageSendRaw sends a message to a channel based on raw JSON input.
+// channelID : The ID of a Channel
+// data: The raw JSON payload of a Message. See Discord Documentation for structure.
+func (s *Session) ChannelMessageSendRaw(channelID string, data json.RawMessage) (st *Message, err error) {
+	endpoint := EndpointChannelMessages(channelID)
+
+	response, err := s.RequestWithBucketID("POST", endpoint, data, endpoint)
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
+}
+
 // ChannelMessageSendTTS sends a message to the given channel with Text to Speech.
 // channelID : The ID of a Channel.
 // content   : The message to send.
