@@ -13,6 +13,7 @@ const (
 	ActionsRowComponent ComponentType = 1
 	ButtonComponent     ComponentType = 2
 	SelectMenuComponent ComponentType = 3
+	InputTextComponent  ComponentType = 4
 )
 
 // MessageComponent is a base interface for all message components.
@@ -42,6 +43,8 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 		umc.MessageComponent = &Button{}
 	case SelectMenuComponent:
 		umc.MessageComponent = &SelectMenu{}
+	case InputTextComponent:
+		umc.MessageComponent = &InputText{}
 	default:
 		return fmt.Errorf("unknown component type: %d", v.Type)
 	}
@@ -195,3 +198,42 @@ func (m SelectMenu) MarshalJSON() ([]byte, error) {
 		Type:       m.Type(),
 	})
 }
+
+// InputText represents text input component.
+type InputText struct {
+	CustomID    string        `json:"custom_id,omitempty"`
+	Label       string        `json:"label"`
+	Style       TextStyleType `json:"style"`
+	Placeholder string        `json:"placeholder,omitempty"`
+	Value       string        `json:"value,omitempty"`
+	Required    bool          `json:"required"`
+	MinLength   int           `json:"min_length"`
+	MaxLength   int           `json:"max_length,omitempty"`
+}
+
+// Type is a method to get the type of a component.
+func (InputText) Type() ComponentType {
+	return InputTextComponent
+}
+
+// MarshalJSON is a method for marshaling InputText to a JSON object.
+func (m InputText) MarshalJSON() ([]byte, error) {
+	type inputText InputText
+
+	return json.Marshal(struct {
+		inputText
+		Type ComponentType `json:"type"`
+	}{
+		inputText: inputText(m),
+		Type:      m.Type(),
+	})
+}
+
+// TextStyleType is style of text in InputText component.
+type TextStyleType uint
+
+// Text styles
+const (
+	TextStyleShort     TextStyleType = 1
+	TextStyleParagraph TextStyleType = 2
+)

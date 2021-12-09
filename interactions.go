@@ -113,6 +113,7 @@ const (
 	InteractionApplicationCommand             InteractionType = 2
 	InteractionMessageComponent               InteractionType = 3
 	InteractionApplicationCommandAutocomplete InteractionType = 4
+	InteractionModalSubmit                    InteractionType = 5
 )
 
 func (t InteractionType) String() string {
@@ -123,6 +124,8 @@ func (t InteractionType) String() string {
 		return "ApplicationCommand"
 	case InteractionMessageComponent:
 		return "MessageComponent"
+	case InteractionModalSubmit:
+		return "ModalSubmit"
 	}
 	return fmt.Sprintf("InteractionType(%d)", t)
 }
@@ -137,8 +140,8 @@ type Interaction struct {
 
 	// The message on which interaction was used.
 	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
-	Message *Message `json:"message"`
 
+	Message *Message `json:"message"`
 	// The member who invoked this interaction.
 	// NOTE: this field is only filled when the slash command was invoked in a guild;
 	// if it was invoked in a DM, the `User` field will be filled instead.
@@ -186,6 +189,13 @@ func (i *Interaction) UnmarshalJSON(raw []byte) error {
 			return err
 		}
 		i.Data = v
+	case InteractionModalSubmit:
+		v := ModalSubmitInteractionData{}
+		err = json.Unmarshal(tmp.Data, &v)
+		if err != nil {
+			return err
+		}
+		i.Data = v
 	}
 	return nil
 }
@@ -206,6 +216,15 @@ func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractio
 		panic("ApplicationCommandData called on interaction of type " + i.Type.String())
 	}
 	return i.Data.(ApplicationCommandInteractionData)
+}
+
+// ModalSubmitData is helper function to assert the innter InteractionData to ModalSubmitInteractionData.
+// Make sure to check that the Type of the interaction is InteractionModalSubmit before calling.
+func (i Interaction) ModalSubmitData() (data ModalSubmitInteractionData) {
+	if i.Type != InteractionModalSubmit {
+		panic("ModalSubmitData called on interaction of type " + i.Type.String())
+	}
+	return i.Data.(ModalSubmitInteractionData)
 }
 
 // InteractionData is a common interface for all types of interaction data.
@@ -254,6 +273,36 @@ type MessageComponentInteractionData struct {
 // Type returns the type of interaction data.
 func (MessageComponentInteractionData) Type() InteractionType {
 	return InteractionMessageComponent
+}
+
+// ModalSubmitInteractionData contains the data of modal submit interaction.
+type ModalSubmitInteractionData struct {
+	CustomID   string             `json:"custom_id"`
+	Components []MessageComponent `json:"-"`
+}
+
+// Type returns the type of interaction data.
+func (ModalSubmitInteractionData) Type() InteractionType {
+	return InteractionModalSubmit
+}
+
+// UnmarshalJSON is a helper function to correctly unmarshal Components.
+func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
+	type modalSubmitInteractionData ModalSubmitInteractionData
+	var v struct {
+		modalSubmitInteractionData
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return err
+	}
+	*d = ModalSubmitInteractionData(v.modalSubmitInteractionData)
+	d.Components = make([]MessageComponent, len(v.RawComponents))
+	for i, v := range v.RawComponents {
+		d.Components[i] = v.MessageComponent
+	}
+	return err
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
@@ -398,6 +447,8 @@ const (
 	InteractionResponseUpdateMessage InteractionResponseType = 7
 	// InteractionApplicationCommandAutocompleteResult shows autocompletion results. Autocomplete interaction only.
 	InteractionApplicationCommandAutocompleteResult InteractionResponseType = 8
+	// InteractionResponseModal is for responding to an interaction with a modal window.
+	InteractionResponseModal InteractionResponseType = 9
 )
 
 // InteractionResponse represents a response for an interaction event.
@@ -418,6 +469,9 @@ type InteractionResponseData struct {
 
 	// NOTE: autocomplete interaction only.
 	Choices []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
+
+	CustomID string `json:"custom_id,omitempty"`
+	Title    string `json:"title,omitempty"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api
