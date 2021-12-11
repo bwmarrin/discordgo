@@ -195,6 +195,7 @@ func (m *MessageDelete) UnmarshalJSON(b []byte) error {
 // MessageReactionAdd is the data for a MessageReactionAdd event.
 type MessageReactionAdd struct {
 	*MessageReaction
+	Member *Member `json:"member,omitempty"`
 }
 
 // MessageReactionRemove is the data for a MessageReactionRemove event.
