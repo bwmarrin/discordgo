@@ -328,8 +328,8 @@ var (
 										Placeholder: "Select tags to search on StackOverflow",
 										// This is where confusion comes from. If you don't specify these things you will get single item select.
 										// These fields control the minimum and maximum amount of selected items.
-										MinValues: 1,
-										MaxValues: 3,
+										MinValues: discordgo.NewOptionalInt(1),
+										MaxValues: discordgo.NewOptionalInt(3),
 										Options: []discordgo.SelectMenuOption{
 											{
 												Label:       "Go",

@@ -55,3 +55,13 @@ func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTErro
 func (r RESTError) Error() string {
 	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
 }
+
+// NewOptionalInt is a helper function for constructing an optional (pointer) int value
+func NewOptionalInt(v int) *int {
+	return &v
+}
+
+// NewOptionalInt is a helper function for constructing an optional (pointer) float value
+func NewOptionalFloat(v float64) *float64 {
+	return &v
+}

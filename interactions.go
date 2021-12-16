@@ -97,10 +97,10 @@ type ApplicationCommandOption struct {
 	// NOTE: mutually exclusive with Choices.
 	Autocomplete bool                              `json:"autocomplete"`
 	Choices      []*ApplicationCommandOptionChoice `json:"choices"`
-  // Minimal value of number/integer option.
-	MinValue float64 `json:"min_value,omitempty"`
+	// Minimal value of number/integer option.
+	MinValue *float64 `json:"min_value,omitempty"`
 	// Maximum value of number/integer option.
-	MaxValue float64 `json:"max_value,omitempty"`
+	MaxValue *float64 `json:"max_value,omitempty"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.

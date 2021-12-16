@@ -59,8 +59,8 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "integer-option",
 					Description: "Integer option",
-					MinValue:    1,
-					MaxValue:    10,
+					MinValue:    discordgo.NewOptionalFloat(1),
+					MaxValue:    discordgo.NewOptionalFloat(10),
 					Required:    true,
 				},
 				{
