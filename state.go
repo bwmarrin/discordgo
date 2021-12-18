@@ -40,6 +40,7 @@ type State struct {
 	// MaxMessageCount represents how many messages per channel the state will store.
 	MaxMessageCount int
 	TrackChannels   bool
+	TrackThreads    bool
 	TrackEmojis     bool
 	TrackMembers    bool
 	TrackRoles      bool
@@ -59,6 +60,7 @@ func NewState() *State {
 			Guilds:          []*Guild{},
 		},
 		TrackChannels:  true,
+		TrackThreads:   true,
 		TrackEmojis:    true,
 		TrackMembers:   true,
 		TrackRoles:     true,
@@ -93,6 +95,11 @@ func (s *State) GuildAdd(guild *Guild) error {
 		s.channelMap[c.ID] = c
 	}
 
+	// Add all the threads to the state in case of thread sync list.
+	for _, t := range guild.Threads {
+		s.channelMap[t.ID] = t
+	}
+
 	// If this guild contains a new member slice, we must regenerate the member map so the pointers stay valid
 	if guild.Members != nil {
 		s.createMemberMap(guild)
@@ -121,6 +128,9 @@ func (s *State) GuildAdd(guild *Guild) error {
 		}
 		if guild.Channels == nil {
 			guild.Channels = g.Channels
+		}
+		if guild.Threads == nil {
+			guild.Threads = g.Threads
 		}
 		if guild.VoiceStates == nil {
 			guild.VoiceStates = g.VoiceStates
@@ -465,6 +475,9 @@ func (s *State) ChannelAdd(channel *Channel) error {
 		if channel.PermissionOverwrites == nil {
 			channel.PermissionOverwrites = c.PermissionOverwrites
 		}
+		if channel.ThreadMetadata == nil {
+			channel.ThreadMetadata = c.ThreadMetadata
+		}
 
 		*c = *channel
 		return nil
@@ -472,12 +485,18 @@ func (s *State) ChannelAdd(channel *Channel) error {
 
 	if channel.Type == ChannelTypeDM || channel.Type == ChannelTypeGroupDM {
 		s.PrivateChannels = append(s.PrivateChannels, channel)
-	} else {
-		guild, ok := s.guildMap[channel.GuildID]
-		if !ok {
-			return ErrStateNotFound
-		}
+		s.channelMap[channel.ID] = channel
+		return nil
+	}
 
+	guild, ok := s.guildMap[channel.GuildID]
+	if !ok {
+		return ErrStateNotFound
+	}
+
+	if channel.IsThread() {
+		guild.Threads = append(guild.Threads, channel)
+	} else {
 		guild.Channels = append(guild.Channels, channel)
 	}
 
@@ -507,15 +526,26 @@ func (s *State) ChannelRemove(channel *Channel) error {
 				break
 			}
 		}
-	} else {
-		guild, err := s.Guild(channel.GuildID)
-		if err != nil {
-			return err
+		delete(s.channelMap, channel.ID)
+		return nil
+	}
+
+	guild, err := s.Guild(channel.GuildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	if channel.IsThread() {
+		for i, t := range guild.Threads {
+			if t.ID == channel.ID {
+				guild.Threads = append(guild.Threads[:i], guild.Threads[i+1:]...)
+				break
+			}
 		}
-
-		s.Lock()
-		defer s.Unlock()
-
+	} else {
 		for i, c := range guild.Channels {
 			if c.ID == channel.ID {
 				guild.Channels = append(guild.Channels[:i], guild.Channels[i+1:]...)
@@ -525,6 +555,49 @@ func (s *State) ChannelRemove(channel *Channel) error {
 	}
 
 	delete(s.channelMap, channel.ID)
+
+	return nil
+}
+
+// ThreadListSync syncs guild threads with provided ones.
+func (s *State) ThreadListSync(tls *ThreadListSync) error {
+	guild, err := s.Guild(tls.GuildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	// This algorithm filters out archived or
+	// threads which are children of channels in channelIDs
+	// and then it adds all synced threads to guild threads and cache
+	index := 0
+	for _, t := range guild.Threads {
+		if !t.ThreadMetadata.Archived && tls.ChannelIDs != nil {
+			for _, v := range tls.ChannelIDs {
+				if t.ParentID == v {
+					goto remove
+				}
+			}
+			guild.Threads[index] = t
+			index++
+			continue
+		}
+	remove:
+		delete(s.channelMap, t.ID)
+	}
+	guild.Threads = guild.Threads[:index]
+	for _, t := range tls.Threads {
+		s.channelMap[t.ID] = t
+		guild.Threads = append(guild.Threads, t)
+	}
+
+	for _, m := range tls.Members {
+		if c, ok := s.channelMap[m.ID]; ok {
+			c.Member = m
+		}
+	}
 
 	return nil
 }
@@ -913,7 +986,26 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		if s.TrackChannels {
 			err = s.ChannelRemove(t.Channel)
 		}
-	case *MessageCreate:
+	case *ThreadCreate:
+		if s.TrackThreads {
+			msglog(LogDebug, 1, "thread created %s (%q) in %s", t.ID, t.Name, t.ParentID)
+			err = s.ChannelAdd(t.Channel)
+		}
+	case *ThreadUpdate:
+		if s.TrackThreads {
+			msglog(LogDebug, 1, "thread updated %s (%q) in %s", t.ID, t.Name, t.ParentID)
+			err = s.ChannelAdd(t.Channel)
+		}
+	case *ThreadDelete:
+		if s.TrackThreads {
+			msglog(LogDebug, 1, "thread deleted %s (%q) in %s", t.ID, t.Name, t.ParentID)
+			err = s.ChannelRemove(t.Channel)
+		}
+	case *ThreadListSync:
+		if s.TrackThreads {
+			err = s.ThreadListSync(t)
+		}
+	case *MessageCreate: // TODO: last message id in thread
 		if s.MaxMessageCount != 0 {
 			err = s.MessageAdd(t.Message)
 		}

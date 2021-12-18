@@ -2415,6 +2415,185 @@ func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) 
 }
 
 // ------------------------------------------------------------------------------------------------
+// Functions specific to threads
+// ------------------------------------------------------------------------------------------------
+
+// StartMessageThreadComplex
+func (s *Session) StartMessageThreadComplex(channelID, messageID string, data *ThreadStart) (ch *Channel, err error) {
+	endpoint := EndpointChannelMessageThread(channelID, messageID)
+	var body []byte
+	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &ch)
+	return
+}
+
+func (s *Session) StartMessageThread(channelID, messageID string, name string, archiveDuration int) (ch *Channel, err error) {
+	return s.StartMessageThreadComplex(channelID, messageID, &ThreadStart{
+		Name:                name,
+		AutoArchiveDuration: archiveDuration,
+	})
+}
+
+func (s *Session) StartThreadComplex(channelID string, data *ThreadStart) (ch *Channel, err error) {
+	endpoint := EndpointChannelThreads(channelID)
+	var body []byte
+	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &ch)
+	return
+}
+
+func (s *Session) StartThread(channelID, name string, archiveDuration int) (ch *Channel, err error) {
+	return s.StartThreadComplex(channelID, &ThreadStart{
+		Name:                name,
+		AutoArchiveDuration: archiveDuration,
+	})
+}
+
+func (s *Session) JoinThread(id string) error {
+	endpoint := EndpointThreadMember(id, "@me")
+	_, err := s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	return err
+}
+
+func (s *Session) LeaveThread(id string) error {
+	endpoint := EndpointThreadMember(id, "@me")
+	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return err
+}
+
+func (s *Session) RemoveThreadMember(threadID, memberID string) error {
+	endpoint := EndpointThreadMember(threadID, memberID)
+	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return err
+}
+
+func (s *Session) ThreadMember(threadID, memberID string) (member *ThreadMember, err error) {
+	endpoint := EndpointThreadMember(threadID, memberID)
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &member)
+	return
+}
+
+func (s *Session) ThreadMembers(threadID string) (members []*ThreadMember, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointThreadMembers(threadID), nil, EndpointThreadMembers(threadID))
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &members)
+	return
+}
+
+func (s *Session) ActiveThreads(channelID string) (threads *ThreadsList, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointChannelActiveThreads(channelID), nil, EndpointChannelActiveThreads(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+func (s *Session) GuildActiveThreads(guildID string) (threads *ThreadsList, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointGuildActiveThreads(guildID), nil, EndpointGuildActiveThreads(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+func (s *Session) ArchivedThreads(channelID string, before Timestamp, limit int) (threads *ThreadsList, err error) {
+	endpoint := EndpointChannelPublicArchivedThreads(channelID)
+	v := url.Values{}
+	if before != "" {
+		v.Set("before", string(before))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		endpoint += "?" + v.Encode()
+	}
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+func (s *Session) ArchivedPrivateThreads(channelID string, before Timestamp, limit int) (threads *ThreadsList, err error) {
+	endpoint := EndpointChannelPrivateArchivedThreads(channelID)
+	v := url.Values{}
+	if before != "" {
+		v.Set("before", string(before))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		endpoint += "?" + v.Encode()
+	}
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+func (s *Session) ArchivedJoinedPrivateThreads(channelID string, before Timestamp, limit int) (threads *ThreadsList, err error) {
+	endpoint := EndpointChannelJoinedPrivateArchivedThreads(channelID)
+	v := url.Values{}
+	if before != "" {
+		v.Set("before", string(before))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		endpoint += "?" + v.Encode()
+	}
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
 // Functions specific to application (slash) commands
 // ------------------------------------------------------------------------------------------------
 

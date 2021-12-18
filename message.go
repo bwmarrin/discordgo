@@ -37,8 +37,10 @@ const (
 	MessageTypeChannelFollowAdd                      MessageType = 12
 	MessageTypeGuildDiscoveryDisqualified            MessageType = 14
 	MessageTypeGuildDiscoveryRequalified             MessageType = 15
+	MessageTypeThreadCreated                         MessageType = 18
 	MessageTypeReply                                 MessageType = 19
 	MessageTypeChatInputCommand                      MessageType = 20
+	MessageTypeThreadStarterMessage                  MessageType = 21
 	MessageTypeContextMenuCommand                    MessageType = 23
 )
 
@@ -125,10 +127,20 @@ type Message struct {
 	// To generate a reference to this message, use (*Message).Reference().
 	MessageReference *MessageReference `json:"message_reference"`
 
+	// The message associated with the message_reference
+	// NOTE: This field is only returned for messages with a type of 19 (REPLY) or 21 (THREAD_STARTER_MESSAGE).
+	// If the message is a reply but the referenced_message field is not present,
+	// the backend did not attempt to fetch the message that was being replied to, so its state is unknown.
+	// If the field exists but is null, the referenced message was deleted.
+	ReferencedMessage *Message `json:"referenced_message"`
+
 	// The flags of the message, which describe extra features of a message.
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// The thread that was started from this message, includes thread member object
+	Thread *Channel `json:"thread,omitempty"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
