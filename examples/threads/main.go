@@ -12,9 +12,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// Flags
 var (
 	BotToken = flag.String("token", "", "Bot token")
 )
+
+const timeout time.Duration = time.Second * 10
 
 var games map[string]time.Time = make(map[string]time.Time)
 
@@ -22,7 +25,7 @@ func main() {
 	flag.Parse()
 	s, _ := discordgo.New("Bot " + *BotToken)
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		fmt.Println("Ready")
+		fmt.Println("Bot is ready")
 	})
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if strings.Contains(m.Content, "ping") {
@@ -36,18 +39,21 @@ func main() {
 				if err != nil {
 					panic(err)
 				}
-				_, _ = s.ChannelMessageSend(thread.ID, "Pong")
+				_, _ = s.ChannelMessageSend(thread.ID, "pong")
 				m.ChannelID = thread.ID
 			} else {
-				_, _ = s.ChannelMessageSendReply(m.ChannelID, "Pong", m.Reference())
+				_, _ = s.ChannelMessageSendReply(m.ChannelID, "pong", m.Reference())
 			}
 			games[m.ChannelID] = time.Now()
-			<-time.After(time.Second * 10)
-			if time.Since(games[m.ChannelID]) >= time.Second*10 {
-				s.ChannelEditComplex(m.ChannelID, &discordgo.ChannelEdit{
+			<-time.After(timeout)
+			if time.Since(games[m.ChannelID]) >= timeout {
+				_, err := s.ChannelEditComplex(m.ChannelID, &discordgo.ChannelEdit{
 					Archived: true,
 					Locked:   true,
 				})
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	})

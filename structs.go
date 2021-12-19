@@ -318,7 +318,7 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// IsThreads is a helper function to determine if channel is a thread or not
+// IsThread is a helper function to determine if channel is a thread or not
 func (c *Channel) IsThread() bool {
 	return c.Type == ChannelTypeGuildPublicThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildNewsThread
 }
@@ -403,6 +403,7 @@ type ThreadMember struct {
 	Flags int
 }
 
+// ThreadsList represents a list of threads alongisde with thread member objects for the current user.
 type ThreadsList struct {
 	Threads []*Channel      `json:"threads"`
 	Members []*ThreadMember `json:"members"`

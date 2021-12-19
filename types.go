@@ -24,6 +24,11 @@ func (t Timestamp) Parse() (time.Time, error) {
 	return time.Parse(time.RFC3339, string(t))
 }
 
+// NewTimestamp constructs a Timestamp from specified time.
+func NewTimestamp(t time.Time) Timestamp {
+	return Timestamp(t.Format(time.RFC3339))
+}
+
 // RESTError stores error information about a request with a bad response code.
 // Message is not always present, there are cases where api calls can fail
 // without returning a json message.
