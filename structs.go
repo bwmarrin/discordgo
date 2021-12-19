@@ -311,6 +311,9 @@ type Channel struct {
 	ThreadMetadata *ThreadMetadata `json:"thread_metadata,omitempty"`
 	// Thread member object for the current user, if they have joined the thread, only included on certain API endpoints
 	Member *ThreadMember `json:"thread_member"`
+
+	// All thread members. State channels only.
+	Members []*ThreadMember `json:"-"`
 }
 
 // Mention returns a string which mentions the channel
@@ -318,8 +321,11 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
+// Thread is a subchannel inside an existing channel
+type Thread = Channel
+
 // IsThread is a helper function to determine if channel is a thread or not
-func (c *Channel) IsThread() bool {
+func (c *Thread) IsThread() bool {
 	return c.Type == ChannelTypeGuildPublicThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildNewsThread
 }
 

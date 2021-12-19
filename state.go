@@ -38,14 +38,15 @@ type State struct {
 	Ready
 
 	// MaxMessageCount represents how many messages per channel the state will store.
-	MaxMessageCount int
-	TrackChannels   bool
-	TrackThreads    bool
-	TrackEmojis     bool
-	TrackMembers    bool
-	TrackRoles      bool
-	TrackVoice      bool
-	TrackPresences  bool
+	MaxMessageCount    int
+	TrackChannels      bool
+	TrackThreads       bool
+	TrackEmojis        bool
+	TrackMembers       bool
+	TrackThreadMembers bool
+	TrackRoles         bool
+	TrackVoice         bool
+	TrackPresences     bool
 
 	guildMap   map[string]*Guild
 	channelMap map[string]*Channel
@@ -59,16 +60,17 @@ func NewState() *State {
 			PrivateChannels: []*Channel{},
 			Guilds:          []*Guild{},
 		},
-		TrackChannels:  true,
-		TrackThreads:   true,
-		TrackEmojis:    true,
-		TrackMembers:   true,
-		TrackRoles:     true,
-		TrackVoice:     true,
-		TrackPresences: true,
-		guildMap:       make(map[string]*Guild),
-		channelMap:     make(map[string]*Channel),
-		memberMap:      make(map[string]map[string]*Member),
+		TrackChannels:      true,
+		TrackThreads:       true,
+		TrackEmojis:        true,
+		TrackMembers:       true,
+		TrackThreadMembers: true,
+		TrackRoles:         true,
+		TrackVoice:         true,
+		TrackPresences:     true,
+		guildMap:           make(map[string]*Guild),
+		channelMap:         make(map[string]*Channel),
+		memberMap:          make(map[string]map[string]*Member),
 	}
 }
 
@@ -602,6 +604,59 @@ func (s *State) ThreadListSync(tls *ThreadListSync) error {
 	return nil
 }
 
+// ThreadMembersUpdate updates thread members list
+func (s *State) ThreadMembersUpdate(tmu *ThreadMembersUpdate) error {
+	thread, err := s.Channel(tmu.ID)
+	if err != nil {
+		return err
+	}
+	s.Lock()
+	for idx, member := range thread.Members {
+		for _, removedMember := range tmu.RemovedMembers {
+			if member.ID == removedMember {
+				thread.Members = append(thread.Members[:idx], thread.Members[idx+1:]...)
+
+				break
+			}
+		}
+	}
+	s.Unlock()
+
+	for _, addedMember := range tmu.AddedMembers {
+		s.Lock()
+		thread.Members = append(thread.Members, addedMember.ThreadMember)
+		s.Unlock()
+		if addedMember.Member != nil {
+			err = s.MemberAdd(addedMember.Member)
+			if err != nil {
+				return err
+			}
+		}
+		if addedMember.Presence != nil {
+			err = s.PresenceAdd(tmu.GuildID, addedMember.Presence)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	s.Lock()
+	thread.MemberCount = tmu.MemberCount
+	s.Unlock()
+
+	return nil
+}
+
+// ThreadMemberUpdate sets or updates member data for the current user.
+func (s *State) ThreadMemberUpdate(mu *ThreadMemberUpdate) error {
+	thread, err := s.Channel(mu.ID)
+	if err != nil {
+		return err
+	}
+
+	thread.Member = mu.ThreadMember
+	return nil
+}
+
 // GuildChannel gets a channel by ID from a guild.
 // This method is Deprecated, use Channel(channelID)
 func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
@@ -741,6 +796,12 @@ func (s *State) MessageAdd(message *Message) error {
 	if len(c.Messages) > s.MaxMessageCount {
 		c.Messages = c.Messages[len(c.Messages)-s.MaxMessageCount:]
 	}
+
+	if c.IsThread() {
+		c.MessageCount++
+		c.LastMessageID = message.ID
+	}
+
 	return nil
 }
 
@@ -765,6 +826,12 @@ func (s *State) messageRemoveByID(channelID, messageID string) error {
 
 	for i, m := range c.Messages {
 		if m.ID == messageID {
+			if c.IsThread() {
+				if i == len(c.Messages)-1 && len(c.Messages) > 0 {
+					c.LastMessageID = c.Messages[i-1].ID
+				}
+				c.MessageCount--
+			}
 			c.Messages = append(c.Messages[:i], c.Messages[i+1:]...)
 			return nil
 		}
@@ -1000,6 +1067,14 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		if s.TrackThreads {
 			msglog(LogDebug, 1, "thread deleted %s (%q) in %s", t.ID, t.Name, t.ParentID)
 			err = s.ChannelRemove(t.Channel)
+		}
+	case *ThreadMemberUpdate:
+		if s.TrackThreads {
+			err = s.ThreadMemberUpdate(t)
+		}
+	case *ThreadMembersUpdate:
+		if s.TrackThreadMembers {
+			err = s.ThreadMembersUpdate(t)
 		}
 	case *ThreadListSync:
 		if s.TrackThreads {
