@@ -808,6 +808,9 @@ type Member struct {
 
 	// Total permissions of the member in the channel, including overrides, returned when in the interaction object.
 	Permissions int64 `json:"permissions,string"`
+
+	// The time at which the member's timeout will expire
+	CommunicationDisableUntil Timestamp `json:"communication_disable_until"`
 }
 
 // Mention creates a member mention
@@ -1296,6 +1299,7 @@ const (
 	PermissionViewAuditLogs       = 0x0000000000000080
 	PermissionViewChannel         = 0x0000000000000400
 	PermissionViewGuildInsights   = 0x0000000000080000
+	PermissionModerateMembers     = 0x0000010000000000
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
