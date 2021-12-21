@@ -2474,9 +2474,10 @@ func (s *Session) StartThreadComplex(channelID string, data *ThreadStart) (ch *C
 // channelID       : Channel to create thread in
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
-func (s *Session) StartThread(channelID, name string, archiveDuration int) (ch *Channel, err error) {
+func (s *Session) StartThread(channelID, name string, typ ChannelType, archiveDuration int) (ch *Channel, err error) {
 	return s.StartThreadComplex(channelID, &ThreadStart{
 		Name:                name,
+		Type:                typ,
 		AutoArchiveDuration: archiveDuration,
 	})
 }

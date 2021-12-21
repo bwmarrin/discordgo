@@ -615,7 +615,6 @@ func (s *State) ThreadMembersUpdate(tmu *ThreadMembersUpdate) error {
 		for _, removedMember := range tmu.RemovedMembers {
 			if member.ID == removedMember {
 				thread.Members = append(thread.Members[:idx], thread.Members[idx+1:]...)
-
 				break
 			}
 		}
