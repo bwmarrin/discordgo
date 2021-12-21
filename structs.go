@@ -810,7 +810,7 @@ type Member struct {
 	Permissions int64 `json:"permissions,string"`
 
 	// The time at which the member's timeout will expire
-	CommunicationDisableUntil Timestamp `json:"communication_disable_until"`
+	CommunicationDisabledUntil Timestamp `json:"communication_disabled_until"`
 }
 
 // Mention creates a member mention
