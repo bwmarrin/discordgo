@@ -389,7 +389,7 @@ type ThreadMetadata struct {
 	// Duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
 	AutoArchiveDuration int `json:"auto_archive_duration"`
 	// Timestamp when the thread's archive status was last changed, used for calculating recent activity
-	ArchiveTimestamp Timestamp `json:"archive_timestamp"`
+	ArchiveTimestamp time.Time `json:"archive_timestamp"`
 	// Whether the thread is locked; when a thread is locked, only users with MANAGE_THREADS can unarchive it
 	Locked bool `json:"locked"`
 	// Whether non-moderators can add other non-moderators to a thread; only available on private threads
@@ -404,7 +404,7 @@ type ThreadMember struct {
 	// The id of the user
 	UserID string `json:"user_id,omitempty"`
 	// The time the current user last joined the thread
-	JoinTimestamp Timestamp `json:"join_timestamp"`
+	JoinTimestamp time.Time `json:"join_timestamp"`
 	// Any user-thread settings, currently only used for notifications
 	Flags int
 }
