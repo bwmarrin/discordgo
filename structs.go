@@ -321,11 +321,8 @@ func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// Thread is a subchannel inside an existing channel
-type Thread = Channel
-
 // IsThread is a helper function to determine if channel is a thread or not
-func (c *Thread) IsThread() bool {
+func (c *Channel) IsThread() bool {
 	return c.Type == ChannelTypeGuildPublicThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildNewsThread
 }
 
