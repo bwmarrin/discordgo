@@ -809,8 +809,9 @@ type Member struct {
 	// Total permissions of the member in the channel, including overrides, returned when in the interaction object.
 	Permissions int64 `json:"permissions,string"`
 
-	// The time at which the member's timeout will expire
-	CommunicationDisabledUntil Timestamp `json:"communication_disabled_until"`
+	// The time at which the member's timeout will expire.
+	// Time in the past or nil if the user is not timed out.
+	CommunicationDisabledUntil *time.Time `json:"communication_disabled_until"`
 }
 
 // Mention creates a member mention
