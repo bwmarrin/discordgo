@@ -2158,12 +2158,7 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 	return
 }
 
-// WebhookExecute executes a webhook.
-// webhookID: The ID of a webhook.
-// token    : The auth token for the webhook
-// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
-// threadID :	Sends a message to the specified thread within a webhook's channel. The thread will automatically be unarchived.
-func (s *Session) WebhookExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams) (st *Message, err error) {
+func (s *Session) webhookExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams) (st *Message, err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
 	v := url.Values{}
@@ -2195,6 +2190,23 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, threadID st
 
 	err = unmarshal(response, &st)
 	return
+}
+
+// WebhookExecute executes a webhook.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook
+// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
+func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
+	return s.webhookExecute(webhookID, token, wait, "", data)
+}
+
+// WebhookExecute executes a webhook in a thread.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook
+// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
+// threadID :	Sends a message to the specified thread within a webhook's channel. The thread will automatically be unarchived.
+func (s *Session) WebhookThreadExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams) (st *Message, err error) {
+	return s.webhookExecute(webhookID, token, wait, "", data)
 }
 
 // WebhookMessage gets a webhook message.
@@ -2813,7 +2825,7 @@ func (s *Session) InteractionResponseDelete(appID string, interaction *Interacti
 // wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
 func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, wait bool, data *WebhookParams) (*Message, error) {
-	return s.WebhookExecute(appID, interaction.Token, wait, "", data)
+	return s.WebhookExecute(appID, interaction.Token, wait, data)
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
