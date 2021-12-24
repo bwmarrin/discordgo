@@ -12,22 +12,7 @@ package discordgo
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 )
-
-// Timestamp stores a timestamp, as sent by the Discord API.
-type Timestamp string
-
-// Parse parses a timestamp string into a time.Time object.
-// The only time this can fail is if Discord changes their timestamp format.
-func (t Timestamp) Parse() (time.Time, error) {
-	return time.Parse(time.RFC3339, string(t))
-}
-
-// NewTimestamp constructs a Timestamp from specified time.
-func NewTimestamp(t time.Time) Timestamp {
-	return Timestamp(t.Format(time.RFC3339))
-}
 
 // RESTError stores error information about a request with a bad response code.
 // Message is not always present, there are cases where api calls can fail

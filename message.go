@@ -14,6 +14,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // MessageType is the type of Message
@@ -62,11 +63,11 @@ type Message struct {
 	// CAUTION: this field may be removed in a
 	// future API version; it is safer to calculate
 	// the creation time via the ID.
-	Timestamp Timestamp `json:"timestamp"`
+	Timestamp time.Time `json:"timestamp"`
 
 	// The time at which the last edit of the message
 	// occurred, if it has been edited.
-	EditedTimestamp Timestamp `json:"edited_timestamp"`
+	EditedTimestamp *time.Time `json:"edited_timestamp"`
 
 	// The roles mentioned in the message.
 	MentionRoles []string `json:"mention_roles"`

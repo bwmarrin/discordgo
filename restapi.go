@@ -2564,11 +2564,11 @@ func (s *Session) GuildActiveThreads(guildID string) (threads *ThreadsList, err 
 // ArchivedThreads returns archived threads for specified channel.
 // before : If specified returns only threads before the timestamp
 // limit  : Optional maximum amount of threads to return.
-func (s *Session) ArchivedThreads(channelID string, before Timestamp, limit int) (threads *ThreadsList, err error) {
+func (s *Session) ArchivedThreads(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
 	endpoint := EndpointChannelPublicArchivedThreads(channelID)
 	v := url.Values{}
-	if before != "" {
-		v.Set("before", string(before))
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
 	}
 
 	if limit > 0 {
@@ -2592,11 +2592,11 @@ func (s *Session) ArchivedThreads(channelID string, before Timestamp, limit int)
 // ArchivedPrivateThreads returns archived private threads for specified channel.
 // before : If specified returns only threads before the timestamp
 // limit  : Optional maximum amount of threads to return.
-func (s *Session) ArchivedPrivateThreads(channelID string, before Timestamp, limit int) (threads *ThreadsList, err error) {
+func (s *Session) ArchivedPrivateThreads(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
 	endpoint := EndpointChannelPrivateArchivedThreads(channelID)
 	v := url.Values{}
-	if before != "" {
-		v.Set("before", string(before))
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
 	}
 
 	if limit > 0 {
@@ -2619,11 +2619,11 @@ func (s *Session) ArchivedPrivateThreads(channelID string, before Timestamp, lim
 // ArchivedJoinedPrivateThreads returns archived joined private threads for specified channel.
 // before : If specified returns only threads before the timestamp
 // limit  : Optional maximum amount of threads to return.
-func (s *Session) ArchivedJoinedPrivateThreads(channelID string, before Timestamp, limit int) (threads *ThreadsList, err error) {
+func (s *Session) ArchivedJoinedPrivateThreads(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
 	endpoint := EndpointChannelJoinedPrivateArchivedThreads(channelID)
 	v := url.Values{}
-	if before != "" {
-		v.Set("before", string(before))
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
 	}
 
 	if limit > 0 {
