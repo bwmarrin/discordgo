@@ -1054,17 +1054,14 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *ThreadCreate:
 		if s.TrackThreads {
-			msglog(LogDebug, 1, "thread created %s (%q) in %s", t.ID, t.Name, t.ParentID)
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ThreadUpdate:
 		if s.TrackThreads {
-			msglog(LogDebug, 1, "thread updated %s (%q) in %s", t.ID, t.Name, t.ParentID)
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ThreadDelete:
 		if s.TrackThreads {
-			msglog(LogDebug, 1, "thread deleted %s (%q) in %s", t.ID, t.Name, t.ParentID)
 			err = s.ChannelRemove(t.Channel)
 		}
 	case *ThreadMemberUpdate:
