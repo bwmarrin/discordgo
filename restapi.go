@@ -2200,7 +2200,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 	return s.webhookExecute(webhookID, token, wait, "", data)
 }
 
-// WebhookExecute executes a webhook in a thread.
+// WebhookThreadExecute executes a webhook in a thread.
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook
 // wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
