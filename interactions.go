@@ -131,7 +131,7 @@ func (t InteractionType) String() string {
 type Interaction struct {
 	ID        string          `json:"id"`
 	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"-"`
+	Data      InteractionData `json:"data"`
 	GuildID   string          `json:"guild_id"`
 	ChannelID string          `json:"channel_id"`
 
