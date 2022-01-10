@@ -86,6 +86,7 @@ type GuildUpdate struct {
 // GuildDelete is the data for a GuildDelete event.
 type GuildDelete struct {
 	*Guild
+	BeforeDelete *Guild `json:"-"`
 }
 
 // GuildBanAdd is the data for a GuildBanAdd event.
@@ -162,11 +163,21 @@ type MessageCreate struct {
 	*Message
 }
 
+// UnmarshalJSON is a helper function to unmarshal MessageCreate object.
+func (m *MessageCreate) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &m.Message)
+}
+
 // MessageUpdate is the data for a MessageUpdate event.
 type MessageUpdate struct {
 	*Message
 	// BeforeUpdate will be nil if the Message was not previously cached in the state cache.
 	BeforeUpdate *Message `json:"-"`
+}
+
+// UnmarshalJSON is a helper function to unmarshal MessageUpdate object.
+func (m *MessageUpdate) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &m.Message)
 }
 
 // MessageDelete is the data for a MessageDelete event.
@@ -175,9 +186,15 @@ type MessageDelete struct {
 	BeforeDelete *Message `json:"-"`
 }
 
+// UnmarshalJSON is a helper function to unmarshal MessageDelete object.
+func (m *MessageDelete) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &m.Message)
+}
+
 // MessageReactionAdd is the data for a MessageReactionAdd event.
 type MessageReactionAdd struct {
 	*MessageReaction
+	Member *Member `json:"member,omitempty"`
 }
 
 // MessageReactionRemove is the data for a MessageReactionRemove event.
@@ -271,4 +288,9 @@ type WebhooksUpdate struct {
 // InteractionCreate is the data for a InteractionCreate event
 type InteractionCreate struct {
 	*Interaction
+}
+
+// UnmarshalJSON is a helper function to unmarshal Interaction object.
+func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &i.Interaction)
 }
