@@ -38,8 +38,8 @@ type ApplicationCommand struct {
 	Description string `json:"description,omitempty"`
 	Version     string `json:"version,omitempty"`
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
-	Options []*ApplicationCommandOption `json:"options"`
-  DefaultPermission *bool                       `json:"default_permission,omitempty"`
+	Options           []*ApplicationCommandOption `json:"options"`
+	DefaultPermission *bool                       `json:"default_permission,omitempty"`
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
