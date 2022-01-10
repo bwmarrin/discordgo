@@ -15,12 +15,13 @@ const InteractionDeadline = time.Second * 3
 
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID            string                      `json:"id,omitempty"`
-	ApplicationID string                      `json:"application_id,omitempty"`
-	Name          string                      `json:"name"`
-	Description   string                      `json:"description,omitempty"`
-	Version       string                      `json:"version,omitempty"`
-	Options       []*ApplicationCommandOption `json:"options"`
+	ID                string                      `json:"id,omitempty"`
+	ApplicationID     string                      `json:"application_id,omitempty"`
+	Name              string                      `json:"name"`
+	Description       string                      `json:"description,omitempty"`
+	Version           string                      `json:"version,omitempty"`
+	Options           []*ApplicationCommandOption `json:"options"`
+	DefaultPermission *bool                       `json:"default_permission,omitempty"`
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
