@@ -152,9 +152,9 @@ type Interaction struct {
 
 	// The selected language of the invoking user
 	// NOTE: This is available on all interaction types except InteractionPing.
-	Locale string `json:"locale"`
+	Locale Locale `json:"locale"`
 	// The guild's preferred locale, if invoked in a guild
-	GuildLocale string `json:"guild_locale"`
+	GuildLocale *Locale `json:"guild_locale"`
 
 	Token   string `json:"token"`
 	Version int    `json:"version"`
