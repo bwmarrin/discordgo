@@ -70,8 +70,8 @@ func (l Locale) String() string {
 // All known locales
 const (
 	LocaleGerman                      Locale = "de"
-	LocaleEnglishUK                   Locale = "English, UK"
-	LocaleEnglishUS                   Locale = "English, US"
+	LocaleEnglishUK                   Locale = "en-GB"
+	LocaleEnglishUS                   Locale = "en-US"
 	LocaleSpanish                     Locale = "es-ES"
 	LocaleFrench                      Locale = "fr"
 	LocaleCroatioan                   Locale = "hr"
