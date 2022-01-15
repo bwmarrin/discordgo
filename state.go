@@ -1086,7 +1086,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		if s.TrackThreads {
 			err = s.ThreadListSync(t)
 		}
-	case *MessageCreate: // TODO: last message id in thread
+	case *MessageCreate:
 		if s.MaxMessageCount != 0 {
 			err = s.MessageAdd(t.Message)
 		}
