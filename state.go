@@ -800,12 +800,6 @@ func (s *State) MessageAdd(message *Message) error {
 	if len(c.Messages) > s.MaxMessageCount {
 		c.Messages = c.Messages[len(c.Messages)-s.MaxMessageCount:]
 	}
-
-	if c.IsThread() {
-		c.MessageCount++
-		c.LastMessageID = message.ID
-	}
-
 	return nil
 }
 
