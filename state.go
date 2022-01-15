@@ -582,19 +582,20 @@ func (s *State) ThreadListSync(tls *ThreadListSync) error {
 	// threads which are children of channels in channelIDs
 	// and then it adds all synced threads to guild threads and cache
 	index := 0
+outer:
 	for _, t := range guild.Threads {
 		if !t.ThreadMetadata.Archived && tls.ChannelIDs != nil {
 			for _, v := range tls.ChannelIDs {
 				if t.ParentID == v {
-					goto remove
+					delete(s.channelMap, t.ID)
+					continue outer
 				}
 			}
 			guild.Threads[index] = t
 			index++
-			continue
+		} else {
+			delete(s.channelMap, t.ID)
 		}
-	remove:
-		delete(s.channelMap, t.ID)
 	}
 	guild.Threads = guild.Threads[:index]
 	for _, t := range tls.Threads {
@@ -1062,6 +1063,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *ThreadUpdate:
 		if s.TrackThreads {
+			old, err := s.Channel(t.ID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeUpdate = &oldCopy
+			}
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ThreadDelete:

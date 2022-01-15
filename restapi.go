@@ -2455,22 +2455,22 @@ func (s *Session) StartMessageThreadComplex(channelID, messageID string, data *T
 	return
 }
 
-// StartMessageThread creates a new thread from an existing message.
+// MessageThreadStart creates a new thread from an existing message.
 // channelID       : Channel to create thread in
 // messageID       : Message to start thread from
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
-func (s *Session) StartMessageThread(channelID, messageID string, name string, archiveDuration int) (ch *Channel, err error) {
+func (s *Session) MessageThreadStart(channelID, messageID string, name string, archiveDuration int) (ch *Channel, err error) {
 	return s.StartMessageThreadComplex(channelID, messageID, &ThreadStart{
 		Name:                name,
 		AutoArchiveDuration: archiveDuration,
 	})
 }
 
-// StartThreadComplex creates a new thread.
+// ThreadComplexStart creates a new thread.
 // channelID : Channel to create thread in
 // data : Parameters of the thread
-func (s *Session) StartThreadComplex(channelID string, data *ThreadStart) (ch *Channel, err error) {
+func (s *Session) ThreadComplexStart(channelID string, data *ThreadStart) (ch *Channel, err error) {
 	endpoint := EndpointChannelThreads(channelID)
 	var body []byte
 	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
@@ -2482,41 +2482,41 @@ func (s *Session) StartThreadComplex(channelID string, data *ThreadStart) (ch *C
 	return
 }
 
-// StartThread creates a new thread.
+// ThreadStart creates a new thread.
 // channelID       : Channel to create thread in
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
-func (s *Session) StartThread(channelID, name string, typ ChannelType, archiveDuration int) (ch *Channel, err error) {
-	return s.StartThreadComplex(channelID, &ThreadStart{
+func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDuration int) (ch *Channel, err error) {
+	return s.ThreadComplexStart(channelID, &ThreadStart{
 		Name:                name,
 		Type:                typ,
 		AutoArchiveDuration: archiveDuration,
 	})
 }
 
-// JoinThread adds current user to a thread
-func (s *Session) JoinThread(id string) error {
+// ThreadJoin adds current user to a thread
+func (s *Session) ThreadJoin(id string) error {
 	endpoint := EndpointThreadMember(id, "@me")
 	_, err := s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
 	return err
 }
 
-// LeaveThread removes current user to a thread
-func (s *Session) LeaveThread(id string) error {
+// ThreadLeave removes current user to a thread
+func (s *Session) ThreadLeave(id string) error {
 	endpoint := EndpointThreadMember(id, "@me")
 	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 	return err
 }
 
-// AddThreadMember adds another member to a thread
-func (s *Session) AddThreadMember(threadID, memberID string) error {
+// ThreadMemberAdd adds another member to a thread
+func (s *Session) ThreadMemberAdd(threadID, memberID string) error {
 	endpoint := EndpointThreadMember(threadID, memberID)
 	_, err := s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
 	return err
 }
 
-// RemoveThreadMember removes another member from a thread
-func (s *Session) RemoveThreadMember(threadID, memberID string) error {
+// ThreadMemberRemove removes another member from a thread
+func (s *Session) ThreadMemberRemove(threadID, memberID string) error {
 	endpoint := EndpointThreadMember(threadID, memberID)
 	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 	return err
@@ -2549,8 +2549,8 @@ func (s *Session) ThreadMembers(threadID string) (members []*ThreadMember, err e
 	return
 }
 
-// ActiveThreads returns all active threads for specified channel.
-func (s *Session) ActiveThreads(channelID string) (threads *ThreadsList, err error) {
+// ThreadsActive returns all active threads for specified channel.
+func (s *Session) ThreadsActive(channelID string) (threads *ThreadsList, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("GET", EndpointChannelActiveThreads(channelID), nil, EndpointChannelActiveThreads(channelID))
 	if err != nil {
@@ -2561,8 +2561,8 @@ func (s *Session) ActiveThreads(channelID string) (threads *ThreadsList, err err
 	return
 }
 
-// GuildActiveThreads returns all active threads for specified guild.
-func (s *Session) GuildActiveThreads(guildID string) (threads *ThreadsList, err error) {
+// GuildThreadsActive returns all active threads for specified guild.
+func (s *Session) GuildThreadsActive(guildID string) (threads *ThreadsList, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("GET", EndpointGuildActiveThreads(guildID), nil, EndpointGuildActiveThreads(guildID))
 	if err != nil {
@@ -2573,10 +2573,10 @@ func (s *Session) GuildActiveThreads(guildID string) (threads *ThreadsList, err 
 	return
 }
 
-// ArchivedThreads returns archived threads for specified channel.
+// ThreadsArchived returns archived threads for specified channel.
 // before : If specified returns only threads before the timestamp
 // limit  : Optional maximum amount of threads to return.
-func (s *Session) ArchivedThreads(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
+func (s *Session) ThreadsArchived(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
 	endpoint := EndpointChannelPublicArchivedThreads(channelID)
 	v := url.Values{}
 	if before != nil {
@@ -2601,10 +2601,10 @@ func (s *Session) ArchivedThreads(channelID string, before *time.Time, limit int
 	return
 }
 
-// ArchivedPrivateThreads returns archived private threads for specified channel.
+// ThreadsPrivateArchived returns archived private threads for specified channel.
 // before : If specified returns only threads before the timestamp
 // limit  : Optional maximum amount of threads to return.
-func (s *Session) ArchivedPrivateThreads(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
+func (s *Session) ThreadsPrivateArchived(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
 	endpoint := EndpointChannelPrivateArchivedThreads(channelID)
 	v := url.Values{}
 	if before != nil {
@@ -2628,10 +2628,10 @@ func (s *Session) ArchivedPrivateThreads(channelID string, before *time.Time, li
 	return
 }
 
-// ArchivedJoinedPrivateThreads returns archived joined private threads for specified channel.
+// ThreadsPrivateJoinedArchived returns archived joined private threads for specified channel.
 // before : If specified returns only threads before the timestamp
 // limit  : Optional maximum amount of threads to return.
-func (s *Session) ArchivedJoinedPrivateThreads(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
+func (s *Session) ThreadsPrivateJoinedArchived(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
 	endpoint := EndpointChannelJoinedPrivateArchivedThreads(channelID)
 	v := url.Values{}
 	if before != nil {

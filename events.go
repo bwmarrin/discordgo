@@ -81,7 +81,7 @@ type ThreadCreate struct {
 // ThreadUpdate is the data for a ThreadUpdate event.
 type ThreadUpdate struct {
 	*Channel
-	// TODO: BeforeUpdate
+	BeforeUpdate *Channel `json:"-"`
 }
 
 // ThreadDelete is the data for a ThreadDelete event.
