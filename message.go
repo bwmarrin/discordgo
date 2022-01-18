@@ -217,6 +217,7 @@ type Sticker struct {
 	Name        string        `json:"name"`
 	Description string        `json:"description"`
 	Tags        string        `json:"tags"`
+	Type        StickerType   `json:"type"`
 	FormatType  StickerFormat `json:"format_type"`
 	Available   bool          `json:"available"`
 	GuildID     string        `json:"guild_id"`
