@@ -205,6 +205,10 @@ func (s *State) PresenceAdd(guildID string, presence *Presence) error {
 				guild.Presences[i].Status = presence.Status
 			}
 
+			if presence.ClientStatus != nil {
+				guild.Presences[i].ClientStatus = presence.ClientStatus
+			}
+
 			//Update the optionally sent user information
 			//ID Is a mandatory field so you should not need to check if it is empty
 			guild.Presences[i].User.ID = presence.User.ID
