@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/big"
 	"net/http"
 	"time"
 )
@@ -45,6 +46,13 @@ type ApplicationCommand struct {
 	Description              string                      `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  []*ApplicationCommandOption `json:"options"`
+}
+
+// GuildAllChannelsID is function which returns guild_id-1.
+// It is used in ApplicationCommandPermission to target all the channels within a guild
+func GuildAllChannelsID(guild string) (id string) {
+	res, _ := new(big.Int).SetString(guild, 10)
+	return res.Sub(res, big.NewInt(1)).String()
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
