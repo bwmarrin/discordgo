@@ -30,16 +30,17 @@ const (
 
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID                string                 `json:"id,omitempty"`
-	ApplicationID     string                 `json:"application_id,omitempty"`
-	Version           string                 `json:"version,omitempty"`
-	Type              ApplicationCommandType `json:"type,omitempty"`
-	Name              string                 `json:"name"`
-	NameLocalizations *map[Locale]string     `json:"name_localizations,omitempty"`
-	DefaultPermission *bool                  `json:"default_permission,omitempty"`
+	ID                       string                 `json:"id,omitempty"`
+	ApplicationID            string                 `json:"application_id,omitempty"`
+	Version                  string                 `json:"version,omitempty"`
+	Type                     ApplicationCommandType `json:"type,omitempty"`
+	Name                     string                 `json:"name"`
+	NameLocalizations        *map[Locale]string     `json:"name_localizations,omitempty"`
+	DefaultPermission        *bool                  `json:"default_permission,omitempty"`
+	DefaultMemberPermissions *int64                  `json:"default_member_permissions,string,omitempty"`
+	DMPermission             *bool                  `json:"dm_permission,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
-
 	Description              string                      `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  []*ApplicationCommandOption `json:"options"`
