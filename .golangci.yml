@@ -1,11 +1,9 @@
 linters:
-  enable-all: true
-  disable:
-    - maligned
-    - prealloc
-  # presets:
-  #   - bugs
-  #   - unused
+  disable-all: true
+  enable:
+    # - staticcheck
+    # - unused
+    - golint
 
 linters-settings:
   staticcheck:
