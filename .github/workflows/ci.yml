@@ -1,0 +1,41 @@
+on:
+  push:
+  pull_request:
+
+name: CI
+
+jobs:
+  setup:
+    strategy:
+      matrix:
+        go-version: [1.13, 1.14, 1.15, 1.16, 1.17]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Code
+        uses: actions/checkout@v2
+  
+  format:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Check diff between gofmt and code
+        run: diff <(gofmt -d .) <(echo -n)
+  
+  test:
+    runs-on: ubuntu-latest
+    needs: [setup]  
+    steps:
+      - run: go test -v -race ./...
+  
+  lint:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Go vet
+        run: go vet -x ./...
+      - name: GolangCI-Lint
+        uses: golangci/golangci-lint-action@v2
