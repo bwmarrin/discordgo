@@ -41,8 +41,18 @@ jobs:
         uses: actions/checkout@v2
       - name: Go vet
         run: go vet -x ./...
+
       - name: GolangCI-Lint
         uses: golangci/golangci-lint-action@v2.5.2
+        if: github.event.name == 'pull_request'
         with:
           skip-pkg-cache: true
           skip-build-cache: true
+      
+      - name: GolangCI-Lint
+        if: github.event.name != 'pull_request' # See https://github.com/golangci/golangci-lint-action/issues/362
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.43.0
+
+          $(go env GOPATH)/bin/golangci-lint run
+
