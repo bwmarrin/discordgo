@@ -3,9 +3,9 @@ linters:
   disable:
     - maligned
     - prealloc
-  presets:
-    - bugs
-    - unused
+  # presets:
+  #   - bugs
+  #   - unused
 
 linters-settings:
   staticcheck:
