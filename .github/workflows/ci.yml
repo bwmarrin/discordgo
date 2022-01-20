@@ -42,4 +42,7 @@ jobs:
       - name: Go vet
         run: go vet -x ./...
       - name: GolangCI-Lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v2.5.2
+        with:
+          skip-pkg-cache: true
+          skip-build-cache: true
