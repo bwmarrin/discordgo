@@ -6,9 +6,6 @@ name: CI
 
 jobs:
   setup:
-    strategy:
-      matrix:
-        go-version: [1.13, 1.14, 1.15, 1.16, 1.17]
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
@@ -26,6 +23,9 @@ jobs:
   
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.13, 1.14, 1.15, 1.16, 1.17]
     needs: [setup]  
     steps:
       - name: Code
@@ -35,6 +35,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     needs: [setup]
+
     steps:
       - name: Code
         uses: actions/checkout@v2
