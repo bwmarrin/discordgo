@@ -925,6 +925,9 @@ type Member struct {
 	// Whether the member is muted at a guild level.
 	Mute bool `json:"mute"`
 
+	// The avatar of the member for the guild, if any.
+	Avatar string `json:"avatar"`
+
 	// The underlying user on which the member is based.
 	User *User `json:"user"`
 
@@ -948,6 +951,20 @@ type Member struct {
 // Mention creates a member mention
 func (m *Member) Mention() string {
 	return "<@!" + m.User.ID + ">"
+}
+
+// AvatarURL returns the URL of the member's avatar
+//    size:    The size of the user's avatar as a power of two
+//             if size is an empty string, no size parameter will
+//             be added to the URL.
+func (m *Member) AvatarURL(size string) string {
+	if m.Avatar == "" {
+		return m.User.AvatarURL(size)
+	}
+	// The default/empty avatar case should be handled by the above condition
+	return avatarURL(m.Avatar, "", EndpointGuildMemberAvatar(m.GuildID, m.User.ID, m.Avatar),
+		EndpointGuildMemberAvatarAnimated(m.GuildID, m.User.ID, m.Avatar), size)
+
 }
 
 // A Settings stores data for a specific users Discord client settings.
