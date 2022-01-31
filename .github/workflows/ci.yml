@@ -5,17 +5,13 @@ on:
 name: CI
 
 jobs:
-  setup:
+  format:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
-  format:
-    runs-on: ubuntu-latest
-    needs: [setup]
-    steps:
+          go-version: 1.17
       - name: Code
         uses: actions/checkout@v2
       - name: Check diff between gofmt and code
@@ -26,17 +22,22 @@ jobs:
     strategy:
       matrix:
         go-version: [1.13, 1.14, 1.15, 1.16, 1.17]
-    needs: [setup]  
     steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
       - name: Code
         uses: actions/checkout@v2
       - run: go test -v -race ./...
   
   lint:
     runs-on: ubuntu-latest
-    needs: [setup]
-
     steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
       - name: Code
         uses: actions/checkout@v2
       - name: Go vet
