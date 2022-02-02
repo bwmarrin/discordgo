@@ -1,7 +1,7 @@
 package discordgo
 
 // Locale represents the accepted languages for Discord.
-// https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales
+// https://discord.com/developers/docs/reference#locales
 type Locale string
 
 // String returns the human-readable string of the locale
