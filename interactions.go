@@ -131,7 +131,7 @@ func (t InteractionType) String() string {
 type Interaction struct {
 	ID        string          `json:"id"`
 	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"-"`
+	Data      InteractionData `json:"data"`
 	GuildID   string          `json:"guild_id"`
 	ChannelID string          `json:"channel_id"`
 
@@ -149,6 +149,12 @@ type Interaction struct {
 	// if it was invoked in a guild, the `Member` field will be filled instead.
 	// Make sure to check for `nil` before using this field.
 	User *User `json:"user"`
+
+	// The user's discord client locale.
+	Locale Locale `json:"locale"`
+	// The guild's locale. This defaults to EnglishUS
+	// NOTE: this field is only filled when the interaction was invoked in a guild.
+	GuildLocale *Locale `json:"guild_locale"`
 
 	Token   string `json:"token"`
 	Version int    `json:"version"`
