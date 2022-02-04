@@ -12,21 +12,29 @@ import (
 type WebhookServer struct {
 	sess      *Session
 	publicKey ed25519.PublicKey
+	handlers  map[string]WebhookHandler
 }
+
+type WebhookHandler func(*Session, *Interaction)
 
 func NewWebhookServer(sess *Session, pubKeyString string) *WebhookServer {
 	key, err := hex.DecodeString(pubKeyString)
 	if err != nil {
 		log.Fatal("couldn't parse public key string")
 	}
-	return &WebhookServer{sess: sess, publicKey: key}
+	return &WebhookServer{sess: sess, publicKey: key, handlers: make(map[string]WebhookHandler)}
+}
+
+func (s *WebhookServer) AddHandler(name string, fn WebhookHandler) {
+	s.handlers[name] = fn
 }
 
 func (s *WebhookServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//	if ok := VerifyInteraction(r, s.publicKey); !ok {
-	//		http.Error(w, "invalid request signature", http.StatusUnauthorized)
-	//		return
-	//	}
+	log.Printf("http request: %+v", r)
+	if ok := VerifyInteraction(r, s.publicKey); !ok {
+		http.Error(w, "invalid request signature", http.StatusUnauthorized)
+		return
+	}
 	var interaction Interaction
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -40,7 +48,8 @@ func (s *WebhookServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Printf("could not parse request interaction: %v", err)
 		return
 	}
-	if interaction.Type == InteractionPing {
+	switch interaction.Type {
+	case InteractionPing:
 		response := InteractionResponse{Type: InteractionResponsePong}
 
 		b, err := json.Marshal(response)
@@ -49,10 +58,11 @@ func (s *WebhookServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Write(b)
-		return
+	case InteractionApplicationCommand:
+		if h, ok := s.handlers[interaction.ApplicationCommandData().Name]; ok {
+			h(s.sess, &interaction)
+		}
+	default:
+		log.Printf("unrecognized type: %v", interaction.Type.String())
 	}
-	for _, eh := range s.sess.handlers[interaction.Type.String()] {
-		go eh.eventHandler.Handle(s.sess, interaction)
-	}
-
 }
