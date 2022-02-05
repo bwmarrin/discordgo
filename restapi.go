@@ -2220,7 +2220,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 // wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // threadID :	Sends a message to the specified thread within a webhook's channel. The thread will automatically be unarchived.
 func (s *Session) WebhookThreadExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams) (st *Message, err error) {
-	return s.webhookExecute(webhookID, token, wait, "", data)
+	return s.webhookExecute(webhookID, token, wait, threadID, data)
 }
 
 // WebhookMessage gets a webhook message.
