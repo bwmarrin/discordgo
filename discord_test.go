@@ -40,30 +40,6 @@ func init() {
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
-// TestNew tests the New() function without any arguments.  This should return
-// a valid Session{} struct and no errors.
-func TestNew(t *testing.T) {
-
-	_, err := New()
-	if err != nil {
-		t.Errorf("New() returned error: %+v", err)
-	}
-}
-
-// TestInvalidToken tests the New() function with an invalid token
-func TestInvalidToken(t *testing.T) {
-	d, err := New("asjkldhflkjasdh")
-	if err != nil {
-		t.Fatalf("New(InvalidToken) returned error: %+v", err)
-	}
-
-	// New with just a token does not do any communication, so attempt an api call.
-	_, err = d.UserSettings()
-	if err == nil {
-		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
-	}
-}
-
 // TestNewToken tests the New() function with a Token.
 func TestNewToken(t *testing.T) {
 
