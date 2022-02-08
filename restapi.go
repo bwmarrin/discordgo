@@ -1100,15 +1100,6 @@ func (s *Session) GuildIntegrationDelete(guildID, integrationID string) (err err
 	return
 }
 
-// GuildIntegrationSync syncs an integration.
-// guildID          : The ID of a Guild.
-// integrationID    : The ID of an integration.
-func (s *Session) GuildIntegrationSync(guildID, integrationID string) (err error) {
-
-	_, err = s.RequestWithBucketID("POST", EndpointGuildIntegrationSync(guildID, integrationID), nil, EndpointGuildIntegration(guildID, ""))
-	return
-}
-
 // GuildIcon returns an image.Image of a guild icon.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildIcon(guildID string) (img image.Image, err error) {
@@ -1385,21 +1376,6 @@ func (s *Session) ChannelMessage(channelID, messageID string) (st *Message, err 
 	}
 
 	err = unmarshal(response, &st)
-	return
-}
-
-// ChannelMessageAck acknowledges and marks the given message as read
-// channeld  : The ID of a Channel
-// messageID : the ID of a Message
-// lastToken : token returned by last ack
-func (s *Session) ChannelMessageAck(channelID, messageID, lastToken string) (st *Ack, err error) {
-
-	body, err := s.RequestWithBucketID("POST", EndpointChannelMessageAck(channelID, messageID), &Ack{Token: lastToken}, EndpointChannelMessageAck(channelID, ""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
 	return
 }
 
