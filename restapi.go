@@ -183,91 +183,6 @@ func unmarshal(data []byte, v interface{}) error {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Functions specific to Discord Sessions
-// ------------------------------------------------------------------------------------------------
-
-// Login asks the Discord server for an authentication token.
-//
-// NOTE: While email/pass authentication is supported by DiscordGo it is
-// HIGHLY DISCOURAGED by Discord. Please only use email/pass to obtain a token
-// and then use that authentication token for all future connections.
-// Also, doing any form of automation with a user (non Bot) account may result
-// in that account being permanently banned from Discord.
-func (s *Session) Login(email, password string) (err error) {
-
-	data := struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}{email, password}
-
-	response, err := s.RequestWithBucketID("POST", EndpointLogin, data, EndpointLogin)
-	if err != nil {
-		return
-	}
-
-	temp := struct {
-		Token string `json:"token"`
-		MFA   bool   `json:"mfa"`
-	}{}
-
-	err = unmarshal(response, &temp)
-	if err != nil {
-		return
-	}
-
-	s.Token = temp.Token
-	s.MFA = temp.MFA
-	return
-}
-
-// Register sends a Register request to Discord, and returns the authentication token
-// Note that this account is temporary and should be verified for future use.
-// Another option is to save the authentication token external, but this isn't recommended.
-func (s *Session) Register(username string) (token string, err error) {
-
-	data := struct {
-		Username string `json:"username"`
-	}{username}
-
-	response, err := s.RequestWithBucketID("POST", EndpointRegister, data, EndpointRegister)
-	if err != nil {
-		return
-	}
-
-	temp := struct {
-		Token string `json:"token"`
-	}{}
-
-	err = unmarshal(response, &temp)
-	if err != nil {
-		return
-	}
-
-	token = temp.Token
-	return
-}
-
-// Logout sends a logout request to Discord.
-// This does not seem to actually invalidate the token.  So you can still
-// make API calls even after a Logout.  So, it seems almost pointless to
-// even use.
-func (s *Session) Logout() (err error) {
-
-	//  _, err = s.Request("POST", LOGOUT, `{"token": "` + s.Token + `"}`)
-
-	if s.Token == "" {
-		return
-	}
-
-	data := struct {
-		Token string `json:"token"`
-	}{s.Token}
-
-	_, err = s.RequestWithBucketID("POST", EndpointLogout, data, EndpointLogout)
-	return
-}
-
-// ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Users
 // ------------------------------------------------------------------------------------------------
 
@@ -307,8 +222,8 @@ func (s *Session) UserAvatarDecode(u *User) (img image.Image, err error) {
 	return
 }
 
-// UserUpdate updates a users settings.
-func (s *Session) UserUpdate(email, password, username, avatar, newPassword string) (st *User, err error) {
+// UserUpdate updates current user settings.
+func (s *Session) UserUpdate(username, avatar string) (st *User, err error) {
 
 	// NOTE: Avatar must be either the hash/id of existing Avatar or
 	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
@@ -316,47 +231,11 @@ func (s *Session) UserUpdate(email, password, username, avatar, newPassword stri
 	// If left blank, avatar will be set to null/blank
 
 	data := struct {
-		Email       string `json:"email,omitempty"`
-		Password    string `json:"password,omitempty"`
-		Username    string `json:"username,omitempty"`
-		Avatar      string `json:"avatar,omitempty"`
-		NewPassword string `json:"new_password,omitempty"`
-	}{email, password, username, avatar, newPassword}
+		Username string `json:"username,omitempty"`
+		Avatar   string `json:"avatar,omitempty"`
+	}{username, avatar}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointUser("@me"), data, EndpointUsers)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// UserSettings returns the settings for a given user
-func (s *Session) UserSettings() (st *Settings, err error) {
-
-	body, err := s.RequestWithBucketID("GET", EndpointUserSettings("@me"), nil, EndpointUserSettings(""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// UserUpdateStatus update the user status
-// status   : The new status (Actual valid status are 'online','idle','dnd','invisible')
-func (s *Session) UserUpdateStatus(status Status) (st *Settings, err error) {
-	if status == StatusOffline {
-		err = ErrStatusOffline
-		return
-	}
-
-	data := struct {
-		Status Status `json:"status"`
-	}{status}
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointUserSettings("@me"), data, EndpointUserSettings(""))
 	if err != nil {
 		return
 	}
@@ -377,19 +256,6 @@ func (s *Session) UserConnections() (conn []*UserConnection, err error) {
 		return
 	}
 
-	return
-}
-
-// UserChannels returns an array of Channel structures for all private
-// channels.
-func (s *Session) UserChannels() (st []*Channel, err error) {
-
-	body, err := s.RequestWithBucketID("GET", EndpointUserChannels("@me"), nil, EndpointUserChannels(""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
 	return
 }
 
@@ -435,20 +301,6 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string) (st []*UserGui
 	}
 
 	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointUserGuilds(""))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
-// UserGuildSettingsEdit Edits the users notification settings for a guild
-// guildID   : The ID of the guild to edit the settings on
-// settings  : The settings to update
-func (s *Session) UserGuildSettingsEdit(guildID string, settings *UserGuildSettingsEdit) (st *UserGuildSettings, err error) {
-
-	body, err := s.RequestWithBucketID("PATCH", EndpointUserGuildSettings("@me", guildID), settings, EndpointUserGuildSettings("", guildID))
 	if err != nil {
 		return
 	}
@@ -1958,18 +1810,6 @@ func (s *Session) VoiceRegions() (st []*VoiceRegion, err error) {
 	return
 }
 
-// VoiceICE returns the voice server ICE information
-func (s *Session) VoiceICE() (st *VoiceICE, err error) {
-
-	body, err := s.RequestWithBucketID("GET", EndpointVoiceIce, nil, EndpointVoiceIce)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
-	return
-}
-
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Websockets
 // ------------------------------------------------------------------------------------------------
@@ -2345,86 +2185,6 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 	}
 
 	err = unmarshal(body, &st)
-	return
-}
-
-// ------------------------------------------------------------------------------------------------
-// Functions specific to user notes
-// ------------------------------------------------------------------------------------------------
-
-// UserNoteSet sets the note for a specific user.
-func (s *Session) UserNoteSet(userID string, message string) (err error) {
-	data := struct {
-		Note string `json:"note"`
-	}{message}
-
-	_, err = s.RequestWithBucketID("PUT", EndpointUserNotes(userID), data, EndpointUserNotes(""))
-	return
-}
-
-// ------------------------------------------------------------------------------------------------
-// Functions specific to Discord Relationships (Friends list)
-// ------------------------------------------------------------------------------------------------
-
-// RelationshipsGet returns an array of all the relationships of the user.
-func (s *Session) RelationshipsGet() (r []*Relationship, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointRelationships(), nil, EndpointRelationships())
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &r)
-	return
-}
-
-// relationshipCreate creates a new relationship. (I.e. send or accept a friend request, block a user.)
-// relationshipType : 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
-func (s *Session) relationshipCreate(userID string, relationshipType int) (err error) {
-	data := struct {
-		Type int `json:"type"`
-	}{relationshipType}
-
-	_, err = s.RequestWithBucketID("PUT", EndpointRelationship(userID), data, EndpointRelationships())
-	return
-}
-
-// RelationshipFriendRequestSend sends a friend request to a user.
-// userID: ID of the user.
-func (s *Session) RelationshipFriendRequestSend(userID string) (err error) {
-	err = s.relationshipCreate(userID, 4)
-	return
-}
-
-// RelationshipFriendRequestAccept accepts a friend request from a user.
-// userID: ID of the user.
-func (s *Session) RelationshipFriendRequestAccept(userID string) (err error) {
-	err = s.relationshipCreate(userID, 1)
-	return
-}
-
-// RelationshipUserBlock blocks a user.
-// userID: ID of the user.
-func (s *Session) RelationshipUserBlock(userID string) (err error) {
-	err = s.relationshipCreate(userID, 2)
-	return
-}
-
-// RelationshipDelete removes the relationship with a user.
-// userID: ID of the user.
-func (s *Session) RelationshipDelete(userID string) (err error) {
-	_, err = s.RequestWithBucketID("DELETE", EndpointRelationship(userID), nil, EndpointRelationships())
-	return
-}
-
-// RelationshipsMutualGet returns an array of all the users both @me and the given user is friends with.
-// userID: ID of the user.
-func (s *Session) RelationshipsMutualGet(userID string) (mf []*User, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointRelationshipsMutual(userID), nil, EndpointRelationshipsMutual(userID))
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &mf)
 	return
 }
 
