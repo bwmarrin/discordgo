@@ -14,8 +14,6 @@
 package discordgo
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"runtime"
 	"time"
@@ -54,7 +52,7 @@ func New(token string) (s *Session, err error) {
 	s.Identify.GuildSubscriptions = true
 	s.Identify.Properties.OS = runtime.GOOS
 	s.Identify.Properties.Browser = "DiscordGo v" + VERSION
-	s.Identify.Intents = MakeIntent(IntentsAllWithoutPrivileged)
+	s.Identify.Intents = IntentsAllWithoutPrivileged
 	s.Identify.Token = token
 	s.Token = token
 
