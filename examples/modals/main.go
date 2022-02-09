@@ -54,7 +54,7 @@ var (
 								discordgo.TextInput{
 									CustomID:    "opinion",
 									Label:       "What is your opinion on them?",
-									Style:       discordgo.TextStyleShort,
+									Style:       discordgo.TextInputShort,
 									Placeholder: "Don't be shy, share your opinion with us",
 									Required:    true,
 									MaxLength:   300,
@@ -67,7 +67,7 @@ var (
 								discordgo.TextInput{
 									CustomID:  "suggestions",
 									Label:     "What would you suggest to improve them?",
-									Style:     discordgo.TextStyleParagraph,
+									Style:     discordgo.TextInputParagraph,
 									Required:  false,
 									MaxLength: 2000,
 								},

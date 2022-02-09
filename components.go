@@ -201,14 +201,14 @@ func (m SelectMenu) MarshalJSON() ([]byte, error) {
 
 // TextInput represents text input component.
 type TextInput struct {
-	CustomID    string        `json:"custom_id"`
-	Label       string        `json:"label"`
+	CustomID    string         `json:"custom_id"`
+	Label       string         `json:"label"`
 	Style       TextInputStyle `json:"style"`
-	Placeholder string        `json:"placeholder,omitempty"`
-	Value       string        `json:"value,omitempty"`
-	Required    bool          `json:"required,omitempty"`
-	MinLength   int           `json:"min_length,omitempty"`
-	MaxLength   int           `json:"max_length,omitempty"`
+	Placeholder string         `json:"placeholder,omitempty"`
+	Value       string         `json:"value,omitempty"`
+	Required    bool           `json:"required,omitempty"`
+	MinLength   int            `json:"min_length,omitempty"`
+	MaxLength   int            `json:"max_length,omitempty"`
 }
 
 // Type is a method to get the type of a component.
@@ -229,11 +229,11 @@ func (m TextInput) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// TextInputStyleType is style of text in TextInput component.
-type TextInputStyleType uint
+// TextInputStyle is style of text in TextInput component.
+type TextInputStyle uint
 
 // Text styles
 const (
-	TextInputShort     TextStyleType = 1
-	TextInputParagraph TextStyleType = 2
+	TextInputShort     TextInputStyle = 1
+	TextInputParagraph TextInputStyle = 2
 )
