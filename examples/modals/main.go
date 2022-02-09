@@ -115,8 +115,8 @@ func main() {
 			_, err = s.ChannelMessageSend(*ResultsChannel, fmt.Sprintf(
 				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s",
 				userid,
-				data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.InputText).Value,
-				data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.InputText).Value,
+				data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
+				data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
 			))
 			if err != nil {
 				panic(err)
