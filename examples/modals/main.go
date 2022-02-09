@@ -58,6 +58,7 @@ var (
 									Placeholder: "Don't be shy, share your opinion with us",
 									Required:    true,
 									MaxLength:   300,
+									MinLength:   10,
 								},
 							},
 						},
