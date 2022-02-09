@@ -201,13 +201,13 @@ func (m SelectMenu) MarshalJSON() ([]byte, error) {
 
 // TextInput represents text input component.
 type TextInput struct {
-	CustomID    string        `json:"custom_id,omitempty"`
+	CustomID    string        `json:"custom_id"`
 	Label       string        `json:"label"`
-	Style       TextStyleType `json:"style"`
+	Style       TextInputStyle `json:"style"`
 	Placeholder string        `json:"placeholder,omitempty"`
 	Value       string        `json:"value,omitempty"`
-	Required    bool          `json:"required"`
-	MinLength   int           `json:"min_length"`
+	Required    bool          `json:"required,omitempty"`
+	MinLength   int           `json:"min_length,omitempty"`
 	MaxLength   int           `json:"max_length,omitempty"`
 }
 
