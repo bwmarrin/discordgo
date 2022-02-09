@@ -178,11 +178,24 @@ type MessageFlags int
 
 // Valid MessageFlags values
 const (
-	MessageFlagsCrossPosted          MessageFlags = 1 << 0
-	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
-	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
-	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
-	MessageFlagsUrgent               MessageFlags = 1 << 4
+	// MessageFlagsCrossPosted This message has been published to subscribed channels (via Channel Following).
+	MessageFlagsCrossPosted MessageFlags = 1 << iota
+	// MessageFlagsIsCrossPosted this message originated from a message in another channel (via Channel Following).
+	MessageFlagsIsCrossPosted
+	// MessageFlagsSupressEmbeds do not include any embeds when serializing this message.
+	MessageFlagsSupressEmbeds
+	// MessageFlagsSourceMessageDeleted the source message for this crosspost has been deleted (via Channel Following).
+	MessageFlagsSourceMessageDeleted
+	// MessageFlagsUrgent this message came from the urgent message system.
+	MessageFlagsUrgent
+	// MessageFlagsHasThread this message has an associated thread, with the same id as the message.
+	MessageFlagsHasThread
+	// MessageFlagsEphemeral this message is only visible to the user who invoked the Interaction.
+	MessageFlagsEphemeral
+	// MessageFlagsLoading this message is an Interaction Response and the bot is "thinking".
+	MessageFlagsLoading
+	// MessageFlagsFailedToMentionSomeRolesInThread this message failed to mention some roles and add their members to the thread.
+	MessageFlagsFailedToMentionSomeRolesInThread
 )
 
 // File stores info about files you e.g. send in messages.
