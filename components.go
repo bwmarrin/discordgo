@@ -229,11 +229,11 @@ func (m TextInput) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// TextStyleType is style of text in TextInput component.
-type TextStyleType uint
+// TextInputStyleType is style of text in TextInput component.
+type TextInputStyleType uint
 
 // Text styles
 const (
-	TextStyleShort     TextStyleType = 1
-	TextStyleParagraph TextStyleType = 2
+	TextInputShort     TextStyleType = 1
+	TextInputParagraph TextStyleType = 2
 )
