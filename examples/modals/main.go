@@ -51,7 +51,7 @@ var (
 					Components: []discordgo.MessageComponent{
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
-								discordgo.InputText{
+								discordgo.TextInput{
 									CustomID:    "opinion",
 									Label:       "What is your opinion on them?",
 									Style:       discordgo.TextStyleShort,
@@ -63,7 +63,7 @@ var (
 						},
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
-								discordgo.InputText{
+								discordgo.TextInput{
 									CustomID:  "suggestions",
 									Label:     "What would you suggest to improve them?",
 									Style:     discordgo.TextStyleParagraph,
