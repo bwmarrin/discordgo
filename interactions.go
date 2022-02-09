@@ -55,6 +55,7 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
+	ApplicationCommandOptionAttachment      ApplicationCommandOptionType = 10
 )
 
 func (t ApplicationCommandOptionType) String() string {
@@ -77,6 +78,8 @@ func (t ApplicationCommandOptionType) String() string {
 		return "Role"
 	case ApplicationCommandOptionMentionable:
 		return "Mentionable"
+	case ApplicationCommandOptionAttachment:
+		return "Attachment"
 	}
 	return fmt.Sprintf("ApplicationCommandOptionType(%d)", t)
 }
@@ -236,11 +239,12 @@ type ApplicationCommandInteractionData struct {
 // Partial Member objects are missing user, deaf and mute fields.
 // Partial Channel objects only have id, name, type and permissions fields.
 type ApplicationCommandInteractionDataResolved struct {
-	Users    map[string]*User    `json:"users"`
-	Members  map[string]*Member  `json:"members"`
-	Roles    map[string]*Role    `json:"roles"`
-	Channels map[string]*Channel `json:"channels"`
-	Messages map[string]*Message `json:"messages"`
+	Users       map[string]*User              `json:"users"`
+	Members     map[string]*Member            `json:"members"`
+	Roles       map[string]*Role              `json:"roles"`
+	Channels    map[string]*Channel           `json:"channels"`
+	Messages    map[string]*Message           `json:"messages"`
+	Attachments map[string]*MessageAttachment `json:"attachments"`
 }
 
 // Type returns the type of interaction data.
