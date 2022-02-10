@@ -9,28 +9,27 @@ import (
 	"net/http"
 )
 
-type WebhookServer struct {
-	sess      *Session
+type InteractionsHTTPServer struct {
+	*Session
 	publicKey ed25519.PublicKey
-	handlers  map[string]WebhookHandler
+	handlers  map[string]HandlerFunc
 }
 
-type WebhookHandler func(*Session, *Interaction)
+type HandlerFunc func(*Session, *InteractionCreate)
 
-func NewWebhookServer(sess *Session, pubKeyString string) *WebhookServer {
+func NewInteractionsHTTPServer(sess *Session, pubKeyString string) *InteractionsHTTPServer {
 	key, err := hex.DecodeString(pubKeyString)
 	if err != nil {
 		log.Fatal("couldn't parse public key string")
 	}
-	return &WebhookServer{sess: sess, publicKey: key, handlers: make(map[string]WebhookHandler)}
+	return &InteractionsHTTPServer{sess, key, make(map[string]HandlerFunc)}
 }
 
-func (s *WebhookServer) AddHandler(name string, fn WebhookHandler) {
+func (s *InteractionsHTTPServer) HandleFunc(name string, fn func(*Session, *InteractionCreate)) {
 	s.handlers[name] = fn
 }
 
-func (s *WebhookServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("http request: %+v", r)
+func (s *InteractionsHTTPServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ok := VerifyInteraction(r, s.publicKey); !ok {
 		http.Error(w, "invalid request signature", http.StatusUnauthorized)
 		return
@@ -60,7 +59,7 @@ func (s *WebhookServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Write(b)
 	case InteractionApplicationCommand:
 		if h, ok := s.handlers[interaction.ApplicationCommandData().Name]; ok {
-			h(s.sess, &interaction)
+			h(s.Session, &InteractionCreate{&interaction})
 		}
 	default:
 		log.Printf("unrecognized type: %v", interaction.Type.String())
