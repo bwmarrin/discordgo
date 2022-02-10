@@ -55,7 +55,7 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
-	ApplicationCommandOptionAttachment      ApplicationCommandOptionType = 10
+	ApplicationCommandOptionAttachment      ApplicationCommandOptionType = 11
 )
 
 func (t ApplicationCommandOptionType) String() string {
