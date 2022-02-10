@@ -1,4 +1,4 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img alt="discordgo-logo" align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
 ## DiscordGo Avatar Example
 
@@ -24,7 +24,7 @@ go build
 ### Usage
 
 This example uses bot tokens for authentication only. While email/password is 
-supported by DiscordGo, it is not recommended to use them.
+supported by DiscordGo, their use is not recommended.
 
 ```
 ./avatar --help

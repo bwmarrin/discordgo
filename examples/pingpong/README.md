@@ -1,4 +1,4 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img alt="discordgo-logo" align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
 
 ## DiscordGo Ping Pong Example
 
