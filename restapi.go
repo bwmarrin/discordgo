@@ -1425,6 +1425,109 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
 	return
 }
 
+// GuildTemplate returns a GuildTemplate for the given code
+// templateCode: The Code of a GuildTemplate
+func (s *Session) GuildTemplate(templateCode string) (st *GuildTemplate, err error) {
+
+	body, err := s.RequestWithBucketID("GET", EndpointGuildTemplate(templateCode), nil, EndpointGuildTemplate(templateCode))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildCreateWithTemplate creates a guild based on a GuildTemplate
+// templateCode: The Code of a GuildTemplate
+// name: The name of the guild (2-100) characters
+func (s *Session) GuildCreateWithTemplate(templateCode, name string) (st *Guild, err error) {
+
+	data := struct {
+		Name string `json:"name"`
+	}{name}
+
+	body, err := s.RequestWithBucketID("POST", EndpointGuildTemplate(templateCode), data, EndpointGuildTemplate(templateCode))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildTemplates returns all of GuildTemplates
+// guildID: The ID of the guild
+func (s *Session) GuildTemplates(guildID string) (st []*GuildTemplate, err error) {
+
+	body, err := s.RequestWithBucketID("GET", EndpointGuildTemplates(guildID), nil, EndpointGuildTemplates(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildTemplateCreate creates a template for the guild
+// guildID: The ID of the guild
+// name: The name of the template (1-100 characters)
+// description: The description for the template (0-120 characters)
+func (s *Session) GuildTemplateCreate(guildID, name, description string) (st *GuildTemplate) {
+
+	data := struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}{name, description}
+
+	body, err := s.RequestWithBucketID("POST", EndpointGuildTemplates(guildID), data, EndpointGuildTemplates(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildTemplateSync syncs the template to the guild's current state
+// guildID: The ID of the guild
+// templateCode: The code of the template
+func (s *Session) GuildTemplateSync(guildID, templateCode string) (err error) {
+
+	_, err = s.RequestWithBucketID("PUT", EndpointGuildTemplateSync(guildID, templateCode), nil, EndpointGuildTemplateSync(guildID, ""))
+	return
+}
+
+// GuildTemplateEdit modifies the template's metadata
+// guildID: The ID of the guild
+// templateCode: The code of the template
+// name: The name of the template (1-100 characters)
+// description: The description for the template (0-120 characters)
+func (s *Session) GuildTemplateEdit(guildID, templateCode, name, description string) (st *GuildTemplate, err error) {
+
+	data := struct {
+		Name        string `json:"name,omitempty"`
+		Description string `json:"description,omitempty"`
+	}{name, description}
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointGuildTemplateSync(guildID, templateCode), data, EndpointGuildTemplateSync(guildID, ""))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildTemplateDelete deletes the template
+// guildID: The ID of the guild
+// templateCode: The code of the template
+func (s *Session) GuildTemplateDelete(guildID, templateCode string) (err error) {
+
+	_, err = s.RequestWithBucketID("DELETE", EndpointGuildTemplateSync(guildID, templateCode), nil, EndpointGuildTemplateSync(guildID, ""))
+	return
+}
+
 // ------------------------------------------------------------------------------------------------
 // Functions specific to Discord Channels
 // ------------------------------------------------------------------------------------------------

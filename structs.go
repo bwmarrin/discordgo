@@ -612,6 +612,42 @@ type GuildPreview struct {
 	Description string `json:"description"`
 }
 
+// A GuildTemplate represents
+type GuildTemplate struct {
+	// The unique code for the guild template
+	Code string `json:"code"`
+
+	// The name of the template
+	Name string `json:"name"`
+
+	// The description for the template
+	Description string `json:"description"`
+
+	// The number of times this template has been used
+	UsageCount string `json:"usage_count"`
+
+	// The ID of the user who created the template
+	CreatorID string `json:"creator_id"`
+
+	// The user who created the template
+	Creator *User `json:"creator"`
+
+	// The timestamp of when the template was created
+	CreatedAt time.Time `json:"created_at"`
+
+	// The timestamp of when the template was last synced
+	UpdatedAt time.Time `json:"updated_at"`
+
+	// The ID of the guild the template was based on
+	SourceGuildID string `json:"source_guild_id"`
+
+	// The guild 'snapshot' this template contains
+	SerializedSourceGuild *Guild `json:"serialized_source_guild"`
+
+	// Whether the template has unsynced changes
+	IsDirty bool `json:"is_dirty"`
+}
+
 // MessageNotifications is the notification level for a guild
 // https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
 type MessageNotifications int
