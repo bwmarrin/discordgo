@@ -306,7 +306,7 @@ func (s *State) MemberAdd(member *Member) error {
 	} else {
 		// We are about to replace `m` in the state with `member`, but first we need to
 		// make sure we preserve any fields that the `member` doesn't contain from `m`.
-		if member.JoinedAt == "" {
+		if member.JoinedAt.IsZero() {
 			member.JoinedAt = m.JoinedAt
 		}
 		*m = *member
@@ -637,7 +637,7 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Content != "" {
 				m.Content = message.Content
 			}
-			if message.EditedTimestamp != "" {
+			if message.EditedTimestamp != nil {
 				m.EditedTimestamp = message.EditedTimestamp
 			}
 			if message.Mentions != nil {
@@ -649,7 +649,7 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Attachments != nil {
 				m.Attachments = message.Attachments
 			}
-			if message.Timestamp != "" {
+			if !message.Timestamp.IsZero() {
 				m.Timestamp = message.Timestamp
 			}
 			if message.Author != nil {
