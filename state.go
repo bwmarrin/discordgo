@@ -205,10 +205,6 @@ func (s *State) PresenceAdd(guildID string, presence *Presence) error {
 				guild.Presences[i].Status = presence.Status
 			}
 
-			if presence.ClientStatus != nil {
-				guild.Presences[i].ClientStatus = presence.ClientStatus
-			}
-
 			//Update the optionally sent user information
 			//ID Is a mandatory field so you should not need to check if it is empty
 			guild.Presences[i].User.ID = presence.User.ID
@@ -310,7 +306,7 @@ func (s *State) MemberAdd(member *Member) error {
 	} else {
 		// We are about to replace `m` in the state with `member`, but first we need to
 		// make sure we preserve any fields that the `member` doesn't contain from `m`.
-		if member.JoinedAt.IsZero() {
+		if member.JoinedAt == "" {
 			member.JoinedAt = m.JoinedAt
 		}
 		*m = *member
@@ -641,7 +637,7 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Content != "" {
 				m.Content = message.Content
 			}
-			if message.EditedTimestamp != nil {
+			if message.EditedTimestamp != "" {
 				m.EditedTimestamp = message.EditedTimestamp
 			}
 			if message.Mentions != nil {
@@ -653,7 +649,7 @@ func (s *State) MessageAdd(message *Message) error {
 			if message.Attachments != nil {
 				m.Attachments = message.Attachments
 			}
-			if !message.Timestamp.IsZero() {
+			if message.Timestamp != "" {
 				m.Timestamp = message.Timestamp
 			}
 			if message.Author != nil {
