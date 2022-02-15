@@ -470,6 +470,8 @@ type InteractionResponseData struct {
 	// NOTE: autocomplete interaction only.
 	Choices []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
 
+	// NOTE: modal interaction only.
+
 	CustomID string `json:"custom_id,omitempty"`
 	Title    string `json:"title,omitempty"`
 }
