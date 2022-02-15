@@ -23,7 +23,7 @@ import (
 const VERSION = "0.23.0"
 
 // New creates a new Discord session with provided token.
-// If the token is for a bot, it must be prefixed with "Bot ".
+// If the token is for a bot, it must be prefixed with "Bot "
 // 		e.g. "Bot ..."
 // Or if it is an OAuth2 token, it must be prefixed with "Bearer "
 //		e.g. "Bearer ..."
