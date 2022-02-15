@@ -1386,7 +1386,7 @@ const (
 	ErrCodeThisActionCannotBePerformedDueToSlowmodeRateLimit                = 20016
 	ErrCodeOnlyTheOwnerOfThisAccountCanPerformThisAction                    = 20018
 	ErrCodeMessageCannotBeEditedDueToAnnouncementRateLimits                 = 20022
-	ErrCodeChannelHasHiTheWriteRateLimit                                    = 20028
+	ErrCodeChannelHasHitWriteRateLimit                                    = 20028
 	ErrCodeTheWriteActionYouArePerformingOnTheServerHasHitTheWriteRateLimit = 20029
 	ErrCodeStageTopicContainsNotAllowedWordsForPublicStages                 = 20031
 	ErrCodeGuildPremiumSubscriptionLevelTooLow                              = 20035
