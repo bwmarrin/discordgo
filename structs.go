@@ -1403,7 +1403,7 @@ const (
 	ErrCodeMaximumNumberOfAttachmentsInAMessageReached             = 30015
 	ErrCodeMaximumNumberOfInvitesReached                           = 30016
 	ErrCodeMaximumNumberOfAnimatedEmojisReached                    = 30018
-	ErrCodeMaximumNumberOfSeverMembersReached                      = 30019
+	ErrCodeMaximumNumberOfServerMembersReached                      = 30019
 	ErrCodeMaximumNumberOfGuildDiscoverySubcategoriesReached       = 30030
 	ErrCodeGuildAlreadyHasATemplate                                = 30031
 	ErrCodeMaximumNumberOfThreadParticipantsReached                = 30033
