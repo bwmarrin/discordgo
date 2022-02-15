@@ -956,53 +956,76 @@ type AuditLogChangeKey string
 
 // Block of valid AuditLogChangeKey
 const (
-	AuditLogChangeKeyName                       AuditLogChangeKey = "name"
-	AuditLogChangeKeyIconHash                   AuditLogChangeKey = "icon_hash"
-	AuditLogChangeKeySplashHash                 AuditLogChangeKey = "splash_hash"
-	AuditLogChangeKeyOwnerID                    AuditLogChangeKey = "owner_id"
-	AuditLogChangeKeyRegion                     AuditLogChangeKey = "region"
-	AuditLogChangeKeyAfkChannelID               AuditLogChangeKey = "afk_channel_id"
-	AuditLogChangeKeyAfkTimeout                 AuditLogChangeKey = "afk_timeout"
-	AuditLogChangeKeyMfaLevel                   AuditLogChangeKey = "mfa_level"
-	AuditLogChangeKeyVerificationLevel          AuditLogChangeKey = "verification_level"
-	AuditLogChangeKeyExplicitContentFilter      AuditLogChangeKey = "explicit_content_filter"
-	AuditLogChangeKeyDefaultMessageNotification AuditLogChangeKey = "default_message_notifications"
-	AuditLogChangeKeyVanityURLCode              AuditLogChangeKey = "vanity_url_code"
-	AuditLogChangeKeyRoleAdd                    AuditLogChangeKey = "$add"
-	AuditLogChangeKeyRoleRemove                 AuditLogChangeKey = "$remove"
-	AuditLogChangeKeyPruneDeleteDays            AuditLogChangeKey = "prune_delete_days"
-	AuditLogChangeKeyWidgetEnabled              AuditLogChangeKey = "widget_enabled"
-	AuditLogChangeKeyWidgetChannelID            AuditLogChangeKey = "widget_channel_id"
-	AuditLogChangeKeySystemChannelID            AuditLogChangeKey = "system_channel_id"
-	AuditLogChangeKeyPosition                   AuditLogChangeKey = "position"
-	AuditLogChangeKeyTopic                      AuditLogChangeKey = "topic"
-	AuditLogChangeKeyBitrate                    AuditLogChangeKey = "bitrate"
-	AuditLogChangeKeyPermissionOverwrite        AuditLogChangeKey = "permission_overwrites"
-	AuditLogChangeKeyNSFW                       AuditLogChangeKey = "nsfw"
-	AuditLogChangeKeyApplicationID              AuditLogChangeKey = "application_id"
-	AuditLogChangeKeyRateLimitPerUser           AuditLogChangeKey = "rate_limit_per_user"
-	AuditLogChangeKeyPermissions                AuditLogChangeKey = "permissions"
-	AuditLogChangeKeyColor                      AuditLogChangeKey = "color"
-	AuditLogChangeKeyHoist                      AuditLogChangeKey = "hoist"
-	AuditLogChangeKeyMentionable                AuditLogChangeKey = "mentionable"
-	AuditLogChangeKeyAllow                      AuditLogChangeKey = "allow"
-	AuditLogChangeKeyDeny                       AuditLogChangeKey = "deny"
-	AuditLogChangeKeyCode                       AuditLogChangeKey = "code"
-	AuditLogChangeKeyChannelID                  AuditLogChangeKey = "channel_id"
-	AuditLogChangeKeyInviterID                  AuditLogChangeKey = "inviter_id"
-	AuditLogChangeKeyMaxUses                    AuditLogChangeKey = "max_uses"
-	AuditLogChangeKeyUses                       AuditLogChangeKey = "uses"
-	AuditLogChangeKeyMaxAge                     AuditLogChangeKey = "max_age"
-	AuditLogChangeKeyTempoary                   AuditLogChangeKey = "temporary"
-	AuditLogChangeKeyDeaf                       AuditLogChangeKey = "deaf"
-	AuditLogChangeKeyMute                       AuditLogChangeKey = "mute"
-	AuditLogChangeKeyNick                       AuditLogChangeKey = "nick"
-	AuditLogChangeKeyAvatarHash                 AuditLogChangeKey = "avatar_hash"
-	AuditLogChangeKeyID                         AuditLogChangeKey = "id"
-	AuditLogChangeKeyType                       AuditLogChangeKey = "type"
-	AuditLogChangeKeyEnableEmoticons            AuditLogChangeKey = "enable_emoticons"
-	AuditLogChangeKeyExpireBehavior             AuditLogChangeKey = "expire_behavior"
-	AuditLogChangeKeyExpireGracePeriod          AuditLogChangeKey = "expire_grace_period"
+	AuditLogChangeKeyAfkChannelID               AuditLogChangeKey = "afk_channel_id"                // afk channel changed (snowflake) - guild
+	AuditLogChangeKeyAfkTimeout                 AuditLogChangeKey = "afk_timeout"                   // afk timeout duration changed (int) - guild
+	AuditLogChangeKeyAllow                      AuditLogChangeKey = "allow"                         // a permission on a text or voice channel was allowed for a role (string) - role
+	AuditLogChangeKeyApplicationID              AuditLogChangeKey = "application_id"                // application id of the added or removed webhook or bot (snowflake) - channel
+	AuditLogChangeKeyArchived                   AuditLogChangeKey = "archived"                      // thread is now archived/unarchived (bool) - thread
+	AuditLogChangeKeyAsset                      AuditLogChangeKey = "asset"                         // empty string (string) - sticker
+	AuditLogChangeKeyAutoArchiveDuration        AuditLogChangeKey = "auto_archive_duration"         // auto archive duration changed (int) - thread
+	AuditLogChangeKeyAvailable                  AuditLogChangeKey = "available"                     // availability of sticker changed (bool) - sticker
+	AuditLogChangeKeyAvatarHash                 AuditLogChangeKey = "avatar_hash"                   // user avatar changed (string) - user
+	AuditLogChangeKeyBannerHash                 AuditLogChangeKey = "banner_hash"                   // guild banner changed (string) - guild
+	AuditLogChangeKeyBitrate                    AuditLogChangeKey = "bitrate"                       // voice channel bitrate changed (int) - channel
+	AuditLogChangeKeyChannelID                  AuditLogChangeKey = "channel_id"                    // channel for invite code or guild scheduled event changed (snowflake) - invite or guild scheduled event
+	AuditLogChangeKeyCode                       AuditLogChangeKey = "code"                          // invite code changed (string) - invite
+	AuditLogChangeKeyColor                      AuditLogChangeKey = "color"                         // role color changed (int) - role
+	AuditLogChangeKeyCommunicationDisabledUntil AuditLogChangeKey = "communication_disabled_until"  // member timeout state changed (ISO8601 timestamp) - member
+	AuditLogChangeKeyDeaf                       AuditLogChangeKey = "deaf"                          // user server deafened/undeafened (bool) - member
+	AuditLogChangeKeyDefaultAutoArchiveDuration AuditLogChangeKey = "default_auto_archive_duration" // default auto archive duration for newly created threads changed (int) - channel
+	AuditLogChangeKeyDefaultMessageNotification AuditLogChangeKey = "default_message_notifications" // default message notification level changed (int) - guild
+	AuditLogChangeKeyDeny                       AuditLogChangeKey = "deny"                          // a permission on a text or voice channel was denied for a role (string) - role
+	AuditLogChangeKeyDescription                AuditLogChangeKey = "description"                   // description changed (string) - guild, sticker, or guild scheduled event
+	AuditLogChangeKeyDiscoverySplashHash        AuditLogChangeKey = "discovery_splash_hash"         // discovery splash changed (string) - guild
+	AuditLogChangeKeyEnableEmoticons            AuditLogChangeKey = "enable_emoticons"              // integration emoticons enabled/disabled (bool) - integration
+	AuditLogChangeKeyEntityType                 AuditLogChangeKey = "entity_type"                   // entity type of guild scheduled event was changed (int) - guild scheduled event
+	AuditLogChangeKeyExpireBehavior             AuditLogChangeKey = "expire_behavior"               // integration expiring subscriber behavior changed (int) - integration
+	AuditLogChangeKeyExpireGracePeriod          AuditLogChangeKey = "expire_grace_period"           // integration expire grace period changed (int) - integration
+	AuditLogChangeKeyExplicitContentFilter      AuditLogChangeKey = "explicit_content_filter"       // change in whose messages are scanned and deleted for explicit content in the server (int) - guild
+	AuditLogChangeKeyFormatType                 AuditLogChangeKey = "format_type"                   // format type of sticker changed (int - sticker format type) - sticker
+	AuditLogChangeKeyGuildID                    AuditLogChangeKey = "guild_id"                      // guild sticker is in changed (snowflake) - sticker
+	AuditLogChangeKeyHoist                      AuditLogChangeKey = "hoist"                         // role is now displayed/no longer displayed separate from online users (bool) - role
+	AuditLogChangeKeyIconHash                   AuditLogChangeKey = "icon_hash"                     // icon changed (string) - guild or role
+	AuditLogChangeKeyID                         AuditLogChangeKey = "id"                            // 	the id of the changed entity - sometimes used in conjunction with other keys (snowflake) - any
+	AuditLogChangeKeyInvitable                  AuditLogChangeKey = "invitable"                     // private thread is now invitable/uninvitable (bool) - thread
+	AuditLogChangeKeyInviterID                  AuditLogChangeKey = "inviter_id"                    // person who created invite code changed (snowflake) - invite
+	AuditLogChangeKeyLocation                   AuditLogChangeKey = "location"                      // change in channel id for guild scheduled event (string) - guild scheduled event
+	AuditLogChangeKeyLocked                     AuditLogChangeKey = "locked"                        // thread is now locked/unlocked (bool) - thread
+	AuditLogChangeKeyMaxAge                     AuditLogChangeKey = "max_age"                       // how long invite code lasts changed (int) - invite
+	AuditLogChangeKeyMaxUses                    AuditLogChangeKey = "max_uses"                      // change to max number of times invite code can be used (int) - invite
+	AuditLogChangeKeyMentionable                AuditLogChangeKey = "mentionable"                   // role is now mentionable/unmentionable (bool) - role
+	AuditLogChangeKeyMfaLevel                   AuditLogChangeKey = "mfa_level"                     // two-factor auth requirement changed (int - mfa level) - guild
+	AuditLogChangeKeyMute                       AuditLogChangeKey = "mute"                          // user server muted/unmuted (bool) - member
+	AuditLogChangeKeyName                       AuditLogChangeKey = "name"                          // name changed (string) - any
+	AuditLogChangeKeyNick                       AuditLogChangeKey = "nick"                          // user nickname changed (string) - member
+	AuditLogChangeKeyNSFW                       AuditLogChangeKey = "nsfw"                          // channel nsfw restriction changed (bool) - channel
+	AuditLogChangeKeyOwnerID                    AuditLogChangeKey = "owner_id"                      // owner changed (snowflake) - guild
+	AuditLogChangeKeyPermissionOverwrite        AuditLogChangeKey = "permission_overwrites"         // permissions on a channel changed (array of channel overwrite objects) - channel
+	AuditLogChangeKeyPermissions                AuditLogChangeKey = "permissions"                   // permissions for a role changed (string) - role
+	AuditLogChangeKeyPosition                   AuditLogChangeKey = "position"                      // text or voice channel position changed (int) - channel
+	AuditLogChangeKeyPreferredLocale            AuditLogChangeKey = "preferred_locale"              // preferred locale changed (string) - guild
+	AuditLogChangeKeyPrivacylevel               AuditLogChangeKey = "privacy_level"                 // privacy level of the stage instance changed (integer - privacy level) - stage instance or guild scheduled event
+	AuditLogChangeKeyPruneDeleteDays            AuditLogChangeKey = "prune_delete_days"             // change in number of days after which inactive and role-unassigned members are kicked (int) - guild
+	AuditLogChangeKeyPulibUpdatesChannelID      AuditLogChangeKey = "public_updates_channel_id"     // id of the public updates channel changed (snowflake) - guild
+	AuditLogChangeKeyRateLimitPerUser           AuditLogChangeKey = "rate_limit_per_user"           // amount of seconds a user has to wait before sending another message changed (int) - channel
+	AuditLogChangeKeyRegion                     AuditLogChangeKey = "region"                        // region changed (string) - guild
+	AuditLogChangeKeyRulesChannelID             AuditLogChangeKey = "rules_channel_id"              // id of the rules channel changed (snowflake) - guild
+	AuditLogChangeKeySplashHash                 AuditLogChangeKey = "splash_hash"                   // invite splash page artwork changed (string) - guild
+	AuditLogChangeKeyStatus                     AuditLogChangeKey = "status"                        // status of guild scheduled event was changed (int - guild scheduled event status) - guild scheduled event
+	AuditLogChangeKeySystemChannelID            AuditLogChangeKey = "system_channel_id"             // id of the system channel changed (snowflake) - guild
+	AuditLogChangeKeyTags                       AuditLogChangeKey = "tags"                          // related emoji of sticker changed (string) - sticker
+	AuditLogChangeKeyTempoary                   AuditLogChangeKey = "temporary"                     // invite code is temporary/never expires (bool) - invite
+	AuditLogChangeKeyTopic                      AuditLogChangeKey = "topic"                         // text channel topic or stage instance topic changed (string) - channel or stage instance
+	AuditLogChangeKeyType                       AuditLogChangeKey = "type"                          // type of entity created (int or string) - any
+	AuditLogChangeKeyUnicodeEmoji               AuditLogChangeKey = "unicode_emoji"                 // role unicode emoji changed (string) - role
+	AuditLogChangeKeyUserLimit                  AuditLogChangeKey = "user_limit"                    // new user limit in a voice channel (int) - voice channel
+	AuditLogChangeKeyUses                       AuditLogChangeKey = "uses"                          // number of times invite code used changed (int) - invite
+	AuditLogChangeKeyVanityURLCode              AuditLogChangeKey = "vanity_url_code"               // guild invite vanity url changed (string) - guild
+	AuditLogChangeKeyVerificationLevel          AuditLogChangeKey = "verification_level"            // required verification level changed (int - verification level) - guild
+	AuditLogChangeKeyWidgetChannelID            AuditLogChangeKey = "widget_channel_id"             //	channel id of the server widget changed (snowflake) - guild
+	AuditLogChangeKeyWidgetEnabled              AuditLogChangeKey = "widget_enabled"                // server widget enabled/disable (bool) - guild
+	AuditLogChangeKeyRoleAdd                    AuditLogChangeKey = "$add"                          // new role added (array of partial role objects) - guild
+	AuditLogChangeKeyRoleRemove                 AuditLogChangeKey = "$remove"                       // role removed (array of partial role objects) - guild
 )
 
 // AuditLogOptions optional data for the AuditLog
@@ -1049,6 +1072,9 @@ const (
 	AuditLogActionMemberBanRemove  AuditLogAction = 23
 	AuditLogActionMemberUpdate     AuditLogAction = 24
 	AuditLogActionMemberRoleUpdate AuditLogAction = 25
+	AuditLogActionMemberMove       AuditLogAction = 26
+	AuditLogActionMemberDisconnect AuditLogAction = 27
+	AuditLogActionBotAdd           AuditLogAction = 28
 
 	AuditLogActionRoleCreate AuditLogAction = 30
 	AuditLogActionRoleUpdate AuditLogAction = 31
@@ -1071,9 +1097,24 @@ const (
 	AuditLogActionMessagePin        AuditLogAction = 74
 	AuditLogActionMessageUnpin      AuditLogAction = 75
 
-	AuditLogActionIntegrationCreate AuditLogAction = 80
-	AuditLogActionIntegrationUpdate AuditLogAction = 81
-	AuditLogActionIntegrationDelete AuditLogAction = 82
+	AuditLogActionIntegrationCreate   AuditLogAction = 80
+	AuditLogActionIntegrationUpdate   AuditLogAction = 81
+	AuditLogActionIntegrationDelete   AuditLogAction = 82
+	AuditLogActionStageInstanceCreate AuditLogAction = 83
+	AuditLogActionStageInstanceUpdate AuditLogAction = 84
+	AuditLogActionStageInstanceDelete AuditLogAction = 85
+
+	AuditLogActionStickerCreate AuditLogAction = 90
+	AuditLogActionStickerUpdate AuditLogAction = 91
+	AuditLogActionStickerDelete AuditLogAction = 92
+
+	AuditLogGuildScheduledEventCreate AuditLogAction = 100
+	AuditLogGuildScheduledEventUpdare AuditLogAction = 101
+	AuditLogGuildScheduledEventDelete AuditLogAction = 102
+
+	AuditLogActionThreadCreate AuditLogAction = 110
+	AuditLogActionThreadUpdate AuditLogAction = 111
+	AuditLogActionThreadDelete AuditLogAction = 112
 )
 
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
