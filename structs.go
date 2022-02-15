@@ -986,7 +986,7 @@ const (
 	AuditLogChangeKeyGuildID                    AuditLogChangeKey = "guild_id"                      // guild sticker is in changed (snowflake) - sticker
 	AuditLogChangeKeyHoist                      AuditLogChangeKey = "hoist"                         // role is now displayed/no longer displayed separate from online users (bool) - role
 	AuditLogChangeKeyIconHash                   AuditLogChangeKey = "icon_hash"                     // icon changed (string) - guild or role
-	AuditLogChangeKeyID                         AuditLogChangeKey = "id"                            // 	the id of the changed entity - sometimes used in conjunction with other keys (snowflake) - any
+	AuditLogChangeKeyID                         AuditLogChangeKey = "id"                            // the id of the changed entity - sometimes used in conjunction with other keys (snowflake) - any
 	AuditLogChangeKeyInvitable                  AuditLogChangeKey = "invitable"                     // private thread is now invitable/uninvitable (bool) - thread
 	AuditLogChangeKeyInviterID                  AuditLogChangeKey = "inviter_id"                    // person who created invite code changed (snowflake) - invite
 	AuditLogChangeKeyLocation                   AuditLogChangeKey = "location"                      // change in channel id for guild scheduled event (string) - guild scheduled event
