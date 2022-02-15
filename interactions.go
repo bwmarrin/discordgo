@@ -140,8 +140,8 @@ type Interaction struct {
 
 	// The message on which interaction was used.
 	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
-
 	Message *Message `json:"message"`
+
 	// The member who invoked this interaction.
 	// NOTE: this field is only filled when the slash command was invoked in a guild;
 	// if it was invoked in a DM, the `User` field will be filled instead.
