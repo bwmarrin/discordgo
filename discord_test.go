@@ -15,14 +15,14 @@ var (
 	dg    *Session // Stores a global discordgo user session
 	dgBot *Session // Stores a global discordgo bot session
 
-	envToken    = os.Getenv("DGU_TOKEN")  // Token to use when authenticating the user account
-	envBotToken = os.Getenv("DGB_TOKEN")  // Token to use when authenticating the bot account
-	envGuild    = os.Getenv("DG_GUILD")   // Guild ID to use for tests
-	envChannel  = os.Getenv("DG_CHANNEL") // Channel ID to use for tests
-	envAdmin    = os.Getenv("DG_ADMIN")   // User ID of admin user to use for tests
+	envOAuth2Token = os.Getenv("DG_OAUTH2_TOKEN") // Token to use when authenticating using OAuth2 token
+	envBotToken    = os.Getenv("DGB_TOKEN")       // Token to use when authenticating the bot account
+	envGuild       = os.Getenv("DG_GUILD")        // Guild ID to use for tests
+	envChannel     = os.Getenv("DG_CHANNEL")      // Channel ID to use for tests
+	envAdmin       = os.Getenv("DG_ADMIN")        // User ID of admin user to use for tests
 )
 
-func init() {
+func TestMain(m *testing.M) {
 	fmt.Println("Init is being called.")
 	if envBotToken != "" {
 		if d, err := New(envBotToken); err == nil {
@@ -30,48 +30,30 @@ func init() {
 		}
 	}
 
-	if d, err := New(envToken); err == nil {
-		dg = d
-	} else {
-		fmt.Println("dg is nil, error", err)
+	if envOAuth2Token == "" {
+		envOAuth2Token = os.Getenv("DGU_TOKEN")
 	}
+
+	if envOAuth2Token != "" {
+		if d, err := New(envOAuth2Token); err == nil {
+			dg = d
+		}
+	}
+
+	os.Exit(m.Run())
 }
 
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////// START OF TESTS
 
-// TestNew tests the New() function without any arguments.  This should return
-// a valid Session{} struct and no errors.
-func TestNew(t *testing.T) {
-
-	_, err := New()
-	if err != nil {
-		t.Errorf("New() returned error: %+v", err)
-	}
-}
-
-// TestInvalidToken tests the New() function with an invalid token
-func TestInvalidToken(t *testing.T) {
-	d, err := New("asjkldhflkjasdh")
-	if err != nil {
-		t.Fatalf("New(InvalidToken) returned error: %+v", err)
-	}
-
-	// New with just a token does not do any communication, so attempt an api call.
-	_, err = d.UserSettings()
-	if err == nil {
-		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
-	}
-}
-
 // TestNewToken tests the New() function with a Token.
 func TestNewToken(t *testing.T) {
 
-	if envToken == "" {
+	if envOAuth2Token == "" {
 		t.Skip("Skipping New(token), DGU_TOKEN not set")
 	}
 
-	d, err := New(envToken)
+	d, err := New(envOAuth2Token)
 	if err != nil {
 		t.Fatalf("New(envToken) returned error: %+v", err)
 	}
@@ -86,11 +68,11 @@ func TestNewToken(t *testing.T) {
 }
 
 func TestOpenClose(t *testing.T) {
-	if envToken == "" {
+	if envOAuth2Token == "" {
 		t.Skip("Skipping TestClose, DGU_TOKEN not set")
 	}
 
-	d, err := New(envToken)
+	d, err := New(envOAuth2Token)
 	if err != nil {
 		t.Fatalf("TestClose, New(envToken) returned error: %+v", err)
 	}

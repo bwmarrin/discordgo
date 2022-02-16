@@ -239,8 +239,8 @@ func main() {
 		log.Fatalf("Cannot register commands: %v", err)
 	}
 
-	stop := make(chan os.Signal)
-	signal.Notify(stop, os.Interrupt) //nolint: staticcheck
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
 	<-stop
 	log.Println("Gracefully shutting down")
 
