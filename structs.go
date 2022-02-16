@@ -1481,13 +1481,13 @@ const (
 	ErrCodeMaximumNumberOfActiveThreadsReached              = 160006
 	ErrCodeMaximumNumberOfActiveAnnouncementThreadsReached  = 160007
 
-	ErrCodeInvalidJSONForUploadedLottieFile                            = 170001
-	ErrCodeUploadedLottiesCannotContainRasterizedImages = 170002
-	ErrCodeStickerMaximumFramerateExceeded                             = 170003
-	ErrCodeStickerFrameCountExceedsMaximumOfOneThousandFrames          = 170004
-	ErrCodeLottieAnimationMaximumDimensionsExceeded                    = 170005
-	ErrCodeStickerFrameRateOutOfRange                  = 170006
-	ErrCodeStickerAnimationDurationExceedsMaximumOfFiveSeconds         = 170007
+	ErrCodeInvalidJSONForUploadedLottieFile                    = 170001
+	ErrCodeUploadedLottiesCannotContainRasterizedImages        = 170002
+	ErrCodeStickerMaximumFramerateExceeded                     = 170003
+	ErrCodeStickerFrameCountExceedsMaximumOfOneThousandFrames  = 170004
+	ErrCodeLottieAnimationMaximumDimensionsExceeded            = 170005
+	ErrCodeStickerFrameRateOutOfRange                          = 170006
+	ErrCodeStickerAnimationDurationExceedsMaximumOfFiveSeconds = 170007
 
 	ErrCodeCannotUpdateAFinishedEvent             = 180000
 	ErrCodeFailedToCreateStageNeededForStageEvent = 180002
