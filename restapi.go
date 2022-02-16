@@ -2282,7 +2282,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	return
 }
 
-// GuildApplicationCommandsPermissions returns permissions for all application commands in a guild.
+// GuildApplicationCommandsPermissions returns permissions for application commands in a guild.
 // appID       : The application ID
 // guildID     : Guild ID to retrieve application commands permissions for.
 func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions, err error) {
