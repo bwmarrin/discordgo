@@ -30,16 +30,17 @@ const (
 
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID            string                 `json:"id,omitempty"`
-	ApplicationID string                 `json:"application_id,omitempty"`
-	Type          ApplicationCommandType `json:"type,omitempty"`
-	Name          string                 `json:"name"`
+	ID                string                 `json:"id,omitempty"`
+	ApplicationID     string                 `json:"application_id,omitempty"`
+	Version           string                 `json:"version,omitempty"`
+	Type              ApplicationCommandType `json:"type,omitempty"`
+	Name              string                 `json:"name"`
+	DefaultPermission *bool                  `json:"default_permission,omitempty"`
+
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
-	Description string `json:"description,omitempty"`
-	Version     string `json:"version,omitempty"`
-	// NOTE: Chat commands only. Otherwise it mustn't be set.
-	Options           []*ApplicationCommandOption `json:"options"`
-	DefaultPermission *bool                       `json:"default_permission,omitempty"`
+
+	Description string                      `json:"description,omitempty"`
+	Options     []*ApplicationCommandOption `json:"options"`
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
