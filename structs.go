@@ -1486,7 +1486,7 @@ const (
 	ErrCodeStickerMaximumFramerateExceeded                             = 170003
 	ErrCodeStickerFrameCountExceedsMaximumOfOneThousandFrames          = 170004
 	ErrCodeLottieAnimationMaximumDimensionsExceeded                    = 170005
-	ErrCodeStickerFrameRateIsEitherTooSmallOrTooLarge                  = 170006
+	ErrCodeStickerFrameRateOutOfRange                  = 170006
 	ErrCodeStickerAnimationDurationExceedsMaximumOfFiveSeconds         = 170007
 
 	ErrCodeCannotUpdateAFinishedEvent             = 180000
