@@ -47,6 +47,7 @@ jobs:
         uses: golangci/golangci-lint-action@v2.5.2
         if: github.event.name == 'pull_request'
         with:
+          only-new-issues: true
           skip-pkg-cache: true
           skip-build-cache: true
       
