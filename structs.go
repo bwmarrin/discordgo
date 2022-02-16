@@ -1074,6 +1074,8 @@ const (
 	AuditLogChangeKeyTags AuditLogChangeKey = "tags"
 	// AuditLogChangeKeyTemporary is sent when invite code is now temporary or never expires (bool) - invite
 	AuditLogChangeKeyTemporary AuditLogChangeKey = "temporary"
+	// TODO: remove when compatibility is not required
+	AuditLogChangeKeyTempoary = AuditLogChangeKeyTemporary
 	// AuditLogChangeKeyTopic is sent when text channel topic or stage instance topic changed (string) - channel or stage instance
 	AuditLogChangeKeyTopic AuditLogChangeKey = "topic"
 	// AuditLogChangeKeyType is sent when type of entity created (int or string) - any
