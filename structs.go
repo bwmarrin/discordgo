@@ -1631,6 +1631,26 @@ const (
 	IntentMessageContent         Intent = 1 << 15
 	IntentGuildScheduledEvents   Intent = 1 << 16
 
+	// TODO: remove when compatibility is not needed
+
+	IntentsGuilds                 Intent = 1 << 0
+	IntentsGuildMembers           Intent = 1 << 1
+	IntentsGuildBans              Intent = 1 << 2
+	IntentsGuildEmojis            Intent = 1 << 3
+	IntentsGuildIntegrations      Intent = 1 << 4
+	IntentsGuildWebhooks          Intent = 1 << 5
+	IntentsGuildInvites           Intent = 1 << 6
+	IntentsGuildVoiceStates       Intent = 1 << 7
+	IntentsGuildPresences         Intent = 1 << 8
+	IntentsGuildMessages          Intent = 1 << 9
+	IntentsGuildMessageReactions  Intent = 1 << 10
+	IntentsGuildMessageTyping     Intent = 1 << 11
+	IntentsDirectMessages         Intent = 1 << 12
+	IntentsDirectMessageReactions Intent = 1 << 13
+	IntentsDirectMessageTyping    Intent = 1 << 14
+	IntentsMessageContent         Intent = 1 << 15
+	IntentsGuildScheduledEvents   Intent = 1 << 16
+
 	IntentsAllWithoutPrivileged = IntentGuilds |
 		IntentGuildBans |
 		IntentGuildEmojis |
