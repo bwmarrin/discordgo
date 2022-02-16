@@ -1482,7 +1482,7 @@ const (
 	ErrCodeMaximumNumberOfActiveAnnouncementThreadsReached  = 160007
 
 	ErrCodeInvalidJSONForUploadedLottieFile                            = 170001
-	ErrCodeUploadedLottiesCannotContainRasterizedImagesSuchAsPNGorJPEG = 170002
+	ErrCodeUploadedLottiesCannotContainRasterizedImages = 170002
 	ErrCodeStickerMaximumFramerateExceeded                             = 170003
 	ErrCodeStickerFrameCountExceedsMaximumOfOneThousandFrames          = 170004
 	ErrCodeLottieAnimationMaximumDimensionsExceeded                    = 170005
