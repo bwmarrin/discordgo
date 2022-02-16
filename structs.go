@@ -1386,13 +1386,11 @@ const (
 	ErrCodeThisActionCannotBePerformedDueToSlowmodeRateLimit                = 20016
 	ErrCodeOnlyTheOwnerOfThisAccountCanPerformThisAction                    = 20018
 	ErrCodeMessageCannotBeEditedDueToAnnouncementRateLimits                 = 20022
-	ErrCodeChannelHasHitWriteRateLimit                                    = 20028
+	ErrCodeChannelHasHitWriteRateLimit                                      = 20028
 	ErrCodeTheWriteActionYouArePerformingOnTheServerHasHitTheWriteRateLimit = 20029
 	ErrCodeStageTopicContainsNotAllowedWordsForPublicStages                 = 20031
 	ErrCodeGuildPremiumSubscriptionLevelTooLow                              = 20035
 
-	ErrCodeMaximumGuildsReached                                    = 30001
-	ErrCodeMaximumFriendsReached                                   = 30002
 	ErrCodeMaximumPinsReached                                      = 30003
 	ErrCodeMaximumNumberOfRecipientsReached                        = 30004
 	ErrCodeMaximumGuildRolesReached                                = 30005
@@ -1403,7 +1401,7 @@ const (
 	ErrCodeMaximumNumberOfAttachmentsInAMessageReached             = 30015
 	ErrCodeMaximumNumberOfInvitesReached                           = 30016
 	ErrCodeMaximumNumberOfAnimatedEmojisReached                    = 30018
-	ErrCodeMaximumNumberOfServerMembersReached                      = 30019
+	ErrCodeMaximumNumberOfServerMembersReached                     = 30019
 	ErrCodeMaximumNumberOfGuildDiscoverySubcategoriesReached       = 30030
 	ErrCodeGuildAlreadyHasATemplate                                = 30031
 	ErrCodeMaximumNumberOfThreadParticipantsReached                = 30033
@@ -1425,11 +1423,12 @@ const (
 	ErrCodeTargetIsNotConnectedToVoice            = 40032
 	ErrCodeMessageAlreadyCrossposted              = 40033
 	ErrCodeAnApplicationWithThatNameAlreadyExists = 40041
+	ErrCodeInteractionHasAlreadyBeenAcknowledged  = 40060
 
 	ErrCodeMissingAccess                                                = 50001
 	ErrCodeInvalidAccountType                                           = 50002
 	ErrCodeCannotExecuteActionOnDMChannel                               = 50003
-	ErrCodeEmbedDisabled                                                = 50004
+	ErrCodeGuildWidgetDisabled                                          = 50004
 	ErrCodeCannotEditFromAnotherUser                                    = 50005
 	ErrCodeCannotSendEmptyMessage                                       = 50006
 	ErrCodeCannotSendMessagesToThisUser                                 = 50007
@@ -1440,7 +1439,6 @@ const (
 	ErrCodeInvalidOAuthState                                            = 50012
 	ErrCodeMissingPermissions                                           = 50013
 	ErrCodeInvalidAuthenticationToken                                   = 50014
-	ErrCodeNoteTooLong                                                  = 50015
 	ErrCodeTooFewOrTooManyMessagesToDelete                              = 50016
 	ErrCodeCanOnlyPinMessageToOriginatingChannel                        = 50019
 	ErrCodeInviteCodeWasEitherInvalidOrTaken                            = 50020
@@ -1457,22 +1455,17 @@ const (
 	ErrCodeInvalidAPIVersionProvided                                    = 50041
 	ErrCodeFileUploadedExceedsTheMaximumSize                            = 50045
 	ErrCodeInvalidFileUploaded                                          = 50046
-	ErrCodeCannotSelfRedeemThisGift                                     = 50054
 	ErrCodeInvalidGuild                                                 = 50055
 	ErrCodeInvalidMessageType                                           = 50068
-	ErrCodePaymentSourceRequiredToRedeemGift                            = 50070
 	ErrCodeCannotDeleteAChannelRequiredForCommunityGuilds               = 50074
 	ErrCodeInvalidStickerSent                                           = 50081
 	ErrCodePerformedOperationOnArchivedThread                           = 50083
-	ErrCodeInvalidThreadNotificationSettings                            = 50084
 	ErrCodeBeforeValueIsEarlierThanThreadCreationDate                   = 50085
 	ErrCodeCommunityServerChannelsMustBeTextChannels                    = 50086
 	ErrCodeThisServerIsNotAvailableInYourLocation                       = 50095
 	ErrCodeThisServerNeedsMonetizationEnabledInOrderToPerformThisAction = 50097
 	ErrCodeThisServerNeedsMoreBoostsToPerformThisAction                 = 50101
 	ErrCodeTheRequestBodyContainsInvalidJSON                            = 50109
-
-	ErrCodeTwoFactorRequiredForThisOperation = 60003
 
 	ErrCodeNoUsersWithDiscordTagExist = 80004
 
