@@ -1428,6 +1428,7 @@ const (
 	ErrCodeMissingAccess                                                = 50001
 	ErrCodeInvalidAccountType                                           = 50002
 	ErrCodeCannotExecuteActionOnDMChannel                               = 50003
+	ErrCodeEmbedDisabled                                                = 50004
 	ErrCodeGuildWidgetDisabled                                          = 50004
 	ErrCodeCannotEditFromAnotherUser                                    = 50005
 	ErrCodeCannotSendEmptyMessage                                       = 50006
