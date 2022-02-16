@@ -2546,9 +2546,9 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	return
 }
 
-// GuildApplicationCommandsPermissions receives all permissions for application commands that have any permissions
+// GuildApplicationCommandsPermissions returns permissions for all application commands in a guild.
 // appID       : The application ID
-// guildID     : Guild ID to retrieve all guild-specific permissions for application commands in the guild, both global and guild specific
+// guildID     : Guild ID to retrieve application commands permissions for.
 func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions) {
 	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 
@@ -2561,7 +2561,7 @@ func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (pe
 	return
 }
 
-// ApplicationCommandPermissions receives all permissions for application commands that have any permissions
+// ApplicationCommandPermissions returns all permissions of an application command
 // appID       : The Application ID
 // guildID     : The guild ID containing the application command
 // cmdID       : The command ID to retrieve the permissions of
