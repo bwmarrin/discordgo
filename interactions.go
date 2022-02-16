@@ -35,7 +35,7 @@ type ApplicationCommand struct {
 	Version           string                 `json:"version,omitempty"`
 	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
-	DefaultPermission *bool                  `json:"default_permission,omitempty"`
+	DefaultPermission bool                   `json:"default_permission,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 
