@@ -22,7 +22,7 @@ var (
 	envAdmin       = os.Getenv("DG_ADMIN")        // User ID of admin user to use for tests
 )
 
-func init() {
+func TestMain(m *testing.M) {
 	fmt.Println("Init is being called.")
 	if envBotToken != "" {
 		if d, err := New(envBotToken); err == nil {
@@ -35,6 +35,8 @@ func init() {
 			dg = d
 		}
 	}
+
+	os.Exit(m.Run())
 }
 
 //////////////////////////////////////////////////////////////////////////////
