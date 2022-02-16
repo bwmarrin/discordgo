@@ -51,6 +51,7 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	return json.Unmarshal(src, umc.MessageComponent)
 }
 
+// MessageComponentFromJSON is a helper function for unmarshaling message components
 func MessageComponentFromJSON(b []byte) (MessageComponent, error) {
 	var u unmarshalableMessageComponent
 	err := u.UnmarshalJSON(b)
