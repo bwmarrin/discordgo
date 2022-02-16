@@ -2549,10 +2549,11 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 // GuildApplicationCommandsPermissions returns permissions for all application commands in a guild.
 // appID       : The application ID
 // guildID     : Guild ID to retrieve application commands permissions for.
-func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions) {
+func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions, err error) {
 	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 
-	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
 		return
 	}
@@ -2565,10 +2566,11 @@ func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (pe
 // appID       : The Application ID
 // guildID     : The guild ID containing the application command
 // cmdID       : The command ID to retrieve the permissions of
-func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (permissions *GuildApplicationCommandPermissions) {
+func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (permissions *GuildApplicationCommandPermissions, err error) {
 	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
 
-	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
 		return
 	}
@@ -2586,7 +2588,6 @@ func (s *Session) ApplicationCommandPermissionsEdit(appID, guildID, cmdID string
 	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
 
 	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
-
 	return
 }
 
@@ -2598,7 +2599,6 @@ func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, 
 	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 
 	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
-
 	return
 }
 
