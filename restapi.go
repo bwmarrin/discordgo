@@ -2282,6 +2282,62 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 	return
 }
 
+// GuildApplicationCommandsPermissions returns permissions for all application commands in a guild.
+// appID       : The application ID
+// guildID     : Guild ID to retrieve application commands permissions for.
+func (s *Session) GuildApplicationCommandsPermissions(appID, guildID string) (permissions []*GuildApplicationCommandPermissions, err error) {
+	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &permissions)
+	return
+}
+
+// ApplicationCommandPermissions returns all permissions of an application command
+// appID       : The Application ID
+// guildID     : The guild ID containing the application command
+// cmdID       : The command ID to retrieve the permissions of
+func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (permissions *GuildApplicationCommandPermissions, err error) {
+	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &permissions)
+	return
+}
+
+// ApplicationCommandPermissionsEdit edits the permissions of an application command
+// appID       : The Application ID
+// guildID     : The guild ID containing the application command
+// cmdID       : The command ID to edit the permissions of
+// permissions : An object containing a list of permissions for the application command
+func (s *Session) ApplicationCommandPermissionsEdit(appID, guildID, cmdID string, permissions *ApplicationCommandPermissionsList) (err error) {
+	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
+	return
+}
+
+// ApplicationCommandPermissionsBatchEdit edits the permissions of a batch of commands
+// appID       : The Application ID
+// guildID     : The guild ID to batch edit commands of
+// permissions : A list of permissions paired with a command ID, guild ID, and application ID per application command
+func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, permissions []*GuildApplicationCommandPermissions) (err error) {
+	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
+
+	_, err = s.RequestWithBucketID("PUT", endpoint, permissions, endpoint)
+	return
+}
+
 // InteractionRespond creates the response to an interaction.
 // appID       : The application ID.
 // interaction : Interaction instance.
