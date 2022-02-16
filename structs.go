@@ -964,9 +964,9 @@ const (
 	AuditLogChangeKeyAllow AuditLogChangeKey = "allow"
 	// AudirChangeKeyApplicationID is sent when application id of the added or removed webhook or bot (snowflake) - channel
 	AuditLogChangeKeyApplicationID AuditLogChangeKey = "application_id"
-	// AuditLogChangeKeyArchived is sent when thread is now archived/unarchived (bool) - thread
+	// AuditLogChangeKeyArchived is sent when thread was archived/unarchived (bool) - thread
 	AuditLogChangeKeyArchived AuditLogChangeKey = "archived"
-	// AuditLogChangeKeyAsset is sent when empty asset is changed (string) - sticker
+	// AuditLogChangeKeyAsset is sent when asset is changed (string) - sticker
 	AuditLogChangeKeyAsset AuditLogChangeKey = "asset"
 	// AuditLogChangeKeyAutoArchiveDuration is sent when auto archive duration changed (int) - thread
 	AuditLogChangeKeyAutoArchiveDuration AuditLogChangeKey = "auto_archive_duration"
@@ -1006,7 +1006,7 @@ const (
 	AuditLogChangeKeyExpireBehavior AuditLogChangeKey = "expire_behavior"
 	// AuditLogChangeKeyExpireGracePeriod is sent when integration expire grace period changed (int) - integration
 	AuditLogChangeKeyExpireGracePeriod AuditLogChangeKey = "expire_grace_period"
-	// AuditLogChangeKeyExplicitContentFilter is sent when change in whose messages are scanned and deleted for explicit content in the server (int) - guild
+	// AuditLogChangeKeyExplicitContentFilter is sent when change in whose messages are scanned and deleted for explicit content in the server is made (int) - guild
 	AuditLogChangeKeyExplicitContentFilter AuditLogChangeKey = "explicit_content_filter"
 	// AuditLogChangeKeyFormatType is sent when format type of sticker changed (int - sticker format type) - sticker
 	AuditLogChangeKeyFormatType AuditLogChangeKey = "format_type"
@@ -1022,13 +1022,13 @@ const (
 	AuditLogChangeKeyInvitable AuditLogChangeKey = "invitable"
 	// AuditLogChangeKeyInviterID is sent when person who created invite code changed (snowflake) - invite
 	AuditLogChangeKeyInviterID AuditLogChangeKey = "inviter_id"
-	// AuditLogChangeKeyLocation is sent when change in channel id for guild scheduled event (string) - guild scheduled event
+	// AuditLogChangeKeyLocation is sent when channel id for guild scheduled event changed (string) - guild scheduled event
 	AuditLogChangeKeyLocation AuditLogChangeKey = "location"
-	// AuditLogChangeKeyLocked is sent when thread is now locked/unlocked (bool) - thread
+	// AuditLogChangeKeyLocked is sent when thread was locked/unlocked (bool) - thread
 	AuditLogChangeKeyLocked AuditLogChangeKey = "locked"
-	// AuditLogChangeKeyMaxAge is sent when how long invite code lasts changed (int) - invite
+	// AuditLogChangeKeyMaxAge is sent when invite code expiration time changed (int) - invite
 	AuditLogChangeKeyMaxAge AuditLogChangeKey = "max_age"
-	// AuditLogChangeKeyMaxUses is sent when change to max number of times invite code can be used (int) - invite
+	// AuditLogChangeKeyMaxUses is sent when max number of times invite code can be used changed (int) - invite
 	AuditLogChangeKeyMaxUses AuditLogChangeKey = "max_uses"
 	// AuditLogChangeKeyMentionable is sent when role is now mentionable/unmentionable (bool) - role
 	AuditLogChangeKeyMentionable AuditLogChangeKey = "mentionable"
@@ -1054,7 +1054,7 @@ const (
 	AuditLogChangeKeyPreferredLocale AuditLogChangeKey = "preferred_locale"
 	// AuditLogChangeKeyPrivacylevel is sent when privacy level of the stage instance changed (integer - privacy level) - stage instance or guild scheduled event
 	AuditLogChangeKeyPrivacylevel AuditLogChangeKey = "privacy_level"
-	// AuditLogChangeKeyPruneDeleteDays is sent when change in number of days after which inactive and role-unassigned members are kicked (int) - guild
+	// AuditLogChangeKeyPruneDeleteDays is sent when number of days after which inactive and role-unassigned members are kicked changed (int) - guild
 	AuditLogChangeKeyPruneDeleteDays AuditLogChangeKey = "prune_delete_days"
 	// AuditLogChangeKeyPulibUpdatesChannelID is sent when id of the public updates channel changed (snowflake) - guild
 	AuditLogChangeKeyPulibUpdatesChannelID AuditLogChangeKey = "public_updates_channel_id"
@@ -1072,15 +1072,15 @@ const (
 	AuditLogChangeKeySystemChannelID AuditLogChangeKey = "system_channel_id"
 	// AuditLogChangeKeyTags is sent when related emoji of sticker changed (string) - sticker
 	AuditLogChangeKeyTags AuditLogChangeKey = "tags"
-	// AuditLogChangeKeyTempoary is sent when invite code is temporary/never expires (bool) - invite
-	AuditLogChangeKeyTempoary AuditLogChangeKey = "temporary"
+	// AuditLogChangeKeyTemporary is sent when invite code is now temporary or never expires (bool) - invite
+	AuditLogChangeKeyTemporary AuditLogChangeKey = "temporary"
 	// AuditLogChangeKeyTopic is sent when text channel topic or stage instance topic changed (string) - channel or stage instance
 	AuditLogChangeKeyTopic AuditLogChangeKey = "topic"
 	// AuditLogChangeKeyType is sent when type of entity created (int or string) - any
 	AuditLogChangeKeyType AuditLogChangeKey = "type"
 	// AuditLogChangeKeyUnicodeEmoji is sent when role unicode emoji changed (string) - role
 	AuditLogChangeKeyUnicodeEmoji AuditLogChangeKey = "unicode_emoji"
-	// AuditLogChangeKeyUserLimit is sent when new user limit in a voice channel (int) - voice channel
+	// AuditLogChangeKeyUserLimit is sent when new user limit in a voice channel set (int) - voice channel
 	AuditLogChangeKeyUserLimit AuditLogChangeKey = "user_limit"
 	// AuditLogChangeKeyUses is sent when number of times invite code used changed (int) - invite
 	AuditLogChangeKeyUses AuditLogChangeKey = "uses"
@@ -1090,7 +1090,7 @@ const (
 	AuditLogChangeKeyVerificationLevel AuditLogChangeKey = "verification_level"
 	// AuditLogChangeKeyWidgetChannelID is sent when channel id of the server widget changed (snowflake) - guild
 	AuditLogChangeKeyWidgetChannelID AuditLogChangeKey = "widget_channel_id"
-	// AuditLogChangeKeyWidgetEnabled is sent when server widget enabled/disable (bool) - guild
+	// AuditLogChangeKeyWidgetEnabled is sent when server widget enabled/disabled (bool) - guild
 	AuditLogChangeKeyWidgetEnabled AuditLogChangeKey = "widget_enabled"
 	// AuditLogChangeKeyRoleAdd is sent when new role added (array of partial role objects) - guild
 	AuditLogChangeKeyRoleAdd AuditLogChangeKey = "$add"
