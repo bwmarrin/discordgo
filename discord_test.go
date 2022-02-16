@@ -30,6 +30,10 @@ func TestMain(m *testing.M) {
 		}
 	}
 
+	if envOAuth2Token == "" {
+		envOAuth2Token = os.Getenv("DGU_TOKEN")
+	}
+
 	if envOAuth2Token != "" {
 		if d, err := New(envOAuth2Token); err == nil {
 			dg = d
