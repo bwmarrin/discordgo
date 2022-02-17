@@ -379,7 +379,7 @@ func main() {
 
 	defer s.Close()
 
-	stop := make(chan os.Signal)
+	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
 	log.Println("Gracefully shutdowning")
