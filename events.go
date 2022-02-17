@@ -76,6 +76,7 @@ type ChannelPinsUpdate struct {
 // ThreadCreate is the data for a ThreadCreate event.
 type ThreadCreate struct {
 	*Channel
+	NewlyCreated bool `json:"newly_created"`
 }
 
 // ThreadUpdate is the data for a ThreadUpdate event.
