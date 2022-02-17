@@ -1988,15 +1988,19 @@ func (s *Session) WebhookDeleteWithToken(webhookID, token string) (st *Webhook, 
 	return
 }
 
-// WebhookExecute executes a webhook.
-// webhookID: The ID of a webhook.
-// token    : The auth token for the webhook
-// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
-func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
+func (s *Session) webhookExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams) (st *Message, err error) {
 	uri := EndpointWebhookToken(webhookID, token)
 
+	v := url.Values{}
 	if wait {
-		uri += "?wait=true"
+		v.Set("wait", "true")
+	}
+
+	if threadID != "" {
+		v.Set("thread_id", threadID)
+	}
+	if len(v) != 0 {
+		uri += "?" + v.Encode()
 	}
 
 	var response []byte
@@ -2016,6 +2020,23 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 
 	err = unmarshal(response, &st)
 	return
+}
+
+// WebhookExecute executes a webhook.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook
+// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
+func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *WebhookParams) (st *Message, err error) {
+	return s.webhookExecute(webhookID, token, wait, "", data)
+}
+
+// WebhookThreadExecute executes a webhook in a thread.
+// webhookID: The ID of a webhook.
+// token    : The auth token for the webhook
+// wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
+// threadID :	Sends a message to the specified thread within a webhook's channel. The thread will automatically be unarchived.
+func (s *Session) WebhookThreadExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams) (st *Message, err error) {
+	return s.webhookExecute(webhookID, token, wait, threadID, data)
 }
 
 // WebhookMessage gets a webhook message.
@@ -2161,6 +2182,226 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 	}
 
 	err = unmarshal(body, &st)
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
+// Functions specific to threads
+// ------------------------------------------------------------------------------------------------
+
+// MessageThreadStartComplex creates a new thread from an existing message.
+// channelID : Channel to create thread in
+// messageID : Message to start thread from
+// data : Parameters of the thread
+func (s *Session) MessageThreadStartComplex(channelID, messageID string, data *ThreadStart) (ch *Channel, err error) {
+	endpoint := EndpointChannelMessageThread(channelID, messageID)
+	var body []byte
+	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &ch)
+	return
+}
+
+// MessageThreadStart creates a new thread from an existing message.
+// channelID       : Channel to create thread in
+// messageID       : Message to start thread from
+// name            : Name of the thread
+// archiveDuration : Auto archive duration (in minutes)
+func (s *Session) MessageThreadStart(channelID, messageID string, name string, archiveDuration int) (ch *Channel, err error) {
+	return s.MessageThreadStartComplex(channelID, messageID, &ThreadStart{
+		Name:                name,
+		AutoArchiveDuration: archiveDuration,
+	})
+}
+
+// ThreadStartComplex creates a new thread.
+// channelID : Channel to create thread in
+// data : Parameters of the thread
+func (s *Session) ThreadStartComplex(channelID string, data *ThreadStart) (ch *Channel, err error) {
+	endpoint := EndpointChannelThreads(channelID)
+	var body []byte
+	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &ch)
+	return
+}
+
+// ThreadStart creates a new thread.
+// channelID       : Channel to create thread in
+// name            : Name of the thread
+// archiveDuration : Auto archive duration (in minutes)
+func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDuration int) (ch *Channel, err error) {
+	return s.ThreadStartComplex(channelID, &ThreadStart{
+		Name:                name,
+		Type:                typ,
+		AutoArchiveDuration: archiveDuration,
+	})
+}
+
+// ThreadJoin adds current user to a thread
+func (s *Session) ThreadJoin(id string) error {
+	endpoint := EndpointThreadMember(id, "@me")
+	_, err := s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	return err
+}
+
+// ThreadLeave removes current user to a thread
+func (s *Session) ThreadLeave(id string) error {
+	endpoint := EndpointThreadMember(id, "@me")
+	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return err
+}
+
+// ThreadMemberAdd adds another member to a thread
+func (s *Session) ThreadMemberAdd(threadID, memberID string) error {
+	endpoint := EndpointThreadMember(threadID, memberID)
+	_, err := s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	return err
+}
+
+// ThreadMemberRemove removes another member from a thread
+func (s *Session) ThreadMemberRemove(threadID, memberID string) error {
+	endpoint := EndpointThreadMember(threadID, memberID)
+	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return err
+}
+
+// ThreadMember returns thread member object for the specified member of a thread
+func (s *Session) ThreadMember(threadID, memberID string) (member *ThreadMember, err error) {
+	endpoint := EndpointThreadMember(threadID, memberID)
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &member)
+	return
+}
+
+// ThreadMembers returns all members of specified thread.
+func (s *Session) ThreadMembers(threadID string) (members []*ThreadMember, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointThreadMembers(threadID), nil, EndpointThreadMembers(threadID))
+
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &members)
+	return
+}
+
+// ThreadsActive returns all active threads for specified channel.
+func (s *Session) ThreadsActive(channelID string) (threads *ThreadsList, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointChannelActiveThreads(channelID), nil, EndpointChannelActiveThreads(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+// GuildThreadsActive returns all active threads for specified guild.
+func (s *Session) GuildThreadsActive(guildID string) (threads *ThreadsList, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointGuildActiveThreads(guildID), nil, EndpointGuildActiveThreads(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+// ThreadsArchived returns archived threads for specified channel.
+// before : If specified returns only threads before the timestamp
+// limit  : Optional maximum amount of threads to return.
+func (s *Session) ThreadsArchived(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
+	endpoint := EndpointChannelPublicArchivedThreads(channelID)
+	v := url.Values{}
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		endpoint += "?" + v.Encode()
+	}
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+// ThreadsPrivateArchived returns archived private threads for specified channel.
+// before : If specified returns only threads before the timestamp
+// limit  : Optional maximum amount of threads to return.
+func (s *Session) ThreadsPrivateArchived(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
+	endpoint := EndpointChannelPrivateArchivedThreads(channelID)
+	v := url.Values{}
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		endpoint += "?" + v.Encode()
+	}
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
+	return
+}
+
+// ThreadsPrivateJoinedArchived returns archived joined private threads for specified channel.
+// before : If specified returns only threads before the timestamp
+// limit  : Optional maximum amount of threads to return.
+func (s *Session) ThreadsPrivateJoinedArchived(channelID string, before *time.Time, limit int) (threads *ThreadsList, err error) {
+	endpoint := EndpointChannelJoinedPrivateArchivedThreads(channelID)
+	v := url.Values{}
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		endpoint += "?" + v.Encode()
+	}
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &threads)
 	return
 }
 

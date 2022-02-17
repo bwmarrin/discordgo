@@ -226,13 +226,16 @@ type ChannelType int
 
 // Block contains known ChannelType values
 const (
-	ChannelTypeGuildText     ChannelType = 0
-	ChannelTypeDM            ChannelType = 1
-	ChannelTypeGuildVoice    ChannelType = 2
-	ChannelTypeGroupDM       ChannelType = 3
-	ChannelTypeGuildCategory ChannelType = 4
-	ChannelTypeGuildNews     ChannelType = 5
-	ChannelTypeGuildStore    ChannelType = 6
+	ChannelTypeGuildText          ChannelType = 0
+	ChannelTypeDM                 ChannelType = 1
+	ChannelTypeGuildVoice         ChannelType = 2
+	ChannelTypeGroupDM            ChannelType = 3
+	ChannelTypeGuildCategory      ChannelType = 4
+	ChannelTypeGuildNews          ChannelType = 5
+	ChannelTypeGuildStore         ChannelType = 6
+	ChannelTypeGuildNewsThread    ChannelType = 10
+	ChannelTypeGuildPublicThread  ChannelType = 11
+	ChannelTypeGuildPrivateThread ChannelType = 12
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -261,6 +264,11 @@ type Channel struct {
 	// nil if the channel has no pinned messages.
 	LastPinTimestamp *time.Time `json:"last_pin_timestamp"`
 
+	// An approximate count of messages in a thread, stops counting at 50
+	MessageCount int `json:"message_count"`
+	// An approximate count of users in a thread, stops counting at 50
+	MemberCount int `json:"member_count"`
+
 	// Whether the channel is marked as NSFW.
 	NSFW bool `json:"nsfw"`
 
@@ -286,23 +294,36 @@ type Channel struct {
 	// The user limit of the voice channel.
 	UserLimit int `json:"user_limit"`
 
-	// The ID of the parent channel, if the channel is under a category
+	// The ID of the parent channel, if the channel is under a category. For threads - id of the channel thread was created in.
 	ParentID string `json:"parent_id"`
 
-	// Amount of seconds a user has to wait before sending another message (0-21600)
+	// Amount of seconds a user has to wait before sending another message or creating another thread (0-21600)
 	// bots, as well as users with the permission manage_messages or manage_channel, are unaffected
 	RateLimitPerUser int `json:"rate_limit_per_user"`
 
-	// ID of the DM creator Zeroed if guild channel
+	// ID of the creator of the group DM or thread
 	OwnerID string `json:"owner_id"`
 
 	// ApplicationID of the DM creator Zeroed if guild channel or not a bot user
 	ApplicationID string `json:"application_id"`
+
+	// Thread-specific fields not needed by other channels
+	ThreadMetadata *ThreadMetadata `json:"thread_metadata,omitempty"`
+	// Thread member object for the current user, if they have joined the thread, only included on certain API endpoints
+	Member *ThreadMember `json:"thread_member"`
+
+	// All thread members. State channels only.
+	Members []*ThreadMember `json:"-"`
 }
 
 // Mention returns a string which mentions the channel
 func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
+}
+
+// IsThread is a helper function to determine if channel is a thread or not
+func (c *Channel) IsThread() bool {
+	return c.Type == ChannelTypeGuildPublicThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildNewsThread
 }
 
 // A ChannelEdit holds Channel Field data for a channel edit.
@@ -316,6 +337,13 @@ type ChannelEdit struct {
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             string                 `json:"parent_id,omitempty"`
 	RateLimitPerUser     int                    `json:"rate_limit_per_user,omitempty"`
+
+	// NOTE: threads only
+
+	Archived            bool `json:"archived,omitempty"`
+	AutoArchiveDuration int  `json:"auto_archive_duration,omitempty"`
+	Locked              bool `json:"locked,bool"`
+	Invitable           bool `json:"invitable,omitempty"`
 }
 
 // A ChannelFollow holds data returned after following a news channel
@@ -340,6 +368,56 @@ type PermissionOverwrite struct {
 	Type  PermissionOverwriteType `json:"type"`
 	Deny  int64                   `json:"deny,string"`
 	Allow int64                   `json:"allow,string"`
+}
+
+// ThreadStart stores all parameters you can use with MessageThreadStartComplex or ThreadStartComplex
+type ThreadStart struct {
+	Name                string      `json:"name"`
+	AutoArchiveDuration int         `json:"auto_archive_duration,omitempty"`
+	Type                ChannelType `json:"type,omitempty"`
+	Invitable           bool        `json:"invitable"`
+	RateLimitPerUser    int         `json:"rate_limit_per_user,omitempty"`
+}
+
+// ThreadMetadata contains a number of thread-specific channel fields that are not needed by other channel types.
+type ThreadMetadata struct {
+	// Whether the thread is archived
+	Archived bool `json:"archived"`
+	// Duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
+	AutoArchiveDuration int `json:"auto_archive_duration"`
+	// Timestamp when the thread's archive status was last changed, used for calculating recent activity
+	ArchiveTimestamp time.Time `json:"archive_timestamp"`
+	// Whether the thread is locked; when a thread is locked, only users with MANAGE_THREADS can unarchive it
+	Locked bool `json:"locked"`
+	// Whether non-moderators can add other non-moderators to a thread; only available on private threads
+	Invitable bool `json:"invitable"`
+}
+
+// ThreadMember is used to indicate whether a user has joined a thread or not.
+// NOTE: ID and UserID are empty (omitted) on the member sent within each thread in the GUILD_CREATE event.
+type ThreadMember struct {
+	// The id of the thread
+	ID string `json:"id,omitempty"`
+	// The id of the user
+	UserID string `json:"user_id,omitempty"`
+	// The time the current user last joined the thread
+	JoinTimestamp time.Time `json:"join_timestamp"`
+	// Any user-thread settings, currently only used for notifications
+	Flags int
+}
+
+// ThreadsList represents a list of threads alongisde with thread member objects for the current user.
+type ThreadsList struct {
+	Threads []*Channel      `json:"threads"`
+	Members []*ThreadMember `json:"members"`
+	HasMore bool            `json:"has_more"`
+}
+
+// AddedThreadMember holds information about the user who was added to the thread
+type AddedThreadMember struct {
+	*ThreadMember
+	Member   *Member   `json:"member"`
+	Presence *Presence `json:"presence"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -506,6 +584,11 @@ type Guild struct {
 	// This field is only present in GUILD_CREATE events and websocket
 	// update events, and thus is only present in state-cached guilds.
 	Channels []*Channel `json:"channels"`
+
+	// A list of all active threads in the guild that current user has permission to view
+	// This field is only present in GUILD_CREATE events and websocket
+	// update events and thus is only present in state-cached guilds.
+	Threads []*Channel `json:"threads"`
 
 	// A list of voice states for the guild.
 	// This field is only present in GUILD_CREATE events and websocket
@@ -1367,16 +1450,20 @@ type IdentifyProperties struct {
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
-	PermissionReadMessages       = 0x0000000000000400
-	PermissionSendMessages       = 0x0000000000000800
-	PermissionSendTTSMessages    = 0x0000000000001000
-	PermissionManageMessages     = 0x0000000000002000
-	PermissionEmbedLinks         = 0x0000000000004000
-	PermissionAttachFiles        = 0x0000000000008000
-	PermissionReadMessageHistory = 0x0000000000010000
-	PermissionMentionEveryone    = 0x0000000000020000
-	PermissionUseExternalEmojis  = 0x0000000000040000
-	PermissionUseSlashCommands   = 0x0000000080000000
+	PermissionReadMessages          = 0x0000000000000400
+	PermissionSendMessages          = 0x0000000000000800
+	PermissionSendTTSMessages       = 0x0000000000001000
+	PermissionManageMessages        = 0x0000000000002000
+	PermissionEmbedLinks            = 0x0000000000004000
+	PermissionAttachFiles           = 0x0000000000008000
+	PermissionReadMessageHistory    = 0x0000000000010000
+	PermissionMentionEveryone       = 0x0000000000020000
+	PermissionUseExternalEmojis     = 0x0000000000040000
+	PermissionUseSlashCommands      = 0x0000000080000000
+	PermissionManageThreads         = 0x0000000400000000
+	PermissionCreatePublicThreads   = 0x0000000800000000
+	PermissionCreatePrivateThreads  = 0x0000001000000000
+	PermissionSendMessagesInThreads = 0x0000004000000000
 )
 
 // Constants for the different bit offsets of voice permissions
