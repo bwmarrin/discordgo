@@ -801,10 +801,6 @@ func (s *State) MessageAdd(message *Message) error {
 		c.Messages = c.Messages[len(c.Messages)-s.MaxMessageCount:]
 	}
 
-	if c.IsThread() {
-		c.LastMessageID = message.ID
-	}
-
 	return nil
 }
 
@@ -829,12 +825,8 @@ func (s *State) messageRemoveByID(channelID, messageID string) error {
 
 	for i, m := range c.Messages {
 		if m.ID == messageID {
-			if c.IsThread() {
-				if i == len(c.Messages)-1 && len(c.Messages) > 0 {
-					c.LastMessageID = c.Messages[i-1].ID
-				}
-			}
 			c.Messages = append(c.Messages[:i], c.Messages[i+1:]...)
+
 			return nil
 		}
 	}
