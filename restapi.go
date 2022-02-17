@@ -2189,11 +2189,11 @@ func (s *Session) MessageReactions(channelID, messageID, emojiID string, limit i
 // Functions specific to threads
 // ------------------------------------------------------------------------------------------------
 
-// StartMessageThreadComplex creates a new thread from an existing message.
+// MessageThreadStartComplex creates a new thread from an existing message.
 // channelID : Channel to create thread in
 // messageID : Message to start thread from
 // data : Parameters of the thread
-func (s *Session) StartMessageThreadComplex(channelID, messageID string, data *ThreadStart) (ch *Channel, err error) {
+func (s *Session) MessageThreadStartComplex(channelID, messageID string, data *ThreadStart) (ch *Channel, err error) {
 	endpoint := EndpointChannelMessageThread(channelID, messageID)
 	var body []byte
 	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
@@ -2211,16 +2211,16 @@ func (s *Session) StartMessageThreadComplex(channelID, messageID string, data *T
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
 func (s *Session) MessageThreadStart(channelID, messageID string, name string, archiveDuration int) (ch *Channel, err error) {
-	return s.StartMessageThreadComplex(channelID, messageID, &ThreadStart{
+	return s.MessageThreadStartComplex(channelID, messageID, &ThreadStart{
 		Name:                name,
 		AutoArchiveDuration: archiveDuration,
 	})
 }
 
-// ThreadComplexStart creates a new thread.
+// ThreadStartComplex creates a new thread.
 // channelID : Channel to create thread in
 // data : Parameters of the thread
-func (s *Session) ThreadComplexStart(channelID string, data *ThreadStart) (ch *Channel, err error) {
+func (s *Session) ThreadStartComplex(channelID string, data *ThreadStart) (ch *Channel, err error) {
 	endpoint := EndpointChannelThreads(channelID)
 	var body []byte
 	body, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
@@ -2237,7 +2237,7 @@ func (s *Session) ThreadComplexStart(channelID string, data *ThreadStart) (ch *C
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
 func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDuration int) (ch *Channel, err error) {
-	return s.ThreadComplexStart(channelID, &ThreadStart{
+	return s.ThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,
 		Type:                typ,
 		AutoArchiveDuration: archiveDuration,

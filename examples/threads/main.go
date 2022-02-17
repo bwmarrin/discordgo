@@ -30,7 +30,7 @@ func main() {
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if strings.Contains(m.Content, "ping") {
 			if ch, err := s.State.Channel(m.ChannelID); err != nil || !ch.IsThread() {
-				thread, err := s.StartMessageThreadComplex(m.ChannelID, m.ID, &discordgo.ThreadStart{
+				thread, err := s.MessageThreadStartComplex(m.ChannelID, m.ID, &discordgo.ThreadStart{
 					Name:                "Pong game with " + m.Author.Username,
 					AutoArchiveDuration: 60,
 					Invitable:           false,

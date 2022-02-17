@@ -370,7 +370,7 @@ type PermissionOverwrite struct {
 	Allow int64                   `json:"allow,string"`
 }
 
-// ThreadStart stores all parameters you can use with StartMessageThreadComplex or StartThreadComplex
+// ThreadStart stores all parameters you can use with MessageThreadStartComplex or ThreadStartComplex
 type ThreadStart struct {
 	Name                string      `json:"name"`
 	AutoArchiveDuration int         `json:"auto_archive_duration,omitempty"`
