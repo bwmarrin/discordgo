@@ -139,11 +139,11 @@ type Message struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
-  
+
 	// The thread that was started from this message, includes thread member object
 	Thread *Channel `json:"thread,omitempty"`
-	
-  // An array of Sticker objects, if any were sent.
+
+	// An array of Sticker objects, if any were sent.
 	StickerItems []*Sticker `json:"sticker_items"`
 }
 
