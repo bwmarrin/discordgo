@@ -49,6 +49,8 @@ var (
 	EndpointUser               = func(uID string) string { return EndpointUsers + uID }
 	EndpointUserAvatar         = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".png" }
 	EndpointUserAvatarAnimated = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".gif" }
+	EndpointUserBanner         = func(uID, hash string) string { return EndpointCDNBanners + uID + "/" + hash + ".png" }
+	EndpointUserBannerAnimated = func(uID, hash string) string { return EndpointCDNBanners + uID + "/" + hash + ".gif" }
 	EndpointDefaultUserAvatar  = func(uDiscriminator string) string {
 		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
 		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
@@ -82,6 +84,7 @@ var (
 	EndpointGuildEmojis       = func(gID string) string { return EndpointGuilds + gID + "/emojis" }
 	EndpointGuildEmoji        = func(gID, eID string) string { return EndpointGuilds + gID + "/emojis/" + eID }
 	EndpointGuildBanner       = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
+	EndpointGuildBannerAnimated = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".gif" }
 	EndpointGuildStickers     = func(gID string) string { return EndpointGuilds + gID + "/stickers" }
 	EndpointGuildSticker      = func(gID, sID string) string { return EndpointGuilds + gID + "/stickers/" + sID }
 

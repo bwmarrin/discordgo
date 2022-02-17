@@ -57,6 +57,7 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
+	ApplicationCommandOptionNumber          ApplicationCommandOptionType = 10
 	ApplicationCommandOptionAttachment      ApplicationCommandOptionType = 11
 )
 
@@ -80,6 +81,8 @@ func (t ApplicationCommandOptionType) String() string {
 		return "Role"
 	case ApplicationCommandOptionMentionable:
 		return "Mentionable"
+	case ApplicationCommandOptionNumber:
+		return "Number"
 	case ApplicationCommandOptionAttachment:
 		return "Attachment"
 	}
@@ -97,6 +100,11 @@ type ApplicationCommandOption struct {
 	ChannelTypes []ChannelType               `json:"channel_types"`
 	Required     bool                        `json:"required"`
 	Options      []*ApplicationCommandOption `json:"options"`
+
+	// The min acceptable value, int for type ApplicationCommandOptionTypeInteger and float for type ApplicationCommandOptionTypeNumber
+	MinValue interface{} `json:"min_value,omitempty"`
+	// The max acceptable value, int for type ApplicationCommandOptionTypeInteger and float for type ApplicationCommandOptionTypeNumber
+	MaxValue interface{} `json:"max_value,omitempty"`
 
 	// NOTE: mutually exclusive with Choices.
 	Autocomplete bool                              `json:"autocomplete"`
@@ -376,12 +384,15 @@ func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 
 // FloatValue is a utility function for casting option value to float
 func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
-	// TODO: limit calls to Number type once it is released
+	if o.Type != ApplicationCommandOptionNumber {
+		panic("FloatValue called on data option of type " + o.Type.String())
+	}
+
 	if v, ok := o.Value.(float64); ok {
 		return v
 	}
 
-	return 0.0
+	return 0
 }
 
 // StringValue is a utility function for casting option value to string
