@@ -419,13 +419,13 @@ type Sticker struct {
 
 // StickerPack represents a pack of standard stickers.
 type StickerPack struct {
-	ID             string    `json:"id"`
-	Stickers       []Sticker `json:"stickers"`
-	Name           string    `json:"name"`
-	SKUID          string    `json:"sku_id"`
-	CoverStickerID string    `json:"cover_sticker_id"`
-	Description    string    `json:"description"`
-	BannerAssetID  string    `json:"banner_asset_id"`
+	ID             string     `json:"id"`
+	Stickers       []*Sticker `json:"stickers"`
+	Name           string     `json:"name"`
+	SKUID          string     `json:"sku_id"`
+	CoverStickerID string     `json:"cover_sticker_id"`
+	Description    string     `json:"description"`
+	BannerAssetID  string     `json:"banner_asset_id"`
 }
 
 // VerificationLevel type definition
