@@ -711,9 +711,9 @@ type GuildScheduledEvent struct {
 	// The description of the scheduled event (1-1000 characters)
 	Description string `json:"description"`
 	// The time the scheduled event will start
-	ScheduledStartTime Timestamp `json:"scheduled_start_time"`
+	ScheduledStartTime time.Time `json:"scheduled_start_time"`
 	// The time the scheduled event will end, required if entity_type is EXTERNAL
-	ScheduledEndTime Timestamp `json:"scheduled_end_time"`
+	ScheduledEndTime time.Time `json:"scheduled_end_time"`
 	// The privacy level of the scheduled event
 	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level"`
 	// The status of the scheduled event
@@ -729,6 +729,10 @@ type GuildScheduledEvent struct {
 	Creator *User `json:"creator"`
 	// The number of users subscribed to the scheduled event
 	UserCount int `json:"user_count"`
+	// The cover image hash of the scheduled event
+	// @see https://discord.com/developers/docs/reference#image-formatting for more
+	// information about image formatting
+	Image string `json:"image"`
 }
 
 type GuildScheduledEventEntityMetadata struct {

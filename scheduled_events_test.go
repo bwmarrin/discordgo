@@ -9,8 +9,8 @@ func TestScheduledsEvents(t *testing.T) {
 	event, err := dgBot.GuildScheduledEventCreate(envGuild, &GuildScheduledEvent{
 		Name:               "Test Event",
 		PrivacyLevel:       GuildScheduledEventPrivacyLevelGuildOnly,
-		ScheduledStartTime: Timestamp(time.Now().Add(1 * time.Hour).Format(time.RFC3339)),
-		ScheduledEndTime:   Timestamp(time.Now().Add(2 * time.Hour).Format(time.RFC3339)),
+		ScheduledStartTime: time.Now().Add(1 * time.Hour),
+		ScheduledEndTime:   time.Now().Add(2 * time.Hour),
 		Description:        "Awesome Test Event created on livestream",
 		EntityType:         GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: GuildScheduledEventEntityMetadata{
@@ -21,7 +21,7 @@ func TestScheduledsEvents(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	events, err := dgBot.GuildScheduledEvents(envGuild)
+	events, err := dgBot.GuildScheduledEvents(envGuild, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestScheduledsEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventUpdate endpoint. Scheduled Event Name mismatch")
 	}
 
-	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID)
+	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 0, true, "", "")
 	if err != nil {
 		t.Fatal(err)
 	}
