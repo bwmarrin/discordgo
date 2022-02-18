@@ -14,6 +14,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // MessageType is the type of Message
@@ -37,8 +38,10 @@ const (
 	MessageTypeChannelFollowAdd                      MessageType = 12
 	MessageTypeGuildDiscoveryDisqualified            MessageType = 14
 	MessageTypeGuildDiscoveryRequalified             MessageType = 15
+	MessageTypeThreadCreated                         MessageType = 18
 	MessageTypeReply                                 MessageType = 19
 	MessageTypeChatInputCommand                      MessageType = 20
+	MessageTypeThreadStarterMessage                  MessageType = 21
 	MessageTypeContextMenuCommand                    MessageType = 23
 )
 
@@ -60,11 +63,11 @@ type Message struct {
 	// CAUTION: this field may be removed in a
 	// future API version; it is safer to calculate
 	// the creation time via the ID.
-	Timestamp Timestamp `json:"timestamp"`
+	Timestamp time.Time `json:"timestamp"`
 
 	// The time at which the last edit of the message
 	// occurred, if it has been edited.
-	EditedTimestamp Timestamp `json:"edited_timestamp"`
+	EditedTimestamp *time.Time `json:"edited_timestamp"`
 
 	// The roles mentioned in the message.
 	MentionRoles []string `json:"mention_roles"`
@@ -125,10 +128,23 @@ type Message struct {
 	// To generate a reference to this message, use (*Message).Reference().
 	MessageReference *MessageReference `json:"message_reference"`
 
+	// The message associated with the message_reference
+	// NOTE: This field is only returned for messages with a type of 19 (REPLY) or 21 (THREAD_STARTER_MESSAGE).
+	// If the message is a reply but the referenced_message field is not present,
+	// the backend did not attempt to fetch the message that was being replied to, so its state is unknown.
+	// If the field exists but is null, the referenced message was deleted.
+	ReferencedMessage *Message `json:"referenced_message"`
+
 	// The flags of the message, which describe extra features of a message.
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags MessageFlags `json:"flags"`
+
+	// The thread that was started from this message, includes thread member object
+	Thread *Channel `json:"thread,omitempty"`
+
+	// An array of Sticker objects, if any were sent.
+	StickerItems []*Sticker `json:"sticker_items"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
@@ -174,11 +190,24 @@ type MessageFlags int
 
 // Valid MessageFlags values
 const (
-	MessageFlagsCrossPosted          MessageFlags = 1 << 0
-	MessageFlagsIsCrossPosted        MessageFlags = 1 << 1
-	MessageFlagsSupressEmbeds        MessageFlags = 1 << 2
+	// MessageFlagsCrossPosted This message has been published to subscribed channels (via Channel Following).
+	MessageFlagsCrossPosted MessageFlags = 1 << 0
+	// MessageFlagsIsCrossPosted this message originated from a message in another channel (via Channel Following).
+	MessageFlagsIsCrossPosted MessageFlags = 1 << 1
+	// MessageFlagsSupressEmbeds do not include any embeds when serializing this message.
+	MessageFlagsSupressEmbeds MessageFlags = 1 << 2
+	// MessageFlagsSourceMessageDeleted the source message for this crosspost has been deleted (via Channel Following).
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
-	MessageFlagsUrgent               MessageFlags = 1 << 4
+	// MessageFlagsUrgent this message came from the urgent message system.
+	MessageFlagsUrgent MessageFlags = 1 << 4
+	// MessageFlagsHasThread this message has an associated thread, with the same id as the message.
+	MessageFlagsHasThread MessageFlags = 1 << 5
+	// MessageFlagsEphemeral this message is only visible to the user who invoked the Interaction.
+	MessageFlagsEphemeral MessageFlags = 1 << 6
+	// MessageFlagsLoading this message is an Interaction Response and the bot is "thinking".
+	MessageFlagsLoading MessageFlags = 1 << 7
+	// MessageFlagsFailedToMentionSomeRolesInThread this message failed to mention some roles and add their members to the thread.
+	MessageFlagsFailedToMentionSomeRolesInThread MessageFlags = 1 << 8
 )
 
 // File stores info about files you e.g. send in messages.
@@ -186,6 +215,51 @@ type File struct {
 	Name        string
 	ContentType string
 	Reader      io.Reader
+}
+
+// StickerFormat is the file format of the Sticker.
+type StickerFormat int
+
+// Defines all known Sticker types.
+const (
+	StickerFormatTypePNG    StickerFormat = 1
+	StickerFormatTypeAPNG   StickerFormat = 2
+	StickerFormatTypeLottie StickerFormat = 3
+)
+
+// StickerType is the type of sticker.
+type StickerType int
+
+// Defines Sticker types.
+const (
+	StickerTypeStandard StickerType = 1
+	StickerTypeGuild    StickerType = 2
+)
+
+// Sticker represents a sticker object that can be sent in a Message.
+type Sticker struct {
+	ID          string        `json:"id"`
+	PackID      string        `json:"pack_id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Tags        string        `json:"tags"`
+	Type        StickerType   `json:"type"`
+	FormatType  StickerFormat `json:"format_type"`
+	Available   bool          `json:"available"`
+	GuildID     string        `json:"guild_id"`
+	User        *User         `json:"user"`
+	SortValue   int           `json:"sort_value"`
+}
+
+// StickerPack represents a pack of standard stickers.
+type StickerPack struct {
+	ID             string    `json:"id"`
+	Stickers       []Sticker `json:"stickers"`
+	Name           string    `json:"name"`
+	SKUID          string    `json:"sku_id"`
+	CoverStickerID string    `json:"cover_sticker_id"`
+	Description    string    `json:"description"`
+	BannerAssetID  string    `json:"banner_asset_id"`
 }
 
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
