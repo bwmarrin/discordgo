@@ -6,6 +6,10 @@ import (
 )
 
 func TestScheduledsEvents(t *testing.T) {
+	if dgBot == nil {
+		t.Skip("Skipping, dgBot not set.")
+	}
+
 	event, err := dgBot.GuildScheduledEventCreate(envGuild, &GuildScheduledEvent{
 		Name:               "Test Event",
 		PrivacyLevel:       GuildScheduledEventPrivacyLevelGuildOnly,
