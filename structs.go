@@ -695,7 +695,7 @@ type GuildPreview struct {
 	Description string `json:"description"`
 }
 
-// A representation of a scheduled event in a guild.
+// GuildScheduledEvent is a representation of a scheduled event in a guild.
 // https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event
 type GuildScheduledEvent struct {
 	// The ID of the scheduled event
@@ -735,22 +735,24 @@ type GuildScheduledEvent struct {
 	Image string `json:"image"`
 }
 
+// GuildScheduledEventEntityMetadata holds additional metadata for a guild scheduled event.
 type GuildScheduledEventEntityMetadata struct {
 	// location of the event (1-100 characters)
 	// required for events with 'entity_type': EXTERNAL
 	Location string `json:"location"`
 }
 
-// Guild Scheduled Event Privacy Level
+// GuildScheduledEventPrivacyLevel is the privacy level of a scheduled event.
 // https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level
 type GuildScheduledEventPrivacyLevel int
 
 const (
-	// The scheduled event is only accessible to guild members
+	// GuildScheduledEventPrivacyLevelGuildOnly represents the scheduled
+	// event is only accessible to guild members
 	GuildScheduledEventPrivacyLevelGuildOnly GuildScheduledEventPrivacyLevel = 2
 )
 
-// Guild Scheduled Event Status
+// GuildScheduledEventStatus is the status of a scheduled event
 // Valid Guild Scheduled Event Status Transitions :
 // SCHEDULED --> ACTIVE --> COMPLETED
 // SCHEDULED --> CANCELED
@@ -758,23 +760,30 @@ const (
 type GuildScheduledEventStatus int
 
 const (
+	// GuildScheduledEventStatusScheduled represents the current event is in scheduled state
 	GuildScheduledEventStatusScheduled = 1
-	GuildScheduledEventStatusActive    = 2
+	// GuildScheduledEventStatusActive represents the current event is in active state
+	GuildScheduledEventStatusActive = 2
+	// GuildScheduledEventStatusCompleted represents the current event is in completed state
 	GuildScheduledEventStatusCompleted = 3
-	GuildScheduledEventStatusCanceled  = 4
+	// GuildScheduledEventStatusCanceled represents the current event is in canceled state
+	GuildScheduledEventStatusCanceled = 4
 )
 
-// Guild Scheduled Event Entity Types
+// GuildScheduledEventEntityType is the type of entity associated with a guild scheduled event.
 // https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types
 type GuildScheduledEventEntityType int
 
 const (
+	// GuildScheduledEventEntityTypeStageInstance represents a stage channel
 	GuildScheduledEventEntityTypeStageInstance = 1
-	GuildScheduledEventEntityTypeVoice         = 2
-	GuildScheduledEventEntityTypeExternal      = 3
+	// GuildScheduledEventEntityTypeVoice represents a voice channel
+	GuildScheduledEventEntityTypeVoice = 2
+	// GuildScheduledEventEntityTypeExternal represents an external event
+	GuildScheduledEventEntityTypeExternal = 3
 )
 
-// Guild Scheduled Event User Object
+// GuildScheduledEventUser is a user subscribed to a scheduled event.
 // https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-user-object
 type GuildScheduledEventUser struct {
 	GuildScheduledEventID string  `json:"guild_scheduled_event_id"`
