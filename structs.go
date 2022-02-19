@@ -925,7 +925,7 @@ type Member struct {
 	// Whether the member is muted at a guild level.
 	Mute bool `json:"mute"`
 
-	// The avatar of the member for the guild, if any.
+	// The hash of the avatar for the guild member, if any.
 	Avatar string `json:"avatar"`
 
 	// The underlying user on which the member is based.
