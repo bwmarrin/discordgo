@@ -1268,8 +1268,8 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string) (err error) {
 	return
 }
 
-// GuildTemplate returns a guild template for the given code
-// templateCode: code of guild template to retrieve
+// GuildTemplate returns a GuildTemplate for the given code
+// templateCode: The Code of a GuildTemplate
 func (s *Session) GuildTemplate(templateCode string) (st *GuildTemplate, err error) {
 
 	body, err := s.RequestWithBucketID("GET", EndpointGuildTemplate(templateCode), nil, EndpointGuildTemplate(templateCode))
@@ -1281,14 +1281,16 @@ func (s *Session) GuildTemplate(templateCode string) (st *GuildTemplate, err err
 	return
 }
 
-// GuildCreateWithTemplate creates a guild based on the specified guild template
-// templateCode: code of guild template to use
+// GuildCreateWithTemplate creates a guild based on a GuildTemplate
+// templateCode: The Code of a GuildTemplate
 // name: The name of the guild (2-100) characters
-func (s *Session) GuildCreateWithTemplate(templateCode, name string) (st *Guild, err error) {
+// icon: base64 encoded 128x128 image for the guild icon
+func (s *Session) GuildCreateWithTemplate(templateCode, name, icon string) (st *Guild, err error) {
 
 	data := struct {
 		Name string `json:"name"`
-	}{name}
+		Icon string `json:"icon"`
+	}{name, icon}
 
 	body, err := s.RequestWithBucketID("POST", EndpointGuildTemplate(templateCode), data, EndpointGuildTemplate(templateCode))
 	if err != nil {
@@ -1299,7 +1301,7 @@ func (s *Session) GuildCreateWithTemplate(templateCode, name string) (st *Guild,
 	return
 }
 
-// GuildTemplates returns all of guild templates
+// GuildTemplates returns all of GuildTemplates
 // guildID: The ID of the guild
 func (s *Session) GuildTemplates(guildID string) (st []*GuildTemplate, err error) {
 
@@ -1315,7 +1317,7 @@ func (s *Session) GuildTemplates(guildID string) (st []*GuildTemplate, err error
 // GuildTemplateCreate creates a template for the guild
 // guildID: The ID of the guild
 // name: The name of the template (1-100 characters)
-// description: The description of the template (0-120 characters)
+// description: The description for the template (0-120 characters)
 func (s *Session) GuildTemplateCreate(guildID, name, description string) (st *GuildTemplate) {
 
 	data := struct {
@@ -1345,7 +1347,7 @@ func (s *Session) GuildTemplateSync(guildID, templateCode string) (err error) {
 // guildID: The ID of the guild
 // templateCode: The code of the template
 // name: The name of the template (1-100 characters)
-// description: The description of the template (0-120 characters)
+// description: The description for the template (0-120 characters)
 func (s *Session) GuildTemplateEdit(guildID, templateCode, name, description string) (st *GuildTemplate, err error) {
 
 	data := struct {
