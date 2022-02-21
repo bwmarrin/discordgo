@@ -180,6 +180,7 @@ type SelectMenu struct {
 	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
 	MaxValues int                `json:"max_values,omitempty"`
 	Options   []SelectMenuOption `json:"options"`
+	Disabled  bool               `json:"disabled"`
 }
 
 // Type is a method to get the type of a component.
