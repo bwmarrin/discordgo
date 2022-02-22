@@ -751,9 +751,9 @@ type GuildScheduledEvent struct {
 	// The guild id which the scheduled event belongs to
 	GuildID string `json:"guild_id"`
 	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
-	ChannelID *string `json:"channel_id"`
+	ChannelID string `json:"channel_id"`
 	// The id of the user that created the scheduled event
-	CreatorID *string `json:"creator_id"`
+	CreatorID string `json:"creator_id"`
 	// The name of the scheduled event (1-100 characters)
 	Name string `json:"name"`
 	// The description of the scheduled event (1-1000 characters)
