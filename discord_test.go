@@ -239,7 +239,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventUpdate endpoint. Scheduled Event Name mismatch")
 	}
 
-	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 0, true, "", "")
+	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 1, true, "1", "1")
 	if err != nil {
 		t.Fatal(err)
 	}
