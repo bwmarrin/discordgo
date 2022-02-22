@@ -17,10 +17,6 @@ var (
 	BotToken = flag.String("token", "", "Bot token")
 )
 
-const timeout time.Duration = time.Second * 10
-
-var games map[string]time.Time = make(map[string]time.Time)
-
 func main() {
 	flag.Parse()
 	s, _ := discordgo.New("Bot " + *BotToken)
