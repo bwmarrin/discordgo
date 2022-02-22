@@ -743,7 +743,7 @@ type GuildPreview struct {
 	Description string `json:"description"`
 }
 
-// GuildScheduledEvent is a representation of a scheduled event in a guild.
+// GuildScheduledEvent is a representation of a scheduled event in a guild. Only for retrieval of the data.
 // https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event
 type GuildScheduledEvent struct {
 	// The ID of the scheduled event
@@ -752,7 +752,7 @@ type GuildScheduledEvent struct {
 	GuildID string `json:"guild_id"`
 	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
 	ChannelID *string `json:"channel_id"`
-	// the id of the user that created the scheduled event
+	// The id of the user that created the scheduled event
 	CreatorID *string `json:"creator_id"`
 	// The name of the scheduled event (1-100 characters)
 	Name string `json:"name"`
@@ -760,8 +760,8 @@ type GuildScheduledEvent struct {
 	Description string `json:"description"`
 	// The time the scheduled event will start
 	ScheduledStartTime time.Time `json:"scheduled_start_time"`
-	// The time the scheduled event will end, required if entity_type is EXTERNAL
-	ScheduledEndTime time.Time `json:"scheduled_end_time"`
+	// The time the scheduled event will end, required only when entity_type is EXTERNAL
+	ScheduledEndTime *time.Time `json:"scheduled_end_time"`
 	// The privacy level of the scheduled event
 	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level"`
 	// The status of the scheduled event
@@ -778,7 +778,34 @@ type GuildScheduledEvent struct {
 	// The number of users subscribed to the scheduled event
 	UserCount int `json:"user_count"`
 	// The cover image hash of the scheduled event
-	// @see https://discord.com/developers/docs/reference#image-formatting for more
+	// see https://discord.com/developers/docs/reference#image-formatting for more
+	// information about image formatting
+	Image string `json:"image"`
+}
+
+// GuildScheduledEventParams are the parameters allowed for creating a new scheduled event.
+// or updating an existing scheduled event.
+// https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event
+type GuildScheduledEventParams struct {
+	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
+	ChannelID string `json:"channel_id,omitempty"`
+	// The name of the scheduled event (1-100 characters)
+	Name string `json:"name,omitempty"`
+	// The description of the scheduled event (1-1000 characters)
+	Description string `json:"description,omitempty"`
+	// The time the scheduled event will start
+	ScheduledStartTime *time.Time `json:"scheduled_start_time,omitempty"`
+	// The time the scheduled event will end, required only when entity_type is EXTERNAL
+	ScheduledEndTime *time.Time `json:"scheduled_end_time,omitempty"`
+	// The privacy level of the scheduled event
+	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level,omitempty"`
+	// See the requirement fields
+	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
+	EntityType GuildScheduledEventEntityType `json:"entity_type,omitempty"`
+	// Additional metadata for the guild scheduled event
+	EntityMetadata *GuildScheduledEventEntityMetadata `json:"entity_metadata,omitempty"`
+	// The cover image hash of the scheduled event
+	// see https://discord.com/developers/docs/reference#image-formatting for more
 	// information about image formatting
 	Image string `json:"image"`
 }

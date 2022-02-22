@@ -183,3 +183,72 @@ func TestRemoveHandler(t *testing.T) {
 		t.Fatalf("testHandler was not called once.")
 	}
 }
+
+func TestScheduledEvents(t *testing.T) {
+	if dgBot == nil {
+		t.Skip("Skipping, dgBot not set.")
+	}
+
+	beginAt := time.Now().Add(1 * time.Hour)
+	endAt := time.Now().Add(2 * time.Hour)
+	event, err := dgBot.GuildScheduledEventCreate(envGuild, &GuildScheduledEventParams{
+		Name:               "Test Event",
+		PrivacyLevel:       GuildScheduledEventPrivacyLevelGuildOnly,
+		ScheduledStartTime: &beginAt,
+		ScheduledEndTime:   &endAt,
+		Description:        "Awesome Test Event created on livestream",
+		EntityType:         GuildScheduledEventEntityTypeExternal,
+		EntityMetadata: &GuildScheduledEventEntityMetadata{
+			Location: "https://discord.com",
+		},
+	})
+	if err != nil || event.Name != "Test Event" {
+		t.Fatal(err)
+	}
+
+	events, err := dgBot.GuildScheduledEvents(envGuild, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var foundEvent *GuildScheduledEvent
+	for _, e := range events {
+		if e.ID == event.ID {
+			foundEvent = e
+			break
+		}
+	}
+	if foundEvent.Name != event.Name {
+		t.Fatal("err on GuildScheduledEvents endpoint. Missing Scheduled Event")
+	}
+
+	getEvent, err := dgBot.GuildScheduledEvent(envGuild, event.ID, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if getEvent.Name != event.Name {
+		t.Fatal("err on GuildScheduledEvent endpoint. Mismatched Scheduled Event")
+	}
+
+	eventUpdated, err := dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{Name: "Test Event Updated"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if eventUpdated.Name != "Test Event Updated" {
+		t.Fatal("err on GuildScheduledEventUpdate endpoint. Scheduled Event Name mismatch")
+	}
+
+	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 0, true, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 0 {
+		t.Fatal("err on GuildScheduledEventUsers. Mismatch of event maybe occured")
+	}
+
+	err = dgBot.GuildScheduledEventDelete(envGuild, event.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
