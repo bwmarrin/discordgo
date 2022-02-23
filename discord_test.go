@@ -15,11 +15,12 @@ var (
 	dg    *Session // Stores a global discordgo user session
 	dgBot *Session // Stores a global discordgo bot session
 
-	envOAuth2Token = os.Getenv("DG_OAUTH2_TOKEN") // Token to use when authenticating using OAuth2 token
-	envBotToken    = os.Getenv("DGB_TOKEN")       // Token to use when authenticating the bot account
-	envGuild       = os.Getenv("DG_GUILD")        // Guild ID to use for tests
-	envChannel     = os.Getenv("DG_CHANNEL")      // Channel ID to use for tests
-	envAdmin       = os.Getenv("DG_ADMIN")        // User ID of admin user to use for tests
+	envOAuth2Token  = os.Getenv("DG_OAUTH2_TOKEN")  // Token to use when authenticating using OAuth2 token
+	envBotToken     = os.Getenv("DGB_TOKEN")        // Token to use when authenticating the bot account
+	envGuild        = os.Getenv("DG_GUILD")         // Guild ID to use for tests
+	envChannel      = os.Getenv("DG_CHANNEL")       // Channel ID to use for tests
+	envVoiceChannel = os.Getenv("DG_VOICE_CHANNEL") // Channel ID to use for tests
+	envAdmin        = os.Getenv("DG_ADMIN")         // User ID of admin user to use for tests
 )
 
 func TestMain(m *testing.M) {
@@ -202,6 +203,8 @@ func TestScheduledEvents(t *testing.T) {
 			Location: "https://discord.com",
 		},
 	})
+	defer dgBot.GuildScheduledEventDelete(envGuild, event.ID)
+
 	if err != nil || event.Name != "Test Event" {
 		t.Fatal(err)
 	}
@@ -250,5 +253,51 @@ func TestScheduledEvents(t *testing.T) {
 	err = dgBot.GuildScheduledEventDelete(envGuild, event.ID)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestComplexScheduledEvents(t *testing.T) {
+	if dgBot == nil {
+		t.Skip("Skipping, dgBot not set.")
+	}
+
+	beginAt := time.Now().Add(1 * time.Hour)
+	endAt := time.Now().Add(2 * time.Hour)
+	event, err := dgBot.GuildScheduledEventCreate(envGuild, &GuildScheduledEventParams{
+		Name:               "Test Voice Event",
+		PrivacyLevel:       GuildScheduledEventPrivacyLevelGuildOnly,
+		ScheduledStartTime: &beginAt,
+		ScheduledEndTime:   &endAt,
+		Description:        "Test event on voice channel",
+		EntityType:         GuildScheduledEventEntityTypeVoice,
+		ChannelID:          NullString(envVoiceChannel),
+	})
+	if err != nil || event.Name != "Test Voice Event" {
+		t.Fatal(err)
+	}
+	defer dgBot.GuildScheduledEventDelete(envGuild, event.ID)
+
+	time.Sleep(4 * time.Second)
+
+	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
+		ChannelID:  NullString("null"),
+		EntityType: GuildScheduledEventEntityTypeExternal,
+		EntityMetadata: &GuildScheduledEventEntityMetadata{
+			Location: "https://discord.com",
+		},
+	})
+
+	if err != nil {
+		t.Fatal("err on GuildScheduledEventEdit. Change of entity type to external failed")
+	}
+
+	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
+		ChannelID:      NullString(envVoiceChannel),
+		EntityType:     GuildScheduledEventEntityTypeVoice,
+		EntityMetadata: nil,
+	})
+
+	if err != nil {
+		t.Fatal("err on GuildScheduledEventEdit. Change of entity type to voice failed")
 	}
 }

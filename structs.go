@@ -788,7 +788,7 @@ type GuildScheduledEvent struct {
 // https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event
 type GuildScheduledEventParams struct {
 	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
-	ChannelID string `json:"channel_id,omitempty"`
+	ChannelID NullableString `json:"channel_id,omitempty"`
 	// The name of the scheduled event (1-100 characters)
 	Name string `json:"name,omitempty"`
 	// The description of the scheduled event (1-1000 characters)
