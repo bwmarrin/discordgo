@@ -13,8 +13,9 @@ import (
 
 // Flags
 var (
-	GuildID  = flag.String("guild", "", "Test guild ID")
-	BotToken = flag.String("token", "", "Bot token")
+	GuildID        = flag.String("guild", "", "Test guild ID")
+	VoiceChannelID = flag.String("voice", "", "Test voice channel ID")
+	BotToken       = flag.String("token", "", "Bot token")
 )
 
 func main() {
@@ -32,7 +33,8 @@ func main() {
 	}
 	defer s.Close()
 
-	createAmazingEvent(s)
+	event := createAmazingEvent(s)
+	transformEventToExternalEvent(s, event)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -42,7 +44,7 @@ func main() {
 }
 
 // Create a new event on guild
-func createAmazingEvent(s *discordgo.Session) {
+func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 	// Define the starting time (must be in future)
 	startingTime := time.Now().Add(1 * time.Hour)
 	// Define the ending time (must be after starting time)
@@ -53,16 +55,33 @@ func createAmazingEvent(s *discordgo.Session) {
 		Description:        "This event will start in 1 hour and last 30 minutes",
 		ScheduledStartTime: &startingTime,
 		ScheduledEndTime:   &endingTime,
-		EntityType:         discordgo.GuildScheduledEventEntityTypeExternal,
-		EntityMetadata: &discordgo.GuildScheduledEventEntityMetadata{
-			Location: "https://discord.com",
-		},
+		EntityType:         discordgo.GuildScheduledEventEntityTypeVoice,
+		// In this case, we are using a NullableString to store the voice channel ID
+		ChannelID:    discordgo.NullString(*VoiceChannelID),
 		PrivacyLevel: discordgo.GuildScheduledEventPrivacyLevelGuildOnly,
 	})
 	if err != nil {
 		log.Printf("Error creating scheduled event: %v", err)
+		return nil
+	}
+
+	fmt.Println("Created scheduled event:", scheduledEvent.Name)
+	return scheduledEvent
+}
+
+func transformEventToExternalEvent(s *discordgo.Session, event *discordgo.GuildScheduledEvent) {
+	scheduledEvent, err := s.GuildScheduledEventEdit(*GuildID, event.ID, &discordgo.GuildScheduledEventParams{
+		Name:       "Amazing Event @ Discord Website",
+		ChannelID:  discordgo.NullString("null"),
+		EntityType: discordgo.GuildScheduledEventEntityTypeExternal,
+		EntityMetadata: &discordgo.GuildScheduledEventEntityMetadata{
+			Location: "https://discord.com",
+		},
+	})
+	if err != nil {
+		log.Printf("Error during transformation of scheduled voice event into external event: %v", err)
 		return
 	}
 
-	fmt.Println("Created scheduled event:", scheduledEvent.Image)
+	fmt.Println("Created scheduled event:", scheduledEvent.Name)
 }
