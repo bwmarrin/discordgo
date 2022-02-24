@@ -197,8 +197,8 @@ type InviteTargetType uint8
 
 // Invite target types
 const (
-	InviteStream             InviteTargetType = 1
-	InviteEmbeddedAppliction InviteTargetType = 2
+	InviteTargetStream             InviteTargetType = 1
+	InviteTargetEmbeddedAppliction InviteTargetType = 2
 )
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
