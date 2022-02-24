@@ -191,35 +191,36 @@ type ICEServer struct {
 	Credential string `json:"credential"`
 }
 
+// InviteTargetType indicates the type of target of an invite
+// https://discord.com/developers/docs/resources/invite#invite-object-invite-target-types
+type InviteTargetType uint8
+
+// Invite target types
+const (
+	InviteStream             InviteTargetType = 1
+	InviteEmbeddedAppliction InviteTargetType = 2
+)
+
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild          *Guild         `json:"guild"`
-	Channel        *Channel       `json:"channel"`
-	Inviter        *User          `json:"inviter"`
-	Code           string         `json:"code"`
-	CreatedAt      time.Time      `json:"created_at"`
-	MaxAge         int            `json:"max_age"`
-	Uses           int            `json:"uses"`
-	MaxUses        int            `json:"max_uses"`
-	Revoked        bool           `json:"revoked"`
-	Temporary      bool           `json:"temporary"`
-	Unique         bool           `json:"unique"`
-	TargetUser     *User          `json:"target_user"`
-	TargetUserType TargetUserType `json:"target_user_type"`
+	Guild          *Guild           `json:"guild"`
+	Channel        *Channel         `json:"channel"`
+	Inviter        *User            `json:"inviter"`
+	Code           string           `json:"code"`
+	CreatedAt      time.Time        `json:"created_at"`
+	MaxAge         int              `json:"max_age"`
+	Uses           int              `json:"uses"`
+	MaxUses        int              `json:"max_uses"`
+	Revoked        bool             `json:"revoked"`
+	Temporary      bool             `json:"temporary"`
+	Unique         bool             `json:"unique"`
+	TargetUser     *User            `json:"target_user"`
+	TargetUserType InviteTargetType `json:"target_type"`
 
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
-
-// TargetUserType is the type of the target user
-// https://discord.com/developers/docs/resources/invite#invite-object-target-user-types
-type TargetUserType int
-
-// Block contains known TargetUserType values
-const (
-	TargetUserTypeStream TargetUserType = 1
-)
 
 // ChannelType is the type of a Channel
 type ChannelType int
