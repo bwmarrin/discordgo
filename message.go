@@ -220,7 +220,7 @@ type File struct {
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
 	Content         string                  `json:"content,omitempty"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds"`
 	TTS             bool                    `json:"tts"`
 	Components      []MessageComponent      `json:"components"`
 	Files           []*File                 `json:"-"`
@@ -239,7 +239,7 @@ type MessageSend struct {
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
 	Components      []MessageComponent      `json:"components"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
 	ID      string
