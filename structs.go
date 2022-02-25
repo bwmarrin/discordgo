@@ -128,6 +128,28 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+// Application stores values for a Discord Application
+type Application struct {
+	ID                  string   `json:"id,omitempty"`
+	Name                string   `json:"name"`
+	Icon                string   `json:"icon,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	RPCOrigins          []string `json:"rpc_origins,omitempty"`
+	BotPublic           bool     `json:"bot_public,omitempty"`
+	BotRequireCodeGrant bool     `json:"bot_require_code_grant,omitempty"`
+	TermsOfServiceURL   string   `json:"terms_of_service_url"`
+	PrivacyProxyURL     string   `json:"privacy_policy_url"`
+	Owner               *User    `json:"owner"`
+	Summary             string   `json:"summary"`
+	VerifyKey           string   `json:"verify_key"`
+	Team                *Team    `json:"team"`
+	GuildID             string   `json:"guild_id"`
+	PrimarySKUID        string   `json:"primary_sku_id"`
+	Slug                string   `json:"slug"`
+	CoverImage          string   `json:"cover_image"`
+	Flags               int      `json:"flags,omitempty"`
+}
+
 // UserConnection is a Connection returned from the UserConnections endpoint
 type UserConnection struct {
 	ID           string         `json:"id"`
@@ -203,19 +225,20 @@ const (
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild          *Guild           `json:"guild"`
-	Channel        *Channel         `json:"channel"`
-	Inviter        *User            `json:"inviter"`
-	Code           string           `json:"code"`
-	CreatedAt      time.Time        `json:"created_at"`
-	MaxAge         int              `json:"max_age"`
-	Uses           int              `json:"uses"`
-	MaxUses        int              `json:"max_uses"`
-	Revoked        bool             `json:"revoked"`
-	Temporary      bool             `json:"temporary"`
-	Unique         bool             `json:"unique"`
-	TargetUser     *User            `json:"target_user"`
-	TargetUserType InviteTargetType `json:"target_type"`
+	Guild             *Guild           `json:"guild"`
+	Channel           *Channel         `json:"channel"`
+	Inviter           *User            `json:"inviter"`
+	Code              string           `json:"code"`
+	CreatedAt         time.Time        `json:"created_at"`
+	MaxAge            int              `json:"max_age"`
+	Uses              int              `json:"uses"`
+	MaxUses           int              `json:"max_uses"`
+	Revoked           bool             `json:"revoked"`
+	Temporary         bool             `json:"temporary"`
+	Unique            bool             `json:"unique"`
+	TargetUser        *User            `json:"target_user"`
+	TargetType        InviteTargetType `json:"target_type"`
+	TargetApplication *Application     `json:"target_application"`
 
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
