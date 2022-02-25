@@ -121,7 +121,7 @@ type Message struct {
 	Activity *MessageActivity `json:"activity"`
 
 	// Is sent with Rich Presence-related chat embeds
-	Application *Application `json:"application"`
+	Application *MessageApplication `json:"application"`
 
 	// MessageReference contains reference data sent with crossposted or reply messages.
 	// This does not contain the reference *to* this message; this is for when *this* message references another.
@@ -433,9 +433,9 @@ const (
 	MessageActivityTypeJoinRequest MessageActivityType = 5
 )
 
-// TODO: Remove this when compatibility is not required
 // MessageApplication is sent with Rich Presence-related chat embeds
-// Deprecated: See type Application
+// This is used instead of Application to reduce the amount of memory consumption
+// of message objects
 type MessageApplication struct {
 	ID          string `json:"id"`
 	CoverImage  string `json:"cover_image"`

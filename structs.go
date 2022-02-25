@@ -148,6 +148,10 @@ type Application struct {
 	Slug                string   `json:"slug"`
 	CoverImage          string   `json:"cover_image"`
 	Flags               int      `json:"flags,omitempty"`
+
+	// TODO: Remove this when compatibility is not required
+	// Deprecated
+	RedirectURIs *[]string `json:"-"`
 }
 
 // UserConnection is a Connection returned from the UserConnections endpoint
@@ -244,6 +248,17 @@ type Invite struct {
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
+
+// TODO: Remove this when compatibility is not required
+// TargetUserType is the type of the target user
+// Deprecated: see InviteTargetType
+type TargetUserType int
+
+// Block contains known TargetUserType values
+// Deprecated: see InviteTargetType
+const (
+	TargetUserTypeStream TargetUserType = 1
+)
 
 // ChannelType is the type of a Channel
 type ChannelType int
