@@ -434,8 +434,6 @@ const (
 )
 
 // MessageApplication is sent with Rich Presence-related chat embeds
-// This is used instead of Application to reduce the amount of memory consumption
-// of message objects
 type MessageApplication struct {
 	ID          string `json:"id"`
 	CoverImage  string `json:"cover_image"`

@@ -71,10 +71,9 @@ func (s *Session) Applications() (st []*Application, err error) {
 func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error) {
 
 	data := struct {
-		Name         string    `json:"name"`
-		Description  string    `json:"description"`
-		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
-	}{ap.Name, ap.Description, ap.RedirectURIs}
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}{ap.Name, ap.Description}
 
 	body, err := s.RequestWithBucketID("POST", EndpointOAuth2Applications, data, EndpointOAuth2Applications)
 	if err != nil {
@@ -90,10 +89,9 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Application, err error) {
 
 	data := struct {
-		Name         string    `json:"name"`
-		Description  string    `json:"description"`
-		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
-	}{ap.Name, ap.Description, ap.RedirectURIs}
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}{ap.Name, ap.Description}
 
 	body, err := s.RequestWithBucketID("PUT", EndpointOAuth2Application(appID), data, EndpointOAuth2Application(""))
 	if err != nil {
