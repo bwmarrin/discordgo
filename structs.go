@@ -128,6 +128,28 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+// Application stores values for a Discord Application
+type Application struct {
+	ID                  string   `json:"id,omitempty"`
+	Name                string   `json:"name"`
+	Icon                string   `json:"icon,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	RPCOrigins          []string `json:"rpc_origins,omitempty"`
+	BotPublic           bool     `json:"bot_public,omitempty"`
+	BotRequireCodeGrant bool     `json:"bot_require_code_grant,omitempty"`
+	TermsOfServiceURL   string   `json:"terms_of_service_url"`
+	PrivacyProxyURL     string   `json:"privacy_policy_url"`
+	Owner               *User    `json:"owner"`
+	Summary             string   `json:"summary"`
+	VerifyKey           string   `json:"verify_key"`
+	Team                *Team    `json:"team"`
+	GuildID             string   `json:"guild_id"`
+	PrimarySKUID        string   `json:"primary_sku_id"`
+	Slug                string   `json:"slug"`
+	CoverImage          string   `json:"cover_image"`
+	Flags               int      `json:"flags,omitempty"`
+}
+
 // UserConnection is a Connection returned from the UserConnections endpoint
 type UserConnection struct {
 	ID           string         `json:"id"`
@@ -191,35 +213,37 @@ type ICEServer struct {
 	Credential string `json:"credential"`
 }
 
+// InviteTargetType indicates the type of target of an invite
+// https://discord.com/developers/docs/resources/invite#invite-object-invite-target-types
+type InviteTargetType uint8
+
+// Invite target types
+const (
+	InviteTargetStream             InviteTargetType = 1
+	InviteTargetEmbeddedAppliction InviteTargetType = 2
+)
+
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild          *Guild         `json:"guild"`
-	Channel        *Channel       `json:"channel"`
-	Inviter        *User          `json:"inviter"`
-	Code           string         `json:"code"`
-	CreatedAt      time.Time      `json:"created_at"`
-	MaxAge         int            `json:"max_age"`
-	Uses           int            `json:"uses"`
-	MaxUses        int            `json:"max_uses"`
-	Revoked        bool           `json:"revoked"`
-	Temporary      bool           `json:"temporary"`
-	Unique         bool           `json:"unique"`
-	TargetUser     *User          `json:"target_user"`
-	TargetUserType TargetUserType `json:"target_user_type"`
+	Guild             *Guild           `json:"guild"`
+	Channel           *Channel         `json:"channel"`
+	Inviter           *User            `json:"inviter"`
+	Code              string           `json:"code"`
+	CreatedAt         time.Time        `json:"created_at"`
+	MaxAge            int              `json:"max_age"`
+	Uses              int              `json:"uses"`
+	MaxUses           int              `json:"max_uses"`
+	Revoked           bool             `json:"revoked"`
+	Temporary         bool             `json:"temporary"`
+	Unique            bool             `json:"unique"`
+	TargetUser        *User            `json:"target_user"`
+	TargetType        InviteTargetType `json:"target_type"`
+	TargetApplication *Application     `json:"target_application"`
 
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
-
-// TargetUserType is the type of the target user
-// https://discord.com/developers/docs/resources/invite#invite-object-target-user-types
-type TargetUserType int
-
-// Block contains known TargetUserType values
-const (
-	TargetUserTypeStream TargetUserType = 1
-)
 
 // ChannelType is the type of a Channel
 type ChannelType int
@@ -741,6 +765,42 @@ type GuildPreview struct {
 
 	// the description for the guild
 	Description string `json:"description"`
+}
+
+// A GuildTemplate represents
+type GuildTemplate struct {
+	// The unique code for the guild template
+	Code string `json:"code"`
+
+	// The name of the template
+	Name string `json:"name"`
+
+	// The description for the template
+	Description string `json:"description"`
+
+	// The number of times this template has been used
+	UsageCount string `json:"usage_count"`
+
+	// The ID of the user who created the template
+	CreatorID string `json:"creator_id"`
+
+	// The user who created the template
+	Creator *User `json:"creator"`
+
+	// The timestamp of when the template was created
+	CreatedAt time.Time `json:"created_at"`
+
+	// The timestamp of when the template was last synced
+	UpdatedAt time.Time `json:"updated_at"`
+
+	// The ID of the guild the template was based on
+	SourceGuildID string `json:"source_guild_id"`
+
+	// The guild 'snapshot' this template contains
+	SerializedSourceGuild *Guild `json:"serialized_source_guild"`
+
+	// Whether the template has unsynced changes
+	IsDirty bool `json:"is_dirty"`
 }
 
 // MessageNotifications is the notification level for a guild
