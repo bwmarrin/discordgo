@@ -88,7 +88,7 @@ var (
 	EndpointGuildBanner        = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
 	EndpointGuildStickers      = func(gID string) string { return EndpointGuilds + gID + "/stickers" }
 	EndpointGuildSticker       = func(gID, sID string) string { return EndpointGuilds + gID + "/stickers/" + sID }
-  EndpointGuildTemplate      = func(tID string) string { return EndpointGuilds + "/templates/" + tID }
+	EndpointGuildTemplate      = func(tID string) string { return EndpointGuilds + "/templates/" + tID }
 	EndpointGuildTemplates     = func(gID string) string { return EndpointGuilds + gID + "/templates" }
 	EndpointGuildTemplateSync  = func(gID, tID string) string { return EndpointGuilds + gID + "/templates/" + tID }
 	EndpointGuildMemberAvatar  = func(gId, uID, aID string) string {
