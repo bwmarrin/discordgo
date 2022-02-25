@@ -642,6 +642,8 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 	}
 
 	err = unmarshal(body, &st)
+	// The returned object doesn't have the GuildID attribute so we will set it here.
+	st.GuildID = guildID
 	return
 }
 
