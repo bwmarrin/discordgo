@@ -31,6 +31,10 @@ func init() {
 	}
 }
 
+func newOptionalFloat(v float64) *float64 {
+	return &v
+}
+
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
@@ -59,8 +63,8 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "integer-option",
 					Description: "Integer option",
-					MinValue:    discordgo.NewOptionalFloat(1),
-					MaxValue:    discordgo.NewOptionalFloat(10),
+					MinValue:    newOptionalFloat(1),
+					MaxValue:    newOptionalFloat(10),
 					Required:    true,
 				},
 				{

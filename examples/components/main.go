@@ -31,6 +31,10 @@ func init() {
 	}
 }
 
+func newOptionalInt(v int) *int {
+	return &v
+}
+
 // Important note: call every command in order it's placed in the example.
 
 var (
@@ -328,8 +332,8 @@ var (
 										Placeholder: "Select tags to search on StackOverflow",
 										// This is where confusion comes from. If you don't specify these things you will get single item select.
 										// These fields control the minimum and maximum amount of selected items.
-										MinValues: discordgo.NewOptionalInt(1),
-										MaxValues: discordgo.NewOptionalInt(3),
+										MinValues: newOptionalInt(1),
+										MaxValues: newOptionalInt(3),
 										Options: []discordgo.SelectMenuOption{
 											{
 												Label:       "Go",
