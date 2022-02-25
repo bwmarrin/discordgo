@@ -249,8 +249,8 @@ type Invite struct {
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
 
-// TODO: Remove this when compatibility is not required
 // TargetUserType is the type of the target user
+// TODO: Remove this when compatibility is not required
 // Deprecated: see InviteTargetType
 type TargetUserType int
 
