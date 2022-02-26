@@ -135,9 +135,9 @@ type Message struct {
 	// If the field exists but is null, the referenced message was deleted.
 	ReferencedMessage *Message `json:"referenced_message"`
 
-	// MessageInteraction is sent on the message object when the message is a response to an Interaction without an existing message.
-	// This means responses to Message Components do not include this property,
-	// instead including a MessageReference as components always exist on preexisting messages.
+	// Is sent when the message is a response to an Interaction, without an existing message.
+	// This means responses to message component interactions do not include this property,
+	// instead including a MessageReference, as components exist on preexisting messages.
 	Interaction *MessageInteraction `json:"interaction"`
 
 	// The flags of the message, which describe extra features of a message.
