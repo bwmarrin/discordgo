@@ -318,6 +318,7 @@ var (
 					},
 				}
 			case "multi":
+				minValues := 1
 				response = &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
@@ -332,7 +333,7 @@ var (
 										Placeholder: "Select tags to search on StackOverflow",
 										// This is where confusion comes from. If you don't specify these things you will get single item select.
 										// These fields control the minimum and maximum amount of selected items.
-										MinValues: newOptionalInt(1),
+										MinValues: &minValues,
 										MaxValues: 3,
 										Options: []discordgo.SelectMenuOption{
 											{
