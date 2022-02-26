@@ -31,10 +31,6 @@ func init() {
 	}
 }
 
-func newOptionalInt(v int) *int {
-	return &v
-}
-
 // Important note: call every command in order it's placed in the example.
 
 var (
