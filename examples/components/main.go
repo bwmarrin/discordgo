@@ -333,7 +333,7 @@ var (
 										// This is where confusion comes from. If you don't specify these things you will get single item select.
 										// These fields control the minimum and maximum amount of selected items.
 										MinValues: newOptionalInt(1),
-										MaxValues: newOptionalInt(3),
+										MaxValues: 3,
 										Options: []discordgo.SelectMenuOption{
 											{
 												Label:       "Go",
