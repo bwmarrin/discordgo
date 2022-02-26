@@ -529,7 +529,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 	return
 }
 
-// MessageInteraction contains information about the application command interaction which generated this message
+// MessageInteraction contains information about the application command interaction which generated a message
 type MessageInteraction struct {
 	ID     string          `json:"id"`
 	Type   InteractionType `json:"type"`
