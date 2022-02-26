@@ -534,6 +534,6 @@ type MessageInteraction struct {
 	ID     string          `json:"id"`
 	Type   InteractionType `json:"type"`
 	Name   string          `json:"name"`
-	User   User            `json:"user"`
+	User   *User            `json:"user"`
 	Member *Member         `json:"member"`
 }
