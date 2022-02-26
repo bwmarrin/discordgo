@@ -135,6 +135,11 @@ type Message struct {
 	// If the field exists but is null, the referenced message was deleted.
 	ReferencedMessage *Message `json:"referenced_message"`
 
+	// Is sent when the message is a response to an Interaction, without an existing message.
+	// This means responses to message component interactions do not include this property,
+	// instead including a MessageReference, as components exist on preexisting messages.
+	Interaction *MessageInteraction `json:"interaction"`
+
 	// The flags of the message, which describe extra features of a message.
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
@@ -522,4 +527,15 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		return "#" + channel.Name
 	})
 	return
+}
+
+// MessageInteraction contains information about the application command interaction which generated the message.
+type MessageInteraction struct {
+	ID   string          `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User *User           `json:"user"`
+
+	// Member is only present when the interaction is from a guild.
+	Member *Member `json:"member"`
 }
