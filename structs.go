@@ -791,7 +791,7 @@ type GuildScheduledEvent struct {
 	// The status of the scheduled event
 	Status GuildScheduledEventStatus `json:"status"`
 	// Type of the entity where event would be hosted
-	// See the requirement fields
+	// See field requirements
 	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
 	EntityType GuildScheduledEventEntityType `json:"entity_type"`
 	// The id of an entity associated with a guild scheduled event
@@ -826,7 +826,7 @@ type GuildScheduledEventParams struct {
 	// The status of the scheduled event
 	Status GuildScheduledEventStatus `json:"status,omitempty"`
 	// Type of the entity where event would be hosted
-	// See the fields requirements
+	// See field requirements
 	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
 	EntityType GuildScheduledEventEntityType `json:"entity_type,omitempty"`
 	// Additional metadata for the guild scheduled event
