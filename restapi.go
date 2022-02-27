@@ -2833,7 +2833,7 @@ func (s *Session) GuildScheduledEventDelete(guildID, eventID string) (err error)
 	return
 }
 
-// GuildScheduledEventUsers returns an array of GuildScheduledEventUser for a guild
+// GuildScheduledEventUsers returns an array of GuildScheduledEventUser for a particular event in a guild
 // guildID    : The ID of a Guild
 // eventID    : The ID of the event
 // limit      : The maximum number of users to return (Max 100)
