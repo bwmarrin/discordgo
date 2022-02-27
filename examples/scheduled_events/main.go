@@ -55,8 +55,8 @@ func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 		ScheduledStartTime: &startingTime,
 		ScheduledEndTime:   &endingTime,
 		EntityType:         discordgo.GuildScheduledEventEntityTypeVoice,
-		ChannelID:    *VoiceChannelID,
-		PrivacyLevel: discordgo.GuildScheduledEventPrivacyLevelGuildOnly,
+		ChannelID:          *VoiceChannelID,
+		PrivacyLevel:       discordgo.GuildScheduledEventPrivacyLevelGuildOnly,
 	})
 	if err != nil {
 		log.Printf("Error creating scheduled event: %v", err)
