@@ -812,7 +812,7 @@ type GuildScheduledEvent struct {
 // https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event
 type GuildScheduledEventParams struct {
 	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
-	ChannelID NullableString `json:"channel_id,omitempty"`
+	ChannelID string `json:"channel_id,omitempty"`
 	// The name of the scheduled event (1-100 characters)
 	Name string `json:"name,omitempty"`
 	// The description of the scheduled event (1-1000 characters)
@@ -832,6 +832,17 @@ type GuildScheduledEventParams struct {
 	// see https://discord.com/developers/docs/reference#image-formatting for more
 	// information about image formatting
 	Image string `json:"image"`
+}
+
+// nullJSONValue represents the value of a "null" JSON Statement
+const nullJSONValue string = "null"
+
+func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
+	if p.ChannelID == nullJSONValue {
+		return []byte(nullJSONValue), nil
+	}
+
+	return json.Marshal(p.ChannelID)
 }
 
 // GuildScheduledEventEntityMetadata holds additional metadata for a guild scheduled event.
