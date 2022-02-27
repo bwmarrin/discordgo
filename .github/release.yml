@@ -7,3 +7,7 @@ changelog:
     - title: "New features"
       labels:
         - feature
+
+    - title: "Other changes"
+      labels:
+        - "*"
