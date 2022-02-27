@@ -242,6 +242,11 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventUpdate endpoint. Scheduled Event Name mismatch")
 	}
 
+	// Usage of 1 and 1 is just the philosophy of run all branch in function without crashes.
+	// When Discord add possibility to register an event via API, add Endpoints and rewrite tests
+	// suite without correct value and remove "1" here.
+	// When this is the case all branches of the function can be tested without fake data.
+	// see https://github.com/bwmarrin/discordgo/pull/1032#discussion_r815438303 for more details.
 	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 1, true, "1", "1")
 	if err != nil {
 		t.Fatal(err)
