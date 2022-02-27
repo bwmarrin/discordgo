@@ -2019,8 +2019,7 @@ const (
 		IntentDirectMessages |
 		IntentDirectMessageReactions |
 		IntentDirectMessageTyping |
-		IntentGuildScheduledEvents |
-		IntentsGuildScheduledEvents
+		IntentGuildScheduledEvents
 
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentGuildMembers |
