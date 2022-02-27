@@ -849,7 +849,7 @@ func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p)
 }
 
-// GuildScheduledEventEntityMetadata holds additional metadata for a guild scheduled event.
+// GuildScheduledEventEntityMetadata holds additional metadata for guild scheduled event.
 type GuildScheduledEventEntityMetadata struct {
 	// location of the event (1-100 characters)
 	// required for events with 'entity_type': EXTERNAL
