@@ -2767,7 +2767,11 @@ func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, 
 // userCount      : Whether to include the user count in the response
 func (s *Session) GuildScheduledEvents(guildID string, userCount bool) (st []*GuildScheduledEvent, err error) {
 	uri := EndpointGuildScheduledEvents(guildID)
-	body, err := s.RequestWithBucketID("GET", fmt.Sprintf("%s?with_user_count=%t", uri, userCount), nil, EndpointGuildScheduledEvents(guildID))
+	if userCount {
+		uri += "?with_user_count=true"
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildScheduledEvents(guildID))
 	if err != nil {
 		return
 	}
@@ -2782,7 +2786,11 @@ func (s *Session) GuildScheduledEvents(guildID string, userCount bool) (st []*Gu
 // userCount      : Whether to include the user count in the response
 func (s *Session) GuildScheduledEvent(guildID, eventID string, userCount bool) (st *GuildScheduledEvent, err error) {
 	uri := EndpointGuildScheduledEvent(guildID, eventID)
-	body, err := s.RequestWithBucketID("GET", fmt.Sprintf("%s?with_user_count=%t", uri, userCount), nil, EndpointGuildScheduledEvent(guildID, eventID))
+	if userCount {
+		uri += "?with_user_count=true"
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildScheduledEvent(guildID, eventID))
 	if err != nil {
 		return
 	}
