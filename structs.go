@@ -833,15 +833,16 @@ type GuildScheduledEventParams struct {
 	Image string `json:"image"`
 }
 
-// nullJSONValue represents the value of a "null" JSON Statement
-const nullJSONValue string = "null"
 
 func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
-	if p.ChannelID == nullJSONValue {
-		return []byte(nullJSONValue), nil
+	if p.EntityType == GuildScheduledEventEntityTypeExternal && p.ChannelID == "" {
+	     return json.Marshal(struct { 
+	          *GuildScheduledEventParams
+	          ChannelID json.RawMessage `json:"channel_id"`
+	     }{ GuildScheduledEventParams: p, ChannelID: json.RawMessage("null") })
 	}
 
-	return json.Marshal(p.ChannelID)
+	return json.Marshal(p)
 }
 
 // GuildScheduledEventEntityMetadata holds additional metadata for a guild scheduled event.
