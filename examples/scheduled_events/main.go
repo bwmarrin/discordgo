@@ -72,7 +72,6 @@ func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 func transformEventToExternalEvent(s *discordgo.Session, event *discordgo.GuildScheduledEvent) {
 	scheduledEvent, err := s.GuildScheduledEventEdit(*GuildID, event.ID, &discordgo.GuildScheduledEventParams{
 		Name:       "Amazing Event @ Discord Website",
-		ChannelID:  "null",
 		EntityType: discordgo.GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &discordgo.GuildScheduledEventEntityMetadata{
 			Location: "https://discord.com",
