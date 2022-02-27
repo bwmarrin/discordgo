@@ -54,6 +54,13 @@ type User struct {
 	// Whether the user has multi-factor authentication enabled.
 	MFAEnabled bool `json:"mfa_enabled"`
 
+	// Banner the user's banner hash
+	// see https://discord.com/developers/docs/reference#image-formatting
+	Banner string `json:"banner"`
+
+	// the user's banner color encoded as an integer representation of hexadecimal color code
+	AccentColor int `json:"accent_color"`
+
 	// Whether the user is a bot.
 	Bot bool `json:"bot"`
 
