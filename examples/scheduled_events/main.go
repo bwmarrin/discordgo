@@ -55,7 +55,6 @@ func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 		ScheduledStartTime: &startingTime,
 		ScheduledEndTime:   &endingTime,
 		EntityType:         discordgo.GuildScheduledEventEntityTypeVoice,
-		// In this case, we are using a NullableString to store the voice channel ID
 		ChannelID:    *VoiceChannelID,
 		PrivacyLevel: discordgo.GuildScheduledEventPrivacyLevelGuildOnly,
 	})
