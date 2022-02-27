@@ -242,7 +242,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventUpdate endpoint. Scheduled Event Name mismatch")
 	}
 
-	// Usage of 1 and 1 is just the pseudo data with the purpose to run all branch in function without crashes.
+	// Usage of 1 and 1 is just the pseudo data with the purpose to run all branches in the function without crashes.
 	// see https://github.com/bwmarrin/discordgo/pull/1032#discussion_r815438303 for more details.
 	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 1, true, "1", "1")
 	if err != nil {
