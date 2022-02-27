@@ -26,8 +26,6 @@ func main() {
 		fmt.Println("Bot is ready")
 	})
 
-	s.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged)
-
 	err := s.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
