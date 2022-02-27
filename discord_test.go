@@ -280,7 +280,6 @@ func TestComplexScheduledEvents(t *testing.T) {
 	time.Sleep(4 * time.Second)
 
 	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
-		ChannelID:  "null",
 		EntityType: GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &GuildScheduledEventEntityMetadata{
 			Location: "https://discord.com",
