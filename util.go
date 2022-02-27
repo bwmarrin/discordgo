@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/textproto"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -74,4 +75,20 @@ func MultipartBodyWithJSON(data interface{}, files []*File) (requestContentType 
 	}
 
 	return bodywriter.FormDataContentType(), body.Bytes(), nil
+}
+
+func avatarURL(avatarHash, defaultAvatarURL, staticAvatarURL, animatedAvatarURL, size string) string {
+	var URL string
+	if avatarHash == "" {
+		URL = defaultAvatarURL
+	} else if strings.HasPrefix(avatarHash, "a_") {
+		URL = animatedAvatarURL
+	} else {
+		URL = staticAvatarURL
+	}
+
+	if size != "" {
+		return URL + "?size=" + size
+	}
+	return URL
 }

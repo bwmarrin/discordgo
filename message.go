@@ -135,6 +135,11 @@ type Message struct {
 	// If the field exists but is null, the referenced message was deleted.
 	ReferencedMessage *Message `json:"referenced_message"`
 
+	// Is sent when the message is a response to an Interaction, without an existing message.
+	// This means responses to message component interactions do not include this property,
+	// instead including a MessageReference, as components exist on preexisting messages.
+	Interaction *MessageInteraction `json:"interaction"`
+
 	// The flags of the message, which describe extra features of a message.
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
@@ -317,14 +322,15 @@ type MessageAllowedMentions struct {
 
 // A MessageAttachment stores data for message attachments.
 type MessageAttachment struct {
-	ID        string `json:"id"`
-	URL       string `json:"url"`
-	ProxyURL  string `json:"proxy_url"`
-	Filename  string `json:"filename"`
-	Width     int    `json:"width"`
-	Height    int    `json:"height"`
-	Size      int    `json:"size"`
-	Ephemeral bool   `json:"ephemeral"`
+	ID          string `json:"id"`
+	URL         string `json:"url"`
+	ProxyURL    string `json:"proxy_url"`
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
+	Width       int    `json:"width"`
+	Height      int    `json:"height"`
+	Size        int    `json:"size"`
+	Ephemeral   bool   `json:"ephemeral"`
 }
 
 // MessageEmbedFooter is a part of a MessageEmbed struct.
@@ -521,4 +527,15 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		return "#" + channel.Name
 	})
 	return
+}
+
+// MessageInteraction contains information about the application command interaction which generated the message.
+type MessageInteraction struct {
+	ID   string          `json:"id"`
+	Type InteractionType `json:"type"`
+	Name string          `json:"name"`
+	User *User           `json:"user"`
+
+	// Member is only present when the interaction is from a guild.
+	Member *Member `json:"member"`
 }

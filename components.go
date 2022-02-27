@@ -175,7 +175,7 @@ type SelectMenu struct {
 	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
 	Placeholder string `json:"placeholder"`
 	// This value determines the minimal amount of selected items in the menu.
-	MinValues int `json:"min_values,omitempty"`
+	MinValues *int `json:"min_values,omitempty"`
 	// This value determines the maximal amount of selected items in the menu.
 	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
 	MaxValues int                `json:"max_values,omitempty"`

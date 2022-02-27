@@ -32,6 +32,8 @@ func init() {
 }
 
 var (
+	integerOptionMinValue = 1.0
+
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
@@ -59,6 +61,8 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "integer-option",
 					Description: "Integer option",
+					MinValue:    &integerOptionMinValue,
+					MaxValue:    10,
 					Required:    true,
 				},
 				{

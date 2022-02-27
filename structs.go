@@ -128,6 +128,28 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+// Application stores values for a Discord Application
+type Application struct {
+	ID                  string   `json:"id,omitempty"`
+	Name                string   `json:"name"`
+	Icon                string   `json:"icon,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	RPCOrigins          []string `json:"rpc_origins,omitempty"`
+	BotPublic           bool     `json:"bot_public,omitempty"`
+	BotRequireCodeGrant bool     `json:"bot_require_code_grant,omitempty"`
+	TermsOfServiceURL   string   `json:"terms_of_service_url"`
+	PrivacyProxyURL     string   `json:"privacy_policy_url"`
+	Owner               *User    `json:"owner"`
+	Summary             string   `json:"summary"`
+	VerifyKey           string   `json:"verify_key"`
+	Team                *Team    `json:"team"`
+	GuildID             string   `json:"guild_id"`
+	PrimarySKUID        string   `json:"primary_sku_id"`
+	Slug                string   `json:"slug"`
+	CoverImage          string   `json:"cover_image"`
+	Flags               int      `json:"flags,omitempty"`
+}
+
 // UserConnection is a Connection returned from the UserConnections endpoint
 type UserConnection struct {
 	ID           string         `json:"id"`
@@ -191,35 +213,37 @@ type ICEServer struct {
 	Credential string `json:"credential"`
 }
 
+// InviteTargetType indicates the type of target of an invite
+// https://discord.com/developers/docs/resources/invite#invite-object-invite-target-types
+type InviteTargetType uint8
+
+// Invite target types
+const (
+	InviteTargetStream             InviteTargetType = 1
+	InviteTargetEmbeddedAppliction InviteTargetType = 2
+)
+
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
 type Invite struct {
-	Guild          *Guild         `json:"guild"`
-	Channel        *Channel       `json:"channel"`
-	Inviter        *User          `json:"inviter"`
-	Code           string         `json:"code"`
-	CreatedAt      time.Time      `json:"created_at"`
-	MaxAge         int            `json:"max_age"`
-	Uses           int            `json:"uses"`
-	MaxUses        int            `json:"max_uses"`
-	Revoked        bool           `json:"revoked"`
-	Temporary      bool           `json:"temporary"`
-	Unique         bool           `json:"unique"`
-	TargetUser     *User          `json:"target_user"`
-	TargetUserType TargetUserType `json:"target_user_type"`
+	Guild             *Guild           `json:"guild"`
+	Channel           *Channel         `json:"channel"`
+	Inviter           *User            `json:"inviter"`
+	Code              string           `json:"code"`
+	CreatedAt         time.Time        `json:"created_at"`
+	MaxAge            int              `json:"max_age"`
+	Uses              int              `json:"uses"`
+	MaxUses           int              `json:"max_uses"`
+	Revoked           bool             `json:"revoked"`
+	Temporary         bool             `json:"temporary"`
+	Unique            bool             `json:"unique"`
+	TargetUser        *User            `json:"target_user"`
+	TargetType        InviteTargetType `json:"target_type"`
+	TargetApplication *Application     `json:"target_application"`
 
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
-
-// TargetUserType is the type of the target user
-// https://discord.com/developers/docs/resources/invite#invite-object-target-user-types
-type TargetUserType int
-
-// Block contains known TargetUserType values
-const (
-	TargetUserTypeStream TargetUserType = 1
-)
 
 // ChannelType is the type of a Channel
 type ChannelType int
@@ -1084,6 +1108,9 @@ type Member struct {
 	// Whether the member is muted at a guild level.
 	Mute bool `json:"mute"`
 
+	// The hash of the avatar for the guild member, if any.
+	Avatar string `json:"avatar"`
+
 	// The underlying user on which the member is based.
 	User *User `json:"user"`
 
@@ -1107,6 +1134,20 @@ type Member struct {
 // Mention creates a member mention
 func (m *Member) Mention() string {
 	return "<@!" + m.User.ID + ">"
+}
+
+// AvatarURL returns the URL of the member's avatar
+//    size:    The size of the user's avatar as a power of two
+//             if size is an empty string, no size parameter will
+//             be added to the URL.
+func (m *Member) AvatarURL(size string) string {
+	if m.Avatar == "" {
+		return m.User.AvatarURL(size)
+	}
+	// The default/empty avatar case should be handled by the above condition
+	return avatarURL(m.Avatar, "", EndpointGuildMemberAvatar(m.GuildID, m.User.ID, m.Avatar),
+		EndpointGuildMemberAvatarAnimated(m.GuildID, m.User.ID, m.Avatar), size)
+
 }
 
 // A Settings stores data for a specific users Discord client settings.

@@ -40,6 +40,7 @@ var (
 	EndpointCDNSplashes     = EndpointCDN + "splashes/"
 	EndpointCDNChannelIcons = EndpointCDN + "channel-icons/"
 	EndpointCDNBanners      = EndpointCDN + "banners/"
+	EndpointCDNGuilds       = EndpointCDN + "guilds/"
 
 	EndpointVoice        = EndpointAPI + "/voice/"
 	EndpointVoiceRegions = EndpointVoice + "regions"
@@ -93,6 +94,12 @@ var (
 	EndpointGuildTemplate            = func(tID string) string { return EndpointGuilds + "/templates/" + tID }
 	EndpointGuildTemplates           = func(gID string) string { return EndpointGuilds + gID + "/templates" }
 	EndpointGuildTemplateSync        = func(gID, tID string) string { return EndpointGuilds + gID + "/templates/" + tID }
+	EndpointGuildMemberAvatar        = func(gId, uID, aID string) string {
+		return EndpointCDNGuilds + gId + "/users/" + uID + "/avatars/" + aID + ".png"
+	}
+	EndpointGuildMemberAvatarAnimated = func(gId, uID, aID string) string {
+		return EndpointCDNGuilds + gId + "/users/" + uID + "/avatars/" + aID + ".gif"
+	}
 
 	EndpointChannel                             = func(cID string) string { return EndpointChannels + cID }
 	EndpointChannelThreads                      = func(cID string) string { return EndpointChannel(cID) + "/threads" }
