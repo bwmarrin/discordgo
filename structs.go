@@ -830,19 +830,18 @@ type GuildScheduledEventParams struct {
 	// The cover image hash of the scheduled event
 	// see https://discord.com/developers/docs/reference#image-formatting for more
 	// information about image formatting
-	Image string `json:"image"`
+	Image string `json:"image,omitempty"`
 }
-
 
 // MarshalJSON implements the json.Marshaler interface for
 // GuildScheduledEventParams to handle the special case of a null value
 // for channel_id field
 func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	if p.EntityType == GuildScheduledEventEntityTypeExternal && p.ChannelID == "" {
-	     return json.Marshal(struct { 
-	          *GuildScheduledEventParams
-	          ChannelID json.RawMessage `json:"channel_id"`
-	     }{ GuildScheduledEventParams: p, ChannelID: json.RawMessage("null") })
+		return json.Marshal(struct {
+			*GuildScheduledEventParams
+			ChannelID json.RawMessage `json:"channel_id"`
+		}{GuildScheduledEventParams: p, ChannelID: json.RawMessage("null")})
 	}
 
 	return json.Marshal(p)
