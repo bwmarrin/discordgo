@@ -790,6 +790,7 @@ type GuildScheduledEvent struct {
 	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level"`
 	// The status of the scheduled event
 	Status GuildScheduledEventStatus `json:"status"`
+	// Type of the entity where event would be hosted
 	// See the requirement fields
 	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
 	EntityType GuildScheduledEventEntityType `json:"entity_type"`
@@ -824,6 +825,7 @@ type GuildScheduledEventParams struct {
 	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level,omitempty"`
 	// The status of the scheduled event
 	Status GuildScheduledEventStatus `json:"status,omitempty"`
+	// Type of the entity where event would be hosted
 	// See the requirement fields
 	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
 	EntityType GuildScheduledEventEntityType `json:"entity_type,omitempty"`
@@ -835,9 +837,7 @@ type GuildScheduledEventParams struct {
 	Image string `json:"image,omitempty"`
 }
 
-// MarshalJSON implements the json.Marshaler interface for
-// GuildScheduledEventParams to handle the special case of a null value
-// for channel_id field
+// Helper function to marshal GuildScheduledEventParams
 func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	type guildScheduledEventParams GuildScheduledEventParams
 
