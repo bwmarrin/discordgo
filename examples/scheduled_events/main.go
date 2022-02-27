@@ -57,7 +57,7 @@ func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 		ScheduledEndTime:   &endingTime,
 		EntityType:         discordgo.GuildScheduledEventEntityTypeVoice,
 		// In this case, we are using a NullableString to store the voice channel ID
-		ChannelID:    discordgo.NullString(*VoiceChannelID),
+		ChannelID:    *VoiceChannelID,
 		PrivacyLevel: discordgo.GuildScheduledEventPrivacyLevelGuildOnly,
 	})
 	if err != nil {
@@ -72,7 +72,7 @@ func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 func transformEventToExternalEvent(s *discordgo.Session, event *discordgo.GuildScheduledEvent) {
 	scheduledEvent, err := s.GuildScheduledEventEdit(*GuildID, event.ID, &discordgo.GuildScheduledEventParams{
 		Name:       "Amazing Event @ Discord Website",
-		ChannelID:  discordgo.NullString("null"),
+		ChannelID:  "null",
 		EntityType: discordgo.GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &discordgo.GuildScheduledEventEntityMetadata{
 			Location: "https://discord.com",

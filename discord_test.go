@@ -270,7 +270,7 @@ func TestComplexScheduledEvents(t *testing.T) {
 		ScheduledEndTime:   &endAt,
 		Description:        "Test event on voice channel",
 		EntityType:         GuildScheduledEventEntityTypeVoice,
-		ChannelID:          NullString(envVoiceChannel),
+		ChannelID:          envVoiceChannel,
 	})
 	if err != nil || event.Name != "Test Voice Event" {
 		t.Fatal(err)
@@ -280,7 +280,7 @@ func TestComplexScheduledEvents(t *testing.T) {
 	time.Sleep(4 * time.Second)
 
 	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
-		ChannelID:  NullString("null"),
+		ChannelID:  "null",
 		EntityType: GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &GuildScheduledEventEntityMetadata{
 			Location: "https://discord.com",
@@ -292,7 +292,7 @@ func TestComplexScheduledEvents(t *testing.T) {
 	}
 
 	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
-		ChannelID:      NullString(envVoiceChannel),
+		ChannelID:      envVoiceChannel,
 		EntityType:     GuildScheduledEventEntityTypeVoice,
 		EntityMetadata: nil,
 	})
