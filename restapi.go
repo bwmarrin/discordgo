@@ -2850,8 +2850,8 @@ func (s *Session) GuildScheduledEventDelete(guildID, eventID string) (err error)
 // eventID    : The ID of the event
 // limit      : The maximum number of users to return (Max 100)
 // withMember : Whether to include the member object in the response
-// beforeID   : If provided all events users entries returned will be before the given ID.
-// afterID    : If provided all events users entries returned will be after the given ID.
+// beforeID   : If is not empty all events users entries returned will be before the given ID.
+// afterID    : If is not empty all events users entries returned will be after the given ID.
 func (s *Session) GuildScheduledEventUsers(guildID, eventID string, limit int, withMember bool, beforeID, afterID string) (st []*GuildScheduledEventUser, err error) {
 	uri := EndpointGuildScheduledEventUsers(guildID, eventID)
 
