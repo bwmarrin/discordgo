@@ -1,8 +1,5 @@
 changelog:
   categories:
-    - title: "What's changed"
-      labels:
-        - "*"
     - title: "Breaking changes"
       labels:
         - breaking changes
