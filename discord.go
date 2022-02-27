@@ -41,7 +41,7 @@ func New(token string) (s *Session, err error) {
 		MaxRestRetries:         3,
 		Client:                 &http.Client{Timeout: (20 * time.Second)},
 		UserAgent:              "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
-		Sequence:               new(int64),
+		sequence:               new(int64),
 		LastHeartbeatAck:       time.Now().UTC(),
 	}
 

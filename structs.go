@@ -115,14 +115,14 @@ type Session struct {
 	// When nil, the session is not listening.
 	listening chan interface{}
 
-	// Sequence tracks the current gateway api websocket sequence number
-	Sequence *int64
+	// sequence tracks the current gateway api websocket sequence number
+	sequence *int64
 
 	// stores sessions current Discord Gateway
 	gateway string
 
-	// SessionID stores session ID of current Gateway connection
-	SessionID string
+	// stores session ID of current Gateway connection
+	sessionID string
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
