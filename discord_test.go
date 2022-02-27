@@ -277,8 +277,6 @@ func TestComplexScheduledEvents(t *testing.T) {
 	}
 	defer dgBot.GuildScheduledEventDelete(envGuild, event.ID)
 
-	time.Sleep(4 * time.Second)
-
 	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
 		EntityType: GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &GuildScheduledEventEntityMetadata{

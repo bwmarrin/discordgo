@@ -839,14 +839,23 @@ type GuildScheduledEventParams struct {
 // GuildScheduledEventParams to handle the special case of a null value
 // for channel_id field
 func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
+	type guildScheduledEventParams GuildScheduledEventParams
+
 	if p.EntityType == GuildScheduledEventEntityTypeExternal && p.ChannelID == "" {
 		return json.Marshal(struct {
-			*GuildScheduledEventParams
+			guildScheduledEventParams
 			ChannelID json.RawMessage `json:"channel_id"`
-		}{GuildScheduledEventParams: p, ChannelID: json.RawMessage("null")})
+		}{
+			guildScheduledEventParams: guildScheduledEventParams(*p),
+			ChannelID:                 json.RawMessage("null"),
+		})
 	}
 
-	return json.Marshal(p)
+	return json.Marshal(struct {
+		guildScheduledEventParams
+	}{
+		guildScheduledEventParams: guildScheduledEventParams(*p),
+	})
 }
 
 // GuildScheduledEventEntityMetadata holds additional metadata for guild scheduled event.
