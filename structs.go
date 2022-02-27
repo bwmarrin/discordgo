@@ -861,7 +861,7 @@ type GuildScheduledEventEntityMetadata struct {
 type GuildScheduledEventPrivacyLevel int
 
 const (
-	// GuildScheduledEventPrivacyLevelGuildOnly represents the scheduled
+	// GuildScheduledEventPrivacyLevelGuildOnly makes the scheduled
 	// event is only accessible to guild members
 	GuildScheduledEventPrivacyLevelGuildOnly GuildScheduledEventPrivacyLevel = 2
 )
