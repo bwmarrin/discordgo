@@ -837,8 +837,8 @@ type GuildScheduledEventParams struct {
 	Image string `json:"image,omitempty"`
 }
 
-// Helper function to marshal GuildScheduledEventParams
-func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a helper function to marshal GuildScheduledEventParams
+func (p GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	type guildScheduledEventParams GuildScheduledEventParams
 
 	if p.EntityType == GuildScheduledEventEntityTypeExternal && p.ChannelID == "" {
@@ -846,16 +846,12 @@ func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 			guildScheduledEventParams
 			ChannelID json.RawMessage `json:"channel_id"`
 		}{
-			guildScheduledEventParams: guildScheduledEventParams(*p),
+			guildScheduledEventParams: guildScheduledEventParams(p),
 			ChannelID:                 json.RawMessage("null"),
 		})
 	}
 
-	return json.Marshal(struct {
-		guildScheduledEventParams
-	}{
-		guildScheduledEventParams: guildScheduledEventParams(*p),
-	})
+	return json.Marshal(guildScheduledEventParams(p))
 }
 
 // GuildScheduledEventEntityMetadata holds additional metadata for guild scheduled event.
