@@ -2825,7 +2825,7 @@ func (s *Session) GuildScheduledEventEdit(guildID, eventID string, event *GuildS
 	return
 }
 
-// GuildScheduledEventDelete deletes a specific GuildScheduledEvent for a guild
+// GuildScheduledEventDelete deletes a specific GuildScheduledEvent in a guild
 // guildID   : The ID of a Guild
 // eventID   : The ID of the event
 func (s *Session) GuildScheduledEventDelete(guildID, eventID string) (err error) {
