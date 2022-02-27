@@ -242,7 +242,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventUpdate endpoint. Scheduled Event Name mismatch")
 	}
 
-	// Usage of 1 and 1 is just the philosophy of run all branch in function without crashes.
+	// Usage of 1 and 1 is just the pseudo data with the purpose to run all branch in function without crashes.
 	// When Discord add possibility to register an event via API, add Endpoints and rewrite tests
 	// suite without correct value and remove "1" here.
 	// When this is the case all branches of the function can be tested without fake data.
