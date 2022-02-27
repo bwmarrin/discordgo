@@ -822,6 +822,8 @@ type GuildScheduledEventParams struct {
 	ScheduledEndTime *time.Time `json:"scheduled_end_time,omitempty"`
 	// The privacy level of the scheduled event
 	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level,omitempty"`
+	// The status of the scheduled event
+	Status GuildScheduledEventStatus `json:"status,omitempty"`
 	// See the requirement fields
 	// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-field-requirements-by-entity-type
 	EntityType GuildScheduledEventEntityType `json:"entity_type,omitempty"`
