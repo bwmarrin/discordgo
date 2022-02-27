@@ -836,6 +836,9 @@ type GuildScheduledEventParams struct {
 // nullJSONValue represents the value of a "null" JSON Statement
 const nullJSONValue string = "null"
 
+// MarshalJSON implements the json.Marshaler interface for
+// GuildScheduledEventParams to handle the special case of a null value
+// for channel_id field
 func (p *GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	if p.ChannelID == nullJSONValue {
 		return []byte(nullJSONValue), nil
