@@ -243,5 +243,5 @@ func (s *Session) onInterface(i interface{}) {
 func (s *Session) onReady(r *Ready) {
 
 	// Store the SessionID within the Session struct.
-	s.sessionID = r.SessionID
+	s.SessionID = r.SessionID
 }
