@@ -2780,7 +2780,7 @@ func (s *Session) GuildScheduledEvents(guildID string, userCount bool) (st []*Gu
 	return
 }
 
-// GuildScheduledEvent returns a specific GuildScheduledEvent for a guild
+// GuildScheduledEvent returns a specific GuildScheduledEvent in a guild
 // guildID        : The ID of a Guild
 // eventID        : The ID of the event
 // userCount      : Whether to include the user count in the response
