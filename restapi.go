@@ -2780,7 +2780,7 @@ func (s *Session) GuildScheduledEvents(guildID string, userCount bool) (st []*Gu
 	return
 }
 
-// GuildScheduledEvent returns a specific GuildScheduledEvent for a guild
+// GuildScheduledEvent returns a specific GuildScheduledEvent in a guild
 // guildID        : The ID of a Guild
 // eventID        : The ID of the event
 // userCount      : Whether to include the user count in the response
@@ -2825,7 +2825,7 @@ func (s *Session) GuildScheduledEventEdit(guildID, eventID string, event *GuildS
 	return
 }
 
-// GuildScheduledEventDelete deletes a specific GuildScheduledEvent for a guild
+// GuildScheduledEventDelete deletes a specific GuildScheduledEvent in a guild
 // guildID   : The ID of a Guild
 // eventID   : The ID of the event
 func (s *Session) GuildScheduledEventDelete(guildID, eventID string) (err error) {
@@ -2833,7 +2833,7 @@ func (s *Session) GuildScheduledEventDelete(guildID, eventID string) (err error)
 	return
 }
 
-// GuildScheduledEventUsers returns an array of GuildScheduledEventUser for a guild
+// GuildScheduledEventUsers returns an array of GuildScheduledEventUser for a particular event in a guild
 // guildID    : The ID of a Guild
 // eventID    : The ID of the event
 // limit      : The maximum number of users to return (Max 100)
