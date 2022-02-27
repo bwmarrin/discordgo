@@ -807,8 +807,7 @@ type GuildScheduledEvent struct {
 	Image string `json:"image"`
 }
 
-// GuildScheduledEventParams are the parameters allowed for creating a new scheduled event.
-// or updating an existing scheduled event.
+// GuildScheduledEventParams are the parameters allowed for creating or updating a scheduled event
 // https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event
 type GuildScheduledEventParams struct {
 	// The channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL
