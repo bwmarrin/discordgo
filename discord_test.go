@@ -1,6 +1,7 @@
 package discordgo
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"runtime"
@@ -9,8 +10,8 @@ import (
 	"time"
 )
 
-//////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////// VARS NEEDED FOR TESTING
+// ////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////// VARS NEEDED FOR TESTING
 var (
 	dg    *Session // Stores a global discordgo user session
 	dgBot *Session // Stores a global discordgo bot session
@@ -44,8 +45,8 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-//////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////// START OF TESTS
+// ////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////// START OF TESTS
 
 // TestNewToken tests the New() function with a Token.
 func TestNewToken(t *testing.T) {
@@ -190,9 +191,11 @@ func TestScheduledEvents(t *testing.T) {
 		t.Skip("Skipping, dgBot not set.")
 	}
 
+	ctx := context.Background()
+
 	beginAt := time.Now().Add(1 * time.Hour)
 	endAt := time.Now().Add(2 * time.Hour)
-	event, err := dgBot.GuildScheduledEventCreate(envGuild, &GuildScheduledEventParams{
+	event, err := dgBot.GuildScheduledEventCreate(ctx, envGuild, &GuildScheduledEventParams{
 		Name:               "Test Event",
 		PrivacyLevel:       GuildScheduledEventPrivacyLevelGuildOnly,
 		ScheduledStartTime: &beginAt,
@@ -203,13 +206,13 @@ func TestScheduledEvents(t *testing.T) {
 			Location: "https://discord.com",
 		},
 	})
-	defer dgBot.GuildScheduledEventDelete(envGuild, event.ID)
+	defer dgBot.GuildScheduledEventDelete(ctx, envGuild, event.ID)
 
 	if err != nil || event.Name != "Test Event" {
 		t.Fatal(err)
 	}
 
-	events, err := dgBot.GuildScheduledEvents(envGuild, true)
+	events, err := dgBot.GuildScheduledEvents(ctx, envGuild, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,7 +228,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEvents endpoint. Missing Scheduled Event")
 	}
 
-	getEvent, err := dgBot.GuildScheduledEvent(envGuild, event.ID, true)
+	getEvent, err := dgBot.GuildScheduledEvent(ctx, envGuild, event.ID, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,7 +236,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEvent endpoint. Mismatched Scheduled Event")
 	}
 
-	eventUpdated, err := dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{Name: "Test Event Updated"})
+	eventUpdated, err := dgBot.GuildScheduledEventEdit(ctx, envGuild, event.ID, &GuildScheduledEventParams{Name: "Test Event Updated"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,7 +247,7 @@ func TestScheduledEvents(t *testing.T) {
 
 	// Usage of 1 and 1 is just the pseudo data with the purpose to run all branches in the function without crashes.
 	// see https://github.com/bwmarrin/discordgo/pull/1032#discussion_r815438303 for more details.
-	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 1, true, "1", "1")
+	users, err := dgBot.GuildScheduledEventUsers(ctx, envGuild, event.ID, 1, true, "1", "1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,7 +255,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventUsers. Mismatch of event maybe occured")
 	}
 
-	err = dgBot.GuildScheduledEventDelete(envGuild, event.ID)
+	err = dgBot.GuildScheduledEventDelete(ctx, envGuild, event.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -263,9 +266,11 @@ func TestComplexScheduledEvents(t *testing.T) {
 		t.Skip("Skipping, dgBot not set.")
 	}
 
+	ctx := context.Background()
+
 	beginAt := time.Now().Add(1 * time.Hour)
 	endAt := time.Now().Add(2 * time.Hour)
-	event, err := dgBot.GuildScheduledEventCreate(envGuild, &GuildScheduledEventParams{
+	event, err := dgBot.GuildScheduledEventCreate(ctx, envGuild, &GuildScheduledEventParams{
 		Name:               "Test Voice Event",
 		PrivacyLevel:       GuildScheduledEventPrivacyLevelGuildOnly,
 		ScheduledStartTime: &beginAt,
@@ -277,9 +282,9 @@ func TestComplexScheduledEvents(t *testing.T) {
 	if err != nil || event.Name != "Test Voice Event" {
 		t.Fatal(err)
 	}
-	defer dgBot.GuildScheduledEventDelete(envGuild, event.ID)
+	defer dgBot.GuildScheduledEventDelete(ctx, envGuild, event.ID)
 
-	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
+	_, err = dgBot.GuildScheduledEventEdit(ctx, envGuild, event.ID, &GuildScheduledEventParams{
 		EntityType: GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &GuildScheduledEventEntityMetadata{
 			Location: "https://discord.com",
@@ -290,7 +295,7 @@ func TestComplexScheduledEvents(t *testing.T) {
 		t.Fatal("err on GuildScheduledEventEdit. Change of entity type to external failed")
 	}
 
-	_, err = dgBot.GuildScheduledEventEdit(envGuild, event.ID, &GuildScheduledEventParams{
+	_, err = dgBot.GuildScheduledEventEdit(ctx, envGuild, event.ID, &GuildScheduledEventParams{
 		ChannelID:      envVoiceChannel,
 		EntityType:     GuildScheduledEventEntityTypeVoice,
 		EntityMetadata: nil,

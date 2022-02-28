@@ -1,6 +1,7 @@
 package discordgo_test
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -8,6 +9,7 @@ import (
 )
 
 func ExampleApplication() {
+	ctx := context.Background()
 
 	// Authentication Token pulled from environment variable DGU_TOKEN
 	Token := os.Getenv("DGU_TOKEN")
@@ -26,31 +28,31 @@ func ExampleApplication() {
 	ap := &discordgo.Application{}
 	ap.Name = "TestApp"
 	ap.Description = "TestDesc"
-	ap, err = dg.ApplicationCreate(ap)
+	ap, err = dg.ApplicationCreate(ctx, ap)
 	log.Printf("ApplicationCreate: err: %+v, app: %+v\n", err, ap)
 
 	// Get a specific Application by it's ID
-	ap, err = dg.Application(ap.ID)
+	ap, err = dg.Application(ctx, ap.ID)
 	log.Printf("Application: err: %+v, app: %+v\n", err, ap)
 
 	// Update an existing Application with new values
 	ap.Description = "Whooooa"
-	ap, err = dg.ApplicationUpdate(ap.ID, ap)
+	ap, err = dg.ApplicationUpdate(ctx, ap.ID, ap)
 	log.Printf("ApplicationUpdate: err: %+v, app: %+v\n", err, ap)
 
 	// create a new bot account for this application
-	bot, err := dg.ApplicationBotCreate(ap.ID)
+	bot, err := dg.ApplicationBotCreate(ctx, ap.ID)
 	log.Printf("BotCreate: err: %+v, bot: %+v\n", err, bot)
 
 	// Get a list of all applications for the authenticated user
-	apps, err := dg.Applications()
+	apps, err := dg.Applications(ctx)
 	log.Printf("Applications: err: %+v, apps : %+v\n", err, apps)
 	for k, v := range apps {
 		log.Printf("Applications: %d : %+v\n", k, v)
 	}
 
 	// Delete the application we created.
-	err = dg.ApplicationDelete(ap.ID)
+	err = dg.ApplicationDelete(ctx, ap.ID)
 	log.Printf("Delete: err: %+v\n", err)
 
 	return

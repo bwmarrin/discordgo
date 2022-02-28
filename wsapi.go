@@ -13,6 +13,7 @@ package discordgo
 import (
 	"bytes"
 	"compress/zlib"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -45,9 +46,15 @@ type resumePacket struct {
 	} `json:"d"`
 }
 
-// Open creates a websocket connection to Discord.
+// Open creates a websocket connection to Discord
 // See: https://discord.com/developers/docs/topics/gateway#connecting
 func (s *Session) Open() error {
+	return s.OpenContext(context.Background())
+}
+
+// OpenContext creates a websocket connection to Discord.
+// See: https://discord.com/developers/docs/topics/gateway#connecting
+func (s *Session) OpenContext(ctx context.Context) error {
 	s.log(LogInformational, "called")
 
 	var err error
@@ -64,7 +71,7 @@ func (s *Session) Open() error {
 
 	// Get the gateway to use for the Websocket connection
 	if s.gateway == "" {
-		s.gateway, err = s.Gateway()
+		s.gateway, err = s.Gateway(ctx)
 		if err != nil {
 			return err
 		}

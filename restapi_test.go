@@ -1,15 +1,17 @@
 package discordgo
 
 import (
+	"context"
 	"errors"
 	"testing"
 )
 
-//////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////// START OF TESTS
+// ////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////// START OF TESTS
 
 // TestChannelMessageSend tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend(t *testing.T) {
+	ctx := context.Background()
 
 	if envChannel == "" {
 		t.Skip("Skipping, DG_CHANNEL not set.")
@@ -19,7 +21,7 @@ func TestChannelMessageSend(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.ChannelMessageSend(envChannel, "Running REST API Tests!")
+	_, err := dg.ChannelMessageSend(ctx, envChannel, "Running REST API Tests!")
 	if err != nil {
 		t.Errorf("ChannelMessageSend returned error: %+v", err)
 	}
@@ -80,7 +82,7 @@ func TestUserUpdate(t *testing.T) {
 }
 */
 
-//func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
+// func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
 
 func TestUserChannelCreate(t *testing.T) {
 	if dg == nil {
@@ -90,8 +92,9 @@ func TestUserChannelCreate(t *testing.T) {
 	if envAdmin == "" {
 		t.Skip("Skipped, DG_ADMIN not set.")
 	}
+	ctx := context.Background()
 
-	_, err := dg.UserChannelCreate(envAdmin)
+	_, err := dg.UserChannelCreate(ctx, envAdmin)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -104,7 +107,9 @@ func TestUserGuilds(t *testing.T) {
 		t.Skip("Cannot TestUserGuilds, dg not set.")
 	}
 
-	_, err := dg.UserGuilds(10, "", "")
+	ctx := context.Background()
+
+	_, err := dg.UserGuilds(ctx, 10, "", "")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -112,10 +117,12 @@ func TestUserGuilds(t *testing.T) {
 
 func TestGateway(t *testing.T) {
 
+	ctx := context.Background()
+
 	if dg == nil {
 		t.Skip("Skipping, dg not set.")
 	}
-	_, err := dg.Gateway()
+	_, err := dg.Gateway(ctx)
 	if err != nil {
 		t.Errorf("Gateway() returned error: %+v", err)
 	}
@@ -126,7 +133,10 @@ func TestGatewayBot(t *testing.T) {
 	if dgBot == nil {
 		t.Skip("Skipping, dgBot not set.")
 	}
-	_, err := dgBot.GatewayBot()
+
+	ctx := context.Background()
+
+	_, err := dgBot.GatewayBot(ctx)
 	if err != nil {
 		t.Errorf("GatewayBot() returned error: %+v", err)
 	}
@@ -138,7 +148,9 @@ func TestVoiceRegions(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.VoiceRegions()
+	ctx := context.Background()
+
+	_, err := dg.VoiceRegions(ctx)
 	if err != nil {
 		t.Errorf("VoiceRegions() returned error: %+v", err)
 	}
@@ -153,7 +165,9 @@ func TestGuildRoles(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.GuildRoles(envGuild)
+	ctx := context.Background()
+
+	_, err := dg.GuildRoles(ctx, envGuild)
 	if err != nil {
 		t.Errorf("GuildRoles(envGuild) returned error: %+v", err)
 	}
@@ -170,7 +184,9 @@ func TestGuildMemberNickname(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	err := dg.GuildMemberNickname(envGuild, "@me/nick", "B1nzyRocks")
+	ctx := context.Background()
+
+	err := dg.GuildMemberNickname(ctx, envGuild, "@me/nick", "B1nzyRocks")
 	if err != nil {
 		t.Errorf("GuildNickname returned error: %+v", err)
 	}
@@ -187,7 +203,9 @@ func TestChannelMessageSend2(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.ChannelMessageSend(envChannel, "All done running REST API Tests!")
+	ctx := context.Background()
+
+	_, err := dg.ChannelMessageSend(ctx, envChannel, "All done running REST API Tests!")
 	if err != nil {
 		t.Errorf("ChannelMessageSend returned error: %+v", err)
 	}
@@ -204,7 +222,9 @@ func TestGuildPruneCount(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.GuildPruneCount(envGuild, 1)
+	ctx := context.Background()
+
+	_, err := dg.GuildPruneCount(ctx, envGuild, 1)
 	if err != nil {
 		t.Errorf("GuildPruneCount returned error: %+v", err)
 	}

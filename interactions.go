@@ -2,6 +2,7 @@ package discordgo
 
 import (
 	"bytes"
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
@@ -419,7 +420,8 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Chann
 
 	ch, err := s.State.Channel(chanID)
 	if err != nil {
-		ch, err = s.Channel(chanID)
+		ctx := context.Background()
+		ch, err = s.Channel(ctx, chanID)
 		if err != nil {
 			return &Channel{ID: chanID}
 		}
@@ -442,7 +444,8 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 
 	r, err := s.State.Role(roleID, gID)
 	if err != nil {
-		roles, err := s.GuildRoles(gID)
+		ctx := context.Background()
+		roles, err := s.GuildRoles(ctx, gID)
 		if err == nil {
 			for _, r = range roles {
 				if r.ID == roleID {
@@ -468,7 +471,8 @@ func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 		return &User{ID: userID}
 	}
 
-	u, err := s.User(userID)
+	ctx := context.Background()
+	u, err := s.User(ctx, userID)
 	if err != nil {
 		return &User{ID: userID}
 	}
