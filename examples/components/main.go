@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -36,7 +37,8 @@ func init() {
 var (
 	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"fd_no": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Huh. I see, maybe some of these resources might help you?",
@@ -78,7 +80,8 @@ var (
 			}
 		},
 		"fd_yes": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Great! If you wanna know more or just have questions, feel free to visit Discord Devs and Discord Gophers server. " +
@@ -114,6 +117,7 @@ var (
 		},
 		"select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			var response *discordgo.InteractionResponse
+			ctx := context.Background()
 
 			data := i.MessageComponentData()
 			switch data.Values[0] {
@@ -134,12 +138,13 @@ var (
 					},
 				}
 			}
-			err := s.InteractionRespond(i.Interaction, response)
+			err := s.InteractionRespond(ctx, i.Interaction, response)
 			if err != nil {
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+
+			_, err = s.FollowupMessageCreate(ctx, *AppID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
 					"Try calling `/selects multi` command.",
 				Flags: 1 << 6,
@@ -153,7 +158,8 @@ var (
 
 			const stackoverflowFormat = `https://stackoverflow.com/questions/tagged/%s`
 
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Here is your stackoverflow URL: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
@@ -164,7 +170,8 @@ var (
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+
+			_, err = s.FollowupMessageCreate(ctx, *AppID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Now you know everything about select component. If you want to know more or ask a question - feel free to.",
 				Components: []discordgo.MessageComponent{
 					discordgo.ActionsRow{
@@ -205,7 +212,8 @@ var (
 	}
 	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"buttons": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Are you comfortable with buttons and other message components?",
@@ -383,7 +391,9 @@ var (
 				}
 
 			}
-			err := s.InteractionRespond(i.Interaction, response)
+
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, response)
 			if err != nil {
 				panic(err)
 			}
@@ -392,6 +402,8 @@ var (
 )
 
 func main() {
+	ctx := context.Background()
+
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Println("Bot is up!")
 	})
@@ -409,7 +421,7 @@ func main() {
 			}
 		}
 	})
-	_, err := s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
+	_, err := s.ApplicationCommandCreate(ctx, *AppID, *GuildID, &discordgo.ApplicationCommand{
 		Name:        "buttons",
 		Description: "Test the buttons if you got courage",
 	})
@@ -417,7 +429,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot create slash command: %v", err)
 	}
-	_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
+	_, err = s.ApplicationCommandCreate(ctx, *AppID, *GuildID, &discordgo.ApplicationCommand{
 		Name: "selects",
 		Options: []*discordgo.ApplicationCommandOption{
 			{

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -68,8 +69,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	ctx := context.Background()
+
 	// We create the private channel with the user who sent the message.
-	channel, err := s.UserChannelCreate(m.Author.ID)
+	channel, err := s.UserChannelCreate(ctx, m.Author.ID)
 	if err != nil {
 		// If an error occurred, we failed to create the channel.
 		//
@@ -80,13 +83,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		//    new ones.
 		fmt.Println("error creating channel:", err)
 		s.ChannelMessageSend(
+			ctx,
 			m.ChannelID,
 			"Something went wrong while sending the DM!",
 		)
 		return
 	}
 	// Then we send the message through the channel we created.
-	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
+	_, err = s.ChannelMessageSend(ctx, channel.ID, "Pong!")
 	if err != nil {
 		// If an error occurred, we failed to send the message.
 		//
@@ -95,6 +99,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// the user disabled DM in their settings (more likely).
 		fmt.Println("error sending DM message:", err)
 		s.ChannelMessageSend(
+			ctx,
 			m.ChannelID,
 			"Failed to send you a DM. "+
 				"Did you disable DM in your privacy settings?",

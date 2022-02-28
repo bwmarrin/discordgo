@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -70,7 +71,9 @@ var (
 	}
 	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"rickroll-em": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Operation rickroll has begun",
@@ -82,10 +85,11 @@ var (
 			}
 
 			ch, err := s.UserChannelCreate(
+				ctx,
 				i.ApplicationCommandData().TargetID,
 			)
 			if err != nil {
-				_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(ctx, *AppID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: fmt.Sprintf("Mission failed. Cannot send a message to this user: %q", err.Error()),
 					Flags:   1 << 6,
 				})
@@ -94,6 +98,7 @@ var (
 				}
 			}
 			_, err = s.ChannelMessageSend(
+				ctx,
 				ch.ID,
 				fmt.Sprintf("%s sent you this: https://youtu.be/dQw4w9WgXcQ", i.Member.Mention()),
 			)
@@ -102,7 +107,8 @@ var (
 			}
 		},
 		"google-it": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: searchLink(
@@ -116,7 +122,8 @@ var (
 			}
 		},
 		"stackoverflow-it": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: searchLink(
@@ -130,7 +137,8 @@ var (
 			}
 		},
 		"godoc-it": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: searchLink(
@@ -144,7 +152,8 @@ var (
 			}
 		},
 		"discordjs-it": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: searchLink(
@@ -158,7 +167,8 @@ var (
 			}
 		},
 		"discordpy-it": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: searchLink(
@@ -186,9 +196,10 @@ func main() {
 	})
 
 	cmdIDs := make(map[string]string, len(commands))
+	ctx := context.Background()
 
 	for _, cmd := range commands {
-		rcmd, err := s.ApplicationCommandCreate(*AppID, *GuildID, &cmd)
+		rcmd, err := s.ApplicationCommandCreate(ctx, *AppID, *GuildID, &cmd)
 		if err != nil {
 			log.Fatalf("Cannot create slash command %q: %v", cmd.Name, err)
 		}
@@ -213,7 +224,7 @@ func main() {
 	}
 
 	for id, name := range cmdIDs {
-		err := s.ApplicationCommandDelete(*AppID, *GuildID, id)
+		err := s.ApplicationCommandDelete(ctx, *AppID, *GuildID, id)
 		if err != nil {
 			log.Fatalf("Cannot delete slash command %q: %v", name, err)
 		}

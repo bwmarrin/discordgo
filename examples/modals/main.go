@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -43,7 +44,8 @@ var (
 	}
 	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"modals-survey": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseModal,
 				Data: &discordgo.InteractionResponseData{
 					CustomID: "modals_survey_" + i.Interaction.Member.User.ID,
@@ -84,6 +86,8 @@ var (
 )
 
 func main() {
+	ctx := context.Background()
+
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Println("Bot is up!")
 	})
@@ -95,7 +99,7 @@ func main() {
 				h(s, i)
 			}
 		case discordgo.InteractionModalSubmit:
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Thank you for taking your time to fill this survey",
@@ -112,7 +116,7 @@ func main() {
 			}
 
 			userid := strings.Split(data.CustomID, "_")[2]
-			_, err = s.ChannelMessageSend(*ResultsChannel, fmt.Sprintf(
+			_, err = s.ChannelMessageSend(ctx, *ResultsChannel, fmt.Sprintf(
 				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s",
 				userid,
 				data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
@@ -127,7 +131,7 @@ func main() {
 	cmdIDs := make(map[string]string, len(commands))
 
 	for _, cmd := range commands {
-		rcmd, err := s.ApplicationCommandCreate(*AppID, *GuildID, &cmd)
+		rcmd, err := s.ApplicationCommandCreate(ctx, *AppID, *GuildID, &cmd)
 		if err != nil {
 			log.Fatalf("Cannot create slash command %q: %v", cmd.Name, err)
 		}
@@ -151,7 +155,7 @@ func main() {
 	}
 
 	for id, name := range cmdIDs {
-		err := s.ApplicationCommandDelete(*AppID, *GuildID, id)
+		err := s.ApplicationCommandDelete(ctx, *AppID, *GuildID, id)
 		if err != nil {
 			log.Fatalf("Cannot delete slash command %q: %v", name, err)
 		}

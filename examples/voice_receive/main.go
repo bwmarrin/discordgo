@@ -75,7 +75,8 @@ func main() {
 	defer s.Close()
 
 	// We only really care about receiving voice state updates.
-	s.Identify.Intents = discordgo.IntentsGuildVoiceStates
+	voiceUpdateIntent := discordgo.IntentsGuildVoiceStates
+	s.Identify.Intents = &voiceUpdateIntent
 
 	err = s.Open()
 	if err != nil {

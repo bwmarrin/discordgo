@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -167,7 +168,9 @@ var (
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+
+			s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
@@ -175,7 +178,9 @@ var (
 			})
 		},
 		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			ctx := context.Background()
+
+			s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
@@ -190,6 +195,8 @@ var (
 			})
 		},
 		"options": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			ctx := context.Background()
+
 			margs := []interface{}{
 				// Here we need to convert raw interface{} value to wanted type.
 				// Also, as you can see, here is used utility functions to convert the value
@@ -217,7 +224,7 @@ var (
 				margs = append(margs, i.ApplicationCommandData().Options[5].RoleValue(nil, "").ID)
 				msgformat += "> role-option: <@&%s>\n"
 			}
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				// Ignore type for now, we'll discuss them in "responses" part
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -229,6 +236,8 @@ var (
 			})
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			ctx := context.Background()
+
 			content := ""
 
 			// As you can see, the name of subcommand (nested, top-level) or subcommand group
@@ -250,7 +259,7 @@ var (
 						"Hol' up, you aren't supposed to see this message."
 				}
 			}
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: content,
@@ -258,6 +267,8 @@ var (
 			})
 		},
 		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			ctx := context.Background()
+
 			// Responses to a command are very important.
 			// First of all, because you need to react to the interaction
 			// by sending the response in 3 seconds after receiving, otherwise
@@ -275,51 +286,53 @@ var (
 				content +=
 					"\nAlso... you can edit your response, wait 5 seconds and this message will be changed"
 			default:
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(ctx, s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 				}
 				return
 			}
 
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(ctx, s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				return
 			}
 			time.AfterFunc(time.Second*5, func() {
-				_, err = s.InteractionResponseEdit(s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
+				_, err = s.InteractionResponseEdit(ctx, s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
 					Content: content + "\n\nWell, now you know how to create and edit responses. " +
 						"But you still don't know how to delete them... so... wait 10 seconds and this " +
 						"message will be deleted.",
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(ctx, s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 					return
 				}
 				time.Sleep(time.Second * 10)
-				s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
+				s.InteractionResponseDelete(ctx, s.State.User.ID, i.Interaction)
 			})
 		},
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			ctx := context.Background()
+
 			// Followup messages are basically regular messages (you can create as many of them as you wish)
 			// but work as they are created by webhooks and their functionality
 			// is for handling additional messages after sending a response.
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
@@ -329,26 +342,26 @@ var (
 					Content: "Surprise!",
 				},
 			})
-			msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			msg, err := s.FollowupMessageCreate(ctx, s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(ctx, s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				return
 			}
 			time.Sleep(time.Second * 5)
 
-			s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
+			s.FollowupMessageEdit(ctx, s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
 				Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
 
 			time.Sleep(time.Second * 10)
 
-			s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+			s.FollowupMessageDelete(ctx, s.State.User.ID, i.Interaction, msg.ID)
 
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			s.FollowupMessageCreate(ctx, s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus... look at the original interaction response :D",
@@ -366,6 +379,8 @@ func init() {
 }
 
 func main() {
+	ctx := context.Background()
+
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
@@ -377,7 +392,7 @@ func main() {
 	log.Println("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		cmd, err := s.ApplicationCommandCreate(ctx, s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
@@ -403,7 +418,7 @@ func main() {
 		// }
 
 		for _, v := range registeredCommands {
-			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
+			err := s.ApplicationCommandDelete(ctx, s.State.User.ID, *GuildID, v.ID)
 			if err != nil {
 				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 			}

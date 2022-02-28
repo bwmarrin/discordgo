@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -73,7 +74,8 @@ var (
 			switch i.Type {
 			case discordgo.InteractionApplicationCommand:
 				data := i.ApplicationCommandData()
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				ctx := context.Background()
+				err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: fmt.Sprintf(
@@ -120,7 +122,8 @@ var (
 					})
 				}
 
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				ctx := context.Background()
+				err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionApplicationCommandAutocompleteResult,
 					Data: &discordgo.InteractionResponseData{
 						Choices: choices, // This is basically the whole purpose of autocomplete interaction - return custom options to the user.
@@ -135,7 +138,8 @@ var (
 			switch i.Type {
 			case discordgo.InteractionApplicationCommand:
 				data := i.ApplicationCommandData()
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				ctx := context.Background()
+				err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: fmt.Sprintf(
@@ -206,7 +210,8 @@ var (
 					}
 				}
 
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				ctx := context.Background()
+				err := s.InteractionRespond(ctx, i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionApplicationCommandAutocompleteResult,
 					Data: &discordgo.InteractionResponseData{
 						Choices: choices,
@@ -233,7 +238,9 @@ func main() {
 	}
 	defer s.Close()
 
-	createdCommands, err := s.ApplicationCommandBulkOverwrite(s.State.User.ID, *GuildID, commands)
+	ctx := context.Background()
+
+	createdCommands, err := s.ApplicationCommandBulkOverwrite(ctx, s.State.User.ID, *GuildID, commands)
 
 	if err != nil {
 		log.Fatalf("Cannot register commands: %v", err)
@@ -246,7 +253,7 @@ func main() {
 
 	if *RemoveCommands {
 		for _, cmd := range createdCommands {
-			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, cmd.ID)
+			err := s.ApplicationCommandDelete(ctx, s.State.User.ID, *GuildID, cmd.ID)
 			if err != nil {
 				log.Fatalf("Cannot delete %q command: %v", cmd.Name, err)
 			}

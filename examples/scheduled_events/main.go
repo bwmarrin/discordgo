@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -44,12 +45,14 @@ func main() {
 
 // Create a new event on guild
 func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
+	ctx := context.Background()
+
 	// Define the starting time (must be in future)
 	startingTime := time.Now().Add(1 * time.Hour)
 	// Define the ending time (must be after starting time)
 	endingTime := startingTime.Add(30 * time.Minute)
 	// Create the event
-	scheduledEvent, err := s.GuildScheduledEventCreate(*GuildID, &discordgo.GuildScheduledEventParams{
+	scheduledEvent, err := s.GuildScheduledEventCreate(ctx, *GuildID, &discordgo.GuildScheduledEventParams{
 		Name:               "Amazing Event",
 		Description:        "This event will start in 1 hour and last 30 minutes",
 		ScheduledStartTime: &startingTime,
@@ -68,7 +71,9 @@ func createAmazingEvent(s *discordgo.Session) *discordgo.GuildScheduledEvent {
 }
 
 func transformEventToExternalEvent(s *discordgo.Session, event *discordgo.GuildScheduledEvent) {
-	scheduledEvent, err := s.GuildScheduledEventEdit(*GuildID, event.ID, &discordgo.GuildScheduledEventParams{
+	ctx := context.Background()
+
+	scheduledEvent, err := s.GuildScheduledEventEdit(ctx, *GuildID, event.ID, &discordgo.GuildScheduledEventParams{
 		Name:       "Amazing Event @ Discord Website",
 		EntityType: discordgo.GuildScheduledEventEntityTypeExternal,
 		EntityMetadata: &discordgo.GuildScheduledEventEntityMetadata{
