@@ -55,7 +55,6 @@ type User struct {
 	MFAEnabled bool `json:"mfa_enabled"`
 
 	// The hash of the user's banner image.
-	// see https://discord.com/developers/docs/reference#image-formatting
 	Banner string `json:"banner"`
 
 	// User's banner color, encoded as an integer representation of hexadecimal color code
