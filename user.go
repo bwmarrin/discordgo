@@ -54,7 +54,7 @@ type User struct {
 	// Whether the user has multi-factor authentication enabled.
 	MFAEnabled bool `json:"mfa_enabled"`
 
-	// Banner the user's banner hash
+	// The hash of the user's banner image.
 	// see https://discord.com/developers/docs/reference#image-formatting
 	Banner string `json:"banner"`
 
