@@ -93,11 +93,11 @@ func avatarURL(avatarHash, defaultAvatarURL, staticAvatarURL, animatedAvatarURL,
 	return URL
 }
 
-func bannerURL(coverHash, staticCoverURL, animatedCoverURL, size string) string {
+func bannerURL(bannerHash, staticCoverURL, animatedCoverURL, size string) string {
 	var URL string
-	if coverHash == "" {
+	if bannerHash == "" {
 		return ""
-	} else if strings.HasPrefix(coverHash, "a_") {
+	} else if strings.HasPrefix(bannerHash, "a_") {
 		URL = animatedCoverURL
 	} else {
 		URL = staticCoverURL

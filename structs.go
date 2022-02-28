@@ -1170,8 +1170,8 @@ func (m *Member) AvatarURL(size string) string {
 
 }
 
-// BannerURL returns the URL of the member's cover image.
-//    size:    The size of the desired cover image as a power of two
+// BannerURL returns the URL of the member's banner image.
+//    size:    The size of the desired banner image as a power of two
 //             Image size can be any power of two between 16 and 4096.
 func (m *Member) BannerURL(size string) string {
 	return bannerURL(m.User.Banner, EndpointUserBanner(m.User.ID, m.User.Banner), EndpointUserBannerAnimated(m.User.ID, m.User.Banner), size)
