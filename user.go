@@ -58,7 +58,7 @@ type User struct {
 	// see https://discord.com/developers/docs/reference#image-formatting
 	Banner string `json:"banner"`
 
-	// the user's banner color encoded as an integer representation of hexadecimal color code
+	// User's banner color, encoded as an integer representation of hexadecimal color code
 	AccentColor int `json:"accent_color"`
 
 	// Whether the user is a bot.
