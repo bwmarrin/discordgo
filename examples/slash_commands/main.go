@@ -66,6 +66,13 @@ var (
 					Required:    true,
 				},
 				{
+					Type:        discordgo.ApplicationCommandOptionNumber,
+					Name:        "number-option",
+					Description: "Float option",
+					MaxValue:    10.1,
+					Required:    true,
+				},
+				{
 					Type:        discordgo.ApplicationCommandOptionBoolean,
 					Name:        "bool-option",
 					Description: "Boolean option",
@@ -197,24 +204,26 @@ var (
 				// but this is much simpler
 				i.ApplicationCommandData().Options[0].StringValue(),
 				i.ApplicationCommandData().Options[1].IntValue(),
-				i.ApplicationCommandData().Options[2].BoolValue(),
+				i.ApplicationCommandData().Options[2].FloatValue(),
+				i.ApplicationCommandData().Options[3].BoolValue(),
 			}
 			msgformat :=
 				` Now you just learned how to use command options. Take a look to the value of which you've just entered:
 				> string_option: %s
 				> integer_option: %d
+				> number_option: %f
 				> bool_option: %v
 `
-			if len(i.ApplicationCommandData().Options) >= 4 {
-				margs = append(margs, i.ApplicationCommandData().Options[3].ChannelValue(nil).ID)
+			if len(i.ApplicationCommandData().Options) >= 5 {
+				margs = append(margs, i.ApplicationCommandData().Options[4].ChannelValue(nil).ID)
 				msgformat += "> channel-option: <#%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 5 {
-				margs = append(margs, i.ApplicationCommandData().Options[4].UserValue(nil).ID)
+			if len(i.ApplicationCommandData().Options) >= 6 {
+				margs = append(margs, i.ApplicationCommandData().Options[5].UserValue(nil).ID)
 				msgformat += "> user-option: <@%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 6 {
-				margs = append(margs, i.ApplicationCommandData().Options[5].RoleValue(nil, "").ID)
+			if len(i.ApplicationCommandData().Options) >= 7 {
+				margs = append(margs, i.ApplicationCommandData().Options[6].RoleValue(nil, "").ID)
 				msgformat += "> role-option: <@&%s>\n"
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{

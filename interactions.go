@@ -57,6 +57,7 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
+	ApplicationCommandOptionNumber          ApplicationCommandOptionType = 10
 	ApplicationCommandOptionAttachment      ApplicationCommandOptionType = 11
 )
 
@@ -80,6 +81,8 @@ func (t ApplicationCommandOptionType) String() string {
 		return "Role"
 	case ApplicationCommandOptionMentionable:
 		return "Mentionable"
+	case ApplicationCommandOptionNumber:
+		return "Number"
 	case ApplicationCommandOptionAttachment:
 		return "Attachment"
 	}
@@ -381,12 +384,10 @@ func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 
 // FloatValue is a utility function for casting option value to float
 func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
-	// TODO: limit calls to Number type once it is released
-	if v, ok := o.Value.(float64); ok {
-		return v
+	if o.Type != ApplicationCommandOptionNumber {
+		panic("FloatValue called on data option of type " + o.Type.String())
 	}
-
-	return 0.0
+	return o.Value.(float64)
 }
 
 // StringValue is a utility function for casting option value to string
