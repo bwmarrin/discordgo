@@ -1859,6 +1859,7 @@ const (
 	ErrCodeStageTopicContainsNotAllowedWordsForPublicStages                 = 20031
 	ErrCodeGuildPremiumSubscriptionLevelTooLow                              = 20035
 
+	ErrCodeMaximumGuildsReached                                    = 30001
 	ErrCodeMaximumPinsReached                                      = 30003
 	ErrCodeMaximumNumberOfRecipientsReached                        = 30004
 	ErrCodeMaximumGuildRolesReached                                = 30005
