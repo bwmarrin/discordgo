@@ -99,7 +99,7 @@ func (u *User) AvatarURL(size string) string {
 		EndpointUserAvatar(u.ID, u.Avatar), EndpointUserAvatarAnimated(u.ID, u.Avatar), size)
 }
 
-// BannerURL returns the URL of the member's banner image.
+// BannerURL returns the URL of the users's banner image.
 //    size:    The size of the desired banner image as a power of two
 //             Image size can be any power of two between 16 and 4096.
 func (u *User) BannerURL(size string) string {
