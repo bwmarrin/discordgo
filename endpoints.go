@@ -54,6 +54,12 @@ var (
 		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
 		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
 	}
+	EndpointUserBanner = func(uID, cID string) string {
+		return EndpointCDNBanners + uID + "/" + cID + ".png"
+	}
+	EndpointUserBannerAnimated = func(uID, cID string) string {
+		return EndpointCDNBanners + uID + "/" + cID + ".gif"
+	}
 
 	EndpointUserGuilds      = func(uID string) string { return EndpointUsers + uID + "/guilds" }
 	EndpointUserGuild       = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID }

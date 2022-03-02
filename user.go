@@ -54,6 +54,12 @@ type User struct {
 	// Whether the user has multi-factor authentication enabled.
 	MFAEnabled bool `json:"mfa_enabled"`
 
+	// The hash of the user's banner image.
+	Banner string `json:"banner"`
+
+	// User's banner color, encoded as an integer representation of hexadecimal color code
+	AccentColor int `json:"accent_color"`
+
 	// Whether the user is a bot.
 	Bot bool `json:"bot"`
 
@@ -91,4 +97,11 @@ func (u *User) Mention() string {
 func (u *User) AvatarURL(size string) string {
 	return avatarURL(u.Avatar, EndpointDefaultUserAvatar(u.Discriminator),
 		EndpointUserAvatar(u.ID, u.Avatar), EndpointUserAvatarAnimated(u.ID, u.Avatar), size)
+}
+
+// BannerURL returns the URL of the users's banner image.
+//    size:    The size of the desired banner image as a power of two
+//             Image size can be any power of two between 16 and 4096.
+func (u *User) BannerURL(size string) string {
+	return bannerURL(u.Banner, EndpointUserBanner(u.ID, u.Banner), EndpointUserBannerAnimated(u.ID, u.Banner), size)
 }
