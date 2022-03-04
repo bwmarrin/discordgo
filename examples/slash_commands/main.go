@@ -12,28 +12,24 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Bot parameters
+// Parse the bot's parameters from the command line.
+// NOTE: Don't commit the BOT TOKEN on Git. This will give FULL ACCESS to your bot (to whoever can access your project).
+// Use an environment variable instead.
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
-var s *discordgo.Session
-
-func init() { flag.Parse() }
-
-func init() {
-	var err error
-	s, err = discordgo.New("Bot " + *BotToken)
-	if err != nil {
-		log.Fatalf("Invalid bot parameters: %v", err)
-	}
-}
-
 var (
 	integerOptionMinValue = 1.0
 
+	// The discord session that represents your bot.
+	s *discordgo.Session
+
+	// Create the application commands (slash commands) the bot will add.
+	// https://discord.com/developers/docs/interactions/application-commands#application-commands
+	// https://discord.com/developers/docs/interactions/application-commands#registering-a-command
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
@@ -172,6 +168,8 @@ var (
 			Description: "Followup messages",
 		},
 	}
+
+	// Create the handlers for the commands defined in the commands slice.
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -266,13 +264,12 @@ var (
 				},
 			})
 		},
-		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Responses to a command are very important.
-			// First of all, because you need to react to the interaction
-			// by sending the response in 3 seconds after receiving, otherwise
-			// interaction will be considered invalid and you can no longer
-			// use the interaction token and ID for responding to the user's request
 
+		// The Initial Response to an Interaction must occur within 3 seconds of recieving it.
+		// Otherwise the interaction token will be invalidated (disables the interaction token and ID).
+		// Valid interaction tokens last for 15 minutes.
+		// https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
+		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			content := ""
 			// As you can see, the response type names used here are pretty self-explanatory,
 			// but for those who want more information see the official documentation
@@ -323,10 +320,11 @@ var (
 				s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
 			})
 		},
+
+		// Interaction tokens are valid for 15 minutes and can be used to send any amount of followup messages.
+		// Followup Messages allow you send or edit responses after an initial response.
+		// https://discord.com/developers/docs/interactions/receiving-and-responding#followup-messages
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Followup messages are basically regular messages (you can create as many of them as you wish)
-			// but work as they are created by webhooks and their functionality
-			// is for handling additional messages after sending a response.
 
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -366,7 +364,21 @@ var (
 	}
 )
 
+// init() executes as soon as the package is imported.
+// In this case, before any other code is run.
 func init() {
+	// Parse the flags from the command-line.
+	flag.Parse()
+
+	// Instantiate a new Discord Bot Session.
+	var err error
+	s, err = discordgo.New("Bot " + *BotToken)
+	if err != nil {
+		log.Fatalf("Invalid bot parameters: %v", err)
+	}
+
+	// Add an event handler for created interactions (defined in the commandHandlers map).
+	// https://discord.com/developers/docs/topics/gateway#interaction-create
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
@@ -375,22 +387,22 @@ func init() {
 }
 
 func main() {
+	// Create a log once the websocket is ready to recieve events from Discord.
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
-	err := s.Open()
-	if err != nil {
-		log.Fatalf("Cannot open the session: %v", err)
+	if err := s.Open(); err != nil {
+		log.Fatalf("Cannot open the websocket connection to Discord: %v", err)
 	}
 
 	log.Println("Adding commands...")
-	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	newCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		command, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
-		registeredCommands[i] = cmd
+		newCommands[i] = command
 	}
 
 	defer s.Close()
@@ -402,16 +414,18 @@ func main() {
 
 	if *RemoveCommands {
 		log.Println("Removing commands...")
-		// // We need to fetch the commands, since deleting requires the command ID.
-		// // We are doing this from the returned commands on line 375, because using
-		// // this will delete all the commands, which might not be desirable, so we
-		// // are deleting only the commands that we added.
+		// Uncomment the following code to delete every command in the application.
+		// You must also change newCommands (line 427) to registeredCommands.
+		//
+		// Fetch the created command IDs from the Discord API.
 		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
 		// if err != nil {
 		// 	log.Fatalf("Could not fetch registered commands: %v", err)
 		// }
 
-		for _, v := range registeredCommands {
+		// Otherwise, only delete the newly created commands for this session.
+		// These are stored in the new []*discordgo.ApplicationCommand on line 405.
+		for _, v := range newCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
 			if err != nil {
 				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
@@ -419,5 +433,5 @@ func main() {
 		}
 	}
 
-	log.Println("Gracefully shutdowning")
+	log.Println("Gracefully shutting down.")
 }
