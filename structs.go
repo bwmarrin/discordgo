@@ -1567,6 +1567,7 @@ type UserGuildSettingsEdit struct {
 }
 
 // A GuildMemberEditData stores a payload to use in Session.GuildMemberEdit
+// https://discord.com/developers/docs/resources/guild#modify-guild-member
 type GuildMemberEditData struct {
 
 	// Value to set user's nickname to
