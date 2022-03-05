@@ -1,7 +1,5 @@
 package discordgo
 
-import "strings"
-
 // UserFlags is the flags of "user" (see UserFlags* consts)
 // https://discord.com/developers/docs/resources/user#user-object-user-flags
 type UserFlags int
@@ -56,6 +54,12 @@ type User struct {
 	// Whether the user has multi-factor authentication enabled.
 	MFAEnabled bool `json:"mfa_enabled"`
 
+	// The hash of the user's banner image.
+	Banner string `json:"banner"`
+
+	// User's banner color, encoded as an integer representation of hexadecimal color code
+	AccentColor int `json:"accent_color"`
+
 	// Whether the user is a bot.
 	Bot bool `json:"bot"`
 
@@ -91,17 +95,13 @@ func (u *User) Mention() string {
 //             if size is an empty string, no size parameter will
 //             be added to the URL.
 func (u *User) AvatarURL(size string) string {
-	var URL string
-	if u.Avatar == "" {
-		URL = EndpointDefaultUserAvatar(u.Discriminator)
-	} else if strings.HasPrefix(u.Avatar, "a_") {
-		URL = EndpointUserAvatarAnimated(u.ID, u.Avatar)
-	} else {
-		URL = EndpointUserAvatar(u.ID, u.Avatar)
-	}
+	return avatarURL(u.Avatar, EndpointDefaultUserAvatar(u.Discriminator),
+		EndpointUserAvatar(u.ID, u.Avatar), EndpointUserAvatarAnimated(u.ID, u.Avatar), size)
+}
 
-	if size != "" {
-		return URL + "?size=" + size
-	}
-	return URL
+// BannerURL returns the URL of the users's banner image.
+//    size:    The size of the desired banner image as a power of two
+//             Image size can be any power of two between 16 and 4096.
+func (u *User) BannerURL(size string) string {
+	return bannerURL(u.Banner, EndpointUserBanner(u.ID, u.Banner), EndpointUserBannerAnimated(u.ID, u.Banner), size)
 }

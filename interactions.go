@@ -30,15 +30,17 @@ const (
 
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
-	ID            string                 `json:"id,omitempty"`
-	ApplicationID string                 `json:"application_id,omitempty"`
-	Type          ApplicationCommandType `json:"type,omitempty"`
-	Name          string                 `json:"name"`
+	ID                string                 `json:"id,omitempty"`
+	ApplicationID     string                 `json:"application_id,omitempty"`
+	Version           string                 `json:"version,omitempty"`
+	Type              ApplicationCommandType `json:"type,omitempty"`
+	Name              string                 `json:"name"`
+	DefaultPermission *bool                  `json:"default_permission,omitempty"`
+
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
-	Description string `json:"description,omitempty"`
-	Version     string `json:"version,omitempty"`
-	// NOTE: Chat commands only. Otherwise it mustn't be set.
-	Options []*ApplicationCommandOption `json:"options"`
+
+	Description string                      `json:"description,omitempty"`
+	Options     []*ApplicationCommandOption `json:"options"`
 }
 
 // ApplicationCommandOptionType indicates the type of a slash command's option.
@@ -55,6 +57,8 @@ const (
 	ApplicationCommandOptionChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionRole            ApplicationCommandOptionType = 8
 	ApplicationCommandOptionMentionable     ApplicationCommandOptionType = 9
+	ApplicationCommandOptionNumber          ApplicationCommandOptionType = 10
+	ApplicationCommandOptionAttachment      ApplicationCommandOptionType = 11
 )
 
 func (t ApplicationCommandOptionType) String() string {
@@ -77,6 +81,10 @@ func (t ApplicationCommandOptionType) String() string {
 		return "Role"
 	case ApplicationCommandOptionMentionable:
 		return "Mentionable"
+	case ApplicationCommandOptionNumber:
+		return "Number"
+	case ApplicationCommandOptionAttachment:
+		return "Attachment"
 	}
 	return fmt.Sprintf("ApplicationCommandOptionType(%d)", t)
 }
@@ -89,6 +97,7 @@ type ApplicationCommandOption struct {
 	// NOTE: This feature was on the API, but at some point developers decided to remove it.
 	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
+
 	ChannelTypes []ChannelType               `json:"channel_types"`
 	Required     bool                        `json:"required"`
 	Options      []*ApplicationCommandOption `json:"options"`
@@ -96,6 +105,10 @@ type ApplicationCommandOption struct {
 	// NOTE: mutually exclusive with Choices.
 	Autocomplete bool                              `json:"autocomplete"`
 	Choices      []*ApplicationCommandOptionChoice `json:"choices"`
+	// Minimal value of number/integer option.
+	MinValue *float64 `json:"min_value,omitempty"`
+	// Maximum value of number/integer option.
+	MaxValue float64 `json:"max_value,omitempty"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.
@@ -103,6 +116,35 @@ type ApplicationCommandOptionChoice struct {
 	Name  string      `json:"name"`
 	Value interface{} `json:"value"`
 }
+
+// ApplicationCommandPermissions represents a single user or role permission for a command.
+type ApplicationCommandPermissions struct {
+	ID         string                           `json:"id"`
+	Type       ApplicationCommandPermissionType `json:"type"`
+	Permission bool                             `json:"permission"`
+}
+
+// ApplicationCommandPermissionsList represents a list of ApplicationCommandPermissions, needed for serializing to JSON.
+type ApplicationCommandPermissionsList struct {
+	Permissions []*ApplicationCommandPermissions `json:"permissions"`
+}
+
+// GuildApplicationCommandPermissions represents all permissions for a single guild command.
+type GuildApplicationCommandPermissions struct {
+	ID            string                           `json:"id"`
+	ApplicationID string                           `json:"application_id"`
+	GuildID       string                           `json:"guild_id"`
+	Permissions   []*ApplicationCommandPermissions `json:"permissions"`
+}
+
+// ApplicationCommandPermissionType indicates whether a permission is user or role based.
+type ApplicationCommandPermissionType uint8
+
+// Application command permission types.
+const (
+	ApplicationCommandPermissionTypeRole ApplicationCommandPermissionType = 1
+	ApplicationCommandPermissionTypeUser ApplicationCommandPermissionType = 2
+)
 
 // InteractionType indicates the type of an interaction event.
 type InteractionType uint8
@@ -113,6 +155,7 @@ const (
 	InteractionApplicationCommand             InteractionType = 2
 	InteractionMessageComponent               InteractionType = 3
 	InteractionApplicationCommandAutocomplete InteractionType = 4
+	InteractionModalSubmit                    InteractionType = 5
 )
 
 func (t InteractionType) String() string {
@@ -123,6 +166,8 @@ func (t InteractionType) String() string {
 		return "ApplicationCommand"
 	case InteractionMessageComponent:
 		return "MessageComponent"
+	case InteractionModalSubmit:
+		return "ModalSubmit"
 	}
 	return fmt.Sprintf("InteractionType(%d)", t)
 }
@@ -131,7 +176,7 @@ func (t InteractionType) String() string {
 type Interaction struct {
 	ID        string          `json:"id"`
 	Type      InteractionType `json:"type"`
-	Data      InteractionData `json:"-"`
+	Data      InteractionData `json:"data"`
 	GuildID   string          `json:"guild_id"`
 	ChannelID string          `json:"channel_id"`
 
@@ -149,6 +194,12 @@ type Interaction struct {
 	// if it was invoked in a guild, the `Member` field will be filled instead.
 	// Make sure to check for `nil` before using this field.
 	User *User `json:"user"`
+
+	// The user's discord client locale.
+	Locale Locale `json:"locale"`
+	// The guild's locale. This defaults to EnglishUS
+	// NOTE: this field is only filled when the interaction was invoked in a guild.
+	GuildLocale *Locale `json:"guild_locale"`
 
 	Token   string `json:"token"`
 	Version int    `json:"version"`
@@ -186,6 +237,13 @@ func (i *Interaction) UnmarshalJSON(raw []byte) error {
 			return err
 		}
 		i.Data = v
+	case InteractionModalSubmit:
+		v := ModalSubmitInteractionData{}
+		err = json.Unmarshal(tmp.Data, &v)
+		if err != nil {
+			return err
+		}
+		i.Data = v
 	}
 	return nil
 }
@@ -206,6 +264,15 @@ func (i Interaction) ApplicationCommandData() (data ApplicationCommandInteractio
 		panic("ApplicationCommandData called on interaction of type " + i.Type.String())
 	}
 	return i.Data.(ApplicationCommandInteractionData)
+}
+
+// ModalSubmitData is helper function to assert the inner InteractionData to ModalSubmitInteractionData.
+// Make sure to check that the Type of the interaction is InteractionModalSubmit before calling.
+func (i Interaction) ModalSubmitData() (data ModalSubmitInteractionData) {
+	if i.Type != InteractionModalSubmit {
+		panic("ModalSubmitData called on interaction of type " + i.Type.String())
+	}
+	return i.Data.(ModalSubmitInteractionData)
 }
 
 // InteractionData is a common interface for all types of interaction data.
@@ -230,11 +297,12 @@ type ApplicationCommandInteractionData struct {
 // Partial Member objects are missing user, deaf and mute fields.
 // Partial Channel objects only have id, name, type and permissions fields.
 type ApplicationCommandInteractionDataResolved struct {
-	Users    map[string]*User    `json:"users"`
-	Members  map[string]*Member  `json:"members"`
-	Roles    map[string]*Role    `json:"roles"`
-	Channels map[string]*Channel `json:"channels"`
-	Messages map[string]*Message `json:"messages"`
+	Users       map[string]*User              `json:"users"`
+	Members     map[string]*Member            `json:"members"`
+	Roles       map[string]*Role              `json:"roles"`
+	Channels    map[string]*Channel           `json:"channels"`
+	Messages    map[string]*Message           `json:"messages"`
+	Attachments map[string]*MessageAttachment `json:"attachments"`
 }
 
 // Type returns the type of interaction data.
@@ -254,6 +322,36 @@ type MessageComponentInteractionData struct {
 // Type returns the type of interaction data.
 func (MessageComponentInteractionData) Type() InteractionType {
 	return InteractionMessageComponent
+}
+
+// ModalSubmitInteractionData contains the data of modal submit interaction.
+type ModalSubmitInteractionData struct {
+	CustomID   string             `json:"custom_id"`
+	Components []MessageComponent `json:"-"`
+}
+
+// Type returns the type of interaction data.
+func (ModalSubmitInteractionData) Type() InteractionType {
+	return InteractionModalSubmit
+}
+
+// UnmarshalJSON is a helper function to correctly unmarshal Components.
+func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
+	type modalSubmitInteractionData ModalSubmitInteractionData
+	var v struct {
+		modalSubmitInteractionData
+		RawComponents []unmarshalableMessageComponent `json:"components"`
+	}
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return err
+	}
+	*d = ModalSubmitInteractionData(v.modalSubmitInteractionData)
+	d.Components = make([]MessageComponent, len(v.RawComponents))
+	for i, v := range v.RawComponents {
+		d.Components[i] = v.MessageComponent
+	}
+	return err
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.
@@ -286,12 +384,10 @@ func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 
 // FloatValue is a utility function for casting option value to float
 func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
-	// TODO: limit calls to Number type once it is released
-	if v, ok := o.Value.(float64); ok {
-		return v
+	if o.Type != ApplicationCommandOptionNumber {
+		panic("FloatValue called on data option of type " + o.Type.String())
 	}
-
-	return 0.0
+	return o.Value.(float64)
 }
 
 // StringValue is a utility function for casting option value to string
@@ -398,6 +494,8 @@ const (
 	InteractionResponseUpdateMessage InteractionResponseType = 7
 	// InteractionApplicationCommandAutocompleteResult shows autocompletion results. Autocomplete interaction only.
 	InteractionApplicationCommandAutocompleteResult InteractionResponseType = 8
+	// InteractionResponseModal is for responding to an interaction with a modal window.
+	InteractionResponseModal InteractionResponseType = 9
 )
 
 // InteractionResponse represents a response for an interaction event.
@@ -418,6 +516,11 @@ type InteractionResponseData struct {
 
 	// NOTE: autocomplete interaction only.
 	Choices []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
+
+	// NOTE: modal interaction only.
+
+	CustomID string `json:"custom_id,omitempty"`
+	Title    string `json:"title,omitempty"`
 }
 
 // VerifyInteraction implements message verification of the discord interactions api

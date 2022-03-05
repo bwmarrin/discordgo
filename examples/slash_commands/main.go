@@ -32,6 +32,8 @@ func init() {
 }
 
 var (
+	integerOptionMinValue = 1.0
+
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
@@ -59,6 +61,15 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "integer-option",
 					Description: "Integer option",
+					MinValue:    &integerOptionMinValue,
+					MaxValue:    10,
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionNumber,
+					Name:        "number-option",
+					Description: "Float option",
+					MaxValue:    10.1,
 					Required:    true,
 				},
 				{
@@ -193,24 +204,26 @@ var (
 				// but this is much simpler
 				i.ApplicationCommandData().Options[0].StringValue(),
 				i.ApplicationCommandData().Options[1].IntValue(),
-				i.ApplicationCommandData().Options[2].BoolValue(),
+				i.ApplicationCommandData().Options[2].FloatValue(),
+				i.ApplicationCommandData().Options[3].BoolValue(),
 			}
 			msgformat :=
 				` Now you just learned how to use command options. Take a look to the value of which you've just entered:
 				> string_option: %s
 				> integer_option: %d
+				> number_option: %f
 				> bool_option: %v
 `
-			if len(i.ApplicationCommandData().Options) >= 4 {
-				margs = append(margs, i.ApplicationCommandData().Options[3].ChannelValue(nil).ID)
+			if len(i.ApplicationCommandData().Options) >= 5 {
+				margs = append(margs, i.ApplicationCommandData().Options[4].ChannelValue(nil).ID)
 				msgformat += "> channel-option: <#%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 5 {
-				margs = append(margs, i.ApplicationCommandData().Options[4].UserValue(nil).ID)
+			if len(i.ApplicationCommandData().Options) >= 6 {
+				margs = append(margs, i.ApplicationCommandData().Options[5].UserValue(nil).ID)
 				msgformat += "> user-option: <@%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 6 {
-				margs = append(margs, i.ApplicationCommandData().Options[5].RoleValue(nil, "").ID)
+			if len(i.ApplicationCommandData().Options) >= 7 {
+				margs = append(margs, i.ApplicationCommandData().Options[6].RoleValue(nil, "").ID)
 				msgformat += "> role-option: <@&%s>\n"
 			}
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -363,24 +376,48 @@ func init() {
 
 func main() {
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up!")
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 	err := s.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
-	for _, v := range commands {
-		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	for i, v := range commands {
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
+		registeredCommands[i] = cmd
 	}
 
 	defer s.Close()
 
-	stop := make(chan os.Signal)
+	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
+	log.Println("Press Ctrl+C to exit")
 	<-stop
+
+	if *RemoveCommands {
+		log.Println("Removing commands...")
+		// // We need to fetch the commands, since deleting requires the command ID.
+		// // We are doing this from the returned commands on line 375, because using
+		// // this will delete all the commands, which might not be desirable, so we
+		// // are deleting only the commands that we added.
+		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+		// if err != nil {
+		// 	log.Fatalf("Could not fetch registered commands: %v", err)
+		// }
+
+		for _, v := range registeredCommands {
+			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
+			if err != nil {
+				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+			}
+		}
+	}
+
 	log.Println("Gracefully shutdowning")
 }
