@@ -2687,7 +2687,6 @@ func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, 
 }
 
 // InteractionRespond creates the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // resp        : Response message data.
 func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
