@@ -509,7 +509,7 @@ type InteractionResponseData struct {
 	TTS             bool                    `json:"tts"`
 	Content         string                  `json:"content"`
 	Components      []MessageComponent      `json:"components"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           uint64                  `json:"flags,omitempty"`
 	Files           []*File                 `json:"-"`
