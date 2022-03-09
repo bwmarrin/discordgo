@@ -225,11 +225,6 @@ type MessageCreate struct {
 	*Message
 }
 
-// UnmarshalJSON is a helper function to unmarshal MessageCreate object.
-func (m *MessageCreate) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.Message)
-}
-
 // MessageUpdate is the data for a MessageUpdate event.
 type MessageUpdate struct {
 	*Message
@@ -237,20 +232,10 @@ type MessageUpdate struct {
 	BeforeUpdate *Message `json:"-"`
 }
 
-// UnmarshalJSON is a helper function to unmarshal MessageUpdate object.
-func (m *MessageUpdate) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.Message)
-}
-
 // MessageDelete is the data for a MessageDelete event.
 type MessageDelete struct {
 	*Message
 	BeforeDelete *Message `json:"-"`
-}
-
-// UnmarshalJSON is a helper function to unmarshal MessageDelete object.
-func (m *MessageDelete) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.Message)
 }
 
 // MessageReactionAdd is the data for a MessageReactionAdd event.
@@ -350,11 +335,6 @@ type WebhooksUpdate struct {
 // InteractionCreate is the data for a InteractionCreate event
 type InteractionCreate struct {
 	*Interaction
-}
-
-// UnmarshalJSON is a helper function to unmarshal Interaction object.
-func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &i.Interaction)
 }
 
 // InviteCreate is the data for a InviteCreate event

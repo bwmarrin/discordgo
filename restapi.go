@@ -28,9 +28,8 @@ import (
 	"time"
 )
 
-// All error constants
+// All error variables
 var (
-	ErrJSONUnmarshal           = errors.New("json unmarshal")
 	ErrStatusOffline           = errors.New("You can't set your Status to offline")
 	ErrVerificationLevelBounds = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
 	ErrPruneDaysBounds         = errors.New("the number of days should be more than or equal to 1")
@@ -171,15 +170,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	}
 
 	return
-}
-
-func unmarshal(data []byte, v interface{}) error {
-	err := json.Unmarshal(data, v)
-	if err != nil {
-		return fmt.Errorf("%w: %s", ErrJSONUnmarshal, err)
-	}
-
-	return nil
 }
 
 // ------------------------------------------------------------------------------------------------

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -207,47 +206,6 @@ type Interaction struct {
 
 type interaction Interaction
 
-type rawInteraction struct {
-	interaction
-	Data json.RawMessage `json:"data"`
-}
-
-// UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
-func (i *Interaction) UnmarshalJSON(raw []byte) error {
-	var tmp rawInteraction
-	err := json.Unmarshal(raw, &tmp)
-	if err != nil {
-		return err
-	}
-
-	*i = Interaction(tmp.interaction)
-
-	switch tmp.Type {
-	case InteractionApplicationCommand, InteractionApplicationCommandAutocomplete:
-		v := ApplicationCommandInteractionData{}
-		err = json.Unmarshal(tmp.Data, &v)
-		if err != nil {
-			return err
-		}
-		i.Data = v
-	case InteractionMessageComponent:
-		v := MessageComponentInteractionData{}
-		err = json.Unmarshal(tmp.Data, &v)
-		if err != nil {
-			return err
-		}
-		i.Data = v
-	case InteractionModalSubmit:
-		v := ModalSubmitInteractionData{}
-		err = json.Unmarshal(tmp.Data, &v)
-		if err != nil {
-			return err
-		}
-		i.Data = v
-	}
-	return nil
-}
-
 // MessageComponentData is helper function to assert the inner InteractionData to MessageComponentInteractionData.
 // Make sure to check that the Type of the interaction is InteractionMessageComponent before calling.
 func (i Interaction) MessageComponentData() (data MessageComponentInteractionData) {
@@ -333,25 +291,6 @@ type ModalSubmitInteractionData struct {
 // Type returns the type of interaction data.
 func (ModalSubmitInteractionData) Type() InteractionType {
 	return InteractionModalSubmit
-}
-
-// UnmarshalJSON is a helper function to correctly unmarshal Components.
-func (d *ModalSubmitInteractionData) UnmarshalJSON(data []byte) error {
-	type modalSubmitInteractionData ModalSubmitInteractionData
-	var v struct {
-		modalSubmitInteractionData
-		RawComponents []unmarshalableMessageComponent `json:"components"`
-	}
-	err := json.Unmarshal(data, &v)
-	if err != nil {
-		return err
-	}
-	*d = ModalSubmitInteractionData(v.modalSubmitInteractionData)
-	d.Components = make([]MessageComponent, len(v.RawComponents))
-	for i, v := range v.RawComponents {
-		d.Components[i] = v.MessageComponent
-	}
-	return err
 }
 
 // ApplicationCommandInteractionDataOption represents an option of a slash command.

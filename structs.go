@@ -12,9 +12,7 @@
 package discordgo
 
 import (
-	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"regexp"
 	"strings"
@@ -837,23 +835,6 @@ type GuildScheduledEventParams struct {
 	Image string `json:"image,omitempty"`
 }
 
-// MarshalJSON is a helper function to marshal GuildScheduledEventParams
-func (p GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
-	type guildScheduledEventParams GuildScheduledEventParams
-
-	if p.EntityType == GuildScheduledEventEntityTypeExternal && p.ChannelID == "" {
-		return json.Marshal(struct {
-			guildScheduledEventParams
-			ChannelID json.RawMessage `json:"channel_id"`
-		}{
-			guildScheduledEventParams: guildScheduledEventParams(p),
-			ChannelID:                 json.RawMessage("null"),
-		})
-	}
-
-	return json.Marshal(guildScheduledEventParams(p))
-}
-
 // GuildScheduledEventEntityMetadata holds additional metadata for guild scheduled event.
 type GuildScheduledEventEntityMetadata struct {
 	// location of the event (1-100 characters)
@@ -1087,21 +1068,6 @@ type TimeStamps struct {
 	StartTimestamp int64 `json:"start,omitempty"`
 }
 
-// UnmarshalJSON unmarshals JSON into TimeStamps struct
-func (t *TimeStamps) UnmarshalJSON(b []byte) error {
-	temp := struct {
-		End   float64 `json:"end,omitempty"`
-		Start float64 `json:"start,omitempty"`
-	}{}
-	err := json.Unmarshal(b, &temp)
-	if err != nil {
-		return err
-	}
-	t.EndTimestamp = int64(temp.End)
-	t.StartTimestamp = int64(temp.Start)
-	return nil
-}
-
 // An Assets struct contains assets and labels used in the rich presence "playing .." Game
 type Assets struct {
 	LargeImageID string `json:"large_image,omitempty"`
@@ -1221,26 +1187,6 @@ type TooManyRequests struct {
 	Bucket     string        `json:"bucket"`
 	Message    string        `json:"message"`
 	RetryAfter time.Duration `json:"retry_after"`
-}
-
-// UnmarshalJSON helps support translation of a milliseconds-based float
-// into a time.Duration on TooManyRequests.
-func (t *TooManyRequests) UnmarshalJSON(b []byte) error {
-	u := struct {
-		Bucket     string  `json:"bucket"`
-		Message    string  `json:"message"`
-		RetryAfter float64 `json:"retry_after"`
-	}{}
-	err := json.Unmarshal(b, &u)
-	if err != nil {
-		return err
-	}
-
-	t.Bucket = u.Bucket
-	t.Message = u.Message
-	whole, frac := math.Modf(u.RetryAfter)
-	t.RetryAfter = time.Duration(whole)*time.Second + time.Duration(frac*1000)*time.Millisecond
-	return nil
 }
 
 // A ReadState stores data on the read state of channels.
@@ -1622,45 +1568,6 @@ type Activity struct {
 	Secrets       Secrets      `json:"secrets,omitempty"`
 	Instance      bool         `json:"instance,omitempty"`
 	Flags         int          `json:"flags,omitempty"`
-}
-
-// UnmarshalJSON is a custom unmarshaljson to make CreatedAt a time.Time instead of an int
-func (activity *Activity) UnmarshalJSON(b []byte) error {
-	temp := struct {
-		Name          string       `json:"name"`
-		Type          ActivityType `json:"type"`
-		URL           string       `json:"url,omitempty"`
-		CreatedAt     int64        `json:"created_at"`
-		ApplicationID string       `json:"application_id,omitempty"`
-		State         string       `json:"state,omitempty"`
-		Details       string       `json:"details,omitempty"`
-		Timestamps    TimeStamps   `json:"timestamps,omitempty"`
-		Emoji         Emoji        `json:"emoji,omitempty"`
-		Party         Party        `json:"party,omitempty"`
-		Assets        Assets       `json:"assets,omitempty"`
-		Secrets       Secrets      `json:"secrets,omitempty"`
-		Instance      bool         `json:"instance,omitempty"`
-		Flags         int          `json:"flags,omitempty"`
-	}{}
-	err := json.Unmarshal(b, &temp)
-	if err != nil {
-		return err
-	}
-	activity.CreatedAt = time.Unix(0, temp.CreatedAt*1000000)
-	activity.ApplicationID = temp.ApplicationID
-	activity.Assets = temp.Assets
-	activity.Details = temp.Details
-	activity.Emoji = temp.Emoji
-	activity.Flags = temp.Flags
-	activity.Instance = temp.Instance
-	activity.Name = temp.Name
-	activity.Party = temp.Party
-	activity.Secrets = temp.Secrets
-	activity.State = temp.State
-	activity.Timestamps = temp.Timestamps
-	activity.Type = temp.Type
-	activity.URL = temp.URL
-	return nil
 }
 
 // Party defines the Party field in the Activity struct
