@@ -13,7 +13,7 @@ import (
 )
 
 // Parse the bot's parameters from the command line.
-// NOTE: Don't commit the BOT TOKEN on Git. This will give FULL ACCESS to your bot (to whoever can access your project).
+// NOTE: Don't commit the BOT TOKEN on Git. This will give people FULL ACCESS to your bot (to whoever can access your project).
 // Use an environment variable instead.
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
@@ -169,7 +169,7 @@ var (
 		},
 	}
 
-	// Create the handlers for the commands defined in the commands slice.
+	// The handlers for the commands defined in the commands slice.
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -265,7 +265,8 @@ var (
 			})
 		},
 
-		// The Initial Response to an Interaction must occur within 3 seconds of recieving it.
+                // Responses are the way you react to the interaction.
+		// The initial response to an Interaction should be sent within 3 seconds of recieving it.
 		// Otherwise the interaction token will be invalidated (disables the interaction token and ID).
 		// Valid interaction tokens last for 15 minutes.
 		// https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
