@@ -27,7 +27,7 @@ var (
 	// The discord session that represents your bot.
 	s *discordgo.Session
 
-	// Create the application commands (slash commands) the bot will add.
+	// The application commands (slash commands) the bot will add.
 	// https://discord.com/developers/docs/interactions/application-commands#application-commands
 	// https://discord.com/developers/docs/interactions/application-commands#registering-a-command
 	commands = []*discordgo.ApplicationCommand{
@@ -265,15 +265,14 @@ var (
 			})
 		},
 
-                // Responses are the way you react to the interaction.
+		// Responses are the way you react to the interaction.
 		// The initial response to an Interaction should be sent within 3 seconds of recieving it.
 		// Otherwise the interaction token will be invalidated (disables the interaction token and ID).
 		// Valid interaction tokens last for 15 minutes.
 		// https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
 		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			content := ""
-			// As you can see, the response type names used here are pretty self-explanatory,
-			// but for those who want more information see the official documentation
+
 			switch i.ApplicationCommandData().Options[0].IntValue() {
 			case int64(discordgo.InteractionResponseChannelMessageWithSource):
 				content =
@@ -370,13 +369,20 @@ var (
 func init() {
 	// Parse the flags from the command-line.
 	flag.Parse()
+}
 
+func main() {
 	// Instantiate a new Discord Bot Session.
 	var err error
 	s, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
+
+	// Create a log once the websocket is ready to recieve events from Discord.
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+	})
 
 	// Add an event handler for created interactions (defined in the commandHandlers map).
 	// https://discord.com/developers/docs/topics/gateway#interaction-create
@@ -385,13 +391,8 @@ func init() {
 			h(s, i)
 		}
 	})
-}
 
-func main() {
-	// Create a log once the websocket is ready to recieve events from Discord.
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
-	})
+	// Open the web socket connection to Discord to recieve events (and handle them).
 	if err := s.Open(); err != nil {
 		log.Fatalf("Cannot open the websocket connection to Discord: %v", err)
 	}
@@ -416,7 +417,7 @@ func main() {
 	if *RemoveCommands {
 		log.Println("Removing commands...")
 		// Uncomment the following code to delete every command in the application.
-		// You must also change newCommands (line 427) to registeredCommands.
+		// You must also change newCommands (line 430) to registeredCommands.
 		//
 		// Fetch the created command IDs from the Discord API.
 		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
@@ -425,7 +426,7 @@ func main() {
 		// }
 
 		// Otherwise, only delete the newly created commands for this session.
-		// These are stored in the new []*discordgo.ApplicationCommand on line 405.
+		// They are stored in the newCommands, defined on line 401.
 		for _, v := range newCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
 			if err != nil {
