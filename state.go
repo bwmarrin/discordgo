@@ -153,8 +153,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 		return ErrNilState
 	}
 
-	_, err := s.Guild(guild.ID)
-	if err != nil {
+	if _, err := s.Guild(guild.ID); err != nil {
 		return err
 	}
 

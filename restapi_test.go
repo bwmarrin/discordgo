@@ -113,8 +113,7 @@ func TestGateway(t *testing.T) {
 	if dg == nil {
 		t.Skip("Skipping, dg not set.")
 	}
-	_, err := dg.Gateway()
-	if err != nil {
+	if _, err := dg.Gateway(); err != nil {
 		t.Errorf("Gateway() returned error: %+v", err)
 	}
 }
@@ -123,8 +122,7 @@ func TestGatewayBot(t *testing.T) {
 	if dgBot == nil {
 		t.Skip("Skipping, dgBot not set.")
 	}
-	_, err := dgBot.GatewayBot()
-	if err != nil {
+	if _, err := dgBot.GatewayBot(); err != nil {
 		t.Errorf("GatewayBot() returned error: %+v", err)
 	}
 }
@@ -134,8 +132,7 @@ func TestVoiceRegions(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.VoiceRegions()
-	if err != nil {
+	if _, err := dg.VoiceRegions(); err != nil {
 		t.Errorf("VoiceRegions() returned error: %+v", err)
 	}
 }
@@ -148,8 +145,7 @@ func TestGuildRoles(t *testing.T) {
 		t.Skip("Skipping, dg not set.")
 	}
 
-	_, err := dg.GuildRoles(envGuild)
-	if err != nil {
+	if _, err := dg.GuildRoles(envGuild); err != nil {
 		t.Errorf("GuildRoles(envGuild) returned error: %+v", err)
 	}
 }

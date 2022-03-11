@@ -172,8 +172,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 }
 
 func unmarshal(data []byte, v interface{}) error {
-	err := json.Unmarshal(data, v)
-	if err != nil {
+	if err := json.Unmarshal(data, v); err != nil {
 		return fmt.Errorf("%w: %s", ErrJSONUnmarshal, err)
 	}
 
@@ -329,11 +328,11 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string) (st []*UserGui
 //
 // NOTE: This function is now deprecated and will be removed in the future.
 // Please see the same function inside state.go.
-func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int64, err error) {
+func (s *Session) UserChannelPermissions(userID, channelID string) (int64, error) {
 	// Try to just get permissions from state.
-	apermissions, err = s.State.UserChannelPermissions(userID, channelID)
+	apermissions, err := s.State.UserChannelPermissions(userID, channelID)
 	if err == nil {
-		return 0, err
+		return apermissions, err
 	}
 
 	// Otherwise try get as much data from state as possible, falling back to the network.

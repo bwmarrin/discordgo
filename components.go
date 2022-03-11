@@ -31,8 +31,8 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	var v struct {
 		Type ComponentType `json:"type"`
 	}
-	err := json.Unmarshal(src, &v)
-	if err != nil {
+
+	if err := json.Unmarshal(src, &v); err != nil {
 		return err
 	}
 
@@ -54,8 +54,7 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 // MessageComponentFromJSON is a helper function for unmarshaling message components.
 func MessageComponentFromJSON(b []byte) (MessageComponent, error) {
 	var u unmarshalableMessageComponent
-	err := u.UnmarshalJSON(b)
-	if err != nil {
+	if err := u.UnmarshalJSON(b); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal into MessageComponent: %w", err)
 	}
 	return u.MessageComponent, nil

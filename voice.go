@@ -139,6 +139,9 @@ func (v *VoiceConnection) Disconnect() (err error) {
 		v.session.wsMutex.Lock()
 		err = v.session.wsConn.WriteJSON(data)
 		v.session.wsMutex.Unlock()
+		if err != nil {
+			v.log(LogError, "error sending disconnect packet, %s", err)
+		}
 		v.sessionID = ""
 	}
 	v.Unlock()
