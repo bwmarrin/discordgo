@@ -1,9 +1,14 @@
 linters:
   disable-all: true
   enable:
-    # - staticcheck
+    # - staticcheck (used in bugs preset)
+
+  # Enable presets.
+  # https://golangci-lint.run/usage/linters
+  presets:
+    - style
     # - unused
-    - golint
+    # - bugs
 
 linters-settings:
   staticcheck:
