@@ -122,7 +122,7 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 	err = v.session.wsConn.WriteJSON(data)
 	v.wsMutex.Unlock()
 	if err != nil {
-		return
+		return err
 	}
 	v.ChannelID = channelID
 	v.deaf = deaf
@@ -155,7 +155,7 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	delete(v.session.VoiceConnections, v.GuildID)
 	v.session.Unlock()
 
-	return
+	return nil
 }
 
 // Close closes the voice ws and udp connections.

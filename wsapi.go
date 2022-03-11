@@ -413,14 +413,17 @@ type requestGuildMembersOp struct {
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
 // presences : Whether to request presences of guild members.
-func (s *Session) RequestGuildMembers(guildID string, query string, limit int, presences bool) (err error) {
+func (s *Session) RequestGuildMembers(guildID string, query string, limit int, presences bool) error {
 	data := requestGuildMembersData{
 		GuildIDs:  []string{guildID},
 		Query:     query,
 		Limit:     limit,
 		Presences: presences,
 	}
-	err = s.requestGuildMembers(data)
+
+	if err := s.requestGuildMembers(data); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -430,14 +433,16 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int, p
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
 // presences : Whether to request presences of guild members.
-func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, presences bool) (err error) {
+func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, presences bool) error {
 	data := requestGuildMembersData{
 		GuildIDs:  guildIDs,
 		Query:     query,
 		Limit:     limit,
 		Presences: presences,
 	}
-	err = s.requestGuildMembers(data)
+	if err := s.requestGuildMembers(data); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -453,6 +458,9 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
 	s.wsMutex.Unlock()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

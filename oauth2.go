@@ -45,11 +45,14 @@ type Team struct {
 func (s *Session) Application(appID string) (st *Application, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointOAuth2Application(appID), nil, EndpointOAuth2Application(""))
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	err = unmarshal(body, &st)
-	return
+	if err != nil {
+		return nil, err
+	}
+	return st, nil
 }
 
 // Applications returns all applications for the authenticated user.

@@ -1,23 +1,32 @@
 linters:
-  disable-all: true
+  disable-all: false
   enable:
     # - staticcheck (used in bugs preset)
-
+    - wastedassign
+    - ineffassign
+  disable:
+    - wsl
+    - gomnd
+    - lll
+    - wrapcheck
+    - tagliatelle
+    - gochecknoglobals
+    - errcheck
   # Enable presets.
   # https://golangci-lint.run/usage/linters
   presets:
-    - style
+    #- style
     # - unused
     # - bugs
 
 linters-settings:
-  staticcheck:
-    go: "1.13"
+  # staticcheck:
+  #  go: "1.13"
 
-    checks: ["all"]
+  #  checks: ["all"]
 
-  unused:
-    go: "1.13"
+  # unused:
+  #  go: "1.13"
 
 issues:
   include:

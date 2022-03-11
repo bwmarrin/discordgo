@@ -68,7 +68,7 @@ func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID
 }
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked.
-func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) ([]byte, error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -118,7 +118,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		return nil, err
 	}
 
-	response, err = ioutil.ReadAll(resp.Body)
+	response, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -161,14 +161,14 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	case http.StatusUnauthorized:
 		if strings.Index(s.Token, "Bot ") != 0 {
 			s.log(LogInformational, ErrUnauthorized.Error())
-			err = ErrUnauthorized
+			return nil, ErrUnauthorized
 		}
 		fallthrough
 	default: // Error condition
 		err = newRestError(req, resp, response)
 	}
 
-	return response, nil
+	return response, err
 }
 
 func unmarshal(data []byte, v interface{}) error {
@@ -186,7 +186,8 @@ func unmarshal(data []byte, v interface{}) error {
 
 // User returns the user details of the given userID
 // userID    : A user ID or "@me" which is a shortcut of current user ID.
-func (s *Session) User(userID string) (st *User, err error) {
+func (s *Session) User(userID string) (*User, error) {
+	var st *User
 	body, err := s.RequestWithBucketID("GET", EndpointUser(userID), nil, EndpointUsers)
 	if err != nil {
 		return nil, err
@@ -269,7 +270,8 @@ func (s *Session) UserConnections() (conn []*UserConnection, err error) {
 
 // UserChannelCreate creates a new User (Private) Channel with another User
 // recipientID : A user ID for the user to which this channel is opened with.
-func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error) {
+func (s *Session) UserChannelCreate(recipientID string) (*Channel, error) {
+	var st *Channel
 	data := struct {
 		RecipientID string `json:"recipient_id"`
 	}{recipientID}
@@ -1049,8 +1051,6 @@ func (s *Session) GuildRoleDelete(guildID, roleID string) (err error) {
 // guildID	: The ID of a Guild.
 // days		: The number of days to count prune for (1 or more).
 func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, err error) {
-	count = 0
-
 	if days <= 0 {
 		return 0, ErrPruneDaysBounds
 	}
@@ -1080,8 +1080,6 @@ func (s *Session) GuildPruneCount(guildID string, days uint32) (count uint32, er
 // guildID	: The ID of a Guild.
 // days		: The number of days to count prune for (1 or more).
 func (s *Session) GuildPrune(guildID string, days uint32) (count uint32, err error) {
-	count = 0
-
 	if days <= 0 {
 		return 0, ErrPruneDaysBounds
 	}
@@ -1584,6 +1582,9 @@ func (s *Session) ChannelMessages(channelID string, limit int, beforeID, afterID
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return nil, err
+	}
 	return st, nil
 }
 
@@ -1832,6 +1833,9 @@ func (s *Session) ChannelMessagesPinned(channelID string) (st []*Message, err er
 	}
 
 	err = unmarshal(body, &st)
+	if err != nil {
+		return nil, err
+	}
 	return st, nil
 }
 
@@ -2904,7 +2908,7 @@ func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, 
 // InteractionRespond creates the response to an interaction.
 // interaction : Interaction instance.
 // resp        : Response message data.
-func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
+func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if resp.Data != nil && len(resp.Data.Files) > 0 {
@@ -2913,11 +2917,15 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 			return err
 		}
 
-		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
+		if _, err := s.request("POST", endpoint, contentType, body, endpoint, 0); err != nil {
+			return err
+		}
 	} else {
-		_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
+		if _, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint); err != nil {
+			return err
+		}
 	}
-	return err
+	return nil
 }
 
 // InteractionResponse gets the response to an interaction.

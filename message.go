@@ -482,18 +482,16 @@ var patternChannels = regexp.MustCompile("<#[^>]*>")
 
 // ContentWithMoreMentionsReplaced will replace all @<id> mentions with the
 // username of the mention, but also role IDs and more.
-func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, err error) {
-	content = m.Content
+func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (string, error) {
+	content := m.Content
 
 	if !s.StateEnabled {
-		content = m.ContentWithMentionsReplaced()
-		return "", nil
+		return m.ContentWithMentionsReplaced(), nil
 	}
 
 	channel, err := s.State.Channel(m.ChannelID)
 	if err != nil {
-		content = m.ContentWithMentionsReplaced()
-		return "", nil
+		return m.ContentWithMentionsReplaced(), nil
 	}
 
 	for _, user := range m.Mentions {
@@ -518,6 +516,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 		content = strings.Replace(content, "<@&"+role.ID+">", "@"+role.Name, -1)
 	}
 
+	// lint:ignore Ineffective Assign Unclear
 	content = patternChannels.ReplaceAllStringFunc(content, func(mention string) string {
 		channel, err := s.State.Channel(mention[2 : len(mention)-1])
 		if err != nil || channel.Type == ChannelTypeGuildVoice {
@@ -526,7 +525,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 
 		return "#" + channel.Name
 	})
-	return "", nil
+	return content, nil
 }
 
 // MessageInteraction contains information about the application command interaction which generated the message.
