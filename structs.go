@@ -128,7 +128,7 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
-// Application stores values for a Discord Application
+// Application stores values for a Discord Application.
 type Application struct {
 	ID                  string   `json:"id,omitempty"`
 	Name                string   `json:"name"`
@@ -150,7 +150,7 @@ type Application struct {
 	Flags               int      `json:"flags,omitempty"`
 }
 
-// UserConnection is a Connection returned from the UserConnections endpoint
+// UserConnection is a Connection returned from the UserConnections endpoint.
 type UserConnection struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
@@ -159,7 +159,7 @@ type UserConnection struct {
 	Integrations []*Integration `json:"integrations"`
 }
 
-// Integration stores integration information
+// Integration stores integration information.
 type Integration struct {
 	ID                string             `json:"id"`
 	Name              string             `json:"name"`
@@ -179,14 +179,14 @@ type Integration struct {
 // https://discord.com/developers/docs/resources/guild#integration-object-integration-expire-behaviors
 type ExpireBehavior int
 
-// Block of valid ExpireBehaviors
+// Block of valid ExpireBehaviors.
 const (
 	ExpireBehaviorRemoveRole ExpireBehavior = 0
 	ExpireBehaviorKick       ExpireBehavior = 1
 )
 
 // IntegrationAccount is integration account information
-// sent by the UserConnections endpoint
+// sent by the UserConnections endpoint.
 type IntegrationAccount struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -217,7 +217,7 @@ type ICEServer struct {
 // https://discord.com/developers/docs/resources/invite#invite-object-invite-target-types
 type InviteTargetType uint8
 
-// Invite target types
+// Invite target types.
 const (
 	InviteTargetStream             InviteTargetType = 1
 	InviteTargetEmbeddedAppliction InviteTargetType = 2
@@ -245,10 +245,10 @@ type Invite struct {
 	ApproximateMemberCount   int `json:"approximate_member_count"`
 }
 
-// ChannelType is the type of a Channel
+// ChannelType is the type of a Channel.
 type ChannelType int
 
-// Block contains known ChannelType values
+// Block contains known ChannelType values.
 const (
 	ChannelTypeGuildText          ChannelType = 0
 	ChannelTypeDM                 ChannelType = 1
@@ -340,12 +340,12 @@ type Channel struct {
 	Members []*ThreadMember `json:"-"`
 }
 
-// Mention returns a string which mentions the channel
+// Mention returns a string which mentions the channel.
 func (c *Channel) Mention() string {
 	return fmt.Sprintf("<#%s>", c.ID)
 }
 
-// IsThread is a helper function to determine if channel is a thread or not
+// IsThread is a helper function to determine if channel is a thread or not.
 func (c *Channel) IsThread() bool {
 	return c.Type == ChannelTypeGuildPublicThread || c.Type == ChannelTypeGuildPrivateThread || c.Type == ChannelTypeGuildNewsThread
 }
@@ -370,7 +370,7 @@ type ChannelEdit struct {
 	Invitable           bool `json:"invitable,omitempty"`
 }
 
-// A ChannelFollow holds data returned after following a news channel
+// A ChannelFollow holds data returned after following a news channel.
 type ChannelFollow struct {
 	ChannelID string `json:"channel_id"`
 	WebhookID string `json:"webhook_id"`
@@ -386,7 +386,7 @@ const (
 	PermissionOverwriteTypeMember PermissionOverwriteType = 1
 )
 
-// A PermissionOverwrite holds permission overwrite data for a Channel
+// A PermissionOverwrite holds permission overwrite data for a Channel.
 type PermissionOverwrite struct {
 	ID    string                  `json:"id"`
 	Type  PermissionOverwriteType `json:"type"`
@@ -394,7 +394,7 @@ type PermissionOverwrite struct {
 	Allow int64                   `json:"allow,string"`
 }
 
-// ThreadStart stores all parameters you can use with MessageThreadStartComplex or ThreadStartComplex
+// ThreadStart stores all parameters you can use with MessageThreadStartComplex or ThreadStartComplex.
 type ThreadStart struct {
 	Name                string      `json:"name"`
 	AutoArchiveDuration int         `json:"auto_archive_duration,omitempty"`
@@ -437,14 +437,14 @@ type ThreadsList struct {
 	HasMore bool            `json:"has_more"`
 }
 
-// AddedThreadMember holds information about the user who was added to the thread
+// AddedThreadMember holds information about the user who was added to the thread.
 type AddedThreadMember struct {
 	*ThreadMember
 	Member   *Member   `json:"member"`
 	Presence *Presence `json:"presence"`
 }
 
-// Emoji struct holds data related to Emoji's
+// Emoji struct holds data related to Emoji's.
 type Emoji struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`
@@ -456,12 +456,12 @@ type Emoji struct {
 	Available     bool     `json:"available"`
 }
 
-// EmojiRegex is the regex used to find and identify emojis in messages
+// EmojiRegex is the regex used to find and identify emojis in messages.
 var (
 	EmojiRegex = regexp.MustCompile(`<(a|):[A-z0-9_~]+:[0-9]{18}>`)
 )
 
-// MessageFormat returns a correctly formatted Emoji for use in Message content and embeds
+// MessageFormat returns a correctly formatted Emoji for use in Message content and embeds.
 func (e *Emoji) MessageFormat() string {
 	if e.ID != "" && e.Name != "" {
 		if e.Animated {
@@ -530,10 +530,10 @@ type StickerPack struct {
 	BannerAssetID  string     `json:"banner_asset_id"`
 }
 
-// VerificationLevel type definition
+// VerificationLevel type definition.
 type VerificationLevel int
 
-// Constants for VerificationLevel levels from 0 to 4 inclusive
+// Constants for VerificationLevel levels from 0 to 4 inclusive.
 const (
 	VerificationLevelNone     VerificationLevel = 0
 	VerificationLevelLow      VerificationLevel = 1
@@ -542,29 +542,29 @@ const (
 	VerificationLevelVeryHigh VerificationLevel = 4
 )
 
-// ExplicitContentFilterLevel type definition
+// ExplicitContentFilterLevel type definition.
 type ExplicitContentFilterLevel int
 
-// Constants for ExplicitContentFilterLevel levels from 0 to 2 inclusive
+// Constants for ExplicitContentFilterLevel levels from 0 to 2 inclusive.
 const (
 	ExplicitContentFilterDisabled            ExplicitContentFilterLevel = 0
 	ExplicitContentFilterMembersWithoutRoles ExplicitContentFilterLevel = 1
 	ExplicitContentFilterAllMembers          ExplicitContentFilterLevel = 2
 )
 
-// MfaLevel type definition
+// MfaLevel type definition.
 type MfaLevel int
 
-// Constants for MfaLevel levels from 0 to 1 inclusive
+// Constants for MfaLevel levels from 0 to 1 inclusive.
 const (
 	MfaLevelNone     MfaLevel = 0
 	MfaLevelElevated MfaLevel = 1
 )
 
-// PremiumTier type definition
+// PremiumTier type definition.
 type PremiumTier int
 
-// Constants for PremiumTier levels from 0 to 3 inclusive
+// Constants for PremiumTier levels from 0 to 3 inclusive.
 const (
 	PremiumTierNone PremiumTier = 0
 	PremiumTier1    PremiumTier = 1
@@ -837,7 +837,7 @@ type GuildScheduledEventParams struct {
 	Image string `json:"image,omitempty"`
 }
 
-// MarshalJSON is a helper function to marshal GuildScheduledEventParams
+// MarshalJSON is a helper function to marshal GuildScheduledEventParams.
 func (p GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	type guildScheduledEventParams GuildScheduledEventParams
 
@@ -867,7 +867,7 @@ type GuildScheduledEventPrivacyLevel int
 
 const (
 	// GuildScheduledEventPrivacyLevelGuildOnly makes the scheduled
-	// event is only accessible to guild members
+	// event is only accessible to guild members.
 	GuildScheduledEventPrivacyLevelGuildOnly GuildScheduledEventPrivacyLevel = 2
 )
 
@@ -879,13 +879,13 @@ const (
 type GuildScheduledEventStatus int
 
 const (
-	// GuildScheduledEventStatusScheduled represents the current event is in scheduled state
+	// GuildScheduledEventStatusScheduled represents the current event is in scheduled state.
 	GuildScheduledEventStatusScheduled = 1
-	// GuildScheduledEventStatusActive represents the current event is in active state
+	// GuildScheduledEventStatusActive represents the current event is in active state.
 	GuildScheduledEventStatusActive = 2
-	// GuildScheduledEventStatusCompleted represents the current event is in completed state
+	// GuildScheduledEventStatusCompleted represents the current event is in completed state.
 	GuildScheduledEventStatusCompleted = 3
-	// GuildScheduledEventStatusCanceled represents the current event is in canceled state
+	// GuildScheduledEventStatusCanceled represents the current event is in canceled state.
 	GuildScheduledEventStatusCanceled = 4
 )
 
@@ -894,11 +894,11 @@ const (
 type GuildScheduledEventEntityType int
 
 const (
-	// GuildScheduledEventEntityTypeStageInstance represents a stage channel
+	// GuildScheduledEventEntityTypeStageInstance represents a stage channel.
 	GuildScheduledEventEntityTypeStageInstance = 1
-	// GuildScheduledEventEntityTypeVoice represents a voice channel
+	// GuildScheduledEventEntityTypeVoice represents a voice channel.
 	GuildScheduledEventEntityTypeVoice = 2
-	// GuildScheduledEventEntityTypeExternal represents an external event
+	// GuildScheduledEventEntityTypeExternal represents an external event.
 	GuildScheduledEventEntityTypeExternal = 3
 )
 
@@ -910,7 +910,7 @@ type GuildScheduledEventUser struct {
 	Member                *Member `json:"member"`
 }
 
-// A GuildTemplate represents
+// A GuildTemplate represents.
 type GuildTemplate struct {
 	// The unique code for the guild template
 	Code string `json:"code"`
@@ -950,7 +950,7 @@ type GuildTemplate struct {
 // https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
 type MessageNotifications int
 
-// Block containing known MessageNotifications values
+// Block containing known MessageNotifications values.
 const (
 	MessageNotificationsAllMessages  MessageNotifications = 0
 	MessageNotificationsOnlyMentions MessageNotifications = 1
@@ -960,7 +960,7 @@ const (
 // https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
 type SystemChannelFlag int
 
-// Block containing known SystemChannelFlag values
+// Block containing known SystemChannelFlag values.
 const (
 	SystemChannelFlagsSuppressJoin    SystemChannelFlag = 1 << 0
 	SystemChannelFlagsSuppressPremium SystemChannelFlag = 1 << 1
@@ -987,7 +987,7 @@ func (g *Guild) BannerURL() string {
 	return EndpointGuildBanner(g.ID, g.Banner)
 }
 
-// A UserGuild holds a brief version of a Guild
+// A UserGuild holds a brief version of a Guild.
 type UserGuild struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -996,7 +996,7 @@ type UserGuild struct {
 	Permissions int64  `json:"permissions,string"`
 }
 
-// A GuildParams stores all the data needed to update discord guild settings
+// A GuildParams stores all the data needed to update discord guild settings.
 type GuildParams struct {
 	Name                        string             `json:"name,omitempty"`
 	Region                      string             `json:"region,omitempty"`
@@ -1040,12 +1040,12 @@ type Role struct {
 	Permissions int64 `json:"permissions,string"`
 }
 
-// Mention returns a string which mentions the role
+// Mention returns a string which mentions the role.
 func (r *Role) Mention() string {
 	return fmt.Sprintf("<@&%s>", r.ID)
 }
 
-// Roles are a collection of Role
+// Roles are a collection of Role.
 type Roles []*Role
 
 func (r Roles) Len() int {
@@ -1060,7 +1060,7 @@ func (r Roles) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
 
-// A VoiceState stores the voice states of Guilds
+// A VoiceState stores the voice states of Guilds.
 type VoiceState struct {
 	UserID    string `json:"user_id"`
 	SessionID string `json:"session_id"`
@@ -1081,13 +1081,13 @@ type Presence struct {
 	Since      *int        `json:"since"`
 }
 
-// A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
+// A TimeStamps struct contains start and end times used in the rich presence "playing .." Game.
 type TimeStamps struct {
 	EndTimestamp   int64 `json:"end,omitempty"`
 	StartTimestamp int64 `json:"start,omitempty"`
 }
 
-// UnmarshalJSON unmarshals JSON into TimeStamps struct
+// UnmarshalJSON unmarshals JSON into TimeStamps struct.
 func (t *TimeStamps) UnmarshalJSON(b []byte) error {
 	temp := struct {
 		End   float64 `json:"end,omitempty"`
@@ -1102,7 +1102,7 @@ func (t *TimeStamps) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// An Assets struct contains assets and labels used in the rich presence "playing .." Game
+// An Assets struct contains assets and labels used in the rich presence "playing .." Game.
 type Assets struct {
 	LargeImageID string `json:"large_image,omitempty"`
 	SmallImageID string `json:"small_image,omitempty"`
@@ -1151,7 +1151,7 @@ type Member struct {
 	CommunicationDisabledUntil *time.Time `json:"communication_disabled_until"`
 }
 
-// Mention creates a member mention
+// Mention creates a member mention.
 func (m *Member) Mention() string {
 	return "<@!" + m.User.ID + ">"
 }
@@ -1167,7 +1167,6 @@ func (m *Member) AvatarURL(size string) string {
 	// The default/empty avatar case should be handled by the above condition
 	return avatarURL(m.Avatar, "", EndpointGuildMemberAvatar(m.GuildID, m.User.ID, m.Avatar),
 		EndpointGuildMemberAvatarAnimated(m.GuildID, m.User.ID, m.Avatar), size)
-
 }
 
 // A Settings stores data for a specific users Discord client settings.
@@ -1189,10 +1188,10 @@ type Settings struct {
 	DeveloperMode          bool               `json:"developer_mode"`
 }
 
-// Status type definition
+// Status type definition.
 type Status string
 
-// Constants for Status with the different current available status
+// Constants for Status with the different current available status.
 const (
 	StatusOnline       Status = "online"
 	StatusIdle         Status = "idle"
@@ -1201,14 +1200,14 @@ const (
 	StatusOffline      Status = "offline"
 )
 
-// FriendSourceFlags stores ... TODO :)
+// FriendSourceFlags stores ... TODO :).
 type FriendSourceFlags struct {
 	All           bool `json:"all"`
 	MutualGuilds  bool `json:"mutual_guilds"`
 	MutualFriends bool `json:"mutual_friends"`
 }
 
-// A Relationship between the logged in user and Relationship.User
+// A Relationship between the logged in user and Relationship.User.
 type Relationship struct {
 	User *User  `json:"user"`
 	Type int    `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
@@ -1250,7 +1249,7 @@ type ReadState struct {
 	ID            string `json:"id"`
 }
 
-// An Ack is used to ack messages
+// An Ack is used to ack messages.
 type Ack struct {
 	Token string `json:"token"`
 }
@@ -1294,7 +1293,7 @@ type AuditLogEntry struct {
 	Reason     string            `json:"reason"`
 }
 
-// AuditLogChange for an AuditLogEntry
+// AuditLogChange for an AuditLogEntry.
 type AuditLogChange struct {
 	NewValue interface{}        `json:"new_value"`
 	OldValue interface{}        `json:"old_value"`
@@ -1305,149 +1304,149 @@ type AuditLogChange struct {
 // https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key
 type AuditLogChangeKey string
 
-// Block of valid AuditLogChangeKey
+// Block of valid AuditLogChangeKey.
 const (
-	// AuditLogChangeKeyAfkChannelID is sent when afk channel changed (snowflake) - guild
+	// AuditLogChangeKeyAfkChannelID is sent when afk channel changed (snowflake) - guild.
 	AuditLogChangeKeyAfkChannelID AuditLogChangeKey = "afk_channel_id"
-	// AuditLogChangeKeyAfkTimeout is sent when afk timeout duration changed (int) - guild
+	// AuditLogChangeKeyAfkTimeout is sent when afk timeout duration changed (int) - guild.
 	AuditLogChangeKeyAfkTimeout AuditLogChangeKey = "afk_timeout"
-	// AuditLogChangeKeyAllow is sent when a permission on a text or voice channel was allowed for a role (string) - role
+	// AuditLogChangeKeyAllow is sent when a permission on a text or voice channel was allowed for a role (string) - role.
 	AuditLogChangeKeyAllow AuditLogChangeKey = "allow"
-	// AudirChangeKeyApplicationID is sent when application id of the added or removed webhook or bot (snowflake) - channel
+	// AudirChangeKeyApplicationID is sent when application id of the added or removed webhook or bot (snowflake) - channel.
 	AuditLogChangeKeyApplicationID AuditLogChangeKey = "application_id"
-	// AuditLogChangeKeyArchived is sent when thread was archived/unarchived (bool) - thread
+	// AuditLogChangeKeyArchived is sent when thread was archived/unarchived (bool) - thread.
 	AuditLogChangeKeyArchived AuditLogChangeKey = "archived"
-	// AuditLogChangeKeyAsset is sent when asset is changed (string) - sticker
+	// AuditLogChangeKeyAsset is sent when asset is changed (string) - sticker.
 	AuditLogChangeKeyAsset AuditLogChangeKey = "asset"
-	// AuditLogChangeKeyAutoArchiveDuration is sent when auto archive duration changed (int) - thread
+	// AuditLogChangeKeyAutoArchiveDuration is sent when auto archive duration changed (int) - thread.
 	AuditLogChangeKeyAutoArchiveDuration AuditLogChangeKey = "auto_archive_duration"
-	// AuditLogChangeKeyAvailable is sent when availability of sticker changed (bool) - sticker
+	// AuditLogChangeKeyAvailable is sent when availability of sticker changed (bool) - sticker.
 	AuditLogChangeKeyAvailable AuditLogChangeKey = "available"
-	// AuditLogChangeKeyAvatarHash is sent when user avatar changed (string) - user
+	// AuditLogChangeKeyAvatarHash is sent when user avatar changed (string) - user.
 	AuditLogChangeKeyAvatarHash AuditLogChangeKey = "avatar_hash"
-	// AuditLogChangeKeyBannerHash is sent when guild banner changed (string) - guild
+	// AuditLogChangeKeyBannerHash is sent when guild banner changed (string) - guild.
 	AuditLogChangeKeyBannerHash AuditLogChangeKey = "banner_hash"
-	// AuditLogChangeKeyBitrate is sent when voice channel bitrate changed (int) - channel
+	// AuditLogChangeKeyBitrate is sent when voice channel bitrate changed (int) - channel.
 	AuditLogChangeKeyBitrate AuditLogChangeKey = "bitrate"
-	// AuditLogChangeKeyChannelID is sent when channel for invite code or guild scheduled event changed (snowflake) - invite or guild scheduled event
+	// AuditLogChangeKeyChannelID is sent when channel for invite code or guild scheduled event changed (snowflake) - invite or guild scheduled event.
 	AuditLogChangeKeyChannelID AuditLogChangeKey = "channel_id"
-	// AuditLogChangeKeyCode is sent when invite code changed (string) - invite
+	// AuditLogChangeKeyCode is sent when invite code changed (string) - invite.
 	AuditLogChangeKeyCode AuditLogChangeKey = "code"
-	// AuditLogChangeKeyColor is sent when role color changed (int) - role
+	// AuditLogChangeKeyColor is sent when role color changed (int) - role.
 	AuditLogChangeKeyColor AuditLogChangeKey = "color"
-	// AuditLogChangeKeyCommunicationDisabledUntil is sent when member timeout state changed (ISO8601 timestamp) - member
+	// AuditLogChangeKeyCommunicationDisabledUntil is sent when member timeout state changed (ISO8601 timestamp) - member.
 	AuditLogChangeKeyCommunicationDisabledUntil AuditLogChangeKey = "communication_disabled_until"
-	// AuditLogChangeKeyDeaf is sent when user server deafened/undeafened (bool) - member
+	// AuditLogChangeKeyDeaf is sent when user server deafened/undeafened (bool) - member.
 	AuditLogChangeKeyDeaf AuditLogChangeKey = "deaf"
-	// AuditLogChangeKeyDefaultAutoArchiveDuration is sent when default auto archive duration for newly created threads changed (int) - channel
+	// AuditLogChangeKeyDefaultAutoArchiveDuration is sent when default auto archive duration for newly created threads changed (int) - channel.
 	AuditLogChangeKeyDefaultAutoArchiveDuration AuditLogChangeKey = "default_auto_archive_duration"
-	// AuditLogChangeKeyDefaultMessageNotification is sent when default message notification level changed (int) - guild
+	// AuditLogChangeKeyDefaultMessageNotification is sent when default message notification level changed (int) - guild.
 	AuditLogChangeKeyDefaultMessageNotification AuditLogChangeKey = "default_message_notifications"
-	// AuditLogChangeKeyDeny is sent when a permission on a text or voice channel was denied for a role (string) - role
+	// AuditLogChangeKeyDeny is sent when a permission on a text or voice channel was denied for a role (string) - role.
 	AuditLogChangeKeyDeny AuditLogChangeKey = "deny"
-	// AuditLogChangeKeyDescription is sent when description changed (string) - guild, sticker, or guild scheduled event
+	// AuditLogChangeKeyDescription is sent when description changed (string) - guild, sticker, or guild scheduled event.
 	AuditLogChangeKeyDescription AuditLogChangeKey = "description"
-	// AuditLogChangeKeyDiscoverySplashHash is sent when discovery splash changed (string) - guild
+	// AuditLogChangeKeyDiscoverySplashHash is sent when discovery splash changed (string) - guild.
 	AuditLogChangeKeyDiscoverySplashHash AuditLogChangeKey = "discovery_splash_hash"
-	// AuditLogChangeKeyEnableEmoticons is sent when integration emoticons enabled/disabled (bool) - integration
+	// AuditLogChangeKeyEnableEmoticons is sent when integration emoticons enabled/disabled (bool) - integration.
 	AuditLogChangeKeyEnableEmoticons AuditLogChangeKey = "enable_emoticons"
-	// AuditLogChangeKeyEntityType is sent when entity type of guild scheduled event was changed (int) - guild scheduled event
+	// AuditLogChangeKeyEntityType is sent when entity type of guild scheduled event was changed (int) - guild scheduled event.
 	AuditLogChangeKeyEntityType AuditLogChangeKey = "entity_type"
-	// AuditLogChangeKeyExpireBehavior is sent when integration expiring subscriber behavior changed (int) - integration
+	// AuditLogChangeKeyExpireBehavior is sent when integration expiring subscriber behavior changed (int) - integration.
 	AuditLogChangeKeyExpireBehavior AuditLogChangeKey = "expire_behavior"
-	// AuditLogChangeKeyExpireGracePeriod is sent when integration expire grace period changed (int) - integration
+	// AuditLogChangeKeyExpireGracePeriod is sent when integration expire grace period changed (int) - integration.
 	AuditLogChangeKeyExpireGracePeriod AuditLogChangeKey = "expire_grace_period"
-	// AuditLogChangeKeyExplicitContentFilter is sent when change in whose messages are scanned and deleted for explicit content in the server is made (int) - guild
+	// AuditLogChangeKeyExplicitContentFilter is sent when change in whose messages are scanned and deleted for explicit content in the server is made (int) - guild.
 	AuditLogChangeKeyExplicitContentFilter AuditLogChangeKey = "explicit_content_filter"
-	// AuditLogChangeKeyFormatType is sent when format type of sticker changed (int - sticker format type) - sticker
+	// AuditLogChangeKeyFormatType is sent when format type of sticker changed (int - sticker format type) - sticker.
 	AuditLogChangeKeyFormatType AuditLogChangeKey = "format_type"
-	// AuditLogChangeKeyGuildID is sent when guild sticker is in changed (snowflake) - sticker
+	// AuditLogChangeKeyGuildID is sent when guild sticker is in changed (snowflake) - sticker.
 	AuditLogChangeKeyGuildID AuditLogChangeKey = "guild_id"
-	// AuditLogChangeKeyHoist is sent when role is now displayed/no longer displayed separate from online users (bool) - role
+	// AuditLogChangeKeyHoist is sent when role is now displayed/no longer displayed separate from online users (bool) - role.
 	AuditLogChangeKeyHoist AuditLogChangeKey = "hoist"
-	// AuditLogChangeKeyIconHash is sent when icon changed (string) - guild or role
+	// AuditLogChangeKeyIconHash is sent when icon changed (string) - guild or role.
 	AuditLogChangeKeyIconHash AuditLogChangeKey = "icon_hash"
-	// AuditLogChangeKeyID is sent when the id of the changed entity - sometimes used in conjunction with other keys (snowflake) - any
+	// AuditLogChangeKeyID is sent when the id of the changed entity - sometimes used in conjunction with other keys (snowflake) - any.
 	AuditLogChangeKeyID AuditLogChangeKey = "id"
-	// AuditLogChangeKeyInvitable is sent when private thread is now invitable/uninvitable (bool) - thread
+	// AuditLogChangeKeyInvitable is sent when private thread is now invitable/uninvitable (bool) - thread.
 	AuditLogChangeKeyInvitable AuditLogChangeKey = "invitable"
-	// AuditLogChangeKeyInviterID is sent when person who created invite code changed (snowflake) - invite
+	// AuditLogChangeKeyInviterID is sent when person who created invite code changed (snowflake) - invite.
 	AuditLogChangeKeyInviterID AuditLogChangeKey = "inviter_id"
-	// AuditLogChangeKeyLocation is sent when channel id for guild scheduled event changed (string) - guild scheduled event
+	// AuditLogChangeKeyLocation is sent when channel id for guild scheduled event changed (string) - guild scheduled event.
 	AuditLogChangeKeyLocation AuditLogChangeKey = "location"
-	// AuditLogChangeKeyLocked is sent when thread was locked/unlocked (bool) - thread
+	// AuditLogChangeKeyLocked is sent when thread was locked/unlocked (bool) - thread.
 	AuditLogChangeKeyLocked AuditLogChangeKey = "locked"
-	// AuditLogChangeKeyMaxAge is sent when invite code expiration time changed (int) - invite
+	// AuditLogChangeKeyMaxAge is sent when invite code expiration time changed (int) - invite.
 	AuditLogChangeKeyMaxAge AuditLogChangeKey = "max_age"
-	// AuditLogChangeKeyMaxUses is sent when max number of times invite code can be used changed (int) - invite
+	// AuditLogChangeKeyMaxUses is sent when max number of times invite code can be used changed (int) - invite.
 	AuditLogChangeKeyMaxUses AuditLogChangeKey = "max_uses"
-	// AuditLogChangeKeyMentionable is sent when role is now mentionable/unmentionable (bool) - role
+	// AuditLogChangeKeyMentionable is sent when role is now mentionable/unmentionable (bool) - role.
 	AuditLogChangeKeyMentionable AuditLogChangeKey = "mentionable"
-	// AuditLogChangeKeyMfaLevel is sent when two-factor auth requirement changed (int - mfa level) - guild
+	// AuditLogChangeKeyMfaLevel is sent when two-factor auth requirement changed (int - mfa level) - guild.
 	AuditLogChangeKeyMfaLevel AuditLogChangeKey = "mfa_level"
-	// AuditLogChangeKeyMute is sent when user server muted/unmuted (bool) - member
+	// AuditLogChangeKeyMute is sent when user server muted/unmuted (bool) - member.
 	AuditLogChangeKeyMute AuditLogChangeKey = "mute"
-	// AuditLogChangeKeyName is sent when name changed (string) - any
+	// AuditLogChangeKeyName is sent when name changed (string) - any.
 	AuditLogChangeKeyName AuditLogChangeKey = "name"
-	// AuditLogChangeKeyNick is sent when user nickname changed (string) - member
+	// AuditLogChangeKeyNick is sent when user nickname changed (string) - member.
 	AuditLogChangeKeyNick AuditLogChangeKey = "nick"
-	// AuditLogChangeKeyNSFW is sent when channel nsfw restriction changed (bool) - channel
+	// AuditLogChangeKeyNSFW is sent when channel nsfw restriction changed (bool) - channel.
 	AuditLogChangeKeyNSFW AuditLogChangeKey = "nsfw"
-	// AuditLogChangeKeyOwnerID is sent when owner changed (snowflake) - guild
+	// AuditLogChangeKeyOwnerID is sent when owner changed (snowflake) - guild.
 	AuditLogChangeKeyOwnerID AuditLogChangeKey = "owner_id"
-	// AuditLogChangeKeyPermissionOverwrite is sent when permissions on a channel changed (array of channel overwrite objects) - channel
+	// AuditLogChangeKeyPermissionOverwrite is sent when permissions on a channel changed (array of channel overwrite objects) - channel.
 	AuditLogChangeKeyPermissionOverwrite AuditLogChangeKey = "permission_overwrites"
-	// AuditLogChangeKeyPermissions is sent when permissions for a role changed (string) - role
+	// AuditLogChangeKeyPermissions is sent when permissions for a role changed (string) - role.
 	AuditLogChangeKeyPermissions AuditLogChangeKey = "permissions"
-	// AuditLogChangeKeyPosition is sent when text or voice channel position changed (int) - channel
+	// AuditLogChangeKeyPosition is sent when text or voice channel position changed (int) - channel.
 	AuditLogChangeKeyPosition AuditLogChangeKey = "position"
-	// AuditLogChangeKeyPreferredLocale is sent when preferred locale changed (string) - guild
+	// AuditLogChangeKeyPreferredLocale is sent when preferred locale changed (string) - guild.
 	AuditLogChangeKeyPreferredLocale AuditLogChangeKey = "preferred_locale"
-	// AuditLogChangeKeyPrivacylevel is sent when privacy level of the stage instance changed (integer - privacy level) - stage instance or guild scheduled event
+	// AuditLogChangeKeyPrivacylevel is sent when privacy level of the stage instance changed (integer - privacy level) - stage instance or guild scheduled event.
 	AuditLogChangeKeyPrivacylevel AuditLogChangeKey = "privacy_level"
-	// AuditLogChangeKeyPruneDeleteDays is sent when number of days after which inactive and role-unassigned members are kicked changed (int) - guild
+	// AuditLogChangeKeyPruneDeleteDays is sent when number of days after which inactive and role-unassigned members are kicked changed (int) - guild.
 	AuditLogChangeKeyPruneDeleteDays AuditLogChangeKey = "prune_delete_days"
-	// AuditLogChangeKeyPulibUpdatesChannelID is sent when id of the public updates channel changed (snowflake) - guild
+	// AuditLogChangeKeyPulibUpdatesChannelID is sent when id of the public updates channel changed (snowflake) - guild.
 	AuditLogChangeKeyPulibUpdatesChannelID AuditLogChangeKey = "public_updates_channel_id"
-	// AuditLogChangeKeyRateLimitPerUser is sent when amount of seconds a user has to wait before sending another message changed (int) - channel
+	// AuditLogChangeKeyRateLimitPerUser is sent when amount of seconds a user has to wait before sending another message changed (int) - channel.
 	AuditLogChangeKeyRateLimitPerUser AuditLogChangeKey = "rate_limit_per_user"
-	// AuditLogChangeKeyRegion is sent when region changed (string) - guild
+	// AuditLogChangeKeyRegion is sent when region changed (string) - guild.
 	AuditLogChangeKeyRegion AuditLogChangeKey = "region"
-	// AuditLogChangeKeyRulesChannelID is sent when id of the rules channel changed (snowflake) - guild
+	// AuditLogChangeKeyRulesChannelID is sent when id of the rules channel changed (snowflake) - guild.
 	AuditLogChangeKeyRulesChannelID AuditLogChangeKey = "rules_channel_id"
-	// AuditLogChangeKeySplashHash is sent when invite splash page artwork changed (string) - guild
+	// AuditLogChangeKeySplashHash is sent when invite splash page artwork changed (string) - guild.
 	AuditLogChangeKeySplashHash AuditLogChangeKey = "splash_hash"
-	// AuditLogChangeKeyStatus is sent when status of guild scheduled event was changed (int - guild scheduled event status) - guild scheduled event
+	// AuditLogChangeKeyStatus is sent when status of guild scheduled event was changed (int - guild scheduled event status) - guild scheduled event.
 	AuditLogChangeKeyStatus AuditLogChangeKey = "status"
-	// AuditLogChangeKeySystemChannelID is sent when id of the system channel changed (snowflake) - guild
+	// AuditLogChangeKeySystemChannelID is sent when id of the system channel changed (snowflake) - guild.
 	AuditLogChangeKeySystemChannelID AuditLogChangeKey = "system_channel_id"
-	// AuditLogChangeKeyTags is sent when related emoji of sticker changed (string) - sticker
+	// AuditLogChangeKeyTags is sent when related emoji of sticker changed (string) - sticker.
 	AuditLogChangeKeyTags AuditLogChangeKey = "tags"
-	// AuditLogChangeKeyTemporary is sent when invite code is now temporary or never expires (bool) - invite
+	// AuditLogChangeKeyTemporary is sent when invite code is now temporary or never expires (bool) - invite.
 	AuditLogChangeKeyTemporary AuditLogChangeKey = "temporary"
-	// TODO: remove when compatibility is not required
+	// TODO: remove when compatibility is not required.
 	AuditLogChangeKeyTempoary = AuditLogChangeKeyTemporary
-	// AuditLogChangeKeyTopic is sent when text channel topic or stage instance topic changed (string) - channel or stage instance
+	// AuditLogChangeKeyTopic is sent when text channel topic or stage instance topic changed (string) - channel or stage instance.
 	AuditLogChangeKeyTopic AuditLogChangeKey = "topic"
-	// AuditLogChangeKeyType is sent when type of entity created (int or string) - any
+	// AuditLogChangeKeyType is sent when type of entity created (int or string) - any.
 	AuditLogChangeKeyType AuditLogChangeKey = "type"
-	// AuditLogChangeKeyUnicodeEmoji is sent when role unicode emoji changed (string) - role
+	// AuditLogChangeKeyUnicodeEmoji is sent when role unicode emoji changed (string) - role.
 	AuditLogChangeKeyUnicodeEmoji AuditLogChangeKey = "unicode_emoji"
-	// AuditLogChangeKeyUserLimit is sent when new user limit in a voice channel set (int) - voice channel
+	// AuditLogChangeKeyUserLimit is sent when new user limit in a voice channel set (int) - voice channel.
 	AuditLogChangeKeyUserLimit AuditLogChangeKey = "user_limit"
-	// AuditLogChangeKeyUses is sent when number of times invite code used changed (int) - invite
+	// AuditLogChangeKeyUses is sent when number of times invite code used changed (int) - invite.
 	AuditLogChangeKeyUses AuditLogChangeKey = "uses"
-	// AuditLogChangeKeyVanityURLCode is sent when guild invite vanity url changed (string) - guild
+	// AuditLogChangeKeyVanityURLCode is sent when guild invite vanity url changed (string) - guild.
 	AuditLogChangeKeyVanityURLCode AuditLogChangeKey = "vanity_url_code"
-	// AuditLogChangeKeyVerificationLevel is sent when required verification level changed (int - verification level) - guild
+	// AuditLogChangeKeyVerificationLevel is sent when required verification level changed (int - verification level) - guild.
 	AuditLogChangeKeyVerificationLevel AuditLogChangeKey = "verification_level"
-	// AuditLogChangeKeyWidgetChannelID is sent when channel id of the server widget changed (snowflake) - guild
+	// AuditLogChangeKeyWidgetChannelID is sent when channel id of the server widget changed (snowflake) - guild.
 	AuditLogChangeKeyWidgetChannelID AuditLogChangeKey = "widget_channel_id"
-	// AuditLogChangeKeyWidgetEnabled is sent when server widget enabled/disabled (bool) - guild
+	// AuditLogChangeKeyWidgetEnabled is sent when server widget enabled/disabled (bool) - guild.
 	AuditLogChangeKeyWidgetEnabled AuditLogChangeKey = "widget_enabled"
-	// AuditLogChangeKeyRoleAdd is sent when new role added (array of partial role objects) - guild
+	// AuditLogChangeKeyRoleAdd is sent when new role added (array of partial role objects) - guild.
 	AuditLogChangeKeyRoleAdd AuditLogChangeKey = "$add"
-	// AuditLogChangeKeyRoleRemove is sent when role removed (array of partial role objects) - guild
+	// AuditLogChangeKeyRoleRemove is sent when role removed (array of partial role objects) - guild.
 	AuditLogChangeKeyRoleRemove AuditLogChangeKey = "$remove"
 )
 
@@ -1468,7 +1467,7 @@ type AuditLogOptions struct {
 // https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info
 type AuditLogOptionsType string
 
-// Valid Types for AuditLogOptionsType
+// Valid Types for AuditLogOptionsType.
 const (
 	AuditLogOptionsTypeMember AuditLogOptionsType = "member"
 	AuditLogOptionsTypeRole   AuditLogOptionsType = "role"
@@ -1478,7 +1477,7 @@ const (
 // https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
 type AuditLogAction int
 
-// Block contains Discord Audit Log Action Types
+// Block contains Discord Audit Log Action Types.
 const (
 	AuditLogActionGuildUpdate AuditLogAction = 1
 
@@ -1557,7 +1556,7 @@ type UserGuildSettings struct {
 	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
-// A UserGuildSettingsEdit stores data for editing UserGuildSettings
+// A UserGuildSettingsEdit stores data for editing UserGuildSettings.
 type UserGuildSettingsEdit struct {
 	SupressEveryone      bool                                         `json:"suppress_everyone"`
 	Muted                bool                                         `json:"muted"`
@@ -1566,7 +1565,7 @@ type UserGuildSettingsEdit struct {
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
-// An APIErrorMessage is an api error message returned from discord
+// An APIErrorMessage is an api error message returned from discord.
 type APIErrorMessage struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -1581,14 +1580,14 @@ type MessageReaction struct {
 	GuildID   string `json:"guild_id,omitempty"`
 }
 
-// GatewayBotResponse stores the data for the gateway/bot response
+// GatewayBotResponse stores the data for the gateway/bot response.
 type GatewayBotResponse struct {
 	URL               string             `json:"url"`
 	Shards            int                `json:"shards"`
 	SessionStartLimit SessionInformation `json:"session_start_limit"`
 }
 
-// SessionInformation provides the information for max concurrency sharding
+// SessionInformation provides the information for max concurrency sharding.
 type SessionInformation struct {
 	Total          int `json:"total,omitempty"`
 	Remaining      int `json:"remaining,omitempty"`
@@ -1624,7 +1623,7 @@ type Activity struct {
 	Flags         int          `json:"flags,omitempty"`
 }
 
-// UnmarshalJSON is a custom unmarshaljson to make CreatedAt a time.Time instead of an int
+// UnmarshalJSON is a custom unmarshaljson to make CreatedAt a time.Time instead of an int.
 func (activity *Activity) UnmarshalJSON(b []byte) error {
 	temp := struct {
 		Name          string       `json:"name"`
@@ -1682,7 +1681,7 @@ type Secrets struct {
 // https://discord.com/developers/docs/topics/gateway#activity-object-activity-types
 type ActivityType int
 
-// Valid ActivityType values
+// Valid ActivityType values.
 const (
 	ActivityTypeGame      ActivityType = 0
 	ActivityTypeStreaming ActivityType = 1
@@ -1715,9 +1714,9 @@ type IdentifyProperties struct {
 	ReferringDomain string `json:"$referring_domain"`
 }
 
-// Constants for the different bit offsets of text channel permissions
+// Constants for the different bit offsets of text channel permissions.
 const (
-	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
+	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels.
 	PermissionReadMessages          = 0x0000000000000400
 	PermissionSendMessages          = 0x0000000000000800
 	PermissionSendTTSMessages       = 0x0000000000001000
@@ -1734,7 +1733,7 @@ const (
 	PermissionSendMessagesInThreads = 0x0000004000000000
 )
 
-// Constants for the different bit offsets of voice permissions
+// Constants for the different bit offsets of voice permissions.
 const (
 	PermissionVoicePrioritySpeaker = 0x0000000000000100
 	PermissionVoiceStreamVideo     = 0x0000000000000200
@@ -1756,7 +1755,7 @@ const (
 	PermissionManageEmojis    = 0x0000000040000000
 )
 
-// Constants for the different bit offsets of general permissions
+// Constants for the different bit offsets of general permissions.
 const (
 	PermissionCreateInstantInvite = 0x0000000000000001
 	PermissionKickMembers         = 0x0000000000000002
@@ -1802,7 +1801,7 @@ const (
 		PermissionManageEmojis
 )
 
-// Block contains Discord JSON Error Response codes
+// Block contains Discord JSON Error Response codes.
 const (
 	ErrCodeGeneralError = 0
 
@@ -1967,7 +1966,7 @@ const (
 // https://discord.com/developers/docs/topics/gateway#gateway-intents
 type Intent int
 
-// Constants for the different bit offsets of intents
+// Constants for the different bit offsets of intents.
 const (
 	IntentGuilds                 Intent = 1 << 0
 	IntentGuildMembers           Intent = 1 << 1
@@ -1987,7 +1986,7 @@ const (
 	IntentMessageContent         Intent = 1 << 15
 	IntentGuildScheduledEvents   Intent = 1 << 16
 
-	// TODO: remove when compatibility is not needed
+	// TODO: remove when compatibility is not needed.
 
 	IntentsGuilds                 Intent = 1 << 0
 	IntentsGuildMembers           Intent = 1 << 1

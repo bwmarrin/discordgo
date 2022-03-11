@@ -19,7 +19,7 @@ type Webhook struct {
 // https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types
 type WebhookType int
 
-// Valid WebhookType values
+// Valid WebhookType values.
 const (
 	WebhookTypeIncoming        WebhookType = 1
 	WebhookTypeChannelFollower WebhookType = 2

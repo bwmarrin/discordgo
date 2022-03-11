@@ -334,20 +334,20 @@ type VoiceStateUpdate struct {
 	BeforeUpdate *VoiceState `json:"-"`
 }
 
-// MessageDeleteBulk is the data for a MessageDeleteBulk event
+// MessageDeleteBulk is the data for a MessageDeleteBulk event.
 type MessageDeleteBulk struct {
 	Messages  []string `json:"ids"`
 	ChannelID string   `json:"channel_id"`
 	GuildID   string   `json:"guild_id"`
 }
 
-// WebhooksUpdate is the data for a WebhooksUpdate event
+// WebhooksUpdate is the data for a WebhooksUpdate event.
 type WebhooksUpdate struct {
 	GuildID   string `json:"guild_id"`
 	ChannelID string `json:"channel_id"`
 }
 
-// InteractionCreate is the data for a InteractionCreate event
+// InteractionCreate is the data for a InteractionCreate event.
 type InteractionCreate struct {
 	*Interaction
 }
@@ -357,14 +357,14 @@ func (i *InteractionCreate) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &i.Interaction)
 }
 
-// InviteCreate is the data for a InviteCreate event
+// InviteCreate is the data for a InviteCreate event.
 type InviteCreate struct {
 	*Invite
 	ChannelID string `json:"channel_id"`
 	GuildID   string `json:"guild_id"`
 }
 
-// InviteDelete is the data for a InviteDelete event
+// InviteDelete is the data for a InviteDelete event.
 type InviteDelete struct {
 	ChannelID string `json:"channel_id"`
 	GuildID   string `json:"guild_id"`

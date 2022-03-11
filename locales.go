@@ -4,7 +4,7 @@ package discordgo
 // https://discord.com/developers/docs/reference#locales
 type Locale string
 
-// String returns the human-readable string of the locale
+// String returns the human-readable string of the locale.
 func (l Locale) String() string {
 	if name, ok := Locales[l]; ok {
 		return name
@@ -12,7 +12,7 @@ func (l Locale) String() string {
 	return Unknown.String()
 }
 
-// All defined locales in Discord
+// All defined locales in Discord.
 const (
 	EnglishUS    Locale = "en-US"
 	EnglishGB    Locale = "en-GB"

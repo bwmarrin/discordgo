@@ -70,7 +70,7 @@ type VoiceConnection struct {
 }
 
 // VoiceSpeakingUpdateHandler type provides a function definition for the
-// VoiceSpeakingUpdate event
+// VoiceSpeakingUpdate event.
 type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdate)
 
 // Speaking sends a speaking notification to Discord over the voice websocket.
@@ -78,7 +78,6 @@ type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdat
 // once finished sending audio.
 //  b  : Send true if speaking, false if not.
 func (v *VoiceConnection) Speaking(b bool) (err error) {
-
 	v.log(LogDebug, "called (%t)", b)
 
 	type voiceSpeakingData struct {
@@ -114,9 +113,8 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 }
 
 // ChangeChannel sends Discord a request to change channels within a Guild
-// !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin
+// !!! NOTE !!! This function may be removed in favour of just using ChannelVoiceJoin.
 func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err error) {
-
 	v.log(LogInformational, "called")
 
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
@@ -137,7 +135,6 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 // Disconnect disconnects from this voice channel and closes the websocket
 // and udp connections to Discord.
 func (v *VoiceConnection) Disconnect() (err error) {
-
 	// Send a OP4 with a nil channel to disconnect
 	v.Lock()
 	if v.sessionID != "" {
@@ -161,9 +158,8 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	return
 }
 
-// Close closes the voice ws and udp connections
+// Close closes the voice ws and udp connections.
 func (v *VoiceConnection) Close() {
-
 	v.log(LogInformational, "called")
 
 	v.Lock()
@@ -232,14 +228,14 @@ type VoiceSpeakingUpdate struct {
 // ------------------------------------------------------------------------------------------------
 
 // A voiceOP4 stores the data for the voice operation 4 websocket event
-// which provides us with the NaCl SecretBox encryption key
+// which provides us with the NaCl SecretBox encryption key.
 type voiceOP4 struct {
 	SecretKey [32]byte `json:"secret_key"`
 	Mode      string   `json:"mode"`
 }
 
 // A voiceOP2 stores the data for the voice operation 2 websocket event
-// which is sort of like the voice READY packet
+// which is sort of like the voice READY packet.
 type voiceOP2 struct {
 	SSRC              uint32        `json:"ssrc"`
 	Port              int           `json:"port"`
@@ -249,9 +245,8 @@ type voiceOP2 struct {
 }
 
 // WaitUntilConnected waits for the Voice Connection to
-// become ready, if it does not become ready it returns an err
+// become ready, if it does not become ready it returns an err.
 func (v *VoiceConnection) waitUntilConnected() error {
-
 	v.log(LogInformational, "called")
 
 	i := 0
@@ -276,7 +271,6 @@ func (v *VoiceConnection) waitUntilConnected() error {
 // after VoiceChannelJoin is used and the data VOICE websocket events
 // are captured.
 func (v *VoiceConnection) open() (err error) {
-
 	v.log(LogInformational, "called")
 
 	v.Lock()
@@ -340,9 +334,8 @@ func (v *VoiceConnection) open() (err error) {
 }
 
 // wsListen listens on the voice websocket for messages and passes them
-// to the voice event handler.  This is automatically called by the Open func
+// to the voice event handler.  This is automatically called by the Open func.
 func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}) {
-
 	v.log(LogInformational, "called")
 
 	for {
@@ -374,7 +367,6 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			sameConnection := v.wsConn == wsConn
 			v.RUnlock()
 			if sameConnection {
-
 				v.log(LogError, "voice endpoint %s websocket closed unexpectantly, %s", v.endpoint, err)
 
 				// Start reconnect goroutine then exit.
@@ -396,7 +388,6 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 // wsEvent handles any voice websocket events. This is only called by the
 // wsListen() function.
 func (v *VoiceConnection) onEvent(message []byte) {
-
 	v.log(LogDebug, "received: %s", string(message))
 
 	var e Event
@@ -406,7 +397,6 @@ func (v *VoiceConnection) onEvent(message []byte) {
 	}
 
 	switch e.Operation {
-
 	case 2: // READY
 
 		if err := json.Unmarshal(e.RawData, &v.op2); err != nil {
@@ -492,7 +482,6 @@ type voiceHeartbeatOp struct {
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
 func (v *VoiceConnection) wsHeartbeat(wsConn *websocket.Conn, close <-chan struct{}, i time.Duration) {
-
 	if close == nil || wsConn == nil {
 		return
 	}
@@ -542,9 +531,8 @@ type voiceUDPOp struct {
 // udpOpen opens a UDP connection to the voice server and completes the
 // initial required handshake.  This connection is left open in the session
 // and can be used to send or receive audio.  This should only be called
-// from voice.wsEvent OP2
+// from voice.wsEvent OP2.
 func (v *VoiceConnection) udpOpen() (err error) {
-
 	v.Lock()
 	defer v.Unlock()
 
@@ -637,9 +625,8 @@ func (v *VoiceConnection) udpOpen() (err error) {
 }
 
 // udpKeepAlive sends a udp packet to keep the udp connection open
-// This is still a bit of a "proof of concept"
+// This is still a bit of a "proof of concept".
 func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct{}, i time.Duration) {
-
 	if udpConn == nil || close == nil {
 		return
 	}
@@ -652,7 +639,6 @@ func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct
 	ticker := time.NewTicker(i)
 	defer ticker.Stop()
 	for {
-
 		binary.LittleEndian.PutUint64(packet, sequence)
 		sequence++
 
@@ -674,7 +660,6 @@ func (v *VoiceConnection) udpKeepAlive(udpConn *net.UDPConn, close <-chan struct
 // opusSender will listen on the given channel and send any
 // pre-encoded opus audio to Discord.  Supposedly.
 func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}, opus <-chan []byte, rate, size int) {
-
 	if udpConn == nil || close == nil {
 		return
 	}
@@ -706,7 +691,6 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
 	defer ticker.Stop()
 	for {
-
 		// Get data from chan.  If chan is closed, return.
 		select {
 		case <-close:
@@ -782,7 +766,6 @@ type Packet struct {
 // and sends them across the given channel
 // NOTE :: This function may change names later.
 func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct{}, c chan *Packet) {
-
 	if udpConn == nil || close == nil {
 		return
 	}
@@ -800,7 +783,6 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 			sameConnection := v.udpConn == udpConn
 			v.RUnlock()
 			if sameConnection {
-
 				v.log(LogError, "udp read error, %s, %s", v.endpoint, err)
 				v.log(LogDebug, "voice struct: %#v\n", v)
 
@@ -858,7 +840,6 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 // It will be cleaned up once a proven stable option is flushed out.
 // aka: this is ugly shit code, please don't judge too harshly.
 func (v *VoiceConnection) reconnect() {
-
 	v.log(LogInformational, "called")
 
 	v.Lock()
@@ -877,7 +858,6 @@ func (v *VoiceConnection) reconnect() {
 
 	wait := time.Duration(1)
 	for {
-
 		<-time.After(wait * time.Second)
 		wait *= 2
 		if wait > 600 {
@@ -909,6 +889,5 @@ func (v *VoiceConnection) reconnect() {
 		if err != nil {
 			v.log(LogError, "error sending disconnect packet, %s", err)
 		}
-
 	}
 }

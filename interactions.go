@@ -18,7 +18,7 @@ const InteractionDeadline = time.Second * 3
 // ApplicationCommandType represents the type of application command.
 type ApplicationCommandType uint8
 
-// Application command types
+// Application command types.
 const (
 	// ChatApplicationCommand is default command type. They are slash commands (i.e. called directly from the chat).
 	ChatApplicationCommand ApplicationCommandType = 1
@@ -149,7 +149,7 @@ const (
 // InteractionType indicates the type of an interaction event.
 type InteractionType uint8
 
-// Interaction types
+// Interaction types.
 const (
 	InteractionPing                           InteractionType = 1
 	InteractionApplicationCommand             InteractionType = 2
@@ -366,7 +366,7 @@ type ApplicationCommandInteractionDataOption struct {
 	Focused bool `json:"focused,omitempty"`
 }
 
-// IntValue is a utility function for casting option value to integer
+// IntValue is a utility function for casting option value to integer.
 func (o ApplicationCommandInteractionDataOption) IntValue() int64 {
 	if o.Type != ApplicationCommandOptionInteger {
 		panic("IntValue called on data option of type " + o.Type.String())
@@ -374,7 +374,7 @@ func (o ApplicationCommandInteractionDataOption) IntValue() int64 {
 	return int64(o.Value.(float64))
 }
 
-// UintValue is a utility function for casting option value to unsigned integer
+// UintValue is a utility function for casting option value to unsigned integer.
 func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 	if o.Type != ApplicationCommandOptionInteger {
 		panic("UintValue called on data option of type " + o.Type.String())
@@ -382,7 +382,7 @@ func (o ApplicationCommandInteractionDataOption) UintValue() uint64 {
 	return uint64(o.Value.(float64))
 }
 
-// FloatValue is a utility function for casting option value to float
+// FloatValue is a utility function for casting option value to float.
 func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
 	if o.Type != ApplicationCommandOptionNumber {
 		panic("FloatValue called on data option of type " + o.Type.String())
@@ -390,7 +390,7 @@ func (o ApplicationCommandInteractionDataOption) FloatValue() float64 {
 	return o.Value.(float64)
 }
 
-// StringValue is a utility function for casting option value to string
+// StringValue is a utility function for casting option value to string.
 func (o ApplicationCommandInteractionDataOption) StringValue() string {
 	if o.Type != ApplicationCommandOptionString {
 		panic("StringValue called on data option of type " + o.Type.String())
@@ -398,7 +398,7 @@ func (o ApplicationCommandInteractionDataOption) StringValue() string {
 	return o.Value.(string)
 }
 
-// BoolValue is a utility function for casting option value to bool
+// BoolValue is a utility function for casting option value to bool.
 func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 	if o.Type != ApplicationCommandOptionBoolean {
 		panic("BoolValue called on data option of type " + o.Type.String())
@@ -407,7 +407,7 @@ func (o ApplicationCommandInteractionDataOption) BoolValue() bool {
 }
 
 // ChannelValue is a utility function for casting option value to channel object.
-// s : Session object, if not nil, function additionally fetches all channel's data
+// s : Session object, if not nil, function additionally fetches all channel's data.
 func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Channel {
 	if o.Type != ApplicationCommandOptionChannel {
 		panic("ChannelValue called on data option of type " + o.Type.String())
@@ -430,7 +430,7 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Chann
 }
 
 // RoleValue is a utility function for casting option value to role object.
-// s : Session object, if not nil, function additionally fetches all role's data
+// s : Session object, if not nil, function additionally fetches all role's data.
 func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID string) *Role {
 	if o.Type != ApplicationCommandOptionRole && o.Type != ApplicationCommandOptionMentionable {
 		panic("RoleValue called on data option of type " + o.Type.String())
@@ -458,7 +458,7 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 }
 
 // UserValue is a utility function for casting option value to user object.
-// s : Session object, if not nil, function additionally fetches all user's data
+// s : Session object, if not nil, function additionally fetches all user's data.
 func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	if o.Type != ApplicationCommandOptionUser && o.Type != ApplicationCommandOptionMentionable {
 		panic("UserValue called on data option of type " + o.Type.String())

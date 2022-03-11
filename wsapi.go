@@ -29,11 +29,11 @@ import (
 var ErrWSAlreadyOpen = errors.New("web socket already opened")
 
 // ErrWSNotFound is thrown when you attempt to use a websocket
-// that doesn't exist
+// that doesn't exist.
 var ErrWSNotFound = errors.New("no websocket connection exists")
 
 // ErrWSShardBounds is thrown when you try to use a shard ID that is
-// more than the total shard count
+// more than the total shard count.
 var ErrWSShardBounds = errors.New("ShardID must be less than ShardCount")
 
 type resumePacket struct {
@@ -125,14 +125,12 @@ func (s *Session) Open() error {
 	// connection or Op 6 Resume if we are resuming an existing connection.
 	sequence := atomic.LoadInt64(s.sequence)
 	if s.sessionID == "" && sequence == 0 {
-
 		// Send Op 2 Identity Packet
 		err = s.identify()
 		if err != nil {
 			err = fmt.Errorf("error sending identify packet to gateway, %s, %s", s.gateway, err)
 			return err
 		}
-
 	} else {
 
 		// Send Op 6 Resume Packet
@@ -150,7 +148,6 @@ func (s *Session) Open() error {
 			err = fmt.Errorf("error sending gateway resume packet, %s, %s", s.gateway, err)
 			return err
 		}
-
 	}
 
 	// A basic state is a hard requirement for Voice.
@@ -208,15 +205,12 @@ func (s *Session) Open() error {
 // listen polls the websocket connection for events, it will stop when the
 // listening channel is closed, or an error occurs.
 func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
-
 	s.log(LogInformational, "called")
 
 	for {
-
 		messageType, message, err := wsConn.ReadMessage()
 
 		if err != nil {
-
 			// Detect if we have been closed manually. If a Close() has already
 			// happened, the websocket we are listening on will be different to
 			// the current session.
@@ -225,7 +219,6 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			s.RUnlock()
 
 			if sameConnection {
-
 				s.log(LogWarning, "error reading from gateway %s websocket, %s", s.gateway, err)
 				// There has been an error reading, close the websocket so that
 				// OnDisconnect event is emitted.
@@ -242,13 +235,11 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 		}
 
 		select {
-
 		case <-listening:
 			return
 
 		default:
 			s.onEvent(messageType, message)
-
 		}
 	}
 }
@@ -267,16 +258,13 @@ const FailedHeartbeatAcks time.Duration = 5 * time.Millisecond
 
 // HeartbeatLatency returns the latency between heartbeat acknowledgement and heartbeat send.
 func (s *Session) HeartbeatLatency() time.Duration {
-
 	return s.LastHeartbeatAck.Sub(s.LastHeartbeatSent)
-
 }
 
 // heartbeat sends regular heartbeats to Discord so it knows the client
 // is still connected.  If you do not send these heartbeats Discord will
 // disconnect the websocket connection after a few seconds.
 func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}, heartbeatIntervalMsec time.Duration) {
-
 	s.log(LogInformational, "called")
 
 	if listening == nil || wsConn == nil {
@@ -320,7 +308,7 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 	}
 }
 
-// UpdateStatusData ia provided to UpdateStatusComplex()
+// UpdateStatusData ia provided to UpdateStatusComplex().
 type UpdateStatusData struct {
 	IdleSince  *int        `json:"since"`
 	Activities []*Activity `json:"activities"`
@@ -425,7 +413,7 @@ type requestGuildMembersOp struct {
 // guildID   : Single Guild ID to request members of
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
-// presences : Whether to request presences of guild members
+// presences : Whether to request presences of guild members.
 func (s *Session) RequestGuildMembers(guildID string, query string, limit int, presences bool) (err error) {
 	data := requestGuildMembersData{
 		GuildIDs:  []string{guildID},
@@ -442,7 +430,7 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int, p
 // guildID   : Slice of guild IDs to request members of
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
-// presences : Whether to request presences of guild members
+// presences : Whether to request presences of guild members.
 func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, presences bool) (err error) {
 	data := requestGuildMembersData{
 		GuildIDs:  guildIDs,
@@ -479,14 +467,12 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 // If you use the AddHandler() function to register a handler for the
 // "OnEvent" event then all events will be passed to that handler.
 func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
-
 	var err error
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
 
 	// If this is a compressed message, uncompress it.
 	if messageType == websocket.BinaryMessage {
-
 		z, err2 := zlib.NewReader(reader)
 		if err2 != nil {
 			s.log(LogError, "error uncompressing websocket message, %s", err)
@@ -540,7 +526,6 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	// Invalid Session
 	// Must respond with a Identify packet.
 	if e.Operation == 9 {
-
 		s.log(LogInformational, "sending identify packet to gateway in response to Op9")
 
 		err = s.identify()
@@ -626,7 +611,6 @@ type voiceChannelJoinOp struct {
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
-
 	s.log(LogInformational, "called")
 
 	s.RLock()
@@ -673,7 +657,6 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 //    mute    : If true, you will be set to muted upon joining.
 //    deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
-
 	s.log(LogInformational, "called")
 
 	var channelID *string
@@ -693,7 +676,6 @@ func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err 
 
 // onVoiceStateUpdate handles Voice State Update events on the data websocket.
 func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
-
 	// If we don't have a connection for the channel, don't bother
 	if st.ChannelID == "" {
 		return
@@ -726,7 +708,6 @@ func (s *Session) onVoiceStateUpdate(st *VoiceStateUpdate) {
 // to a voice channel.  In that case, need to re-establish connection to
 // the new region endpoint.
 func (s *Session) onVoiceServerUpdate(st *VoiceServerUpdate) {
-
 	s.log(LogInformational, "called")
 
 	s.RLock()
@@ -761,7 +742,7 @@ type identifyOp struct {
 	Data Identify `json:"d"`
 }
 
-// identify sends the identify packet to the gateway
+// identify sends the identify packet to the gateway.
 func (s *Session) identify() error {
 	s.log(LogDebug, "called")
 
@@ -781,7 +762,6 @@ func (s *Session) identify() error {
 	// can be deprecated and their usage moved to the Session.Identify
 	// struct
 	if s.ShardCount > 1 {
-
 		if s.ShardID >= s.ShardCount {
 			return ErrWSShardBounds
 		}
@@ -800,13 +780,11 @@ func (s *Session) identify() error {
 }
 
 func (s *Session) reconnect() {
-
 	s.log(LogInformational, "called")
 
 	var err error
 
 	if s.ShouldReconnectOnError {
-
 		wait := time.Duration(1)
 
 		for {
@@ -824,14 +802,12 @@ func (s *Session) reconnect() {
 				s.RLock()
 				defer s.RUnlock()
 				for _, v := range s.VoiceConnections {
-
 					s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
 					go v.reconnect()
 
 					// This is here just to prevent violently spamming the
 					// voice reconnects
 					time.Sleep(1 * time.Second)
-
 				}
 				return
 			}
@@ -855,16 +831,15 @@ func (s *Session) reconnect() {
 }
 
 // Close closes a websocket and stops all listening/heartbeat goroutines.
-// TODO: Add support for Voice WS/UDP
+// TODO: Add support for Voice WS/UDP.
 func (s *Session) Close() error {
 	return s.CloseWithCode(websocket.CloseNormalClosure)
 }
 
 // CloseWithCode closes a websocket using the provided closeCode and stops all
 // listening/heartbeat goroutines.
-// TODO: Add support for Voice WS/UDP connections
+// TODO: Add support for Voice WS/UDP connections.
 func (s *Session) CloseWithCode(closeCode int) (err error) {
-
 	s.log(LogInformational, "called")
 	s.Lock()
 
@@ -880,7 +855,6 @@ func (s *Session) CloseWithCode(closeCode int) (err error) {
 	// this should force stop any reconnecting voice channels too
 
 	if s.wsConn != nil {
-
 		s.log(LogInformational, "sending close frame")
 		// To cleanly close a connection, a client should send a close
 		// frame and wait for the server to close the connection.

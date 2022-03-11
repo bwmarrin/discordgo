@@ -10,7 +10,6 @@ import (
 
 // TestChannelMessageSend tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend(t *testing.T) {
-
 	if envChannel == "" {
 		t.Skip("Skipping, DG_CHANNEL not set.")
 	}
@@ -111,7 +110,6 @@ func TestUserGuilds(t *testing.T) {
 }
 
 func TestGateway(t *testing.T) {
-
 	if dg == nil {
 		t.Skip("Skipping, dg not set.")
 	}
@@ -122,7 +120,6 @@ func TestGateway(t *testing.T) {
 }
 
 func TestGatewayBot(t *testing.T) {
-
 	if dgBot == nil {
 		t.Skip("Skipping, dgBot not set.")
 	}
@@ -133,7 +130,6 @@ func TestGatewayBot(t *testing.T) {
 }
 
 func TestVoiceRegions(t *testing.T) {
-
 	if dg == nil {
 		t.Skip("Skipping, dg not set.")
 	}
@@ -144,7 +140,6 @@ func TestVoiceRegions(t *testing.T) {
 	}
 }
 func TestGuildRoles(t *testing.T) {
-
 	if envGuild == "" {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}
@@ -157,11 +152,9 @@ func TestGuildRoles(t *testing.T) {
 	if err != nil {
 		t.Errorf("GuildRoles(envGuild) returned error: %+v", err)
 	}
-
 }
 
 func TestGuildMemberNickname(t *testing.T) {
-
 	if envGuild == "" {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}
@@ -178,7 +171,6 @@ func TestGuildMemberNickname(t *testing.T) {
 
 // TestChannelMessageSend2 tests the ChannelMessageSend() function. This should not return an error.
 func TestChannelMessageSend2(t *testing.T) {
-
 	if envChannel == "" {
 		t.Skip("Skipping, DG_CHANNEL not set.")
 	}
@@ -195,7 +187,6 @@ func TestChannelMessageSend2(t *testing.T) {
 
 // TestGuildPruneCount tests GuildPruneCount() function. This should not return an error.
 func TestGuildPruneCount(t *testing.T) {
-
 	if envGuild == "" {
 		t.Skip("Skipping, DG_GUILD not set.")
 	}

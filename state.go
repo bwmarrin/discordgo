@@ -22,7 +22,7 @@ import (
 var ErrNilState = errors.New("state not instantiated, please use discordgo.New() or assign Session.State")
 
 // ErrStateNotFound is returned when the state cache
-// requested is not found
+// requested is not found.
 var ErrStateNotFound = errors.New("state cache not found")
 
 // ErrMessageIncompletePermissions is returned when the message
@@ -612,7 +612,7 @@ outer:
 	return nil
 }
 
-// ThreadMembersUpdate updates thread members list
+// ThreadMembersUpdate updates thread members list.
 func (s *State) ThreadMembersUpdate(tmu *ThreadMembersUpdate) error {
 	thread, err := s.Channel(tmu.ID)
 	if err != nil {
@@ -662,13 +662,13 @@ func (s *State) ThreadMemberUpdate(mu *ThreadMemberUpdate) error {
 }
 
 // GuildChannel gets a channel by ID from a guild.
-// This method is Deprecated, use Channel(channelID)
+// This method is Deprecated, use Channel(channelID).
 func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
 	return s.Channel(channelID)
 }
 
 // PrivateChannel gets a private channel by ID.
-// This method is Deprecated, use Channel(channelID)
+// This method is Deprecated, use Channel(channelID).
 func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 	return s.Channel(channelID)
 }
@@ -1145,7 +1145,6 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 			err = s.MemberAdd(m)
 		}
-
 	}
 
 	return

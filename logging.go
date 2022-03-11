@@ -26,7 +26,7 @@ const (
 	// also returned to a calling function.
 	LogWarning
 
-	// LogInformational level is used for normal non-error activity
+	// LogInformational level is used for normal non-error activity.
 	LogInformational
 
 	// LogDebug level is for very detailed non-error activity.  This is
@@ -34,7 +34,7 @@ const (
 	LogDebug
 )
 
-// Logger can be used to replace the standard logging for discordgo
+// Logger can be used to replace the standard logging for discordgo.
 var Logger func(msgL, caller int, format string, a ...interface{})
 
 // msglog provides package wide logging consistency for discordgo
@@ -44,11 +44,9 @@ var Logger func(msgL, caller int, format string, a ...interface{})
 //   format : Printf style message format
 //   a ...  : comma separated list of values to pass
 func msglog(msgL, caller int, format string, a ...interface{}) {
-
 	if Logger != nil {
 		Logger(msgL, caller, format, a...)
 	} else {
-
 		pc, file, line, _ := runtime.Caller(caller)
 
 		files := strings.Split(file, "/")
@@ -67,9 +65,8 @@ func msglog(msgL, caller int, format string, a ...interface{}) {
 // helper function that wraps msglog for the Session struct
 // This adds a check to insure the message is only logged
 // if the session log level is equal or higher than the
-// message log level
+// message log level.
 func (s *Session) log(msgL int, format string, a ...interface{}) {
-
 	if msgL > s.LogLevel {
 		return
 	}
@@ -80,9 +77,8 @@ func (s *Session) log(msgL int, format string, a ...interface{}) {
 // helper function that wraps msglog for the VoiceConnection struct
 // This adds a check to insure the message is only logged
 // if the voice connection log level is equal or higher than the
-// message log level
+// message log level.
 func (v *VoiceConnection) log(msgL int, format string, a ...interface{}) {
-
 	if msgL > v.LogLevel {
 		return
 	}

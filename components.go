@@ -51,7 +51,7 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	return json.Unmarshal(src, umc.MessageComponent)
 }
 
-// MessageComponentFromJSON is a helper function for unmarshaling message components
+// MessageComponentFromJSON is a helper function for unmarshaling message components.
 func MessageComponentFromJSON(b []byte) (MessageComponent, error) {
 	var u unmarshalableMessageComponent
 	err := u.UnmarshalJSON(b)
@@ -234,7 +234,7 @@ func (m TextInput) MarshalJSON() ([]byte, error) {
 // TextInputStyle is style of text in TextInput component.
 type TextInputStyle uint
 
-// Text styles
+// Text styles.
 const (
 	TextInputShort     TextInputStyle = 1
 	TextInputParagraph TextInputStyle = 2

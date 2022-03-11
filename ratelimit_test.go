@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// This test takes ~2 seconds to run
+// This test takes ~2 seconds to run.
 func TestRatelimitReset(t *testing.T) {
 	rl := NewRatelimiter()
 
@@ -46,7 +46,7 @@ func TestRatelimitReset(t *testing.T) {
 	}
 }
 
-// This test takes ~1 seconds to run
+// This test takes ~1 seconds to run.
 func TestRatelimitGlobal(t *testing.T) {
 	rl := NewRatelimiter()
 
@@ -99,7 +99,7 @@ func BenchmarkRatelimitParallelMultiEndpoints(b *testing.B) {
 	})
 }
 
-// Does not actually send requests, but locks the bucket and releases it with made-up headers
+// Does not actually send requests, but locks the bucket and releases it with made-up headers.
 func sendBenchReq(endpoint string, rl *RateLimiter) {
 	bucket := rl.LockBucket(endpoint)
 

@@ -21,7 +21,7 @@ import (
 // https://discord.com/developers/docs/resources/channel#message-object-message-types
 type MessageType int
 
-// Block contains the valid known MessageType values
+// Block contains the valid known MessageType values.
 const (
 	MessageTypeDefault                               MessageType = 0
 	MessageTypeRecipientAdd                          MessageType = 1
@@ -193,7 +193,7 @@ func (m *Message) GetCustomEmojis() []*Emoji {
 // https://discord.com/developers/docs/resources/channel#message-object-message-flags
 type MessageFlags int
 
-// Valid MessageFlags values
+// Valid MessageFlags values.
 const (
 	// MessageFlagsCrossPosted This message has been published to subscribed channels (via Channel Following).
 	MessageFlagsCrossPosted MessageFlags = 1 << 0
@@ -405,7 +405,7 @@ type MessageEmbed struct {
 // https://discord.com/developers/docs/resources/channel#embed-object-embed-types
 type EmbedType string
 
-// Block of valid EmbedTypes
+// Block of valid EmbedTypes.
 const (
 	EmbedTypeRich    EmbedType = "rich"
 	EmbedTypeImage   EmbedType = "image"
@@ -422,16 +422,16 @@ type MessageReactions struct {
 	Emoji *Emoji `json:"emoji"`
 }
 
-// MessageActivity is sent with Rich Presence-related chat embeds
+// MessageActivity is sent with Rich Presence-related chat embeds.
 type MessageActivity struct {
 	Type    MessageActivityType `json:"type"`
 	PartyID string              `json:"party_id"`
 }
 
-// MessageActivityType is the type of message activity
+// MessageActivityType is the type of message activity.
 type MessageActivityType int
 
-// Constants for the different types of Message Activity
+// Constants for the different types of Message Activity.
 const (
 	MessageActivityTypeJoin        MessageActivityType = 1
 	MessageActivityTypeSpectate    MessageActivityType = 2
@@ -439,7 +439,7 @@ const (
 	MessageActivityTypeJoinRequest MessageActivityType = 5
 )
 
-// MessageApplication is sent with Rich Presence-related chat embeds
+// MessageApplication is sent with Rich Presence-related chat embeds.
 type MessageApplication struct {
 	ID          string `json:"id"`
 	CoverImage  string `json:"cover_image"`
@@ -448,14 +448,14 @@ type MessageApplication struct {
 	Name        string `json:"name"`
 }
 
-// MessageReference contains reference data sent with crossposted messages
+// MessageReference contains reference data sent with crossposted messages.
 type MessageReference struct {
 	MessageID string `json:"message_id"`
 	ChannelID string `json:"channel_id"`
 	GuildID   string `json:"guild_id,omitempty"`
 }
 
-// Reference returns MessageReference of given message
+// Reference returns MessageReference of given message.
 func (m *Message) Reference() *MessageReference {
 	return &MessageReference{
 		GuildID:   m.GuildID,

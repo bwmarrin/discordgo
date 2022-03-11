@@ -25,7 +25,7 @@ func SnowflakeTimestamp(ID string) (t time.Time, err error) {
 
 // MultipartBodyWithJSON returns the contentType and body for a discord request
 // data  : The object to encode for payload_json in the multipart request
-// files : Files to include in the request
+// files : Files to include in the request.
 func MultipartBodyWithJSON(data interface{}, files []*File) (requestContentType string, requestBody []byte, err error) {
 	body := &bytes.Buffer{}
 	bodywriter := multipart.NewWriter(body)
