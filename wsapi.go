@@ -132,7 +132,6 @@ func (s *Session) Open() error {
 			return err
 		}
 	} else {
-
 		// Send Op 6 Resume Packet
 		p := resumePacket{}
 		p.Op = 6
@@ -422,7 +421,7 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int, p
 		Presences: presences,
 	}
 	err = s.requestGuildMembers(data)
-	return
+	return nil
 }
 
 // RequestGuildMembersBatch requests guild members from the gateway
@@ -439,7 +438,7 @@ func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limi
 		Presences: presences,
 	}
 	err = s.requestGuildMembers(data)
-	return
+	return nil
 }
 
 func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) {
@@ -455,7 +454,7 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
 	s.wsMutex.Unlock()
 
-	return
+	return nil
 }
 
 // onEvent is the "event handler" for all messages received on the
@@ -634,7 +633,7 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 
 	err = s.ChannelVoiceJoinManual(gID, cID, mute, deaf)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// doesn't exactly work perfect yet.. TODO
@@ -642,10 +641,10 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 	if err != nil {
 		s.log(LogWarning, "error waiting for voice to connect, %s", err)
 		voice.Close()
-		return
+		return nil, err
 	}
 
-	return
+	return voice, nil
 }
 
 // ChannelVoiceJoinManual initiates a voice session to a voice channel, but does not complete it.
@@ -671,7 +670,7 @@ func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err 
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(data)
 	s.wsMutex.Unlock()
-	return
+	return nil
 }
 
 // onVoiceStateUpdate handles Voice State Update events on the data websocket.
@@ -882,5 +881,5 @@ func (s *Session) CloseWithCode(closeCode int) (err error) {
 	s.log(LogInformational, "emit disconnect event")
 	s.handleEvent(disconnectEventType, &Disconnect{})
 
-	return
+	return nil
 }

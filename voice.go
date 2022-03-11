@@ -104,12 +104,12 @@ func (v *VoiceConnection) Speaking(b bool) (err error) {
 	if err != nil {
 		v.speaking = false
 		v.log(LogError, "Speaking() write json error, %s", err)
-		return
+		return nil
 	}
 
 	v.speaking = b
 
-	return
+	return nil
 }
 
 // ChangeChannel sends Discord a request to change channels within a Guild
@@ -129,7 +129,7 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 	v.mute = mute
 	v.speaking = false
 
-	return
+	return nil
 }
 
 // Disconnect disconnects from this voice channel and closes the websocket
@@ -279,7 +279,7 @@ func (v *VoiceConnection) open() (err error) {
 	// Don't open a websocket if one is already open
 	if v.wsConn != nil {
 		v.log(LogWarning, "refusing to overwrite non-nil websocket")
-		return
+		return nil
 	}
 
 	// TODO temp? loop to wait for the SessionID
@@ -302,7 +302,7 @@ func (v *VoiceConnection) open() (err error) {
 	if err != nil {
 		v.log(LogWarning, "error connecting to voice endpoint %s, %s", vg, err)
 		v.log(LogDebug, "voice struct: %#v\n", v)
-		return
+		return nil
 	}
 
 	type voiceHandshakeData struct {
@@ -320,7 +320,7 @@ func (v *VoiceConnection) open() (err error) {
 	err = v.wsConn.WriteJSON(data)
 	if err != nil {
 		v.log(LogWarning, "error sending init packet, %s", err)
-		return
+		return nil
 	}
 
 	v.close = make(chan struct{})
@@ -330,7 +330,7 @@ func (v *VoiceConnection) open() (err error) {
 	// then return false if not ready?
 	// but then wsListen will also err.
 
-	return
+	return nil
 }
 
 // wsListen listens on the voice websocket for messages and passes them
@@ -556,14 +556,14 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
 		v.log(LogWarning, "error resolving udp host %s, %s", host, err)
-		return
+		return nil
 	}
 
 	v.log(LogInformational, "connecting to udp addr %s", addr.String())
 	v.udpConn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
 		v.log(LogWarning, "error connecting to udp addr %s, %s", addr.String(), err)
-		return
+		return nil
 	}
 
 	// Create a 70 byte array and put the SSRC code from the Op 2 VoiceConnection event
@@ -573,7 +573,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	_, err = v.udpConn.Write(sb)
 	if err != nil {
 		v.log(LogWarning, "udp write error to %s, %s", addr.String(), err)
-		return
+		return nil
 	}
 
 	// Create a 70 byte array and listen for the initial handshake response
@@ -584,7 +584,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	rlen, _, err := v.udpConn.ReadFromUDP(rb)
 	if err != nil {
 		v.log(LogWarning, "udp read error, %s, %s", addr.String(), err)
-		return
+		return nil
 	}
 
 	if rlen < 70 {
@@ -614,14 +614,14 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	v.wsMutex.Unlock()
 	if err != nil {
 		v.log(LogWarning, "udp write error, %#v, %s", data, err)
-		return
+		return nil
 	}
 
 	// start udpKeepAlive
 	go v.udpKeepAlive(v.udpConn, v.close, 5*time.Second)
 	// TODO: find a way to check that it fired off okay
 
-	return
+	return nil
 }
 
 // udpKeepAlive sends a udp packet to keep the udp connection open

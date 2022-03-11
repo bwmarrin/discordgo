@@ -1125,7 +1125,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 		if s.TrackMembers {
 			if t.Status == StatusOffline {
-				return
+				return err
 			}
 
 			var m *Member
@@ -1147,7 +1147,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	}
 
-	return
+	return nil
 }
 
 // UserChannelPermissions returns the permission of a user in a channel.
@@ -1160,17 +1160,17 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 
 	channel, err := s.Channel(channelID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	guild, err := s.Guild(channel.GuildID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	member, err := s.Member(guild.ID, userID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	return memberPermissions(guild, channel, userID, member.Roles), nil
@@ -1189,12 +1189,12 @@ func (s *State) MessagePermissions(message *Message) (apermissions int64, err er
 
 	channel, err := s.Channel(message.ChannelID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	guild, err := s.Guild(channel.GuildID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	return memberPermissions(guild, channel, message.Author.ID, message.Member.Roles), nil

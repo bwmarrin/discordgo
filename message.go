@@ -475,7 +475,7 @@ func (m *Message) ContentWithMentionsReplaced() (content string) {
 			"<@!"+user.ID+">", "@"+user.Username,
 		).Replace(content)
 	}
-	return
+	return ""
 }
 
 var patternChannels = regexp.MustCompile("<#[^>]*>")
@@ -487,13 +487,13 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 
 	if !s.StateEnabled {
 		content = m.ContentWithMentionsReplaced()
-		return
+		return "", nil
 	}
 
 	channel, err := s.State.Channel(m.ChannelID)
 	if err != nil {
 		content = m.ContentWithMentionsReplaced()
-		return
+		return "", nil
 	}
 
 	for _, user := range m.Mentions {
@@ -526,7 +526,7 @@ func (m *Message) ContentWithMoreMentionsReplaced(s *Session) (content string, e
 
 		return "#" + channel.Name
 	})
-	return
+	return "", nil
 }
 
 // MessageInteraction contains information about the application command interaction which generated the message.
