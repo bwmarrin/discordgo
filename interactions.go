@@ -412,7 +412,10 @@ func (o ApplicationCommandInteractionDataOption) ChannelValue(s *Session) *Chann
 	if o.Type != ApplicationCommandOptionChannel {
 		panic("ChannelValue called on data option of type " + o.Type.String())
 	}
-	chanID := o.Value.(string)
+	chanID, ok := o.Value.(string)
+	if !ok {
+		panic("ChannelValue could not type assert string to channel.")
+	}
 
 	if s == nil {
 		return &Channel{ID: chanID}
@@ -435,7 +438,10 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 	if o.Type != ApplicationCommandOptionRole && o.Type != ApplicationCommandOptionMentionable {
 		panic("RoleValue called on data option of type " + o.Type.String())
 	}
-	roleID := o.Value.(string)
+	roleID, ok := o.Value.(string)
+	if !ok {
+		panic("RoleValue could not type assert string to Role.")
+	}
 
 	if s == nil || gID == "" {
 		return &Role{ID: roleID}
@@ -463,7 +469,10 @@ func (o ApplicationCommandInteractionDataOption) UserValue(s *Session) *User {
 	if o.Type != ApplicationCommandOptionUser && o.Type != ApplicationCommandOptionMentionable {
 		panic("UserValue called on data option of type " + o.Type.String())
 	}
-	userID := o.Value.(string)
+	userID, ok := o.Value.(string)
+	if !ok {
+		panic("UserValue could not type assert string to User.")
+	}
 
 	if s == nil {
 		return &User{ID: userID}
