@@ -45,7 +45,7 @@ var (
 	EndpointVoice        = EndpointAPI + "/voice/"
 	EndpointVoiceRegions = EndpointVoice + "regions"
 
-	// TODO: EndpointUserGuildMember
+	// TODO: EndpointUserGuildMember.
 
 	EndpointUser               = func(uID string) string { return EndpointUsers + uID }
 	EndpointUserAvatar         = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".png" }
@@ -201,7 +201,7 @@ var (
 	EndpointOAuth2ApplicationsBot   = func(aID string) string { return EndpointOAuth2Applications + "/" + aID + "/bot" }
 	EndpointOAuth2ApplicationAssets = func(aID string) string { return EndpointOAuth2Applications + "/" + aID + "/assets" }
 
-	// TODO: Deprecated, remove in the next release
+	// TODO: Deprecated, remove in the next release.
 	EndpointOauth2                  = EndpointOAuth2
 	EndpointOauth2Applications      = EndpointOAuth2Applications
 	EndpointOauth2Application       = EndpointOAuth2Application

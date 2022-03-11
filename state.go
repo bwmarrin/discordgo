@@ -22,7 +22,7 @@ import (
 var ErrNilState = errors.New("state not instantiated, please use discordgo.New() or assign Session.State")
 
 // ErrStateNotFound is returned when the state cache
-// requested is not found
+// requested is not found.
 var ErrStateNotFound = errors.New("state cache not found")
 
 // ErrMessageIncompletePermissions is returned when the message
@@ -153,8 +153,7 @@ func (s *State) GuildRemove(guild *Guild) error {
 		return ErrNilState
 	}
 
-	_, err := s.Guild(guild.ID)
-	if err != nil {
+	if _, err := s.Guild(guild.ID); err != nil {
 		return err
 	}
 
@@ -520,8 +519,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 		return ErrNilState
 	}
 
-	_, err := s.Channel(channel.ID)
-	if err != nil {
+	if _, err := s.Channel(channel.ID); err != nil {
 		return err
 	}
 
@@ -612,7 +610,7 @@ outer:
 	return nil
 }
 
-// ThreadMembersUpdate updates thread members list
+// ThreadMembersUpdate updates thread members list.
 func (s *State) ThreadMembersUpdate(tmu *ThreadMembersUpdate) error {
 	thread, err := s.Channel(tmu.ID)
 	if err != nil {
@@ -662,13 +660,13 @@ func (s *State) ThreadMemberUpdate(mu *ThreadMemberUpdate) error {
 }
 
 // GuildChannel gets a channel by ID from a guild.
-// This method is Deprecated, use Channel(channelID)
+// This method is Deprecated, use Channel(channelID).
 func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
 	return s.Channel(channelID)
 }
 
 // PrivateChannel gets a private channel by ID.
-// This method is Deprecated, use Channel(channelID)
+// This method is Deprecated, use Channel(channelID).
 func (s *State) PrivateChannel(channelID string) (*Channel, error) {
 	return s.Channel(channelID)
 }
@@ -950,7 +948,7 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 }
 
 // OnInterface handles all events related to states.
-func (s *State) OnInterface(se *Session, i interface{}) (err error) {
+func (s *State) OnInterface(se *Session, i interface{}) error {
 	if s == nil {
 		return ErrNilState
 	}
@@ -966,18 +964,18 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 	switch t := i.(type) {
 	case *GuildCreate:
-		err = s.GuildAdd(t.Guild)
+		return s.GuildAdd(t.Guild)
 	case *GuildUpdate:
-		err = s.GuildAdd(t.Guild)
+		return s.GuildAdd(t.Guild)
 	case *GuildDelete:
 		var old *Guild
-		old, err = s.Guild(t.ID)
+		old, err := s.Guild(t.ID)
 		if err == nil {
 			oldCopy := *old
 			t.BeforeDelete = &oldCopy
 		}
 
-		err = s.GuildRemove(t.Guild)
+		return s.GuildRemove(t.Guild)
 	case *GuildMemberAdd:
 		// Updates the MemberCount of the guild.
 		guild, err := s.Guild(t.Member.GuildID)
@@ -988,11 +986,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 		// Caches member if tracking is enabled.
 		if s.TrackMembers {
-			err = s.MemberAdd(t.Member)
+			return s.MemberAdd(t.Member)
 		}
 	case *GuildMemberUpdate:
 		if s.TrackMembers {
-			err = s.MemberAdd(t.Member)
+			return s.MemberAdd(t.Member)
 		}
 	case *GuildMemberRemove:
 		// Updates the MemberCount of the guild.
@@ -1004,52 +1002,52 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 		// Removes member from the cache if tracking is enabled.
 		if s.TrackMembers {
-			err = s.MemberRemove(t.Member)
+			return s.MemberRemove(t.Member)
 		}
 	case *GuildMembersChunk:
 		if s.TrackMembers {
 			for i := range t.Members {
 				t.Members[i].GuildID = t.GuildID
-				err = s.MemberAdd(t.Members[i])
+				return s.MemberAdd(t.Members[i])
 			}
 		}
 
 		if s.TrackPresences {
 			for _, p := range t.Presences {
-				err = s.PresenceAdd(t.GuildID, p)
+				return s.PresenceAdd(t.GuildID, p)
 			}
 		}
 	case *GuildRoleCreate:
 		if s.TrackRoles {
-			err = s.RoleAdd(t.GuildID, t.Role)
+			return s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleUpdate:
 		if s.TrackRoles {
-			err = s.RoleAdd(t.GuildID, t.Role)
+			return s.RoleAdd(t.GuildID, t.Role)
 		}
 	case *GuildRoleDelete:
 		if s.TrackRoles {
-			err = s.RoleRemove(t.GuildID, t.RoleID)
+			return s.RoleRemove(t.GuildID, t.RoleID)
 		}
 	case *GuildEmojisUpdate:
 		if s.TrackEmojis {
-			err = s.EmojisAdd(t.GuildID, t.Emojis)
+			return s.EmojisAdd(t.GuildID, t.Emojis)
 		}
 	case *ChannelCreate:
 		if s.TrackChannels {
-			err = s.ChannelAdd(t.Channel)
+			return s.ChannelAdd(t.Channel)
 		}
 	case *ChannelUpdate:
 		if s.TrackChannels {
-			err = s.ChannelAdd(t.Channel)
+			return s.ChannelAdd(t.Channel)
 		}
 	case *ChannelDelete:
 		if s.TrackChannels {
-			err = s.ChannelRemove(t.Channel)
+			return s.ChannelRemove(t.Channel)
 		}
 	case *ThreadCreate:
 		if s.TrackThreads {
-			err = s.ChannelAdd(t.Channel)
+			return s.ChannelAdd(t.Channel)
 		}
 	case *ThreadUpdate:
 		if s.TrackThreads {
@@ -1058,49 +1056,49 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 				oldCopy := *old
 				t.BeforeUpdate = &oldCopy
 			}
-			err = s.ChannelAdd(t.Channel)
+			return s.ChannelAdd(t.Channel)
 		}
 	case *ThreadDelete:
 		if s.TrackThreads {
-			err = s.ChannelRemove(t.Channel)
+			return s.ChannelRemove(t.Channel)
 		}
 	case *ThreadMemberUpdate:
 		if s.TrackThreads {
-			err = s.ThreadMemberUpdate(t)
+			return s.ThreadMemberUpdate(t)
 		}
 	case *ThreadMembersUpdate:
 		if s.TrackThreadMembers {
-			err = s.ThreadMembersUpdate(t)
+			return s.ThreadMembersUpdate(t)
 		}
 	case *ThreadListSync:
 		if s.TrackThreads {
-			err = s.ThreadListSync(t)
+			return s.ThreadListSync(t)
 		}
 	case *MessageCreate:
 		if s.MaxMessageCount != 0 {
-			err = s.MessageAdd(t.Message)
+			return s.MessageAdd(t.Message)
 		}
 	case *MessageUpdate:
 		if s.MaxMessageCount != 0 {
 			var old *Message
-			old, err = s.Message(t.ChannelID, t.ID)
+			old, err := s.Message(t.ChannelID, t.ID)
 			if err == nil {
 				oldCopy := *old
 				t.BeforeUpdate = &oldCopy
 			}
 
-			err = s.MessageAdd(t.Message)
+			return s.MessageAdd(t.Message)
 		}
 	case *MessageDelete:
 		if s.MaxMessageCount != 0 {
 			var old *Message
-			old, err = s.Message(t.ChannelID, t.ID)
+			old, err := s.Message(t.ChannelID, t.ID)
 			if err == nil {
 				oldCopy := *old
 				t.BeforeDelete = &oldCopy
 			}
 
-			err = s.MessageRemove(t.Message)
+			return s.MessageRemove(t.Message)
 		}
 	case *MessageDeleteBulk:
 		if s.MaxMessageCount != 0 {
@@ -1111,13 +1109,13 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 	case *VoiceStateUpdate:
 		if s.TrackVoice {
 			var old *VoiceState
-			old, err = s.VoiceState(t.GuildID, t.UserID)
+			old, err := s.VoiceState(t.GuildID, t.UserID)
 			if err == nil {
 				oldCopy := *old
 				t.BeforeUpdate = &oldCopy
 			}
 
-			err = s.voiceStateUpdate(t)
+			return s.voiceStateUpdate(t)
 		}
 	case *PresenceUpdate:
 		if s.TrackPresences {
@@ -1125,12 +1123,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 		if s.TrackMembers {
 			if t.Status == StatusOffline {
-				return
+				return nil
 			}
 
 			var m *Member
-			m, err = s.Member(t.GuildID, t.User.ID)
-
+			m, err := s.Member(t.GuildID, t.User.ID)
 			if err != nil {
 				// Member not found; this is a user coming online
 				m = &Member{
@@ -1143,12 +1140,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 				}
 			}
 
-			err = s.MemberAdd(m)
+			return s.MemberAdd(m)
 		}
-
 	}
 
-	return
+	return nil
 }
 
 // UserChannelPermissions returns the permission of a user in a channel.
@@ -1161,17 +1157,17 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 
 	channel, err := s.Channel(channelID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	guild, err := s.Guild(channel.GuildID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	member, err := s.Member(guild.ID, userID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	return memberPermissions(guild, channel, userID, member.Roles), nil
@@ -1190,12 +1186,12 @@ func (s *State) MessagePermissions(message *Message) (apermissions int64, err er
 
 	channel, err := s.Channel(message.ChannelID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	guild, err := s.Guild(channel.GuildID)
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	return memberPermissions(guild, channel, message.Author.ID, message.Member.Roles), nil

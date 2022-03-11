@@ -10,25 +10,23 @@ import (
 	"time"
 )
 
-// customRateLimit holds information for defining a custom rate limit
+// customRateLimit holds information for defining a custom rate limit.
 type customRateLimit struct {
 	suffix   string
 	requests int
 	reset    time.Duration
 }
 
-// RateLimiter holds all ratelimit buckets
+// RateLimiter holds all ratelimit buckets.
 type RateLimiter struct {
 	sync.Mutex
 	global           *int64
 	buckets          map[string]*Bucket
-	globalRateLimit  time.Duration
 	customRateLimits []*customRateLimit
 }
 
-// NewRatelimiter returns a new RateLimiter
+// NewRatelimiter returns a new RateLimiter.
 func NewRatelimiter() *RateLimiter {
-
 	return &RateLimiter{
 		buckets: make(map[string]*Bucket),
 		global:  new(int64),
@@ -42,7 +40,7 @@ func NewRatelimiter() *RateLimiter {
 	}
 }
 
-// GetBucket retrieves or creates a bucket
+// GetBucket retrieves or creates a bucket.
 func (r *RateLimiter) GetBucket(key string) *Bucket {
 	r.Lock()
 	defer r.Unlock()
@@ -69,7 +67,7 @@ func (r *RateLimiter) GetBucket(key string) *Bucket {
 	return b
 }
 
-// GetWaitTime returns the duration you should wait for a Bucket
+// GetWaitTime returns the duration you should wait for a Bucket.
 func (r *RateLimiter) GetWaitTime(b *Bucket, minRemaining int) time.Duration {
 	// If we ran out of calls and the reset time is still ahead of us
 	// then we need to take it easy and relax a little
@@ -86,12 +84,12 @@ func (r *RateLimiter) GetWaitTime(b *Bucket, minRemaining int) time.Duration {
 	return 0
 }
 
-// LockBucket Locks until a request can be made
+// LockBucket Locks until a request can be made.
 func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 	return r.LockBucketObject(r.GetBucket(bucketID))
 }
 
-// LockBucketObject Locks an already resolved bucket until a request can be made
+// LockBucketObject Locks an already resolved bucket until a request can be made.
 func (r *RateLimiter) LockBucketObject(b *Bucket) *Bucket {
 	b.Lock()
 
@@ -103,12 +101,11 @@ func (r *RateLimiter) LockBucketObject(b *Bucket) *Bucket {
 	return b
 }
 
-// Bucket represents a ratelimit bucket, each bucket gets ratelimited individually (-global ratelimits)
+// Bucket represents a ratelimit bucket, each bucket gets ratelimited individually (-global ratelimits).
 type Bucket struct {
 	sync.Mutex
 	Key       string
 	Remaining int
-	limit     int
 	reset     time.Time
 	global    *int64
 

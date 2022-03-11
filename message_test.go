@@ -48,5 +48,4 @@ func TestGettingEmojisFromMessage(t *testing.T) {
 		t.Error("No emojis found.")
 		return
 	}
-
 }

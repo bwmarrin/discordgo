@@ -4,7 +4,7 @@ package discordgo
 // https://discord.com/developers/docs/resources/user#user-object-user-flags
 type UserFlags int
 
-// Valid UserFlags values
+// Valid UserFlags values.
 const (
 	UserFlagDiscordEmployee           UserFlags = 1 << 0
 	UserFlagDiscordPartner            UserFlags = 1 << 1
@@ -80,12 +80,12 @@ type User struct {
 	Flags int `json:"flags"`
 }
 
-// String returns a unique identifier of the form username#discriminator
+// String returns a unique identifier of the form username#discriminator.
 func (u *User) String() string {
 	return u.Username + "#" + u.Discriminator
 }
 
-// Mention return a string which mentions the user
+// Mention return a string which mentions the user.
 func (u *User) Mention() string {
 	return "<@" + u.ID + ">"
 }

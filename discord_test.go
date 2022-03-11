@@ -10,7 +10,7 @@ import (
 )
 
 //////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////// VARS NEEDED FOR TESTING
+////////////////////////////////////////////////////// VARS NEEDED FOR TESTING.
 var (
 	dg    *Session // Stores a global discordgo user session
 	dgBot *Session // Stores a global discordgo bot session
@@ -49,7 +49,6 @@ func TestMain(m *testing.M) {
 
 // TestNewToken tests the New() function with a Token.
 func TestNewToken(t *testing.T) {
-
 	if envOAuth2Token == "" {
 		t.Skip("Skipping New(token), DGU_TOKEN not set")
 	}
@@ -118,7 +117,6 @@ func TestOpenClose(t *testing.T) {
 }
 
 func TestAddHandler(t *testing.T) {
-
 	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
@@ -162,7 +160,6 @@ func TestAddHandler(t *testing.T) {
 }
 
 func TestRemoveHandler(t *testing.T) {
-
 	testHandlerCalled := int32(0)
 	testHandler := func(s *Session, m *MessageCreate) {
 		atomic.AddInt32(&testHandlerCalled, 1)
@@ -249,7 +246,7 @@ func TestScheduledEvents(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(users) != 0 {
-		t.Fatal("err on GuildScheduledEventUsers. Mismatch of event maybe occured")
+		t.Fatal("err on GuildScheduledEventUsers. Mismatch of event maybe occurred")
 	}
 
 	err = dgBot.GuildScheduledEventDelete(envGuild, event.ID)
