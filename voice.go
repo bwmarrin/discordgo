@@ -57,9 +57,6 @@ type VoiceConnection struct {
 	// Used to send a close signal to goroutines
 	close chan struct{}
 
-	// Used to allow blocking until connected
-	connected chan bool
-
 	// Used to pass the sessionid from onVoiceStateUpdate
 	// sessionRecv chan string UNUSED ATM
 

@@ -2,20 +2,23 @@ linters:
   disable-all: false
   enable:
     # - staticcheck (used in bugs preset)
-    - wastedassign
-    - ineffassign
   disable:
-    - wsl
+    - wsl # Readability
     - gomnd
     - lll
-    - wrapcheck
+    - wrapcheck # Recommended
     - tagliatelle
     - gochecknoglobals
-    - errcheck
+    - errcheck # Recommended
+    - gosimple # Recommended
+    - exhaustivestruct # Recommended
+    - nlreturn # Recommended
+    - stylecheck # Recommended
+    - paralleltest
   # Enable presets.
   # https://golangci-lint.run/usage/linters
   presets:
-    #- style
+    - style
     # - unused
     # - bugs
 
