@@ -519,8 +519,7 @@ func (s *State) ChannelRemove(channel *Channel) error {
 		return ErrNilState
 	}
 
-	_, err := s.Channel(channel.ID)
-	if err != nil {
+	if _, err := s.Channel(channel.ID); err != nil {
 		return err
 	}
 

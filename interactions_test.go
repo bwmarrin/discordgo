@@ -18,8 +18,9 @@ func TestVerifyInteraction(t *testing.T) {
 	}
 	timestamp := "1608597133"
 
+	const body = "body"
+
 	t.Run("success", func(t *testing.T) {
-		body := "body"
 		request := httptest.NewRequest("POST", "http://localhost/interaction", strings.NewReader(body))
 		request.Header.Set("X-Signature-Timestamp", timestamp)
 
@@ -35,7 +36,6 @@ func TestVerifyInteraction(t *testing.T) {
 	})
 
 	t.Run("failure/modified body", func(t *testing.T) {
-		body := "body"
 		request := httptest.NewRequest("POST", "http://localhost/interaction", strings.NewReader("WRONG"))
 		request.Header.Set("X-Signature-Timestamp", timestamp)
 
@@ -51,7 +51,6 @@ func TestVerifyInteraction(t *testing.T) {
 	})
 
 	t.Run("failure/modified timestamp", func(t *testing.T) {
-		body := "body"
 		request := httptest.NewRequest("POST", "http://localhost/interaction", strings.NewReader("WRONG"))
 		request.Header.Set("X-Signature-Timestamp", strconv.FormatInt(time.Now().Add(time.Minute).Unix(), 10))
 

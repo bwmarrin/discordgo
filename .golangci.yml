@@ -17,6 +17,12 @@ linters:
     - paralleltest
     - predeclared
     - goerr113 # Recommended
+    - testpackage # Recommended
+    - godox # Recommended: TODO/BUG/FIXME
+    - goprintffuncname # Recommended
+    - gocritic # Recommended
+    - forbidigo
+    
   # Enable presets.
   # https://golangci-lint.run/usage/linters
   presets:
