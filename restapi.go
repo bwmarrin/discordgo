@@ -700,7 +700,7 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
 // data     : Struct of GuildMemberEditData
-func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberEditData) (err error) {
+func (s *Session) GuildMemberEdit(guildID, userID string, data *GuildMemberEditData) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	return
 }
