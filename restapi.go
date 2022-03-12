@@ -699,8 +699,22 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 // GuildMemberEdit edits the roles of a member.
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
+// roles    : A list of role ID's to set on the member.
+func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
+
+	data := struct {
+		Roles []string `json:"roles"`
+	}{roles}
+
+	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	return
+}
+
+// GuildMemberEditComplex edits the roles & nickname of a member.
+// guildID  : The ID of a Guild.
+// userID   : The ID of a User.
 // data     : Struct of GuildMemberEditData
-func (s *Session) GuildMemberEdit(guildID, userID string, data *GuildMemberEditData) (err error) {
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data *GuildMemberEditData) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	return
 }

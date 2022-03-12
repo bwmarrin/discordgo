@@ -1566,7 +1566,7 @@ type UserGuildSettingsEdit struct {
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
-// A GuildMemberEditData stores a payload to use in Session.GuildMemberEdit
+// A GuildMemberEditData stores a payload to use in Session.GuildMemberEditComplex
 // https://discord.com/developers/docs/resources/guild#modify-guild-member
 type GuildMemberEditData struct {
 
@@ -1574,7 +1574,7 @@ type GuildMemberEditData struct {
 	Nick string `json:"nick,omitempty"`
 
 	// Array of role ids the member is assigned
-	Roles []string `json:"roles,omitempty"`
+	Roles *[]string `json:"roles,omitempty"`
 }
 
 // An APIErrorMessage is an api error message returned from discord
