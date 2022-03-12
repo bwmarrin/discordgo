@@ -1575,21 +1575,6 @@ type GuildMemberEditData struct {
 
 	// Array of role ids the member is assigned
 	Roles []string `json:"roles,omitempty"`
-
-	// 	Whether the user is muted in voice channels. Will throw a 400 error
-	//	if the user is not in a voice channel
-	Mute bool `json:"mute,omitempty"`
-
-	// Whether the user is deafened in voice channels. Will throw a 400 error
-	// if the user is not in a voice channel
-	Deaf bool `json:"deaf,omitempty"`
-
-	// Id of channel to move user to (if they are connected to voice)
-	ChannelId string `json:"channel_id,omitempty"`
-
-	// The time at which the member's timeout will expire.
-	// Time in the past or nil if the user is not timed out.
-	CommunicationDisabledUntil *time.Time `json:"communication_disabled_until"`
 }
 
 // An APIErrorMessage is an api error message returned from discord
