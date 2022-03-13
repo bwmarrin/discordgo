@@ -39,6 +39,40 @@ var (
 	ErrUnauthorized            = errors.New("HTTP request was unauthorized. This could be because the provided token was not a bot token. Please add \"Bot \" to the start of your token. https://discord.com/developers/docs/reference#authentication-example-bot-token-authorization-header")
 )
 
+// RESTError stores error information about a request with a bad response code.
+// Message is not always present, there are cases where api calls can fail
+// without returning a json message.
+type RESTError struct {
+	Request      *http.Request
+	Response     *http.Response
+	ResponseBody []byte
+
+	Message *APIErrorMessage // Message may be nil.
+}
+
+// newRestError returns a new REST API error.
+func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTError {
+	restErr := &RESTError{
+		Request:      req,
+		Response:     resp,
+		ResponseBody: body,
+	}
+
+	// Attempt to decode the error and assume no message was provided if it fails
+	var msg *APIErrorMessage
+	err := json.Unmarshal(body, &msg)
+	if err == nil {
+		restErr.Message = msg
+	}
+
+	return restErr
+}
+
+// Error returns a Rest API Error with its status code and body.
+func (r RESTError) Error() string {
+	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
+}
+
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
