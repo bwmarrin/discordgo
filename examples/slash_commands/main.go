@@ -328,8 +328,7 @@ var (
 			})
 		},
 
-		// Interaction tokens are valid for 15 minutes and can be used to send any amount of followup messages.
-		// Followup Messages allow you send or edit responses after an initial response.
+		// Followup Messages allow you to send/edit/delete additional responses to an interaction after an initial response.
 		// https://discord.com/developers/docs/interactions/receiving-and-responding#followup-messages
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
