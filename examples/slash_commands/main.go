@@ -21,6 +21,13 @@ var (
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
+// init() executes as soon as the package is imported.
+// In this case, before any other code is run.
+func init() {
+	// Parse the flags from the command-line.
+	flag.Parse()
+}
+
 var (
 	integerOptionMinValue = 1.0
 
@@ -363,13 +370,6 @@ var (
 		},
 	}
 )
-
-// init() executes as soon as the package is imported.
-// In this case, before any other code is run.
-func init() {
-	// Parse the flags from the command-line.
-	flag.Parse()
-}
 
 func main() {
 	// Instantiate a new Discord Bot Session.
