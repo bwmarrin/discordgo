@@ -391,7 +391,7 @@ func main() {
 		}
 	})
 
-	// Open the web socket connection to Discord to recieve events (and handle them).
+	// Open the websocket connection to Discord to recieve events (and handle them).
 	if err := s.Open(); err != nil {
 		log.Fatalf("Cannot open the websocket connection to Discord: %v", err)
 	}
