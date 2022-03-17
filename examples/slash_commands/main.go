@@ -272,10 +272,10 @@ var (
 			})
 		},
 
-		// Responses are the way you react to the interaction.
-		// The initial response to an Interaction should be sent within 3 seconds of recieving it.
-		// Otherwise the interaction token will be invalidated (disables the interaction token and ID).
-		// Valid interaction tokens last for 15 minutes.
+		// React to an interaction using Responses.
+		// The initial response to an interaction must be sent within 3 seconds of receiving it.
+		// Responding within this timeframe validates the interaction token for 15 minutes.
+		// Otherwise, the interaction token is invalidated (disables the interaction token and ID).
 		// https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
 		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			content := ""
