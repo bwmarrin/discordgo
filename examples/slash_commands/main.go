@@ -397,13 +397,13 @@ func main() {
 	}
 
 	log.Println("Adding commands...")
-	newCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
 		command, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
-		newCommands[i] = command
+		registeredCommands[i] = command
 	}
 
 	defer s.Close()
@@ -416,17 +416,16 @@ func main() {
 	if *RemoveCommands {
 		log.Println("Removing commands...")
 		// Uncomment the following code to delete every command in the application.
-		// You must also change newCommands (line 430) to registeredCommands.
 		//
 		// Fetch the created command IDs from the Discord API.
-		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+		// registeredCommands, err = s.ApplicationCommands(s.State.User.ID, *GuildID)
 		// if err != nil {
 		// 	log.Fatalf("Could not fetch registered commands: %v", err)
 		// }
 
 		// Otherwise, only delete the newly created commands for this session.
-		// They are stored in the newCommands, defined on line 401.
-		for _, v := range newCommands {
+		// They are stored in the registeredCommands variable defined on line 400.
+		for _, v := range registeredCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
 			if err != nil {
 				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
