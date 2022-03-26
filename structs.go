@@ -1730,6 +1730,7 @@ const (
 	PermissionManageThreads         = 0x0000000400000000
 	PermissionCreatePublicThreads   = 0x0000000800000000
 	PermissionCreatePrivateThreads  = 0x0000001000000000
+	PermissionUseExternalStickers   = 0x0000002000000000
 	PermissionSendMessagesInThreads = 0x0000004000000000
 )
 
@@ -1744,6 +1745,7 @@ const (
 	PermissionVoiceMoveMembers     = 0x0000000001000000
 	PermissionVoiceUseVAD          = 0x0000000002000000
 	PermissionVoiceRequestToSpeak  = 0x0000000100000000
+	PermissionUseActivities        = 0x0000008000000000
 )
 
 // Constants for general management.
@@ -1753,6 +1755,7 @@ const (
 	PermissionManageRoles     = 0x0000000010000000
 	PermissionManageWebhooks  = 0x0000000020000000
 	PermissionManageEmojis    = 0x0000000040000000
+	PermissionManageEvents    = 0x0000000200000000
 )
 
 // Constants for the different bit offsets of general permissions
