@@ -95,9 +95,9 @@ func (t ApplicationCommandOptionType) String() string {
 type ApplicationCommandOption struct {
 	Type                     ApplicationCommandOptionType `json:"type"`
 	Name                     string                       `json:"name"`
-	NameLocalizations        map[Locale]string            `json:"name_localizations"`
+	NameLocalizations        map[Locale]string            `json:"name_localizations,omitempty"`
 	Description              string                       `json:"description,omitempty"`
-	DescriptionLocalizations map[Locale]string            `json:"description_localizations"`
+	DescriptionLocalizations map[Locale]string            `json:"description_localizations,omitempty"`
 	// NOTE: This feature was on the API, but at some point developers decided to remove it.
 	// So I commented it, until it will be officially on the docs.
 	// Default     bool                              `json:"default"`
@@ -118,7 +118,7 @@ type ApplicationCommandOption struct {
 // ApplicationCommandOptionChoice represents a slash command option choice.
 type ApplicationCommandOptionChoice struct {
 	Name              string            `json:"name"`
-	NameLocalizations map[Locale]string `json:"name_localizations"`
+	NameLocalizations map[Locale]string `json:"name_localizations,omitempty"`
 	Value             interface{}       `json:"value"`
 }
 
