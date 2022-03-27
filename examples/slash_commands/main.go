@@ -119,14 +119,14 @@ var (
 				// will cause the registration of the command to fail
 
 				{
-					Name:        "scmd-grp",
+					Name:        "subcommand-group",
 					Description: "Subcommands group",
 					Options: []*discordgo.ApplicationCommandOption{
 						// Also, subcommand groups aren't capable of
 						// containing options, by the name of them, you can see
 						// they can only contain subcommands
 						{
-							Name:        "nst-subcmd",
+							Name:        "nested-subcommand",
 							Description: "Nested subcommand",
 							Type:        discordgo.ApplicationCommandOptionSubCommand,
 						},
@@ -139,7 +139,7 @@ var (
 				// Read the intro of slash-commands docs on Discord dev portal
 				// to get more information
 				{
-					Name:        "subcmd",
+					Name:        "subcommand",
 					Description: "Top-level subcommand",
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 				},
@@ -172,6 +172,41 @@ var (
 			Description: "Followup messages",
 		},
 	}
+)
+
+// parseOptionsToMap parses an array of options (and suboptions) into an OptionMap.
+func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInteractionDataOption, options []*discordgo.ApplicationCommandInteractionDataOption) map[string]*discordgo.ApplicationCommandInteractionDataOption {
+	if optionMap == nil {
+		totalOptions := optionAmount(options)
+		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, totalOptions)
+	}
+
+	// add suboptions (slice by value is the most performant)
+	for _, option := range options {
+		optionMap[option.Name] = option
+		if len(option.Options) != 0 {
+			parseOptionsToMap(optionMap, option.Options)
+		}
+	}
+
+	return optionMap
+}
+
+// optionAmount calculates the amount of options (and suboptions) in a given array.
+func optionAmount(options []*discordgo.ApplicationCommandInteractionDataOption) int {
+	amount := len(options)
+
+	// Count the length of suboptions.
+	for _, option := range options {
+		if len(option.Options) != 0 {
+			amount += optionAmount(option.Options)
+		}
+	}
+
+	return amount
+}
+
+var (
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -197,37 +232,59 @@ var (
 			})
 		},
 		"options": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			margs := []interface{}{
-				// Here we need to convert raw interface{} value to wanted type.
-				// Also, as you can see, here is used utility functions to convert the value
-				// to particular type. Yeah, you can use just switch type,
-				// but this is much simpler
-				i.ApplicationCommandData().Options[0].StringValue(),
-				i.ApplicationCommandData().Options[1].IntValue(),
-				i.ApplicationCommandData().Options[2].FloatValue(),
-				i.ApplicationCommandData().Options[3].BoolValue(),
+			// Access options in the order provided by the user.
+			options := i.ApplicationCommandData().Options
+
+			// or convert the slice to a map using the function defined above.
+			optionMap := parseOptionsToMap(nil, options)
+
+			// This example stores the provided arguments in an []interface{}
+			// which will be used to format the bot's response
+			margs := make([]interface{}, 0, len(options))
+			msgformat := "You learned how to use command options! " +
+				"Take a look at the value(s) you entered:\n"
+
+			// Get the value from the option map.
+			// When the option exists, ok = true
+			if option, ok := optionMap["string-option"]; ok {
+				// Option values must be type asserted from interface{}.
+				// Discordgo provides utility functions to make this simple.
+				margs = append(margs, option.StringValue())
+				msgformat += "> string-option: %s\n"
 			}
-			msgformat :=
-				` Now you just learned how to use command options. Take a look to the value of which you've just entered:
-				> string_option: %s
-				> integer_option: %d
-				> number_option: %f
-				> bool_option: %v
-`
-			if len(i.ApplicationCommandData().Options) >= 5 {
-				margs = append(margs, i.ApplicationCommandData().Options[4].ChannelValue(nil).ID)
+
+			if opt, ok := optionMap["integer-option"]; ok {
+				margs = append(margs, opt.IntValue())
+				msgformat += "> integer-option: %d\n"
+			}
+
+			if opt, ok := optionMap["number-option"]; ok {
+				margs = append(margs, opt.FloatValue())
+				msgformat += "> number-option: %f\n"
+			}
+
+			if opt, ok := optionMap["bool-option"]; ok {
+				margs = append(margs, opt.BoolValue())
+				msgformat += "> bool-option: %v\n"
+			}
+
+			if opt, ok := optionMap["channel-option"]; ok {
+				margs = append(margs, opt.ChannelValue(nil).ID)
 				msgformat += "> channel-option: <#%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 6 {
-				margs = append(margs, i.ApplicationCommandData().Options[5].UserValue(nil).ID)
+
+			if opt, ok := optionMap["user-option"]; ok {
+				margs = append(margs, opt.UserValue(nil).ID)
 				msgformat += "> user-option: <@%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 7 {
-				margs = append(margs, i.ApplicationCommandData().Options[6].RoleValue(nil, "").ID)
+
+			if opt, ok := optionMap["role-option"]; ok {
+				margs = append(margs, opt.RoleValue(nil, "").ID)
 				msgformat += "> role-option: <@&%s>\n"
 			}
+
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// Ignore type for now, we'll discuss them in "responses" part
+				// Type is discussed in "responses"
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf(
@@ -238,27 +295,32 @@ var (
 			})
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Access options in the order provided by the user.
+			options := i.ApplicationCommandData().Options
+
+			// or convert the slice to a map using the function defined above.
+			optionMap := parseOptionsToMap(nil, options)
+
+			// This example stores the response in a string.
 			content := ""
 
-			// As you can see, the name of subcommand (nested, top-level) or subcommand group
-			// is provided through arguments.
-			switch i.ApplicationCommandData().Options[0].Name {
-			case "subcmd":
-				content =
-					"The top-level subcommand is executed. Now try to execute the nested one."
-			default:
-				if i.ApplicationCommandData().Options[0].Name != "scmd-grp" {
-					return
-				}
-				switch i.ApplicationCommandData().Options[0].Options[0].Name {
-				case "nst-subcmd":
-					content = "Nice, now you know how to execute nested commands too"
-				default:
-					// I added this in the case something might go wrong
-					content = "Oops, something gone wrong.\n" +
-						"Hol' up, you aren't supposed to see this message."
-				}
+			// When the option exists, ok = true
+			if _, ok := optionMap["subcommand"]; ok {
+				content = "The top-level subcommand is executed. Now try to execute the nested one."
 			}
+
+			// These are standard ways to check that a value exists (in a map in Go).
+			if _, ok := optionMap["nested-subcommand"]; ok {
+				content = "Nice, now you know how to execute nested commands too"
+			} else if optionMap["subcommand-group"] != nil {
+				// Discord provides the subcommand-group option with /subcommands subcommand-group nested-subcommand
+				// However, we check for nested-subcommand first.
+
+				// This will never show unless the user somehow bypasses
+				// Discord's Client-Side Verification and uses /subcommands subcommand-group.
+				content = "Something went wrong\nYou weren't supposed to see this!"
+			}
+
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -419,5 +481,5 @@ func main() {
 		}
 	}
 
-	log.Println("Gracefully shutdowning")
+	log.Println("Gracefully shutting down.")
 }
