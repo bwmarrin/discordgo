@@ -178,6 +178,7 @@ var (
 func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInteractionDataOption, options []*discordgo.ApplicationCommandInteractionDataOption) map[string]*discordgo.ApplicationCommandInteractionDataOption {
 	if optionMap == nil {
 		// A command can have a maximum of 25 options.
+		// Alternatively, add a parameter to this method and set capacity to the maximum amount of options (and sub-options).
 		// https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure
 		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, 25)
 	}
