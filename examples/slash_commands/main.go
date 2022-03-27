@@ -177,8 +177,9 @@ var (
 // parseOptionsToMap parses an array of options (and suboptions) into an OptionMap.
 func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInteractionDataOption, options []*discordgo.ApplicationCommandInteractionDataOption) map[string]*discordgo.ApplicationCommandInteractionDataOption {
 	if optionMap == nil {
-		totalOptions := optionAmount(options)
-		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, totalOptions)
+		// A command can have a maximum of 25 options.
+		// https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure
+		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, 25)
 	}
 
 	// add suboptions (slice by value is the most performant)
@@ -190,20 +191,6 @@ func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInterac
 	}
 
 	return optionMap
-}
-
-// optionAmount calculates the amount of options (and suboptions) in a given array.
-func optionAmount(options []*discordgo.ApplicationCommandInteractionDataOption) int {
-	amount := len(options)
-
-	// Count the length of suboptions.
-	for _, option := range options {
-		if len(option.Options) != 0 {
-			amount += optionAmount(option.Options)
-		}
-	}
-
-	return amount
 }
 
 var (
