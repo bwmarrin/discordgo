@@ -50,7 +50,7 @@ jobs:
           only-new-issues: true
           skip-pkg-cache: true
           skip-build-cache: true
-      
+
       - name: GolangCI-Lint
         if: github.event.name != 'pull_request' # See https://github.com/golangci/golangci-lint-action/issues/362
         run: |
