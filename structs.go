@@ -758,6 +758,7 @@ type GuildPreview struct {
 	Features []string `json:"features"`
 
 	// Approximate number of members in this guild
+	// NOTE: this field is only filled when using GuildWithCounts
 	ApproximateMemberCount int `json:"approximate_member_count"`
 
 	// Approximate number of non-offline members in this guild
