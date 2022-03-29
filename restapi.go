@@ -462,9 +462,22 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 
 // Guild returns a Guild structure of a specific Guild.
 // guildID    : The ID of a Guild
+func (s *Session) Guild(guildID string) (st *Guild, err error) {
+
+	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID), nil, EndpointGuild(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// GuildWithCounts returns a Guild structure of a specific Guild.
+// guildID    : The ID of a Guild
 // withCounts : When true, will return approximate member and presence counts for the guild
 //              uses variadic for backwards compatibility
-func (s *Session) Guild(guildID string, withCounts ...bool) (st *Guild, err error) {
+func (s *Session) GuildWithCounts(guildID string, withCounts ...bool) (st *Guild, err error) {
 
 	uri := EndpointGuild(guildID)
 
