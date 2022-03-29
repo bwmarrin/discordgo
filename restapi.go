@@ -142,7 +142,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	}
 	defer func() {
 		err2 := resp.Body.Close()
-		if err2 != nil {
+		if s.Debug && err2 != nil {
 			log.Println("error closing resp body")
 		}
 	}()
