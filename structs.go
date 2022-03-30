@@ -769,6 +769,19 @@ type GuildPreview struct {
 	Description string `json:"description"`
 }
 
+// IconURL returns a URL to the guild's icon.
+func (g *GuildPreview) IconURL() string {
+	if g.Icon == "" {
+		return ""
+	}
+
+	if strings.HasPrefix(g.Icon, "a_") {
+		return EndpointGuildIconAnimated(g.ID, g.Icon)
+	}
+
+	return EndpointGuildIcon(g.ID, g.Icon)
+}
+
 // GuildScheduledEvent is a representation of a scheduled event in a guild. Only for retrieval of the data.
 // https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event
 type GuildScheduledEvent struct {
