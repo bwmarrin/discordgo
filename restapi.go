@@ -461,7 +461,7 @@ func memberPermissions(guild *Guild, channel *Channel, userID string, roles []st
 // ------------------------------------------------------------------------------------------------
 
 // Guild returns a Guild structure of a specific Guild.
-// guildID    : The ID of a Guild
+// guildID   : The ID of a Guild
 func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID), nil, EndpointGuild(guildID))
 	if err != nil {
