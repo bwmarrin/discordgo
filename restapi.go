@@ -472,7 +472,7 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	return
 }
 
-// GuildWithCounts returns a Guild structure of a specific Guild.
+// GuildWithCounts returns a Guild structure of a specific Guild with approximate member and presence counts.
 // guildID    : The ID of a Guild
 // withCounts : When true, will return approximate member and presence counts for the guild
 //              uses variadic for backwards compatibility
