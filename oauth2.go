@@ -18,8 +18,8 @@ type MembershipState int
 
 // Constants for the different stages of the MembershipState
 const (
-	MembershipStateInvited MembershipState = iota + 1
-	MembershipStateAccepted
+	MembershipStateInvited  MembershipState = 1
+	MembershipStateAccepted MembershipState = 2
 )
 
 // A TeamMember struct stores values for a single Team Member, extending the normal User data - note that the user field is partial
@@ -38,23 +38,6 @@ type Team struct {
 	Icon        string        `json:"icon"`
 	OwnerID     string        `json:"owner_user_id"`
 	Members     []*TeamMember `json:"members"`
-}
-
-// An Application struct stores values for a Discord OAuth2 Application
-type Application struct {
-	ID                  string    `json:"id,omitempty"`
-	Name                string    `json:"name"`
-	Description         string    `json:"description,omitempty"`
-	Icon                string    `json:"icon,omitempty"`
-	Secret              string    `json:"secret,omitempty"`
-	RedirectURIs        *[]string `json:"redirect_uris,omitempty"`
-	BotRequireCodeGrant bool      `json:"bot_require_code_grant,omitempty"`
-	BotPublic           bool      `json:"bot_public,omitempty"`
-	RPCApplicationState int       `json:"rpc_application_state,omitempty"`
-	Flags               int       `json:"flags,omitempty"`
-	Owner               *User     `json:"owner"`
-	Bot                 *User     `json:"bot"`
-	Team                *Team     `json:"team"`
 }
 
 // Application returns an Application structure of a specific Application
@@ -88,10 +71,9 @@ func (s *Session) Applications() (st []*Application, err error) {
 func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error) {
 
 	data := struct {
-		Name         string    `json:"name"`
-		Description  string    `json:"description"`
-		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
-	}{ap.Name, ap.Description, ap.RedirectURIs}
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}{ap.Name, ap.Description}
 
 	body, err := s.RequestWithBucketID("POST", EndpointOAuth2Applications, data, EndpointOAuth2Applications)
 	if err != nil {
@@ -107,10 +89,9 @@ func (s *Session) ApplicationCreate(ap *Application) (st *Application, err error
 func (s *Session) ApplicationUpdate(appID string, ap *Application) (st *Application, err error) {
 
 	data := struct {
-		Name         string    `json:"name"`
-		Description  string    `json:"description"`
-		RedirectURIs *[]string `json:"redirect_uris,omitempty"`
-	}{ap.Name, ap.Description, ap.RedirectURIs}
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}{ap.Name, ap.Description}
 
 	body, err := s.RequestWithBucketID("PUT", EndpointOAuth2Application(appID), data, EndpointOAuth2Application(""))
 	if err != nil {
