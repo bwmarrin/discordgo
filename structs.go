@@ -757,14 +757,29 @@ type GuildPreview struct {
 	// The list of enabled guild features
 	Features []string `json:"features"`
 
-	// Approximate number of members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	// Approximate number of members in this guild
+	// NOTE: this field is only filled when using GuildWithCounts
 	ApproximateMemberCount int `json:"approximate_member_count"`
 
-	// Approximate number of non-offline members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	// Approximate number of non-offline members in this guild
+	// NOTE: this field is only filled when using GuildWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 
 	// the description for the guild
 	Description string `json:"description"`
+}
+
+// IconURL returns a URL to the guild's icon.
+func (g *GuildPreview) IconURL() string {
+	if g.Icon == "" {
+		return ""
+	}
+
+	if strings.HasPrefix(g.Icon, "a_") {
+		return EndpointGuildIconAnimated(g.ID, g.Icon)
+	}
+
+	return EndpointGuildIcon(g.ID, g.Icon)
 }
 
 // GuildScheduledEvent is a representation of a scheduled event in a guild. Only for retrieval of the data.

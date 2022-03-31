@@ -472,6 +472,19 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 	return
 }
 
+// GuildWithCounts returns a Guild structure of a specific Guild with approximate member and presence counts.
+// guildID    : The ID of a Guild
+func (s *Session) GuildWithCounts(guildID string) (st *Guild, err error) {
+
+	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID)+"?with_counts=true", nil, EndpointGuild(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildPreview returns a GuildPreview structure of a specific public Guild.
 // guildID   : The ID of a Guild
 func (s *Session) GuildPreview(guildID string) (st *GuildPreview, err error) {
@@ -515,7 +528,7 @@ func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error
 		}
 	}
 
-	//Bounds checking for regions
+	// Bounds checking for regions
 	if g.Region != "" {
 		isValid := false
 		regions, _ := s.VoiceRegions()
