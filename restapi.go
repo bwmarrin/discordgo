@@ -476,11 +476,11 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 // guildID    : The ID of a Guild
 // withCounts : When true, will return approximate member and presence counts for the guild
 //              uses variadic for backwards compatibility
-func (s *Session) GuildWithCounts(guildID string, withCounts ...bool) (st *Guild, err error) {
+func (s *Session) GuildWithCounts(guildID string, withCounts bool) (st *Guild, err error) {
 
 	uri := EndpointGuild(guildID)
 
-	if len(withCounts) > 0 && withCounts[0] {
+	if withCounts {
 		queryParams := url.Values{}
 		queryParams.Set("with_counts", "true")
 		uri += "?" + queryParams.Encode()
