@@ -476,10 +476,7 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 // guildID    : The ID of a Guild
 func (s *Session) GuildWithCounts(guildID string) (st *Guild, err error) {
 
-	queryParams := url.Values{}
-	queryParams.Set("with_counts", "true")
-
-	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID)+"?"+queryParams.Encode(), nil, EndpointGuild(guildID))
+	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID)+"?with_counts=true", nil, EndpointGuild(guildID))
 	if err != nil {
 		return
 	}
