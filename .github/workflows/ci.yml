@@ -13,7 +13,7 @@ jobs:
         with:
           go-version: 1.18
       - name: Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Check diff between gofmt and code
         run: diff <(gofmt -d .) <(echo -n)
   
@@ -28,7 +28,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - run: go test -v -race ./...
   
   lint:
@@ -39,7 +39,7 @@ jobs:
         with:
           go-version: 1.18
       - name: Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Go vet
         run: go vet -x ./...
 
