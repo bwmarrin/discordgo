@@ -474,19 +474,12 @@ func (s *Session) Guild(guildID string) (st *Guild, err error) {
 
 // GuildWithCounts returns a Guild structure of a specific Guild with approximate member and presence counts.
 // guildID    : The ID of a Guild
-// withCounts : When true, will return approximate member and presence counts for the guild
-//              uses variadic for backwards compatibility
-func (s *Session) GuildWithCounts(guildID string, withCounts bool) (st *Guild, err error) {
+func (s *Session) GuildWithCounts(guildID string) (st *Guild, err error) {
 
-	uri := EndpointGuild(guildID)
+	queryParams := url.Values{}
+	queryParams.Set("with_counts", "true")
 
-	if withCounts {
-		queryParams := url.Values{}
-		queryParams.Set("with_counts", "true")
-		uri += "?" + queryParams.Encode()
-	}
-
-	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuild(guildID))
+	body, err := s.RequestWithBucketID("GET", EndpointGuild(guildID)+"?"+queryParams.Encode(), nil, EndpointGuild(guildID))
 	if err != nil {
 		return
 	}
