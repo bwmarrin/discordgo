@@ -2933,3 +2933,29 @@ func (s *Session) GuildScheduledEventUsers(guildID, eventID string, limit int, w
 	err = unmarshal(body, &st)
 	return
 }
+
+// SearchGuildMembers returns a list of guild member objects whose username or nickname starts with a provided string.
+// guildID  : The ID of a Guild.
+// query    : Query string to match username(s) and nickname(s) against.
+// limit    : Max number of members to return (1-1000)
+func (s *Session) SearchGuildMembers(guildID, query string, limit int) (st []*Member, err error) {
+	uri := EndpointGuildMembersSearch(guildID)
+
+	queryParams := url.Values{}
+	queryParams.Set("query", query)
+	if limit > 1 {
+		queryParams.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(queryParams) > 0 {
+		uri += "?" + queryParams.Encode()
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildMembersSearch(guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
