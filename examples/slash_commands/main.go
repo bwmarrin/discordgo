@@ -201,7 +201,7 @@ var (
 			// Access options in the order provided by the user.
 			options := i.ApplicationCommandData().Options
 
-			// or convert the slice into a map
+			// Or convert the slice into a map
 			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
 			for _, opt := range options {
 				optionMap[opt.Name] = opt
