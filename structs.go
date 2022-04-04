@@ -757,14 +757,29 @@ type GuildPreview struct {
 	// The list of enabled guild features
 	Features []string `json:"features"`
 
-	// Approximate number of members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	// Approximate number of members in this guild
+	// NOTE: this field is only filled when using GuildWithCounts
 	ApproximateMemberCount int `json:"approximate_member_count"`
 
-	// Approximate number of non-offline members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
+	// Approximate number of non-offline members in this guild
+	// NOTE: this field is only filled when using GuildWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 
 	// the description for the guild
 	Description string `json:"description"`
+}
+
+// IconURL returns a URL to the guild's icon.
+func (g *GuildPreview) IconURL() string {
+	if g.Icon == "" {
+		return ""
+	}
+
+	if strings.HasPrefix(g.Icon, "a_") {
+		return EndpointGuildIconAnimated(g.ID, g.Icon)
+	}
+
+	return EndpointGuildIcon(g.ID, g.Icon)
 }
 
 // GuildScheduledEvent is a representation of a scheduled event in a guild. Only for retrieval of the data.
@@ -1695,14 +1710,13 @@ const (
 // Identify is sent during initial handshake with the discord gateway.
 // https://discord.com/developers/docs/topics/gateway#identify
 type Identify struct {
-	Token              string              `json:"token"`
-	Properties         IdentifyProperties  `json:"properties"`
-	Compress           bool                `json:"compress"`
-	LargeThreshold     int                 `json:"large_threshold"`
-	Shard              *[2]int             `json:"shard,omitempty"`
-	Presence           GatewayStatusUpdate `json:"presence,omitempty"`
-	GuildSubscriptions bool                `json:"guild_subscriptions"`
-	Intents            Intent              `json:"intents"`
+	Token          string              `json:"token"`
+	Properties     IdentifyProperties  `json:"properties"`
+	Compress       bool                `json:"compress"`
+	LargeThreshold int                 `json:"large_threshold"`
+	Shard          *[2]int             `json:"shard,omitempty"`
+	Presence       GatewayStatusUpdate `json:"presence,omitempty"`
+	Intents        Intent              `json:"intents"`
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
@@ -1731,6 +1745,7 @@ const (
 	PermissionManageThreads         = 0x0000000400000000
 	PermissionCreatePublicThreads   = 0x0000000800000000
 	PermissionCreatePrivateThreads  = 0x0000001000000000
+	PermissionUseExternalStickers   = 0x0000002000000000
 	PermissionSendMessagesInThreads = 0x0000004000000000
 )
 
@@ -1745,6 +1760,7 @@ const (
 	PermissionVoiceMoveMembers     = 0x0000000001000000
 	PermissionVoiceUseVAD          = 0x0000000002000000
 	PermissionVoiceRequestToSpeak  = 0x0000000100000000
+	PermissionUseActivities        = 0x0000008000000000
 )
 
 // Constants for general management.
@@ -1754,6 +1770,7 @@ const (
 	PermissionManageRoles     = 0x0000000010000000
 	PermissionManageWebhooks  = 0x0000000020000000
 	PermissionManageEmojis    = 0x0000000040000000
+	PermissionManageEvents    = 0x0000000200000000
 )
 
 // Constants for the different bit offsets of general permissions
