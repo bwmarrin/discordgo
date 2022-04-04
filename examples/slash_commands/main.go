@@ -172,7 +172,7 @@ var (
 			Description: "Subcommands and command groups example",
 			Options: []*discordgo.ApplicationCommandOption{
 				// When a command has subcommands/subcommand groups
-				// It must not have top-level options, they aren't accesible in the UI
+				// It must not have top-level options, they aren't accessible in the UI
 				// in this case (at least not yet), so if a command has
 				// subcommands/subcommand any groups registering top-level options
 				// will cause the registration of the command to fail
@@ -298,7 +298,7 @@ var (
 			// When the option exists, ok = true
 			if option, ok := optionMap["string-option"]; ok {
 				// Option values must be type asserted from interface{}.
-				// Discordgo provides utility functions to make this simple.
+				// DiscordGo provides utility functions to make this simple.
 				margs = append(margs, option.StringValue())
 				msgformat += "> string-option: %s\n"
 			}
@@ -508,7 +508,7 @@ func main() {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
 
-	// Create a log once the websocket is ready to recieve events from Discord.
+	// Create a log once the websocket is ready to receive events from Discord.
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
@@ -521,7 +521,7 @@ func main() {
 		}
 	})
 
-	// Open the websocket connection to Discord to recieve events (and handle them).
+	// Open the websocket connection to Discord to receive events (and handle them).
 	if err := s.Open(); err != nil {
 		log.Fatalf("Cannot open the websocket connection to Discord: %v", err)
 	}
