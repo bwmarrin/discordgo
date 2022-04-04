@@ -714,7 +714,7 @@ func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err e
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
 // data     : A GuildMemberEditData struct with the new nickname and roles
-func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberEditData) (st *Member, err error) {
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
