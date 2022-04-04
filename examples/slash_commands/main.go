@@ -172,9 +172,7 @@ var (
 			Description: "Followup messages",
 		},
 	}
-)
 
-var (
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -255,7 +253,7 @@ var (
 			}
 
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// Type is discussed in "responses"
+				// Ignore type for now, they will be discussed in "responses"
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf(
