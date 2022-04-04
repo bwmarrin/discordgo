@@ -174,26 +174,6 @@ var (
 	}
 )
 
-// parseOptionsToMap parses an array of options (and suboptions) into an OptionMap.
-func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInteractionDataOption, options []*discordgo.ApplicationCommandInteractionDataOption) map[string]*discordgo.ApplicationCommandInteractionDataOption {
-	if optionMap == nil {
-		// A command can have a maximum of 25 options.
-		// Alternatively, add a parameter to this method and set capacity to the maximum amount of options (and sub-options).
-		// https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure
-		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, 25)
-	}
-
-	// add suboptions (slice by value is the most performant)
-	for _, option := range options {
-		optionMap[option.Name] = option
-		if len(option.Options) != 0 {
-			parseOptionsToMap(optionMap, option.Options)
-		}
-	}
-
-	return optionMap
-}
-
 var (
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -223,8 +203,11 @@ var (
 			// Access options in the order provided by the user.
 			options := i.ApplicationCommandData().Options
 
-			// or convert the slice to a map using the function defined above.
-			optionMap := parseOptionsToMap(nil, options)
+			// or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
 
 			// This example stores the provided arguments in an []interface{}
 			// which will be used to format the bot's response
@@ -283,30 +266,23 @@ var (
 			})
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Access options in the order provided by the user.
 			options := i.ApplicationCommandData().Options
-
-			// or convert the slice to a map using the function defined above.
-			optionMap := parseOptionsToMap(nil, options)
-
-			// This example stores the response in a string.
 			content := ""
 
-			// When the option exists, ok = true
-			if _, ok := optionMap["subcommand"]; ok {
+			// As you can see, names of subcommands (nested, top-levl)
+			// and subcommand groups are provided through the arguments.
+			switch options[0].Name {
+			case "subcommand":
 				content = "The top-level subcommand is executed. Now try to execute the nested one."
-			}
-
-			// These are standard ways to check that a value exists (in a map in Go).
-			if _, ok := optionMap["nested-subcommand"]; ok {
-				content = "Nice, now you know how to execute nested commands too"
-			} else if optionMap["subcommand-group"] != nil {
-				// Discord provides the subcommand-group option with /subcommands subcommand-group nested-subcommand
-				// However, we check for nested-subcommand first.
-
-				// This will never show unless the user somehow bypasses
-				// Discord's Client-Side Verification and uses /subcommands subcommand-group.
-				content = "Something went wrong\nYou weren't supposed to see this!"
+			case "subcommand-group":
+				options = options[0].Options
+				switch options[0].Name {
+				case "nested-subcommand":
+					content = "Nice, now you know how to execute nested commands too"
+				default:
+					content = "Oops, something went wrong.\n" +
+						"Hol' up, you aren't supposed to see this message."
+				}
 			}
 
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
