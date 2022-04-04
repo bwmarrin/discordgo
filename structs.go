@@ -1566,9 +1566,9 @@ type UserGuildSettingsEdit struct {
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
-// A GuildMemberEditData stores a payload to use in Session.GuildMemberEditComplex
+// GuildMemberParams stores data needed to update a member
 // https://discord.com/developers/docs/resources/guild#modify-guild-member
-type GuildMemberEditData struct {
+type GuildMemberParams struct {
 
 	// Value to set user's nickname to
 	Nick string `json:"nick,omitempty"`
