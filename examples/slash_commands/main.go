@@ -267,7 +267,7 @@ var (
 			options := i.ApplicationCommandData().Options
 			content := ""
 
-			// As you can see, names of subcommands (nested, top-levl)
+			// As you can see, names of subcommands (nested, top-level)
 			// and subcommand groups are provided through the arguments.
 			switch options[0].Name {
 			case "subcommand":
