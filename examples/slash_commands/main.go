@@ -235,15 +235,18 @@ var (
 	// commandHandlers represents event handlers for the commands (defined above).
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
@@ -256,6 +259,9 @@ var (
 					},
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 		"localized-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			responses := map[discordgo.Locale]string{
@@ -327,7 +333,7 @@ var (
 				msgformat += "> role-option: <@&%s>\n"
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				// Ignore type for now, they will be discussed in "responses"
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -337,6 +343,9 @@ var (
 					),
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
@@ -358,12 +367,15 @@ var (
 				}
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 
 		// React to an interaction using Responses.
@@ -386,9 +398,12 @@ var (
 					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
+					if err != nil {
+						panic(err)
+					}
 				}
 				return
 			}
@@ -400,9 +415,12 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
+				if err != nil {
+					panic(err)
+				}
 				return
 			}
 			time.AfterFunc(time.Second*5, func() {
@@ -412,9 +430,12 @@ var (
 						"message will be deleted.",
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
+					if err != nil {
+						panic(err)
+					}
 					return
 				}
 				time.Sleep(time.Second * 10)
@@ -426,7 +447,7 @@ var (
 		// https://discord.com/developers/docs/interactions/receiving-and-responding#followup-messages
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
@@ -436,30 +457,45 @@ var (
 					Content: "Surprise!",
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
+
 			msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
-				return
+				if err != nil {
+					panic(err)
+				}
 			}
 			time.Sleep(time.Second * 5)
 
-			s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
+			_, err = s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
 				Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
+			if err != nil {
+				panic(err)
+			}
 
 			time.Sleep(time.Second * 10)
 
-			s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+			err = s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+			if err != nil {
+				panic(err)
+			}
 
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus... look at the original interaction response :D",
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 	}
 )
