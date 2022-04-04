@@ -12,6 +12,23 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// parseOptionsToMap parses an array of options (and suboptions) into an OptionMap.
+func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInteractionDataOption, options []*discordgo.ApplicationCommandInteractionDataOption, amount int) map[string]*discordgo.ApplicationCommandInteractionDataOption {
+	if optionMap == nil {
+		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, amount)
+	}
+
+	// add suboptions (slice by value is the most performant)
+	for _, option := range options {
+		optionMap[option.Name] = option
+		if len(option.Options) != 0 {
+			parseOptionsToMap(optionMap, option.Options, amount)
+		}
+	}
+
+	return optionMap
+}
+
 // Parse the bot's parameters from the command line.
 // NOTE: Don't commit the BOT TOKEN on Git. This will give people FULL ACCESS to your bot (to whoever can access your project).
 // Use an environment variable instead.
@@ -215,7 +232,7 @@ var (
 		},
 	}
 
-	// commandHandlers represents multiple event handler functions, which are defined in the commands slice above.
+	// commandHandlers represents event handlers for the commands (defined above).
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -263,10 +280,7 @@ var (
 			options := i.ApplicationCommandData().Options
 
 			// Or convert the slice into a map
-			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-			for _, opt := range options {
-				optionMap[opt.Name] = opt
-			}
+			optionMap := parseOptionsToMap(nil, options, 7)
 
 			// This example stores the provided arguments in an []interface{}
 			// which will be used to format the bot's response
