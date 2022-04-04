@@ -1581,6 +1581,15 @@ type UserGuildSettingsEdit struct {
 	ChannelOverrides     map[string]*UserGuildSettingsChannelOverride `json:"channel_overrides"`
 }
 
+// GuildMemberParams stores data needed to update a member
+// https://discord.com/developers/docs/resources/guild#modify-guild-member
+type GuildMemberParams struct {
+	// Value to set user's nickname to
+	Nick string `json:"nick,omitempty"`
+	// Array of role ids the member is assigned
+	Roles *[]string `json:"roles,omitempty"`
+}
+
 // An APIErrorMessage is an api error message returned from discord
 type APIErrorMessage struct {
 	Code    int    `json:"code"`

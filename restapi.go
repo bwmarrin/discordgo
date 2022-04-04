@@ -798,6 +798,21 @@ func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err e
 	return
 }
 
+// GuildMemberEditComplex edits the nickname and roles of a member.
+// guildID  : The ID of a Guild.
+// userID   : The ID of a User.
+// data     : A GuildMemberEditData struct with the new nickname and roles
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
+	if err != nil {
+		return nil, err
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildMemberMove moves a guild member from one voice channel to another/none
 //  guildID   : The ID of a Guild.
 //  userID    : The ID of a User.
