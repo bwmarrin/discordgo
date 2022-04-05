@@ -342,7 +342,7 @@ type MessageEmbedFooter struct {
 
 // MessageEmbedImage is a part of a MessageEmbed struct.
 type MessageEmbedImage struct {
-	URL      string `json:"url,omitempty"`
+	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url,omitempty"`
 	Width    int    `json:"width,omitempty"`
 	Height   int    `json:"height,omitempty"`
@@ -350,7 +350,7 @@ type MessageEmbedImage struct {
 
 // MessageEmbedThumbnail is a part of a MessageEmbed struct.
 type MessageEmbedThumbnail struct {
-	URL      string `json:"url,omitempty"`
+	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url,omitempty"`
 	Width    int    `json:"width,omitempty"`
 	Height   int    `json:"height,omitempty"`
@@ -372,7 +372,7 @@ type MessageEmbedProvider struct {
 // MessageEmbedAuthor is a part of a MessageEmbed struct.
 type MessageEmbedAuthor struct {
 	URL          string `json:"url,omitempty"`
-	Name         string `json:"name,omitempty"`
+	Name         string `json:"name"`
 	IconURL      string `json:"icon_url,omitempty"`
 	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
 }
