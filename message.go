@@ -179,7 +179,7 @@ const (
 	MessageFlagsUrgent               MessageFlags = 1 << 4
 )
 
-// Deprecated: use MessageFlagsSuppressEmbeds
+// TODO: Deprecated, remove in the next release
 const (
 	MessageFlagsSupressEmbeds MessageFlags = 1 << 2
 )
