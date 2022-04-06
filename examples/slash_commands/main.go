@@ -398,7 +398,7 @@ var (
 					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
-					_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 					if err != nil {
@@ -415,7 +415,7 @@ var (
 				},
 			})
 			if err != nil {
-				_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				if err != nil {
@@ -430,7 +430,7 @@ var (
 						"message will be deleted.",
 				})
 				if err != nil {
-					_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 					if err != nil {
@@ -447,7 +447,7 @@ var (
 		// https://discord.com/developers/docs/interactions/receiving-and-responding#followup-messages
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
@@ -465,7 +465,7 @@ var (
 				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				_, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				if err != nil {
