@@ -2310,7 +2310,7 @@ func (s *Session) WebhookMessageDelete(webhookID, token, messageID string) (err 
 // MessageReactionAdd creates an emoji reaction to a message.
 // channelID : The channel ID.
 // messageID : The message ID.
-// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
+// emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier in name:id format (e.g. "hello:1234567654321")
 func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string) error {
 
 	// emoji such as  #⃣ need to have # escaped
