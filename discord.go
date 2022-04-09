@@ -36,6 +36,7 @@ func New(token string) (s *Session, err error) {
 		StateEnabled:           true,
 		Compress:               true,
 		ShouldReconnectOnError: true,
+		ShouldRetryOnRateLimit: true,
 		ShardID:                0,
 		ShardCount:             1,
 		MaxRestRetries:         3,

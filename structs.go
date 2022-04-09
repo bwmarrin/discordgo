@@ -43,6 +43,9 @@ type Session struct {
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
 
+	// Should the session retry requests when rate limited.
+	ShouldRetryOnRateLimit bool
+
 	// Identify is sent during initial handshake with the discord gateway.
 	// https://discord.com/developers/docs/topics/gateway#identify
 	Identify Identify
