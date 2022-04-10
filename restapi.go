@@ -1321,6 +1321,20 @@ func (s *Session) GuildEmojis(guildID string) (emoji []*Emoji, err error) {
 	return
 }
 
+// GuildEmoji returns specified emoji.
+// guildID : The ID of a Guild
+// emojiID : The ID of an Emoji to retrieve
+func (s *Session) GuildEmoji(guildID, emojiID string) (emoji *Emoji, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointGuildEmoji(guildID, emojiID), nil, EndpointGuildEmoji(guildID, emojiID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emoji)
+	return
+}
+
 // GuildEmojiCreate creates a new emoji
 // guildID : The ID of a Guild.
 // name    : The Name of the Emoji.
