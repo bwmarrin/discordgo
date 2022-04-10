@@ -360,7 +360,7 @@ type ChannelEdit struct {
 	UserLimit            int                    `json:"user_limit,omitempty"`
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             string                 `json:"parent_id,omitempty"`
-	RateLimitPerUser     *int                    `json:"rate_limit_per_user,omitempty"`
+	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
 
 	// NOTE: threads only
 
