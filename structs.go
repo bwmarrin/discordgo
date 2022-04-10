@@ -555,7 +555,7 @@ const (
 // GuildNSFWLevel type definition
 type GuildNSFWLevel int
 
-// Constants for GuildNsfwLefel levels from 0 to 3 inclusive
+// Constants for GuildNSFWLevel levels from 0 to 3 inclusive
 const (
 	GuildNSFWLevelDefault       GuildNSFWLevel = 0
 	GuildNSFWLevelExplicit      GuildNSFWLevel = 1
