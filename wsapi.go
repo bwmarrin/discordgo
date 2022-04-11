@@ -409,10 +409,12 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildIDs  []string `json:"guild_id"`
-	Query     string   `json:"query"`
-	Limit     int      `json:"limit"`
-	Presences bool     `json:"presences"`
+	GuildIDs  []string  `json:"guild_id"`
+	Query     *string   `json:"query,omitempty"`
+	Limit     int       `json:"limit"`
+	Presences bool      `json:"presences"`
+	UserIDs   *[]string `json:"user_ids,omitempty"`
+	Nonce     string    `json:"nonce,omitempty"`
 }
 
 type requestGuildMembersOp struct {
@@ -426,12 +428,22 @@ type requestGuildMembersOp struct {
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
 // presences : Whether to request presences of guild members
-func (s *Session) RequestGuildMembers(guildID string, query string, limit int, presences bool) (err error) {
+// userIDs   : Used to specify which users you wish to fetch
+// nonce     : Nonce to identify the Guild Members Chunk response
+func (s *Session) RequestGuildMembers(guildID, query string, limit int, presences bool, userIDs *[]string, nonce string) (err error) {
+	// One of query or user_ids
+	var queryPt *string
+	if userIDs == nil {
+		queryPt = &query
+	}
+
 	data := requestGuildMembersData{
 		GuildIDs:  []string{guildID},
-		Query:     query,
+		Query:     queryPt,
 		Limit:     limit,
 		Presences: presences,
+		UserIDs:   userIDs,
+		Nonce:     nonce,
 	}
 	err = s.requestGuildMembers(data)
 	return
@@ -446,7 +458,7 @@ func (s *Session) RequestGuildMembers(guildID string, query string, limit int, p
 func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, presences bool) (err error) {
 	data := requestGuildMembersData{
 		GuildIDs:  guildIDs,
-		Query:     query,
+		Query:     &query,
 		Limit:     limit,
 		Presences: presences,
 	}
