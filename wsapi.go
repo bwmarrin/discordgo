@@ -409,12 +409,12 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildIDs  []string  `json:"guild_id"`
-	Query     *string   `json:"query,omitempty"`
-	Limit     int       `json:"limit"`
-	Presences bool      `json:"presences"`
-	UserIDs   *[]string `json:"user_ids,omitempty"`
-	Nonce     string    `json:"nonce,omitempty"`
+	GuildIDs  []string      `json:"guild_id"`
+	Query     *string       `json:"query,omitempty"`
+	UserIDs   []json.Number `json:"user_ids,omitempty"`
+	Limit     int           `json:"limit"`
+	Nonce     string        `json:"nonce,omitempty"`
+	Presences bool          `json:"presences"`
 }
 
 type requestGuildMembersOp struct {
@@ -427,26 +427,21 @@ type requestGuildMembersOp struct {
 // guildID   : Single Guild ID to request members of
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
-// presences : Whether to request presences of guild members
-// userIDs   : Used to specify which users you wish to fetch
 // nonce     : Nonce to identify the Guild Members Chunk response
-func (s *Session) RequestGuildMembers(guildID, query string, limit int, presences bool, userIDs *[]string, nonce string) (err error) {
-	// One of query or user_ids
-	var queryPt *string
-	if userIDs == nil {
-		queryPt = &query
-	}
+// presences : Whether to request presences of guild members
+func (s *Session) RequestGuildMembers(guildID, query string, limit int, nonce string, presences bool) error {
+	return s.RequestGuildMembersBatch([]string{guildID}, query, limit, nonce, presences)
+}
 
-	data := requestGuildMembersData{
-		GuildIDs:  []string{guildID},
-		Query:     queryPt,
-		Limit:     limit,
-		Presences: presences,
-		UserIDs:   userIDs,
-		Nonce:     nonce,
-	}
-	err = s.requestGuildMembers(data)
-	return
+// RequestGuildMembersList requests guild members from the gateway
+// The gateway responds with GuildMembersChunk events
+// guildID   : Single Guild ID to request members of
+// userIDs   : Used to specify which users you wish to fetch
+// limit     : Max number of items to return, or 0 to request all members matched
+// nonce     : Nonce to identify the Guild Members Chunk response
+// presences : Whether to request presences of guild members
+func (s *Session) RequestGuildMembersList(guildID string, userIDs []string, limit int, nonce string, presences bool) error {
+	return s.RequestGuildMembersBatchList([]string{guildID}, userIDs, limit, nonce, presences)
 }
 
 // RequestGuildMembersBatch requests guild members from the gateway
@@ -454,12 +449,44 @@ func (s *Session) RequestGuildMembers(guildID, query string, limit int, presence
 // guildID   : Slice of guild IDs to request members of
 // query     : String that username starts with, leave empty to return all members
 // limit     : Max number of items to return, or 0 to request all members matched
+// nonce     : Nonce to identify the Guild Members Chunk response
 // presences : Whether to request presences of guild members
-func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, presences bool) (err error) {
+func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, nonce string, presences bool) (err error) {
 	data := requestGuildMembersData{
 		GuildIDs:  guildIDs,
 		Query:     &query,
 		Limit:     limit,
+		Nonce:     nonce,
+		Presences: presences,
+	}
+	err = s.requestGuildMembers(data)
+	return
+}
+
+// RequestGuildMembersBatchList requests guild members from the gateway
+// The gateway responds with GuildMembersChunk events
+// guildID   : Slice of guild IDs to request members of
+// userIDs   : Used to specify which users you wish to fetch
+// limit     : Max number of items to return, or 0 to request all members matched
+// nonce     : Nonce to identify the Guild Members Chunk response
+// presences : Whether to request presences of guild members
+func (s *Session) RequestGuildMembersBatchList(guildIDs []string, userIDs []string, limit int, nonce string, presences bool) (err error) {
+	if len(userIDs) == 0 {
+		return
+	}
+
+	// []json.Number is used here to prevent retry loop in
+	// 'ready' callback caused by non-digit characters
+	newUserIDs := make([]json.Number, len(userIDs))
+	for i, userID := range userIDs {
+		newUserIDs[i] = json.Number(userID)
+	}
+
+	data := requestGuildMembersData{
+		GuildIDs:  guildIDs,
+		UserIDs:   newUserIDs,
+		Limit:     limit,
+		Nonce:     nonce,
 		Presences: presences,
 	}
 	err = s.requestGuildMembers(data)
