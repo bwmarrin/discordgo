@@ -12,28 +12,48 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Bot parameters
+// parseOptionsToMap parses an array of options (and suboptions) into an OptionMap.
+func parseOptionsToMap(optionMap map[string]*discordgo.ApplicationCommandInteractionDataOption, options []*discordgo.ApplicationCommandInteractionDataOption, amount int) map[string]*discordgo.ApplicationCommandInteractionDataOption {
+	if optionMap == nil {
+		optionMap = make(map[string]*discordgo.ApplicationCommandInteractionDataOption, amount)
+	}
+
+	// add suboptions (slice by value is the most performant)
+	for _, option := range options {
+		optionMap[option.Name] = option
+		if len(option.Options) != 0 {
+			parseOptionsToMap(optionMap, option.Options, amount)
+		}
+	}
+
+	return optionMap
+}
+
+// Parse the bot's parameters from the command line.
+// NOTE: Don't commit the BOT TOKEN on Git. This will give people FULL ACCESS to your bot (to whoever can access your project).
+// Use an environment variable instead.
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
-var s *discordgo.Session
-
-func init() { flag.Parse() }
-
+// init() executes as soon as the package is imported.
+// In this case, before any other code is run.
 func init() {
-	var err error
-	s, err = discordgo.New("Bot " + *BotToken)
-	if err != nil {
-		log.Fatalf("Invalid bot parameters: %v", err)
-	}
+	// Parse the flags from the command-line.
+	flag.Parse()
 }
 
 var (
 	integerOptionMinValue = 1.0
 
+	// The discord session that represents your bot.
+	s *discordgo.Session
+
+	// The application commands (slash commands) the bot will add.
+	// https://discord.com/developers/docs/interactions/application-commands#application-commands
+	// https://discord.com/developers/docs/interactions/application-commands#registering-a-command
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
@@ -152,7 +172,7 @@ var (
 			Description: "Subcommands and command groups example",
 			Options: []*discordgo.ApplicationCommandOption{
 				// When a command has subcommands/subcommand groups
-				// It must not have top-level options, they aren't accesible in the UI
+				// It must not have top-level options, they aren't accessible in the UI
 				// in this case (at least not yet), so if a command has
 				// subcommands/subcommand any groups registering top-level options
 				// will cause the registration of the command to fail
@@ -212,17 +232,21 @@ var (
 		},
 	}
 
+	// commandHandlers represents event handlers for the commands (defined above).
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command",
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
@@ -235,6 +259,9 @@ var (
 					},
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 		"localized-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			responses := map[discordgo.Locale]string{
@@ -259,10 +286,7 @@ var (
 			options := i.ApplicationCommandData().Options
 
 			// Or convert the slice into a map
-			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-			for _, opt := range options {
-				optionMap[opt.Name] = opt
-			}
+			optionMap := parseOptionsToMap(nil, options, 7)
 
 			// This example stores the provided arguments in an []interface{}
 			// which will be used to format the bot's response
@@ -274,7 +298,7 @@ var (
 			// When the option exists, ok = true
 			if option, ok := optionMap["string-option"]; ok {
 				// Option values must be type asserted from interface{}.
-				// Discordgo provides utility functions to make this simple.
+				// DiscordGo provides utility functions to make this simple.
 				margs = append(margs, option.StringValue())
 				msgformat += "> string-option: %s\n"
 			}
@@ -309,7 +333,7 @@ var (
 				msgformat += "> role-option: <@&%s>\n"
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				// Ignore type for now, they will be discussed in "responses"
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -319,6 +343,9 @@ var (
 					),
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			options := i.ApplicationCommandData().Options
@@ -340,23 +367,25 @@ var (
 				}
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: content,
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
-		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Responses to a command are very important.
-			// First of all, because you need to react to the interaction
-			// by sending the response in 3 seconds after receiving, otherwise
-			// interaction will be considered invalid and you can no longer
-			// use the interaction token and ID for responding to the user's request
 
+		// React to an interaction using Responses.
+		// The initial response to an interaction must be sent within 3 seconds of receiving it.
+		// Responding within this timeframe validates the interaction token for 15 minutes.
+		// Otherwise, the interaction token is invalidated (disables the interaction token and ID).
+		// https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
+		"responses": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			content := ""
-			// As you can see, the response type names used here are pretty self-explanatory,
-			// but for those who want more information see the official documentation
+
 			switch i.ApplicationCommandData().Options[0].IntValue() {
 			case int64(discordgo.InteractionResponseChannelMessageWithSource):
 				content =
@@ -369,9 +398,12 @@ var (
 					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
+					if err != nil {
+						panic(err)
+					}
 				}
 				return
 			}
@@ -383,9 +415,12 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
+				if err != nil {
+					panic(err)
+				}
 				return
 			}
 			time.AfterFunc(time.Second*5, func() {
@@ -395,21 +430,24 @@ var (
 						"message will be deleted.",
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
+					if err != nil {
+						panic(err)
+					}
 					return
 				}
 				time.Sleep(time.Second * 10)
 				s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
 			})
 		},
-		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// Followup messages are basically regular messages (you can create as many of them as you wish)
-			// but work as they are created by webhooks and their functionality
-			// is for handling additional messages after sending a response.
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		// Followup Messages allow you to send/edit/delete additional responses to an interaction after an initial response.
+		// https://discord.com/developers/docs/interactions/receiving-and-responding#followup-messages
+		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					// Note: this isn't documented, but you can use that if you want to.
@@ -419,59 +457,83 @@ var (
 					Content: "Surprise!",
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
+
 			msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
-				return
+				if err != nil {
+					panic(err)
+				}
 			}
 			time.Sleep(time.Second * 5)
 
-			s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
+			_, err = s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
 				Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
+			if err != nil {
+				panic(err)
+			}
 
 			time.Sleep(time.Second * 10)
 
-			s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+			err = s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+			if err != nil {
+				panic(err)
+			}
 
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus... look at the original interaction response :D",
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 	}
 )
 
-func init() {
+func main() {
+	// Instantiate a new Discord Bot Session.
+	var err error
+	s, err = discordgo.New("Bot " + *BotToken)
+	if err != nil {
+		log.Fatalf("Invalid bot parameters: %v", err)
+	}
+
+	// Create a log once the websocket is ready to receive events from Discord.
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+	})
+
+	// Add an event handler for created interactions (defined in the commandHandlers map).
+	// https://discord.com/developers/docs/topics/gateway#interaction-create
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})
-}
 
-func main() {
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
-	})
-	err := s.Open()
-	if err != nil {
-		log.Fatalf("Cannot open the session: %v", err)
+	// Open the websocket connection to Discord to receive events (and handle them).
+	if err := s.Open(); err != nil {
+		log.Fatalf("Cannot open the websocket connection to Discord: %v", err)
 	}
 
 	log.Println("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		command, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
-		registeredCommands[i] = cmd
+		registeredCommands[i] = command
 	}
 
 	defer s.Close()
@@ -483,15 +545,16 @@ func main() {
 
 	if *RemoveCommands {
 		log.Println("Removing commands...")
-		// // We need to fetch the commands, since deleting requires the command ID.
-		// // We are doing this from the returned commands on line 375, because using
-		// // this will delete all the commands, which might not be desirable, so we
-		// // are deleting only the commands that we added.
-		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+		// Uncomment the following code to delete every command in the application.
+		//
+		// Fetch the created command IDs from the Discord API.
+		// registeredCommands, err = s.ApplicationCommands(s.State.User.ID, *GuildID)
 		// if err != nil {
 		// 	log.Fatalf("Could not fetch registered commands: %v", err)
 		// }
 
+		// Otherwise, only delete the newly created commands for this session.
+		// They are stored in the registeredCommands variable defined on line 400.
 		for _, v := range registeredCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
 			if err != nil {
