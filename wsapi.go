@@ -409,12 +409,12 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 }
 
 type requestGuildMembersData struct {
-	GuildIDs  []string      `json:"guild_id"`
-	Query     *string       `json:"query,omitempty"`
-	UserIDs   []json.Number `json:"user_ids,omitempty"`
-	Limit     int           `json:"limit"`
-	Nonce     string        `json:"nonce,omitempty"`
-	Presences bool          `json:"presences"`
+	GuildIDs  []string       `json:"guild_id"`
+	Query     *string        `json:"query,omitempty"`
+	UserIDs   *[]json.Number `json:"user_ids,omitempty"`
+	Limit     int            `json:"limit"`
+	Nonce     string         `json:"nonce,omitempty"`
+	Presences bool           `json:"presences"`
 }
 
 type requestGuildMembersOp struct {
@@ -471,10 +471,6 @@ func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limi
 // nonce     : Nonce to identify the Guild Members Chunk response
 // presences : Whether to request presences of guild members
 func (s *Session) RequestGuildMembersBatchList(guildIDs []string, userIDs []string, limit int, nonce string, presences bool) (err error) {
-	if len(userIDs) == 0 {
-		return
-	}
-
 	// []json.Number is used here to prevent retry loop in
 	// 'ready' callback caused by non-digit characters
 	newUserIDs := make([]json.Number, len(userIDs))
@@ -484,7 +480,7 @@ func (s *Session) RequestGuildMembersBatchList(guildIDs []string, userIDs []stri
 
 	data := requestGuildMembersData{
 		GuildIDs:  guildIDs,
-		UserIDs:   newUserIDs,
+		UserIDs:   &newUserIDs,
 		Limit:     limit,
 		Nonce:     nonce,
 		Presences: presences,
