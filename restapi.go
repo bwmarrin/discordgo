@@ -2878,18 +2878,6 @@ func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, 
 // Functions specific to stage instances
 // ------------------------------------------------------------------------------------------------
 
-// StageInstanceData is provided to StageInstanceCreate
-type StageInstanceData struct {
-	// ChannelID represents the id of the Stage channel
-	ChannelID string `json:"channel_id"`
-	// Topic of the Stage instance (1-120 characters)
-	Topic string `json:"topic"`
-	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
-	PrivacyLevel *StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
-	// SendStartNotification will notify @everyone that a Stage instance has started
-	SendStartNotification *bool `json:"send_start_notification,omitempty"`
-}
-
 // StageInstanceCreate will creates a new Stage instance associated to a Stage channel.
 // Returns that Stage instance created
 func (s *Session) StageInstanceCreate(data *StageInstanceData) (si *StageInstance, err error) {
@@ -2918,14 +2906,14 @@ func (s *Session) StageInstance(channelID string) (si *StageInstance, err error)
 // channelID : The ID of the Stage channel
 // topic : The new topic of the Stage instance (1-120 characters). Set empty to keep the current topic.
 // privacyLevel : The new privacy level of the Stage instance. Set nil to keep the current privacy level.
-func (s *Session) StageInstanceEdit(channelID string, topic string, privacyLevel *StageInstancePrivacyLevel) (si *StageInstance, err error) {
+func (s *Session) StageInstanceEdit(channelID string, instance *StageInstance) (si *StageInstance, err error) {
 	data := struct {
 		Topic string `json:"topic,omitempty"`
 		// PrivacyLevel of the Stage instance (default GUILD_ONLY)
 		PrivacyLevel *StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
 	}{
-		Topic:        topic,
-		PrivacyLevel: privacyLevel,
+		Topic:        instance.Topic,
+		PrivacyLevel: &instance.PrivacyLevel,
 	}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointStageInstance(channelID), data, EndpointStageInstance(channelID))
