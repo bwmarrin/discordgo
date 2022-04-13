@@ -2875,6 +2875,76 @@ func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, 
 }
 
 // ------------------------------------------------------------------------------------------------
+// Functions specific to stage instances
+// ------------------------------------------------------------------------------------------------
+
+// StageInstanceData is provided to StageInstanceCreate
+type StageInstanceData struct {
+	// ChannelID represents the id of the Stage channel
+	ChannelID string `json:"channel_id"`
+	// Topic of the Stage instance (1-120 characters)
+	Topic string `json:"topic"`
+	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
+	PrivacyLevel *StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
+	// SendStartNotification will notify @everyone that a Stage instance has started
+	SendStartNotification *bool `json:"send_start_notification,omitempty"`
+}
+
+// StageInstanceCreate will creates a new Stage instance associated to a Stage channel.
+// Returns that Stage instance created
+func (s *Session) StageInstanceCreate(data *StageInstanceData) (si *StageInstance, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointStageInstances, data, EndpointStageInstances)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstance will retrieve a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+func (s *Session) StageInstance(channelID string) (si *StageInstance, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointStageInstance(channelID), nil, EndpointStageInstance(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstanceEdit will edit a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+// topic : The new topic of the Stage instance (1-120 characters). Set empty to keep the current topic.
+// privacyLevel : The new privacy level of the Stage instance. Set nil to keep the current privacy level.
+func (s *Session) StageInstanceEdit(channelID string, topic string, privacyLevel *StageInstancePrivacyLevel) (si *StageInstance, err error) {
+	data := struct {
+		Topic string `json:"topic,omitempty"`
+		// PrivacyLevel of the Stage instance (default GUILD_ONLY)
+		PrivacyLevel *StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
+	}{
+		Topic:        topic,
+		PrivacyLevel: privacyLevel,
+	}
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointStageInstance(channelID), data, EndpointStageInstance(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstanceDelete will delete a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+func (s *Session) StageInstanceDelete(channelID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointStageInstance(channelID), nil, EndpointStageInstance(channelID))
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
 // Functions specific to guilds scheduled events
 // ------------------------------------------------------------------------------------------------
 
