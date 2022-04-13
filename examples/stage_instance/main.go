@@ -54,4 +54,5 @@ func main() {
 	if err = s.StageInstanceDelete(*StageChannelID); err != nil {
 		log.Fatalf("Cannot delete stage instance: %v", err)
 	}
+	log.Printf("Stage Instance %s has been successfully deleted", si.Topic)
 }
