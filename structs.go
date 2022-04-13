@@ -1783,19 +1783,17 @@ type StageInstanceData struct {
 	// Topic of the Stage instance (1-120 characters)
 	Topic string `json:"topic"`
 	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
-	PrivacyLevel *StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
+	PrivacyLevel StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
 	// SendStartNotification will notify @everyone that a Stage instance has started
-	SendStartNotification *bool `json:"send_start_notification,omitempty"`
+	SendStartNotification bool `json:"send_start_notification,omitempty"`
 }
 
-// StageInstanceData is provided to StageInstanceCreate
+// StageInstanceEditData is provided to StageInstanceEdit
 type StageInstanceEditData struct {
 	// Topic of the Stage instance (1-120 characters)
 	Topic string `json:"topic"`
 	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
-	PrivacyLevel *StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
-	// SendStartNotification will notify @everyone that a Stage instance has started
-	SendStartNotification *bool `json:"send_start_notification,omitempty"`
+	PrivacyLevel StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
 }
 
 // StageInstancePrivacyLevel The privacy level of the Stage instance
