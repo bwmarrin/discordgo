@@ -32,7 +32,7 @@ var (
 	EndpointGatewayBot     = EndpointGateway + "/bot"
 	EndpointWebhooks       = EndpointAPI + "webhooks/"
 	EndpointStickers       = EndpointAPI + "stickers/"
-	EndpointStageInstances = EndpointAPI + "stage-instances/"
+	EndpointStageInstances = EndpointAPI + "stage-instances"
 
 	EndpointCDN             = "https://cdn.discordapp.com/"
 	EndpointCDNAttachments  = EndpointCDN + "attachments/"
@@ -96,7 +96,7 @@ var (
 	EndpointGuildBanner              = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
 	EndpointGuildStickers            = func(gID string) string { return EndpointGuilds + gID + "/stickers" }
 	EndpointGuildSticker             = func(gID, sID string) string { return EndpointGuilds + gID + "/stickers/" + sID }
-	EndpointStageInstance            = func(cID string) string { return EndpointStageInstances + cID }
+	EndpointStageInstance            = func(cID string) string { return EndpointStageInstances + "/" + cID }
 	EndpointGuildScheduledEvents     = func(gID string) string { return EndpointGuilds + gID + "/scheduled-events" }
 	EndpointGuildScheduledEvent      = func(gID, eID string) string { return EndpointGuilds + gID + "/scheduled-events/" + eID }
 	EndpointGuildScheduledEventUsers = func(gID, eID string) string { return EndpointGuildScheduledEvent(gID, eID) + "/users" }
