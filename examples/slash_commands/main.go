@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -31,6 +32,8 @@ func init() {
 }
 
 var (
+	integerOptionMinValue = 1.0
+
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name: "basic-command",
@@ -38,6 +41,49 @@ var (
 			// Commands/options without description will fail the registration
 			// of the command.
 			Description: "Basic command",
+		},
+		{
+			Name:        "basic-command-with-files",
+			Description: "Basic command with files",
+		},
+		{
+			Name:        "localized-command",
+			Description: "Localized command. Description and name may vary depending on the Language setting",
+			NameLocalizations: &map[discordgo.Locale]string{
+				discordgo.ChineseCN: "本地化的命令",
+			},
+			DescriptionLocalizations: &map[discordgo.Locale]string{
+				discordgo.ChineseCN: "这是一个本地化的命令",
+			},
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Name:        "localized-option",
+					Description: "Localized option. Description and name may vary depending on the Language setting",
+					NameLocalizations: map[discordgo.Locale]string{
+						discordgo.ChineseCN: "一个本地化的选项",
+					},
+					DescriptionLocalizations: map[discordgo.Locale]string{
+						discordgo.ChineseCN: "这是一个本地化的选项",
+					},
+					Type: discordgo.ApplicationCommandOptionInteger,
+					Choices: []*discordgo.ApplicationCommandOptionChoice{
+						{
+							Name: "First",
+							NameLocalizations: map[discordgo.Locale]string{
+								discordgo.ChineseCN: "一的",
+							},
+							Value: 1,
+						},
+						{
+							Name: "Second",
+							NameLocalizations: map[discordgo.Locale]string{
+								discordgo.ChineseCN: "二的",
+							},
+							Value: 2,
+						},
+					},
+				},
+			},
 		},
 		{
 			Name:        "options",
@@ -54,6 +100,15 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "integer-option",
 					Description: "Integer option",
+					MinValue:    &integerOptionMinValue,
+					MaxValue:    10,
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionNumber,
+					Name:        "number-option",
+					Description: "Float option",
+					MaxValue:    10.1,
 					Required:    true,
 				},
 				{
@@ -71,7 +126,12 @@ var (
 					Type:        discordgo.ApplicationCommandOptionChannel,
 					Name:        "channel-option",
 					Description: "Channel option",
-					Required:    false,
+					// Channel type mask
+					ChannelTypes: []discordgo.ChannelType{
+						discordgo.ChannelTypeGuildText,
+						discordgo.ChannelTypeGuildVoice,
+					},
+					Required: false,
 				},
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -98,14 +158,14 @@ var (
 				// will cause the registration of the command to fail
 
 				{
-					Name:        "scmd-grp",
+					Name:        "subcommand-group",
 					Description: "Subcommands group",
 					Options: []*discordgo.ApplicationCommandOption{
 						// Also, subcommand groups aren't capable of
 						// containing options, by the name of them, you can see
 						// they can only contain subcommands
 						{
-							Name:        "nst-subcmd",
+							Name:        "nested-subcommand",
 							Description: "Nested subcommand",
 							Type:        discordgo.ApplicationCommandOptionSubCommand,
 						},
@@ -118,7 +178,7 @@ var (
 				// Read the intro of slash-commands docs on Discord dev portal
 				// to get more information
 				{
-					Name:        "subcmd",
+					Name:        "subcommand",
 					Description: "Top-level subcommand",
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
 				},
@@ -151,6 +211,7 @@ var (
 			Description: "Followup messages",
 		},
 	}
+
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -160,36 +221,96 @@ var (
 				},
 			})
 		},
-		"options": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			margs := []interface{}{
-				// Here we need to convert raw interface{} value to wanted type.
-				// Also, as you can see, here is used utility functions to convert the value
-				// to particular type. Yeah, you can use just switch type,
-				// but this is much simpler
-				i.ApplicationCommandData().Options[0].StringValue(),
-				i.ApplicationCommandData().Options[1].IntValue(),
-				i.ApplicationCommandData().Options[2].BoolValue(),
+		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Hey there! Congratulations, you just executed your first slash command with a file in the response",
+					Files: []*discordgo.File{
+						{
+							ContentType: "text/plain",
+							Name:        "test.txt",
+							Reader:      strings.NewReader("Hello Discord!!"),
+						},
+					},
+				},
+			})
+		},
+		"localized-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			responses := map[discordgo.Locale]string{
+				discordgo.ChineseCN: "你好！ 这是一个本地化的命令",
 			}
-			msgformat :=
-				` Now you just learned how to use command options. Take a look to the value of which you've just entered:
-				> string_option: %s
-				> integer_option: %d
-				> bool_option: %v
-`
-			if len(i.ApplicationCommandData().Options) >= 4 {
-				margs = append(margs, i.ApplicationCommandData().Options[3].ChannelValue(nil).ID)
+			response := "Hi! This is a localized message"
+			if r, ok := responses[i.Locale]; ok {
+				response = r
+			}
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: response,
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"options": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Access options in the order provided by the user.
+			options := i.ApplicationCommandData().Options
+
+			// Or convert the slice into a map
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+
+			// This example stores the provided arguments in an []interface{}
+			// which will be used to format the bot's response
+			margs := make([]interface{}, 0, len(options))
+			msgformat := "You learned how to use command options! " +
+				"Take a look at the value(s) you entered:\n"
+
+			// Get the value from the option map.
+			// When the option exists, ok = true
+			if option, ok := optionMap["string-option"]; ok {
+				// Option values must be type asserted from interface{}.
+				// Discordgo provides utility functions to make this simple.
+				margs = append(margs, option.StringValue())
+				msgformat += "> string-option: %s\n"
+			}
+
+			if opt, ok := optionMap["integer-option"]; ok {
+				margs = append(margs, opt.IntValue())
+				msgformat += "> integer-option: %d\n"
+			}
+
+			if opt, ok := optionMap["number-option"]; ok {
+				margs = append(margs, opt.FloatValue())
+				msgformat += "> number-option: %f\n"
+			}
+
+			if opt, ok := optionMap["bool-option"]; ok {
+				margs = append(margs, opt.BoolValue())
+				msgformat += "> bool-option: %v\n"
+			}
+
+			if opt, ok := optionMap["channel-option"]; ok {
+				margs = append(margs, opt.ChannelValue(nil).ID)
 				msgformat += "> channel-option: <#%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 5 {
-				margs = append(margs, i.ApplicationCommandData().Options[4].UserValue(nil).ID)
+
+			if opt, ok := optionMap["user-option"]; ok {
+				margs = append(margs, opt.UserValue(nil).ID)
 				msgformat += "> user-option: <@%s>\n"
 			}
-			if len(i.ApplicationCommandData().Options) >= 6 {
-				margs = append(margs, i.ApplicationCommandData().Options[5].RoleValue(nil, "").ID)
+
+			if opt, ok := optionMap["role-option"]; ok {
+				margs = append(margs, opt.RoleValue(nil, "").ID)
 				msgformat += "> role-option: <@&%s>\n"
 			}
+
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// Ignore type for now, we'll discuss them in "responses" part
+				// Ignore type for now, they will be discussed in "responses"
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf(
@@ -200,27 +321,25 @@ var (
 			})
 		},
 		"subcommands": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			options := i.ApplicationCommandData().Options
 			content := ""
 
-			// As you can see, the name of subcommand (nested, top-level) or subcommand group
-			// is provided through arguments.
-			switch i.ApplicationCommandData().Options[0].Name {
-			case "subcmd":
-				content =
-					"The top-level subcommand is executed. Now try to execute the nested one."
-			default:
-				if i.ApplicationCommandData().Options[0].Name != "scmd-grp" {
-					return
-				}
-				switch i.ApplicationCommandData().Options[0].Options[0].Name {
-				case "nst-subcmd":
+			// As you can see, names of subcommands (nested, top-level)
+			// and subcommand groups are provided through the arguments.
+			switch options[0].Name {
+			case "subcommand":
+				content = "The top-level subcommand is executed. Now try to execute the nested one."
+			case "subcommand-group":
+				options = options[0].Options
+				switch options[0].Name {
+				case "nested-subcommand":
 					content = "Nice, now you know how to execute nested commands too"
 				default:
-					// I added this in the case something might go wrong
-					content = "Oops, something gone wrong.\n" +
+					content = "Oops, something went wrong.\n" +
 						"Hol' up, you aren't supposed to see this message."
 				}
 			}
+
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -250,7 +369,7 @@ var (
 					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 				}
@@ -264,25 +383,25 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				return
 			}
 			time.AfterFunc(time.Second*5, func() {
-				err = s.InteractionResponseEdit(s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
+				_, err = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 					Content: content + "\n\nWell, now you know how to create and edit responses. " +
 						"But you still don't know how to delete them... so... wait 10 seconds and this " +
 						"message will be deleted.",
 				})
 				if err != nil {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 					return
 				}
 				time.Sleep(time.Second * 10)
-				s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
+				s.InteractionResponseDelete(i.Interaction)
 			})
 		},
 		"followups": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -300,26 +419,26 @@ var (
 					Content: "Surprise!",
 				},
 			})
-			msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			msg, err := s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				return
 			}
 			time.Sleep(time.Second * 5)
 
-			s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
+			s.FollowupMessageEdit(i.Interaction, msg.ID, &discordgo.WebhookEdit{
 				Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 			})
 
 			time.Sleep(time.Second * 10)
 
-			s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+			s.FollowupMessageDelete(i.Interaction, msg.ID)
 
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus... look at the original interaction response :D",
@@ -338,24 +457,48 @@ func init() {
 
 func main() {
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up!")
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 	err := s.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
-	for _, v := range commands {
-		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	for i, v := range commands {
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
+		registeredCommands[i] = cmd
 	}
 
 	defer s.Close()
 
-	stop := make(chan os.Signal)
+	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
+	log.Println("Press Ctrl+C to exit")
 	<-stop
-	log.Println("Gracefully shutdowning")
+
+	if *RemoveCommands {
+		log.Println("Removing commands...")
+		// // We need to fetch the commands, since deleting requires the command ID.
+		// // We are doing this from the returned commands on line 375, because using
+		// // this will delete all the commands, which might not be desirable, so we
+		// // are deleting only the commands that we added.
+		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+		// if err != nil {
+		// 	log.Fatalf("Could not fetch registered commands: %v", err)
+		// }
+
+		for _, v := range registeredCommands {
+			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
+			if err != nil {
+				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+			}
+		}
+	}
+
+	log.Println("Gracefully shutting down.")
 }

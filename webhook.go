@@ -35,6 +35,8 @@ type WebhookParams struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	// NOTE: Works only for followup messages.
+	Flags uint64 `json:"flags,omitempty"`
 }
 
 // WebhookEdit stores data for editing of a webhook message.
@@ -42,5 +44,6 @@ type WebhookEdit struct {
 	Content         string                  `json:"content,omitempty"`
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 }
