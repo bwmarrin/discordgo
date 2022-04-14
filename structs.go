@@ -1781,7 +1781,7 @@ type StageInstanceParams struct {
 	// ChannelID represents the id of the Stage channel
 	ChannelID string `json:"channel_id,omitempty"`
 	// Topic of the Stage instance (1-120 characters)
-	Topic string `json:"topic"`
+	Topic string `json:"topic,omitempty"`
 	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
 	PrivacyLevel StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
 	// SendStartNotification will notify @everyone that a Stage instance has started
