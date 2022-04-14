@@ -225,7 +225,7 @@ type File struct {
 // MessageSend stores all parameters you can send with ChannelMessageSendComplex.
 type MessageSend struct {
 	Content         string                  `json:"content,omitempty"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds"`
 	TTS             bool                    `json:"tts"`
 	Components      []MessageComponent      `json:"components"`
 	Files           []*File                 `json:"-"`
@@ -244,7 +244,7 @@ type MessageSend struct {
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
 	Components      []MessageComponent      `json:"components"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Embeds          []*MessageEmbed         `json:"embeds"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 
 	ID      string
@@ -342,7 +342,7 @@ type MessageEmbedFooter struct {
 
 // MessageEmbedImage is a part of a MessageEmbed struct.
 type MessageEmbedImage struct {
-	URL      string `json:"url,omitempty"`
+	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url,omitempty"`
 	Width    int    `json:"width,omitempty"`
 	Height   int    `json:"height,omitempty"`
@@ -350,7 +350,7 @@ type MessageEmbedImage struct {
 
 // MessageEmbedThumbnail is a part of a MessageEmbed struct.
 type MessageEmbedThumbnail struct {
-	URL      string `json:"url,omitempty"`
+	URL      string `json:"url"`
 	ProxyURL string `json:"proxy_url,omitempty"`
 	Width    int    `json:"width,omitempty"`
 	Height   int    `json:"height,omitempty"`
@@ -372,7 +372,7 @@ type MessageEmbedProvider struct {
 // MessageEmbedAuthor is a part of a MessageEmbed struct.
 type MessageEmbedAuthor struct {
 	URL          string `json:"url,omitempty"`
-	Name         string `json:"name,omitempty"`
+	Name         string `json:"name"`
 	IconURL      string `json:"icon_url,omitempty"`
 	ProxyIconURL string `json:"proxy_icon_url,omitempty"`
 }
