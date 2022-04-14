@@ -1776,8 +1776,7 @@ type StageInstance struct {
 	GuildScheduledEventID string `json:"guild_scheduled_event_id"`
 }
 
-// StageInstanceParams represents the parameters that allow to make a request via
-// StageInstanceCreate and StageInstanceEdit
+// StageInstanceParams represents the parameters needed to create or edit a stage instance
 type StageInstanceParams struct {
 	// ChannelID represents the id of the Stage channel
 	ChannelID string `json:"channel_id,omitempty"`
