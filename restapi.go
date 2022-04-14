@@ -73,6 +73,18 @@ func (r RESTError) Error() string {
 	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
 }
 
+// RateLimitError is returned when a request exceeds a rate limit
+// and ShouldRetryOnRateLimit is false. The request may be manually
+// retried after waiting the duration specified by RetryAfter.
+type RateLimitError struct {
+	*RateLimit
+}
+
+// Error returns a rate limit error with rate limited endpoint and retry time.
+func (e RateLimitError) Error() string {
+	return "Rate limit exceeded on " + e.URL + ", retry after " + e.RetryAfter.String()
+}
+
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
@@ -186,14 +198,19 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
 		}
-		s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
-		s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		time.Sleep(rl.RetryAfter)
-		// we can make the above smarter
-		// this method can cause longer delays than required
+		if s.ShouldRetryOnRateLimit {
+			s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
+			s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+			time.Sleep(rl.RetryAfter)
+			// we can make the above smarter
+			// this method can cause longer delays than required
+
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+		} else {
+			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
+		}
 	case http.StatusUnauthorized:
 		if strings.Index(s.Token, "Bot ") != 0 {
 			s.log(LogInformational, ErrUnauthorized.Error())
