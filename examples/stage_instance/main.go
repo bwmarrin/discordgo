@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -52,6 +53,7 @@ func main() {
 	}
 	log.Printf("Stage Instance %s has been successfully edited", si.Topic)
 
+	time.Sleep(5 * time.Second)
 	if err = s.StageInstanceDelete(*StageChannelID); err != nil {
 		log.Fatalf("Cannot delete stage instance: %v", err)
 	}
