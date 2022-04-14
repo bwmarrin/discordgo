@@ -177,10 +177,8 @@ const (
 	MessageFlagsSuppressEmbeds       MessageFlags = 1 << 2
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
 	MessageFlagsUrgent               MessageFlags = 1 << 4
-)
 
-// TODO: Deprecated, remove in the next release
-const (
+	// TODO: Deprecated, remove in the next release
 	MessageFlagsSupressEmbeds MessageFlags = 1 << 2
 )
 
@@ -209,7 +207,7 @@ type MessageSend struct {
 // is also where you should get the instance from.
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
-	Components      []MessageComponent      `json:"components,omitempty"`
+	Components      []MessageComponent      `json:"components"`
 	Embed           *MessageEmbed           `json:"embed,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags            `json:"flags,omitempty"`
