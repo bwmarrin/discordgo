@@ -2878,8 +2878,8 @@ func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, 
 // Functions specific to stage instances
 // ------------------------------------------------------------------------------------------------
 
-// StageInstanceCreate will creates a new Stage instance associated to a Stage channel.
-// Returns that Stage instance created
+// StageInstanceCreate creates and returns a new Stage instance associated to a Stage channel.
+// data : Parameters needed to create a stage instance.
 // data : The data of the Stage instance to create
 func (s *Session) StageInstanceCreate(data *StageInstanceParams) (si *StageInstance, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointStageInstances, data, EndpointStageInstances)
