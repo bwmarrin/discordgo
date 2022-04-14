@@ -180,6 +180,7 @@ func (t InteractionType) String() string {
 // Interaction represents data of an interaction.
 type Interaction struct {
 	ID        string          `json:"id"`
+	AppID     string          `json:"application_id"`
 	Type      InteractionType `json:"type"`
 	Data      InteractionData `json:"data"`
 	GuildID   string          `json:"guild_id"`

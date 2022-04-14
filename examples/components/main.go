@@ -139,7 +139,7 @@ var (
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
 					"Try calling `/selects multi` command.",
 				Flags: 1 << 6,
@@ -164,7 +164,7 @@ var (
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Now you know everything about select component. If you want to know more or ask a question - feel free to.",
 				Components: []discordgo.MessageComponent{
 					discordgo.ActionsRow{

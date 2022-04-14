@@ -2823,25 +2823,22 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 }
 
 // InteractionResponse gets the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
-func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*Message, error) {
-	return s.WebhookMessage(appID, interaction.Token, "@original")
+func (s *Session) InteractionResponse(interaction *Interaction) (*Message, error) {
+	return s.WebhookMessage(interaction.AppID, interaction.Token, "@original")
 }
 
 // InteractionResponseEdit edits the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // newresp     : Updated response message data.
-func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) (*Message, error) {
-	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
+func (s *Session) InteractionResponseEdit(interaction *Interaction, newresp *WebhookEdit) (*Message, error) {
+	return s.WebhookMessageEdit(interaction.AppID, interaction.Token, "@original", newresp)
 }
 
 // InteractionResponseDelete deletes the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
-func (s *Session) InteractionResponseDelete(appID string, interaction *Interaction) error {
-	endpoint := EndpointInteractionResponseActions(appID, interaction.Token)
+func (s *Session) InteractionResponseDelete(interaction *Interaction) error {
+	endpoint := EndpointInteractionResponseActions(interaction.AppID, interaction.Token)
 
 	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 
@@ -2849,29 +2846,26 @@ func (s *Session) InteractionResponseDelete(appID string, interaction *Interacti
 }
 
 // FollowupMessageCreate creates the followup message for an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
-func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, wait bool, data *WebhookParams) (*Message, error) {
-	return s.WebhookExecute(appID, interaction.Token, wait, data)
+func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams) (*Message, error) {
+	return s.WebhookExecute(interaction.AppID, interaction.Token, wait, data)
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
 // data        : Data to update the message
-func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) (*Message, error) {
-	return s.WebhookMessageEdit(appID, interaction.Token, messageID, data)
+func (s *Session) FollowupMessageEdit(interaction *Interaction, messageID string, data *WebhookEdit) (*Message, error) {
+	return s.WebhookMessageEdit(interaction.AppID, interaction.Token, messageID, data)
 }
 
 // FollowupMessageDelete deletes a followup message of an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
-func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, messageID string) error {
-	return s.WebhookMessageDelete(appID, interaction.Token, messageID)
+func (s *Session) FollowupMessageDelete(interaction *Interaction, messageID string) error {
+	return s.WebhookMessageDelete(interaction.AppID, interaction.Token, messageID)
 }
 
 // ------------------------------------------------------------------------------------------------
