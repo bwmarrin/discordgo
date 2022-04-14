@@ -2880,6 +2880,7 @@ func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, 
 
 // StageInstanceCreate will creates a new Stage instance associated to a Stage channel.
 // Returns that Stage instance created
+// data : The data of the Stage instance to create
 func (s *Session) StageInstanceCreate(data *StageInstanceParams) (si *StageInstance, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointStageInstances, data, EndpointStageInstances)
 	if err != nil {
@@ -2904,6 +2905,7 @@ func (s *Session) StageInstance(channelID string) (si *StageInstance, err error)
 
 // StageInstanceEdit will edit a Stage instance by ID of the Stage channel.
 // channelID : The ID of the Stage channel
+// data : The data to edit the Stage instance
 func (s *Session) StageInstanceEdit(channelID string, data *StageInstanceParams) (si *StageInstance, err error) {
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointStageInstance(channelID), data, EndpointStageInstance(channelID))
