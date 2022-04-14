@@ -199,7 +199,9 @@ const (
 	MessageFlagsCrossPosted MessageFlags = 1 << 0
 	// MessageFlagsIsCrossPosted this message originated from a message in another channel (via Channel Following).
 	MessageFlagsIsCrossPosted MessageFlags = 1 << 1
-	// MessageFlagsSupressEmbeds do not include any embeds when serializing this message.
+	// MessageFlagsSuppressEmbeds do not include any embeds when serializing this message.
+	MessageFlagsSuppressEmbeds MessageFlags = 1 << 2
+	// TODO: deprecated, remove when compatibility is not needed
 	MessageFlagsSupressEmbeds MessageFlags = 1 << 2
 	// MessageFlagsSourceMessageDeleted the source message for this crosspost has been deleted (via Channel Following).
 	MessageFlagsSourceMessageDeleted MessageFlags = 1 << 3
@@ -246,6 +248,7 @@ type MessageEdit struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
+	Flags           MessageFlags            `json:"flags,omitempty"`
 
 	ID      string
 	Channel string
