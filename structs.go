@@ -1788,7 +1788,7 @@ type StageInstanceParams struct {
 	SendStartNotification bool `json:"send_start_notification,omitempty"`
 }
 
-// StageInstancePrivacyLevel The privacy level of the Stage instance
+// StageInstancePrivacyLevel represents the privacy level of a Stage instance
 // https://discord.com/developers/docs/resources/stage-instance#stage-instance-object-privacy-level
 type StageInstancePrivacyLevel int
 
