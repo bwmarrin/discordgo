@@ -747,7 +747,7 @@ type Guild struct {
 	// Permissions of our user
 	Permissions int64 `json:"permissions,string"`
 
-	// Stage Instances in the guild
+	// Stage instances in the guild
 	StageInstances []*StageInstance `json:"stage_instances"`
 }
 
