@@ -2887,6 +2887,56 @@ func (s *Session) FollowupMessageDelete(interaction *Interaction, messageID stri
 }
 
 // ------------------------------------------------------------------------------------------------
+// Functions specific to stage instances
+// ------------------------------------------------------------------------------------------------
+
+// StageInstanceCreate creates and returns a new Stage instance associated to a Stage channel.
+// data : Parameters needed to create a stage instance.
+// data : The data of the Stage instance to create
+func (s *Session) StageInstanceCreate(data *StageInstanceParams) (si *StageInstance, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointStageInstances, data, EndpointStageInstances)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstance will retrieve a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+func (s *Session) StageInstance(channelID string) (si *StageInstance, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointStageInstance(channelID), nil, EndpointStageInstance(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstanceEdit will edit a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+// data : The data to edit the Stage instance
+func (s *Session) StageInstanceEdit(channelID string, data *StageInstanceParams) (si *StageInstance, err error) {
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointStageInstance(channelID), data, EndpointStageInstance(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstanceDelete will delete a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+func (s *Session) StageInstanceDelete(channelID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointStageInstance(channelID), nil, EndpointStageInstance(channelID))
+	return
+}
+
+// ------------------------------------------------------------------------------------------------
 // Functions specific to guilds scheduled events
 // ------------------------------------------------------------------------------------------------
 

@@ -199,6 +199,21 @@ type GuildIntegrationsUpdate struct {
 	GuildID string `json:"guild_id"`
 }
 
+// StageInstanceEventCreate is the data for a StageInstanceEventCreate event.
+type StageInstanceEventCreate struct {
+	*StageInstance
+}
+
+// StageInstanceEventUpdate is the data for a StageInstanceEventUpdate event.
+type StageInstanceEventUpdate struct {
+	*StageInstance
+}
+
+// StageInstanceEventDelete is the data for a StageInstanceEventDelete event.
+type StageInstanceEventDelete struct {
+	*StageInstance
+}
+
 // GuildScheduledEventCreate is the data for a GuildScheduledEventCreate event.
 type GuildScheduledEventCreate struct {
 	*GuildScheduledEvent

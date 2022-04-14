@@ -27,6 +27,9 @@ const (
 	guildRoleCreateEventType               = "GUILD_ROLE_CREATE"
 	guildRoleDeleteEventType               = "GUILD_ROLE_DELETE"
 	guildRoleUpdateEventType               = "GUILD_ROLE_UPDATE"
+	guildStageInstanceCreateEventType      = "STAGE_INSTANCE_CREATE"
+	guildStageInstanceUpdateEventType      = "STAGE_INSTANCE_UPDATE"
+	guildStageInstanceDeleteEventType      = "STAGE_INSTANCE_DELETE"
 	guildScheduledEventCreateEventType     = "GUILD_SCHEDULED_EVENT_CREATE"
 	guildScheduledEventDeleteEventType     = "GUILD_SCHEDULED_EVENT_DELETE"
 	guildScheduledEventUpdateEventType     = "GUILD_SCHEDULED_EVENT_UPDATE"
@@ -448,6 +451,66 @@ func (eh guildRoleUpdateEventHandler) New() interface{} {
 // Handle is the handler for GuildRoleUpdate events.
 func (eh guildRoleUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildRoleUpdate); ok {
+		eh(s, t)
+	}
+}
+
+// guildStageInstanceEventCreateHandler is an event handler for StageInstanceEventCreate events.
+type guildStageInstanceEventCreateHandler func(*Session, *StageInstanceEventCreate)
+
+// Type returns the event type for StageInstanceEventCreate events.
+func (eh guildStageInstanceEventCreateHandler) Type() string {
+	return guildStageInstanceCreateEventType
+}
+
+// New returns a new instance of StageInstanceEventCreate.
+func (eh guildStageInstanceEventCreateHandler) New() interface{} {
+	return &StageInstanceEventCreate{}
+}
+
+// Handle is the handler for StageInstanceEventCreate events.
+func (eh guildStageInstanceEventCreateHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*StageInstanceEventCreate); ok {
+		eh(s, t)
+	}
+}
+
+// guildStageInstanceEventUpdateHandler is an event handler for StageInstanceEventUpdate events.
+type guildStageInstanceEventUpdateHandler func(*Session, *StageInstanceEventUpdate)
+
+// Type returns the event type for StageInstanceEventUpdate events.
+func (eh guildStageInstanceEventUpdateHandler) Type() string {
+	return guildStageInstanceCreateEventType
+}
+
+// New returns a new instance of StageInstanceEventUpdate.
+func (eh guildStageInstanceEventUpdateHandler) New() interface{} {
+	return &StageInstanceEventUpdate{}
+}
+
+// Handle is the handler for StageInstanceEventUpdate events.
+func (eh guildStageInstanceEventUpdateHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*StageInstanceEventUpdate); ok {
+		eh(s, t)
+	}
+}
+
+// guildStageInstanceEventDeleteHandler is an event handler for StageInstanceEventDelete events.
+type guildStageInstanceEventDeleteHandler func(*Session, *StageInstanceEventDelete)
+
+// Type returns the event type for StageInstanceEventDelete events.
+func (eh guildStageInstanceEventDeleteHandler) Type() string {
+	return guildStageInstanceCreateEventType
+}
+
+// New returns a new instance of StageInstanceEventDelete.
+func (eh guildStageInstanceEventDeleteHandler) New() interface{} {
+	return &StageInstanceEventDelete{}
+}
+
+// Handle is the handler for StageInstanceEventDelete events.
+func (eh guildStageInstanceEventDeleteHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*StageInstanceEventDelete); ok {
 		eh(s, t)
 	}
 }
