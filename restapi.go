@@ -80,6 +80,7 @@ type RateLimitError struct {
 	*RateLimit
 }
 
+// Error returns a rate limit error with rate limited endpoint and retry time.
 func (e RateLimitError) Error() string {
 	return "Rate limit exceeded on " + e.URL + ", retry after " + e.RetryAfter.String()
 }
@@ -208,7 +209,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 
 			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
 		} else {
-			s.log(LogInformational, "Rate Limiting %s, retry is disabled", urlStr)
 			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
 		}
 	case http.StatusUnauthorized:
