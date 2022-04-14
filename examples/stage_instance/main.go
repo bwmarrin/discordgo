@@ -32,7 +32,7 @@ func main() {
 	defer s.Close()
 
 	// Create a new Stage instance on the previous channel
-	si, err := s.StageInstanceCreate(&discordgo.StageInstanceData{
+	si, err := s.StageInstanceCreate(&discordgo.StageInstanceParams{
 		ChannelID:             *StageChannelID,
 		Topic:                 "Amazing topic",
 		PrivacyLevel:          discordgo.StageInstancePrivacyLevelGuildOnly,
@@ -44,8 +44,9 @@ func main() {
 	log.Printf("Stage Instance %s has been successfully created", si.Topic)
 
 	// Edit the stage instance with a new Topic
-	si.Topic = "New amazing topic"
-	si, err = s.StageInstanceEdit(*StageChannelID, si)
+	si, err = s.StageInstanceEdit(*StageChannelID, &discordgo.StageInstanceParams{
+		Topic: "New amazing topic",
+	})
 	if err != nil {
 		log.Fatalf("Cannot edit stage instance: %v", err)
 	}

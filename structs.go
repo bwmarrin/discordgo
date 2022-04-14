@@ -1776,24 +1776,17 @@ type StageInstance struct {
 	GuildScheduledEventID string `json:"guild_scheduled_event_id"`
 }
 
-// StageInstanceData is provided to StageInstanceCreate
-type StageInstanceData struct {
+// StageInstanceParams represents the parameters that allow to make a request via
+// StageInstanceCreate and StageInstanceEdit
+type StageInstanceParams struct {
 	// ChannelID represents the id of the Stage channel
-	ChannelID string `json:"channel_id"`
+	ChannelID string `json:"channel_id,omitempty"`
 	// Topic of the Stage instance (1-120 characters)
 	Topic string `json:"topic"`
 	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
 	PrivacyLevel StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
 	// SendStartNotification will notify @everyone that a Stage instance has started
 	SendStartNotification bool `json:"send_start_notification,omitempty"`
-}
-
-// StageInstanceEditData is provided to StageInstanceEdit
-type StageInstanceEditData struct {
-	// Topic of the Stage instance (1-120 characters)
-	Topic string `json:"topic"`
-	// PrivacyLevel of the Stage instance (default GUILD_ONLY)
-	PrivacyLevel StageInstancePrivacyLevel `json:"privacy_level,omitempty"`
 }
 
 // StageInstancePrivacyLevel The privacy level of the Stage instance
