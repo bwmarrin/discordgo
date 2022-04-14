@@ -2904,8 +2904,6 @@ func (s *Session) StageInstance(channelID string) (si *StageInstance, err error)
 
 // StageInstanceEdit will edit a Stage instance by ID of the Stage channel.
 // channelID : The ID of the Stage channel
-// topic : The new topic of the Stage instance (1-120 characters). Set empty to keep the current topic.
-// privacyLevel : The new privacy level of the Stage instance. Set nil to keep the current privacy level.
 func (s *Session) StageInstanceEdit(channelID string, data *StageInstanceParams) (si *StageInstance, err error) {
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointStageInstance(channelID), data, EndpointStageInstance(channelID))
