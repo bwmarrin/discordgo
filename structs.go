@@ -748,7 +748,7 @@ type Guild struct {
 	Permissions int64 `json:"permissions,string"`
 
 	// Stage Instances in the guild
-	StageInstances []*StageInstance `json:"stage_instance"`
+	StageInstances []*StageInstance `json:"stage_instances"`
 }
 
 // A GuildPreview holds data related to a specific public Discord Guild, even if the user is not in the guild.
