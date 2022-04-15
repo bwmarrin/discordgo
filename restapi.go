@@ -1385,7 +1385,7 @@ func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) 
 // guildID : The ID of a Guild.
 // emojiID : The ID of an Emoji.
 // name    : The Name of the Emoji.
-// roles   : The roles for which this emoji will be whitelisted. When empty or nil will roles will be reset.
+// roles   : The roles for which this emoji will be whitelisted, if nil or empty the roles will be reset.
 func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) (emoji *Emoji, err error) {
 
 	data := struct {
