@@ -12,7 +12,7 @@ import (
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
-	RemoveCommands = flag.Bool("rmcmd", true, "Weather to remove all commands after shutdowning or not")
+	RemoveCommands = flag.Bool("rmcmd", false, "Weather to remove all commands after shutdowning or not")
 )
 
 func deleteCommands(ds *discordgo.Session, guildId string) {
@@ -45,10 +45,6 @@ func createCommands(ds *discordgo.Session, guildId string) {
 func main() {
 
 	flag.Parse()
-
-	*BotToken = "OTE1NjE2NDcyMTU4NTg0ODYz.YaeMSg.vr_uULSBq7PL1iqwAe8qwOm_EgM"
-	*GuildID = "891737479412060191"
-	*RemoveCommands = true
 
 	ds, err := discordgo.New("Bot " + *BotToken)
 	if err != nil {

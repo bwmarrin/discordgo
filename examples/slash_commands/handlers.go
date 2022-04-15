@@ -26,16 +26,15 @@ func HandleInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	h(s, i)
 }
 
-func removeCommandsOnFailure(ds *discordgo.Session, guildID string) {
-	r := recover()
-	if r != nil {
-		deleteCommands(ds, guildID)
-		log.Fatal("Error occured inside command handler")
+func removeCommandsOnFailure(s *discordgo.Session, guildID string) {
+	err := recover()
+	if err != nil {
+		deleteCommands(s, guildID)
+		log.Fatalf("Error occured inside command handler: %s\n", err)
 	}
 }
 
 func Basic(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	panic("test")
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -45,7 +44,6 @@ func Basic(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 func BasicWithFile(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -148,7 +146,6 @@ func Options(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 func Subcommands(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
 	options := i.ApplicationCommandData().Options
 	content := ""
 
@@ -177,7 +174,6 @@ func Subcommands(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 func Responses(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
 	// Responses to command are very important.
 	// First of all, because you need to react to the interaction
 	// by sending the response in 3 seconds after receiving, otherwise

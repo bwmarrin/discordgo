@@ -199,6 +199,21 @@ type GuildIntegrationsUpdate struct {
 	GuildID string `json:"guild_id"`
 }
 
+// StageInstanceEventCreate is the data for a StageInstanceEventCreate event.
+type StageInstanceEventCreate struct {
+	*StageInstance
+}
+
+// StageInstanceEventUpdate is the data for a StageInstanceEventUpdate event.
+type StageInstanceEventUpdate struct {
+	*StageInstance
+}
+
+// StageInstanceEventDelete is the data for a StageInstanceEventDelete event.
+type StageInstanceEventDelete struct {
+	*StageInstance
+}
+
 // GuildScheduledEventCreate is the data for a GuildScheduledEventCreate event.
 type GuildScheduledEventCreate struct {
 	*GuildScheduledEvent
@@ -212,6 +227,20 @@ type GuildScheduledEventUpdate struct {
 // GuildScheduledEventDelete is the data for a GuildScheduledEventDelete event.
 type GuildScheduledEventDelete struct {
 	*GuildScheduledEvent
+}
+
+// GuildScheduledEventUserAdd is the data for a GuildScheduledEventUserAdd event.
+type GuildScheduledEventUserAdd struct {
+	GuildScheduledEventID string `json:"guild_scheduled_event_id"`
+	UserID                string `json:"user_id"`
+	GuildID               string `json:"guild_id"`
+}
+
+// GuildScheduledEventUserRemove is the data for a GuildScheduledEventUserRemove event.
+type GuildScheduledEventUserRemove struct {
+	GuildScheduledEventID string `json:"guild_scheduled_event_id"`
+	UserID                string `json:"user_id"`
+	GuildID               string `json:"guild_id"`
 }
 
 // MessageAck is the data for a MessageAck event.

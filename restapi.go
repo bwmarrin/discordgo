@@ -73,6 +73,18 @@ func (r RESTError) Error() string {
 	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
 }
 
+// RateLimitError is returned when a request exceeds a rate limit
+// and ShouldRetryOnRateLimit is false. The request may be manually
+// retried after waiting the duration specified by RetryAfter.
+type RateLimitError struct {
+	*RateLimit
+}
+
+// Error returns a rate limit error with rate limited endpoint and retry time.
+func (e RateLimitError) Error() string {
+	return "Rate limit exceeded on " + e.URL + ", retry after " + e.RetryAfter.String()
+}
+
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
@@ -186,14 +198,19 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			s.log(LogError, "rate limit unmarshal error, %s", err)
 			return
 		}
-		s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
-		s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		time.Sleep(rl.RetryAfter)
-		// we can make the above smarter
-		// this method can cause longer delays than required
+		if s.ShouldRetryOnRateLimit {
+			s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
+			s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-		response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+			time.Sleep(rl.RetryAfter)
+			// we can make the above smarter
+			// this method can cause longer delays than required
+
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+		} else {
+			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
+		}
 	case http.StatusUnauthorized:
 		if strings.Index(s.Token, "Bot ") != 0 {
 			s.log(LogInformational, ErrUnauthorized.Error())
@@ -2806,7 +2823,7 @@ func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, 
 // InteractionRespond creates the response to an interaction.
 // interaction : Interaction instance.
 // resp        : Response message data.
-func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) (err error) {
+func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
 	if resp.Data != nil && len(resp.Data.Files) > 0 {
@@ -2816,32 +2833,30 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 		}
 
 		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
-	} else {
-		_, err = s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
+		return err
 	}
+
+	_, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint)
 	return err
 }
 
 // InteractionResponse gets the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
-func (s *Session) InteractionResponse(appID string, interaction *Interaction) (*Message, error) {
-	return s.WebhookMessage(appID, interaction.Token, "@original")
+func (s *Session) InteractionResponse(interaction *Interaction) (*Message, error) {
+	return s.WebhookMessage(interaction.AppID, interaction.Token, "@original")
 }
 
 // InteractionResponseEdit edits the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // newresp     : Updated response message data.
-func (s *Session) InteractionResponseEdit(appID string, interaction *Interaction, newresp *WebhookEdit) (*Message, error) {
-	return s.WebhookMessageEdit(appID, interaction.Token, "@original", newresp)
+func (s *Session) InteractionResponseEdit(interaction *Interaction, newresp *WebhookEdit) (*Message, error) {
+	return s.WebhookMessageEdit(interaction.AppID, interaction.Token, "@original", newresp)
 }
 
 // InteractionResponseDelete deletes the response to an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
-func (s *Session) InteractionResponseDelete(appID string, interaction *Interaction) error {
-	endpoint := EndpointInteractionResponseActions(appID, interaction.Token)
+func (s *Session) InteractionResponseDelete(interaction *Interaction) error {
+	endpoint := EndpointInteractionResponseActions(interaction.AppID, interaction.Token)
 
 	_, err := s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 
@@ -2849,29 +2864,76 @@ func (s *Session) InteractionResponseDelete(appID string, interaction *Interacti
 }
 
 // FollowupMessageCreate creates the followup message for an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
-func (s *Session) FollowupMessageCreate(appID string, interaction *Interaction, wait bool, data *WebhookParams) (*Message, error) {
-	return s.WebhookExecute(appID, interaction.Token, wait, data)
+func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams) (*Message, error) {
+	return s.WebhookExecute(interaction.AppID, interaction.Token, wait, data)
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
 // data        : Data to update the message
-func (s *Session) FollowupMessageEdit(appID string, interaction *Interaction, messageID string, data *WebhookEdit) (*Message, error) {
-	return s.WebhookMessageEdit(appID, interaction.Token, messageID, data)
+func (s *Session) FollowupMessageEdit(interaction *Interaction, messageID string, data *WebhookEdit) (*Message, error) {
+	return s.WebhookMessageEdit(interaction.AppID, interaction.Token, messageID, data)
 }
 
 // FollowupMessageDelete deletes a followup message of an interaction.
-// appID       : The application ID.
 // interaction : Interaction instance.
 // messageID   : The followup message ID.
-func (s *Session) FollowupMessageDelete(appID string, interaction *Interaction, messageID string) error {
-	return s.WebhookMessageDelete(appID, interaction.Token, messageID)
+func (s *Session) FollowupMessageDelete(interaction *Interaction, messageID string) error {
+	return s.WebhookMessageDelete(interaction.AppID, interaction.Token, messageID)
+}
+
+// ------------------------------------------------------------------------------------------------
+// Functions specific to stage instances
+// ------------------------------------------------------------------------------------------------
+
+// StageInstanceCreate creates and returns a new Stage instance associated to a Stage channel.
+// data : Parameters needed to create a stage instance.
+// data : The data of the Stage instance to create
+func (s *Session) StageInstanceCreate(data *StageInstanceParams) (si *StageInstance, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointStageInstances, data, EndpointStageInstances)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstance will retrieve a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+func (s *Session) StageInstance(channelID string) (si *StageInstance, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointStageInstance(channelID), nil, EndpointStageInstance(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstanceEdit will edit a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+// data : The data to edit the Stage instance
+func (s *Session) StageInstanceEdit(channelID string, data *StageInstanceParams) (si *StageInstance, err error) {
+
+	body, err := s.RequestWithBucketID("PATCH", EndpointStageInstance(channelID), data, EndpointStageInstance(channelID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &si)
+	return
+}
+
+// StageInstanceDelete will delete a Stage instance by ID of the Stage channel.
+// channelID : The ID of the Stage channel
+func (s *Session) StageInstanceDelete(channelID string) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointStageInstance(channelID), nil, EndpointStageInstance(channelID))
+	return
 }
 
 // ------------------------------------------------------------------------------------------------
