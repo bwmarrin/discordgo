@@ -191,7 +191,9 @@ type GuildMembersChunk struct {
 	Members    []*Member   `json:"members"`
 	ChunkIndex int         `json:"chunk_index"`
 	ChunkCount int         `json:"chunk_count"`
+	NotFound   []string    `json:"not_found,omitempty"`
 	Presences  []*Presence `json:"presences,omitempty"`
+	Nonce      string      `json:"nonce,omitempty"`
 }
 
 // GuildIntegrationsUpdate is the data for a GuildIntegrationsUpdate event.
