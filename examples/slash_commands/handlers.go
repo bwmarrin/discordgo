@@ -21,17 +21,9 @@ func HandleInteraction(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		log.Panicf("No handler found for command: %s", cmdName)
 	}
 
-	defer removeCommandsOnFailure(s, i.GuildID)
+	defer deleteCommandsOnFailure(s, i.GuildID)
 	// This way commands will be deleted even if panic occurs inside one of the handlers
 	h(s, i)
-}
-
-func removeCommandsOnFailure(s *discordgo.Session, guildID string) {
-	err := recover()
-	if err != nil {
-		deleteCommands(s, guildID)
-		log.Fatalf("Error occured inside command handler: %s\n", err)
-	}
 }
 
 func Basic(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -188,7 +180,7 @@ func Responses(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	switch i.ApplicationCommandData().Options[0].IntValue() {
 	case int64(discordgo.InteractionResponseChannelMessageWithSource):
 		content =
-			"You've just responded to user inte interaction. User input is supposed to be shown as well but non were given."
+			"You've just responded to the user interaction. User input is supposed to be shown as well but non were given."
 	case int64(discordgo.InteractionResponseDeferredChannelMessageWithSource):
 		content =
 			"You've just deferedly responded to user interaction. Congratulations!"
@@ -198,7 +190,7 @@ func Responses(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		})
 
 		if err != nil {
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Something went wrong.",
 			})
 		}
@@ -215,28 +207,28 @@ func Responses(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	})
 
 	if err != nil {
-		s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+		s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 			Content: "Something went wrong.",
 		})
 		return
 	}
 
 	time.AfterFunc(time.Second*5, func() {
-		_, err = s.InteractionResponseEdit(s.State.User.ID, i.Interaction, &discordgo.WebhookEdit{
+		_, err = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Content: content + "\n\nWell, now you know how to create and edit responses. " +
 				"But you still don't know how to delete them... so... wait 10 seconds and this " +
 				"message will be deleted.",
 		})
 
 		if err != nil {
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Something went wrong.",
 			})
 			return
 		}
 
 		time.Sleep(time.Second * 10)
-		s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
+		s.InteractionResponseDelete(i.Interaction)
 	})
 }
 
@@ -256,27 +248,27 @@ func Followups(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		},
 	})
 
-	msg, err := s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+	msg, err := s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 		Content: "Followup message has been created, after 5 seconds it will be edited.",
 	})
 
 	if err != nil {
-		s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+		s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 			Content: "Something went wrong.",
 		})
 		return
 	}
 	time.Sleep(time.Second * 5)
 
-	s.FollowupMessageEdit(s.State.User.ID, i.Interaction, msg.ID, &discordgo.WebhookEdit{
+	s.FollowupMessageEdit(i.Interaction, msg.ID, &discordgo.WebhookEdit{
 		Content: "Now the original message is gone and after 10 seconds this message will ~~self-destruct~~ be deleted.",
 	})
 
 	time.Sleep(time.Second * 10)
 
-	s.FollowupMessageDelete(s.State.User.ID, i.Interaction, msg.ID)
+	s.FollowupMessageDelete(i.Interaction, msg.ID)
 
-	s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+	s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 		Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 			"take a unicorn :unicorn: as reward!\n" +
 			"Also, as bonus... look at the original interaction response :D",
