@@ -1994,20 +1994,20 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 
 // InviteComplex returns an Invite structure of the given invite including specified fields.
 //  inviteID                  : The invite code
+//  guildScheduledEventID     : If specified, includes specified guild scheduled event.
 //  withCounts                : Whether to include approximate member counts or not
 //  withExpiration            : Whether to include expiration time or not
-//  withGuildScheduledEventID : Whether to include id of a scheduled event or not
-func (s *Session) InviteComplex(inviteID string, withCounts, withExpiration, withGuildScheduledEventID bool) (st *Invite, err error) {
+func (s *Session) InviteComplex(inviteID, guildScheduledEventID string, withCounts, withExpiration bool) (st *Invite, err error) {
 	endpoint := EndpointInvite(inviteID)
 	v := url.Values{}
+	if guildScheduledEventID != "" {
+		v.Set("guild_scheduled_event_id", guildScheduledEventID)
+	}
 	if withCounts {
 		v.Set("with_counts", "true")
 	}
 	if withExpiration {
 		v.Set("with_expiration", "true")
-	}
-	if withGuildScheduledEventID {
-		v.Set("with_guild_scheduled_event_id", "true")
 	}
 
 	if len(v) != 0 {
