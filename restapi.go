@@ -1992,11 +1992,11 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 	return
 }
 
-// InviteComplex returns an Invite structure of the given invite including specified parameters.
+// InviteComplex returns an Invite structure of the given invite including specified fields.
 //  inviteID                  : The invite code
 //  withCounts                : Whether to include approximate member counts or not
 //  withExpiration            : Whether to include expiration time or not
-//  withGuildScheduledEventID : Whether to include id of a scheduled id or not
+//  withGuildScheduledEventID : Whether to include id of a scheduled event or not
 func (s *Session) InviteComplex(inviteID string, withCounts, withExpiration, withGuildScheduledEventID bool) (st *Invite, err error) {
 	endpoint := EndpointInvite(inviteID)
 	v := url.Values{}
