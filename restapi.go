@@ -1992,6 +1992,37 @@ func (s *Session) InviteWithCounts(inviteID string) (st *Invite, err error) {
 	return
 }
 
+// InviteComplex returns an Invite structure of the given invite including specified parameters.
+//  inviteID                  : The invite code
+//  withCounts                : Whether to include approximate member counts or not
+//  withExpiration            : Whether to include expiration time or not
+//  withGuildScheduledEventID : Whether to include id of a scheduled id or not
+func (s *Session) InviteComplex(inviteID string, withCounts, withExpiration, withGuildScheduledEventID bool) (st *Invite, err error) {
+	endpoint := EndpointInvite(inviteID)
+	v := url.Values{}
+	if withCounts {
+		v.Set("with_counts", "true")
+	}
+	if withExpiration {
+		v.Set("with_expiration", "true")
+	}
+	if withGuildScheduledEventID {
+		v.Set("with_guild_scheduled_event_id", "true")
+	}
+
+	if len(v) != 0 {
+		endpoint += "?" + v.Encode()
+	}
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, EndpointInvite(""))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // InviteDelete deletes an existing invite
 // inviteID   : the code of an invite
 func (s *Session) InviteDelete(inviteID string) (st *Invite, err error) {
