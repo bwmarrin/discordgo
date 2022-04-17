@@ -1722,6 +1722,28 @@ func (s *Session) ChannelMessageSendReply(channelID string, content string, refe
 	})
 }
 
+// ChannelMessageSendEmedReply sends a message to the given channel with reference data and embedded data.
+// channelID : The ID of a Channel.
+// embed   : The embed data to send.
+// reference : The message reference to send.
+func (s *Session) ChannelMessageSendEmbedReply(channelID string, embed *MessageEmbed, reference *MessageReference) (*Message, error) {
+	return s.ChannelMessageSendEmbedsReply(channelID, []*MessageEmbed{embed}, reference)
+}
+
+// ChannelMessageSendEmbedsReply sends a message to the given channel with reference data and multiple embedded data.
+// channelID : The ID of a Channel.
+// embeds    : The embeds data to send.
+// reference : The message reference to send.
+func (s *Session) ChannelMessageSendEmbedsReply(channelID string, embeds []*MessageEmbed, reference *MessageReference) (*Message, error) {
+	if reference == nil {
+		return nil, fmt.Errorf("reply attempted with nil message reference")
+	}
+	return s.ChannelMessageSendComplex(channelID, &MessageSend{
+		Embeds:    embeds,
+		Reference: reference,
+	})
+}
+
 // ChannelMessageEdit edits an existing message, replacing it entirely with
 // the given content.
 // channelID  : The ID of a Channel
