@@ -878,7 +878,7 @@ func (p GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 	type guildScheduledEventParams GuildScheduledEventParams
 
 	if p.EntityType == GuildScheduledEventEntityTypeExternal && p.ChannelID == "" {
-		return json.Marshal(struct {
+		return Marshal(struct {
 			guildScheduledEventParams
 			ChannelID json.RawMessage `json:"channel_id"`
 		}{
@@ -887,7 +887,7 @@ func (p GuildScheduledEventParams) MarshalJSON() ([]byte, error) {
 		})
 	}
 
-	return json.Marshal(guildScheduledEventParams(p))
+	return Marshal(guildScheduledEventParams(p))
 }
 
 // GuildScheduledEventEntityMetadata holds additional metadata for guild scheduled event.
@@ -1129,7 +1129,7 @@ func (t *TimeStamps) UnmarshalJSON(b []byte) error {
 		End   float64 `json:"end,omitempty"`
 		Start float64 `json:"start,omitempty"`
 	}{}
-	err := json.Unmarshal(b, &temp)
+	err := Unmarshal(b, &temp)
 	if err != nil {
 		return err
 	}
@@ -1267,7 +1267,7 @@ func (t *TooManyRequests) UnmarshalJSON(b []byte) error {
 		Message    string  `json:"message"`
 		RetryAfter float64 `json:"retry_after"`
 	}{}
-	err := json.Unmarshal(b, &u)
+	err := Unmarshal(b, &u)
 	if err != nil {
 		return err
 	}
@@ -1687,7 +1687,7 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 		Instance      bool         `json:"instance,omitempty"`
 		Flags         int          `json:"flags,omitempty"`
 	}{}
-	err := json.Unmarshal(b, &temp)
+	err := Unmarshal(b, &temp)
 	if err != nil {
 		return err
 	}
