@@ -120,9 +120,9 @@ func (v *VoiceConnection) ChangeChannel(channelID string, mute, deaf bool) (err 
 	v.log(LogInformational, "called")
 
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&v.GuildID, &channelID, mute, deaf}}
-	v.wsMutex.Lock()
+	v.session.wsMutex.Lock()
 	err = v.session.wsConn.WriteJSON(data)
-	v.wsMutex.Unlock()
+	v.session.wsMutex.Unlock()
 	if err != nil {
 		return
 	}
@@ -323,7 +323,9 @@ func (v *VoiceConnection) open() (err error) {
 	}
 	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token}}
 
+	v.wsMutex.Lock()
 	err = v.wsConn.WriteJSON(data)
+	v.wsMutex.Unlock()
 	if err != nil {
 		v.log(LogWarning, "error sending init packet, %s", err)
 		return
@@ -875,7 +877,11 @@ func (v *VoiceConnection) reconnect() {
 	v.reconnecting = true
 	v.Unlock()
 
-	defer func() { v.reconnecting = false }()
+	defer func() {
+		v.Lock()
+		v.reconnecting = false
+		v.Unlock()
+	}()
 
 	// Close any currently open connections
 	v.Close()
