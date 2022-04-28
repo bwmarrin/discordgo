@@ -148,8 +148,9 @@ type ApplicationCommandPermissionType uint8
 
 // Application command permission types.
 const (
-	ApplicationCommandPermissionTypeRole ApplicationCommandPermissionType = 1
-	ApplicationCommandPermissionTypeUser ApplicationCommandPermissionType = 2
+	ApplicationCommandPermissionTypeRole    ApplicationCommandPermissionType = 1
+	ApplicationCommandPermissionTypeUser    ApplicationCommandPermissionType = 2
+	ApplicationCommandPermissionTypeChannel ApplicationCommandPermissionType = 3
 )
 
 // InteractionType indicates the type of an interaction event.
