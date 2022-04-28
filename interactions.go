@@ -43,6 +43,7 @@ type ApplicationCommand struct {
 	DMPermission             *bool  `json:"dm_permission,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
+
 	Description              string                      `json:"description,omitempty"`
 	DescriptionLocalizations *map[Locale]string          `json:"description_localizations,omitempty"`
 	Options                  []*ApplicationCommandOption `json:"options"`
