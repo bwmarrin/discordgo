@@ -2840,6 +2840,8 @@ func (s *Session) ApplicationCommandPermissions(appID, guildID, cmdID string) (p
 // guildID     : The guild ID containing the application command
 // cmdID       : The command ID to edit the permissions of
 // permissions : An object containing a list of permissions for the application command
+//
+// NOTE: Requires OAuth2 token with applications.commands.permissions.update scope
 func (s *Session) ApplicationCommandPermissionsEdit(appID, guildID, cmdID string, permissions *ApplicationCommandPermissionsList) (err error) {
 	endpoint := EndpointApplicationCommandPermissions(appID, guildID, cmdID)
 
@@ -2851,6 +2853,8 @@ func (s *Session) ApplicationCommandPermissionsEdit(appID, guildID, cmdID string
 // appID       : The Application ID
 // guildID     : The guild ID to batch edit commands of
 // permissions : A list of permissions paired with a command ID, guild ID, and application ID per application command
+//
+// NOTE: This endpoint has been disabled with updates to command permissions (Permissions v2). Please use ApplicationCommandPermissionsEdit instead.
 func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, permissions []*GuildApplicationCommandPermissions) (err error) {
 	endpoint := EndpointApplicationCommandsGuildPermissions(appID, guildID)
 

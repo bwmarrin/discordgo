@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -36,7 +37,10 @@ type ApplicationCommand struct {
 	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
 	NameLocalizations *map[Locale]string     `json:"name_localizations,omitempty"`
-	DefaultPermission *bool                  `json:"default_permission,omitempty"`
+	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and DMPermission instead.
+	DefaultPermission        *bool  `json:"default_permission,omitempty"`
+	DefaultMemberPermissions *int64 `json:"default_member_permissions,string,omitempty"`
+	DMPermission             *bool  `json:"dm_permission,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 
@@ -129,6 +133,18 @@ type ApplicationCommandPermissions struct {
 	Permission bool                             `json:"permission"`
 }
 
+// GuildAllChannelsID is a helper function which returns guild_id-1.
+// It is used in ApplicationCommandPermissions to target all the channels within a guild.
+func GuildAllChannelsID(guild string) (id string, err error) {
+	var v uint64
+	v, err = strconv.ParseUint(guild, 10, 64)
+	if err != nil {
+		return
+	}
+
+	return strconv.FormatUint(v-1, 10), nil
+}
+
 // ApplicationCommandPermissionsList represents a list of ApplicationCommandPermissions, needed for serializing to JSON.
 type ApplicationCommandPermissionsList struct {
 	Permissions []*ApplicationCommandPermissions `json:"permissions"`
@@ -147,8 +163,9 @@ type ApplicationCommandPermissionType uint8
 
 // Application command permission types.
 const (
-	ApplicationCommandPermissionTypeRole ApplicationCommandPermissionType = 1
-	ApplicationCommandPermissionTypeUser ApplicationCommandPermissionType = 2
+	ApplicationCommandPermissionTypeRole    ApplicationCommandPermissionType = 1
+	ApplicationCommandPermissionTypeUser    ApplicationCommandPermissionType = 2
+	ApplicationCommandPermissionTypeChannel ApplicationCommandPermissionType = 3
 )
 
 // InteractionType indicates the type of an interaction event.
