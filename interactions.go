@@ -37,7 +37,7 @@ type ApplicationCommand struct {
 	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
 	NameLocalizations *map[Locale]string     `json:"name_localizations,omitempty"`
-	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermission and DMPermission instead.
+	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and DMPermission instead.
 	DefaultPermission        *bool  `json:"default_permission,omitempty"`
 	DefaultMemberPermissions *int64 `json:"default_member_permissions,string,omitempty"`
 	DMPermission             *bool  `json:"dm_permission,omitempty"`
@@ -134,7 +134,7 @@ type ApplicationCommandPermissions struct {
 }
 
 // GuildAllChannelsID is a helper function which returns guild_id-1.
-// It is used in ApplicationCommandPermissions to target all the channels within a guild
+// It is used in ApplicationCommandPermissions to target all the channels within a guild.
 func GuildAllChannelsID(guild string) (id string, err error) {
 	var v uint64
 	v, err = strconv.ParseUint(guild, 10, 64)
