@@ -402,7 +402,7 @@ type InviteDelete struct {
 	Code      string `json:"code"`
 }
 
-// ApplicationCommandPermissionsUpdate is the data for a ApplicationCommandPermissionsUpdate event
+// ApplicationCommandPermissionsUpdate is the data for an ApplicationCommandPermissionsUpdate event
 type ApplicationCommandPermissionsUpdate struct {
 	*GuildApplicationCommandPermissions
 }
