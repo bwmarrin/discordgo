@@ -364,7 +364,9 @@ var (
 				case discordgo.ApplicationCommandPermissionTypeUser:
 					users += fmt.Sprintf(format, emoji, "<@!"+o.ID+">")
 				case discordgo.ApplicationCommandPermissionTypeChannel:
-					if o.ID == discordgo.GuildAllChannelsID(i.GuildID) {
+					allChannels, _ := discordgo.GuildAllChannelsID(i.GuildID)
+
+					if o.ID == allChannels {
 						channels += fmt.Sprintf(format, emoji, "All channels")
 					} else {
 						channels += fmt.Sprintf(format, emoji, "<#"+o.ID+">")
