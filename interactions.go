@@ -134,9 +134,14 @@ type ApplicationCommandPermissions struct {
 
 // GuildAllChannelsID is a helper function which returns guild_id-1.
 // It is used in ApplicationCommandPermissions to target all the channels within a guild
-func GuildAllChannelsID(guild string) (id string) {
-	v, _ := strconv.ParseUint(guild, 10, 64)
-	return strconv.FormatUint(v-1, 10)
+func GuildAllChannelsID(guild string) (id string, err error) {
+	var v uint64
+	v, err = strconv.ParseUint(guild, 10, 64)
+	if err != nil {
+		return
+	}
+
+	return strconv.FormatUint(v-1, 10), nil
 }
 
 // ApplicationCommandPermissionsList represents a list of ApplicationCommandPermissions, needed for serializing to JSON.
