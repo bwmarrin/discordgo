@@ -40,7 +40,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Huh. I see, maybe some of these resources might help you?",
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 					Components: []discordgo.MessageComponent{
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
@@ -83,7 +83,7 @@ var (
 				Data: &discordgo.InteractionResponseData{
 					Content: "Great! If you wanna know more or just have questions, feel free to visit Discord Devs and Discord Gophers server. " +
 						"But now, when you know how buttons work, let's move onto select menus (execute `/selects single`)",
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 					Components: []discordgo.MessageComponent{
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
@@ -142,7 +142,7 @@ var (
 			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
 					"Try calling `/selects multi` command.",
-				Flags: 1 << 6,
+				Flags: discordgo.MessageFlagsEphemeral,
 			})
 			if err != nil {
 				panic(err)
@@ -196,7 +196,7 @@ var (
 						},
 					},
 				},
-				Flags: 1 << 6,
+				Flags: discordgo.MessageFlagsEphemeral,
 			})
 			if err != nil {
 				panic(err)
@@ -320,7 +320,7 @@ var (
 					Data: &discordgo.InteractionResponseData{
 						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works: " +
 							"try generating your own stackoverflow search link",
-						Flags: 1 << 6,
+						Flags: discordgo.MessageFlagsEphemeral,
 						Components: []discordgo.MessageComponent{
 							discordgo.ActionsRow{
 								Components: []discordgo.MessageComponent{

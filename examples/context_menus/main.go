@@ -74,7 +74,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Operation rickroll has begun",
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
@@ -108,7 +108,7 @@ var (
 					Content: searchLink(
 						i.ApplicationCommandData().Resolved.Messages[i.ApplicationCommandData().TargetID].Content,
 						"https://google.com/search?q=%s", "+"),
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
@@ -122,7 +122,7 @@ var (
 					Content: searchLink(
 						i.ApplicationCommandData().Resolved.Messages[i.ApplicationCommandData().TargetID].Content,
 						"https://stackoverflow.com/search?q=%s", "+"),
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
@@ -136,7 +136,7 @@ var (
 					Content: searchLink(
 						i.ApplicationCommandData().Resolved.Messages[i.ApplicationCommandData().TargetID].Content,
 						"https://pkg.go.dev/search?q=%s", "+"),
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
@@ -150,7 +150,7 @@ var (
 					Content: searchLink(
 						i.ApplicationCommandData().Resolved.Messages[i.ApplicationCommandData().TargetID].Content,
 						"https://discord.js.org/#/docs/main/stable/search?query=%s", "+"),
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
@@ -164,7 +164,7 @@ var (
 					Content: searchLink(
 						i.ApplicationCommandData().Resolved.Messages[i.ApplicationCommandData().TargetID].Content,
 						"https://discordpy.readthedocs.io/en/stable/search.html?q=%s", "+"),
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
