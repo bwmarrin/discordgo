@@ -1575,7 +1575,7 @@ const (
 	AuditLogActionThreadUpdate AuditLogAction = 111
 	AuditLogActionThreadDelete AuditLogAction = 112
 
-	AuditLogActionApplicationCommandPermissionUpdate = 121
+	AuditLogActionApplicationCommandPermissionUpdate AuditLogAction = 121
 )
 
 // A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
