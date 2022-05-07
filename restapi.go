@@ -1722,7 +1722,7 @@ func (s *Session) ChannelMessageSendReply(channelID string, content string, refe
 	})
 }
 
-// ChannelMessageSendEmedReply sends a message to the given channel with reference data and embedded data.
+// ChannelMessageSendEmbedReply sends a message to the given channel with reference data and embedded data.
 // channelID : The ID of a Channel.
 // embed   : The embed data to send.
 // reference : The message reference to send.
