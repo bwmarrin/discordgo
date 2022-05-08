@@ -12,6 +12,7 @@
 package discordgo
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -129,6 +130,8 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	PublicKey ed25519.PublicKey
 }
 
 // Application stores values for a Discord Application
