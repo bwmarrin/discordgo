@@ -9,7 +9,10 @@ import (
 )
 
 var (
-	ErrInteractionExpired          = errors.New("interaction expired")
+	// ErrInteractionExpired is returned when you try to reply to an interaction after 3s
+	ErrInteractionExpired = errors.New("interaction expired")
+
+	// ErrInteractionAlreadyRepliedTo is returned when you try to reply to an interaction multiple times
 	ErrInteractionAlreadyRepliedTo = errors.New("interaction was already replied to")
 )
 
@@ -20,6 +23,7 @@ const (
 	replyStatusTimedOut
 )
 
+// ServeHTTP handles the heavy lifting of parsing the interaction request and sending the response
 func (s *Session) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !VerifyInteraction(r, s.PublicKey) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
