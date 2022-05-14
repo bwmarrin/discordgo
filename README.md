@@ -61,7 +61,7 @@ See Documentation and Examples below for more detailed information.
 Because of that there may be major changes to library in the future.
 
 The DiscordGo code is fairly well documented at this point and is currently
-the only documentation available.
+the only documentation available. Go reference (below) presents that information in a nice format.
 
 - [![Go Reference](https://pkg.go.dev/badge/github.com/bwmarrin/discordgo.svg)](https://pkg.go.dev/github.com/bwmarrin/discordgo) 
 - Hand crafted documentation coming eventually.
