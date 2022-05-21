@@ -122,7 +122,7 @@ var (
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: "This is the way.",
-						Flags:   1 << 6,
+						Flags:   discordgo.MessageFlagsEphemeral,
 					},
 				}
 			default:
@@ -130,7 +130,7 @@ var (
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: "It is not the way to go.",
-						Flags:   1 << 6,
+						Flags:   discordgo.MessageFlagsEphemeral,
 					},
 				}
 			}
@@ -157,7 +157,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Here is your stackoverflow URL: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
@@ -209,7 +209,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Are you comfortable with buttons and other message components?",
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 					// Buttons and other components are specified in Components field.
 					Components: []discordgo.MessageComponent{
 						// ActionRow is a container of all buttons within the same row.
@@ -269,7 +269,7 @@ var (
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: "Now let's take a look on selects. This is single item select menu.",
-						Flags:   1 << 6,
+						Flags:   discordgo.MessageFlagsEphemeral,
 						Components: []discordgo.MessageComponent{
 							discordgo.ActionsRow{
 								Components: []discordgo.MessageComponent{

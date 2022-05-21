@@ -87,7 +87,7 @@ var (
 			if err != nil {
 				_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 					Content: fmt.Sprintf("Mission failed. Cannot send a message to this user: %q", err.Error()),
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 				})
 				if err != nil {
 					panic(err)
