@@ -503,7 +503,7 @@ var (
 					// Note: this isn't documented, but you can use that if you want to.
 					// This flag just allows you to create messages visible only for the caller of the command
 					// (user who triggered the command)
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 					Content: "Surprise!",
 				},
 			})
