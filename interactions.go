@@ -536,7 +536,7 @@ type InteractionResponseData struct {
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Files           []*File                 `json:"-"`
 
-	// NOTE: only MessageFlagsSuppressEmbeds and MessageFlagsEphemeral can be set
+	// NOTE: only MessageFlagsSuppressEmbeds and MessageFlagsEphemeral can be set.
 	Flags MessageFlags `json:"flags,omitempty"`
 
 	// NOTE: autocomplete interaction only.
