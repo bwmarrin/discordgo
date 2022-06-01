@@ -73,6 +73,30 @@ var (
 								},
 							},
 						},
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.SelectMenu{
+									CustomID:    "Menu",
+									Placeholder: "Select an option",
+									MaxValues:   1,
+
+									Options: []discordgo.SelectMenuOption{
+										{
+											Label:       "Option 1",
+											Description: "A fine option",
+											Value:       "1",
+											Default:     false,
+										},
+										{
+											Label:       "Option 2",
+											Description: "The backup option",
+											Value:       "2",
+											Default:     false,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			})
