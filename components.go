@@ -181,6 +181,8 @@ type SelectMenu struct {
 	MaxValues int                `json:"max_values,omitempty"`
 	Options   []SelectMenuOption `json:"options"`
 	Disabled  bool               `json:"disabled"`
+	// Returned selected menu options values.
+	Values    []string           `json:"values,omitempty"`
 }
 
 // Type is a method to get the type of a component.
