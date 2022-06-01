@@ -946,7 +946,7 @@ type GuildScheduledEventUser struct {
 	Member                *Member `json:"member"`
 }
 
-// A GuildTemplate represents
+// A GuildTemplate represents a replicable template for guild creation
 type GuildTemplate struct {
 	// The unique code for the guild template
 	Code string `json:"code"`
@@ -955,10 +955,10 @@ type GuildTemplate struct {
 	Name string `json:"name"`
 
 	// The description for the template
-	Description string `json:"description"`
+	Description *string `json:"description"`
 
 	// The number of times this template has been used
-	UsageCount string `json:"usage_count"`
+	UsageCount int `json:"usage_count"`
 
 	// The ID of the user who created the template
 	CreatorID string `json:"creator_id"`
