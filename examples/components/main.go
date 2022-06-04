@@ -40,7 +40,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Huh. I see, maybe some of these resources might help you?",
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 					Components: []discordgo.MessageComponent{
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
@@ -83,7 +83,7 @@ var (
 				Data: &discordgo.InteractionResponseData{
 					Content: "Great! If you wanna know more or just have questions, feel free to visit Discord Devs and Discord Gophers server. " +
 						"But now, when you know how buttons work, let's move onto select menus (execute `/selects single`)",
-					Flags: 1 << 6,
+					Flags: discordgo.MessageFlagsEphemeral,
 					Components: []discordgo.MessageComponent{
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
@@ -122,7 +122,7 @@ var (
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: "This is the way.",
-						Flags:   1 << 6,
+						Flags:   discordgo.MessageFlagsEphemeral,
 					},
 				}
 			default:
@@ -130,7 +130,7 @@ var (
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: "It is not the way to go.",
-						Flags:   1 << 6,
+						Flags:   discordgo.MessageFlagsEphemeral,
 					},
 				}
 			}
@@ -139,10 +139,10 @@ var (
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
 					"Try calling `/selects multi` command.",
-				Flags: 1 << 6,
+				Flags: discordgo.MessageFlagsEphemeral,
 			})
 			if err != nil {
 				panic(err)
@@ -157,14 +157,14 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Here is your stackoverflow URL: " + fmt.Sprintf(stackoverflowFormat, strings.Join(data.Values, "+")),
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(*AppID, i.Interaction, true, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Now you know everything about select component. If you want to know more or ask a question - feel free to.",
 				Components: []discordgo.MessageComponent{
 					discordgo.ActionsRow{
@@ -196,7 +196,7 @@ var (
 						},
 					},
 				},
-				Flags: 1 << 6,
+				Flags: discordgo.MessageFlagsEphemeral,
 			})
 			if err != nil {
 				panic(err)
@@ -209,7 +209,7 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Are you comfortable with buttons and other message components?",
-					Flags:   1 << 6,
+					Flags:   discordgo.MessageFlagsEphemeral,
 					// Buttons and other components are specified in Components field.
 					Components: []discordgo.MessageComponent{
 						// ActionRow is a container of all buttons within the same row.
@@ -269,7 +269,7 @@ var (
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: "Now let's take a look on selects. This is single item select menu.",
-						Flags:   1 << 6,
+						Flags:   discordgo.MessageFlagsEphemeral,
 						Components: []discordgo.MessageComponent{
 							discordgo.ActionsRow{
 								Components: []discordgo.MessageComponent{
@@ -320,7 +320,7 @@ var (
 					Data: &discordgo.InteractionResponseData{
 						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works: " +
 							"try generating your own stackoverflow search link",
-						Flags: 1 << 6,
+						Flags: discordgo.MessageFlagsEphemeral,
 						Components: []discordgo.MessageComponent{
 							discordgo.ActionsRow{
 								Components: []discordgo.MessageComponent{

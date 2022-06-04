@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.17
+          go-version: 1.18
       - name: Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Check diff between gofmt and code
         run: diff <(gofmt -d .) <(echo -n)
   
@@ -21,30 +21,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [1.13, 1.14, 1.15, 1.16, 1.17]
+        go-version: [1.13, 1.14, 1.15, 1.16, 1.17, 1.18]
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
       - name: Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - run: go test -v -race ./...
   
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.17
+          go-version: 1.18
       - name: Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Go vet
         run: go vet -x ./...
 
       - name: GolangCI-Lint
-        uses: golangci/golangci-lint-action@v2.5.2
+        uses: golangci/golangci-lint-action@v3
         if: github.event.name == 'pull_request'
         with:
           only-new-issues: true
@@ -54,7 +54,7 @@ jobs:
       - name: GolangCI-Lint
         if: github.event.name != 'pull_request' # See https://github.com/golangci/golangci-lint-action/issues/362
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.43.0
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
 
           $(go env GOPATH)/bin/golangci-lint run
 
