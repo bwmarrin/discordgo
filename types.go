@@ -12,6 +12,7 @@ package discordgo
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 // RESTError stores error information about a request with a bad response code.
@@ -44,4 +45,47 @@ func newRestError(req *http.Request, resp *http.Response, body []byte) *RESTErro
 
 func (r RESTError) Error() string {
 	return "HTTP " + r.Response.Status + ", " + string(r.ResponseBody)
+}
+
+type sleepCT struct {
+	d     time.Duration // desired duration between targets
+	t     time.Time     // last time target
+	wake  time.Time     // last wake time
+	drift int64         // last wake drift microseconds
+}
+
+func newSleepCT(d time.Duration) sleepCT {
+
+	s := sleepCT{}
+
+	s.d = d
+	s.t = time.Now()
+
+	return s
+}
+
+func (s *sleepCT) sleepNext() int64 {
+
+	now := time.Now()
+
+	// if target is zero safety net
+	if s.t.IsZero() {
+		s.t = now.Add(-s.d)
+	}
+
+	// Move forward the sleep target by the duration
+	s.t = s.t.Add(s.d)
+
+	// Compute the desired sleep time to reach the target
+	d := time.Until(s.t)
+
+	// Sleep
+	time.Sleep(d)
+
+	// record the wake time
+	s.wake = time.Now()
+	s.drift = s.wake.Sub(s.t).Microseconds()
+
+	// return the drift for monitoring purposes
+	return s.drift
 }

@@ -11,10 +11,10 @@ func TestSleepCT(t *testing.T) {
 
 	start := time.Now()
 	// start the ticker
-	s := NewSleepCT(20 * time.Millisecond)
+	s := newSleepCT(20 * time.Millisecond)
 	var i int64
 	for i = 0; i < 50; i++ {
-		s.SleepNext()
+		s.sleepNext()
 	}
 	since := time.Since(start)
 	fmt.Println("SleepCT after", time.Since(start), "drifts", time.Since(start)-(1*time.Second))

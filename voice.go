@@ -703,7 +703,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	binary.BigEndian.PutUint32(udpHeader[8:], v.op2.SSRC)
 
 	// start a send loop that loops until buf chan is closed
-	sleeper := NewSleepCT(time.Millisecond * time.Duration(size/(rate/1000)))
+	sleeper := newSleepCT(time.Millisecond * time.Duration(size/(rate/1000)))
 
 	for {
 
@@ -711,7 +711,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		// This implementation is more consistent than a standard ticker
 		// The trade off additional idle cpu load
 		// Sleep to next send interval
-		sleeper.SleepNext()
+		sleeper.sleepNext()
 
 		// Get data from chan.  If chan is closed, return.
 		// Default do nothing if opus buffer empty
