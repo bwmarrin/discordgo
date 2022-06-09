@@ -246,6 +246,8 @@ type Invite struct {
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
+
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 // ChannelType is the type of a Channel
