@@ -2814,9 +2814,7 @@ func (s *Session) ApplicationCommands(appID, guildID string) (cmd []*Application
 		endpoint = EndpointApplicationGuildCommands(appID, guildID)
 	}
 
-	bucketID := "GET " + endpoint
-
-	body, err := s.RequestWithBucketID("GET", endpoint, nil, bucketID)
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, "GET " + endpoint)
 	if err != nil {
 		return
 	}
