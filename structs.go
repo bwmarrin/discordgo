@@ -952,7 +952,7 @@ type GuildTemplate struct {
 	Code string `json:"code"`
 
 	// The name of the template
-	Name *string `json:"name,omitempty"`
+	Name  `json:"name,omitempty"`
 
 	// The description for the template
 	Description *string `json:"description,omitempty"`
