@@ -952,10 +952,10 @@ type GuildTemplate struct {
 	Code string `json:"code"`
 
 	// The name of the template
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 
 	// The description for the template
-	Description string `json:"description"`
+	Description *string `json:"description,omitempty"`
 
 	// The number of times this template has been used
 	UsageCount int `json:"usage_count"`
