@@ -534,8 +534,10 @@ type InteractionResponseData struct {
 	Components      []MessageComponent      `json:"components"`
 	Embeds          []*MessageEmbed         `json:"embeds"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
-	Flags           uint64                  `json:"flags,omitempty"`
 	Files           []*File                 `json:"-"`
+
+	// NOTE: only MessageFlagsSuppressEmbeds and MessageFlagsEphemeral can be set.
+	Flags MessageFlags `json:"flags,omitempty"`
 
 	// NOTE: autocomplete interaction only.
 	Choices []*ApplicationCommandOptionChoice `json:"choices,omitempty"`
