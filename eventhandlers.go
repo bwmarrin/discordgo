@@ -8,6 +8,10 @@ package discordgo
 // EventTypes surrounded by __ are synthetic and are internal to DiscordGo.
 const (
 	applicationCommandPermissionsUpdateEventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
+	autoModerationActionExecutionEventType       = "AUTO_MODERATION_ACTION_EXECUTION"
+	autoModerationRuleCreateEventType            = "AUTO_MODERATION_RULE_CREATE"
+	autoModerationRuleDeleteEventType            = "AUTO_MODERATION_RULE_DELETE"
+	autoModerationRuleUpdateEventType            = "AUTO_MODERATION_RULE_UPDATE"
 	channelCreateEventType                       = "CHANNEL_CREATE"
 	channelDeleteEventType                       = "CHANNEL_DELETE"
 	channelPinsUpdateEventType                   = "CHANNEL_PINS_UPDATE"
@@ -87,6 +91,86 @@ func (eh applicationCommandPermissionsUpdateEventHandler) New() interface{} {
 // Handle is the handler for ApplicationCommandPermissionsUpdate events.
 func (eh applicationCommandPermissionsUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*ApplicationCommandPermissionsUpdate); ok {
+		eh(s, t)
+	}
+}
+
+// autoModerationActionExecutionEventHandler is an event handler for AutoModerationActionExecution events.
+type autoModerationActionExecutionEventHandler func(*Session, *AutoModerationActionExecution)
+
+// Type returns the event type for AutoModerationActionExecution events.
+func (eh autoModerationActionExecutionEventHandler) Type() string {
+	return autoModerationActionExecutionEventType
+}
+
+// New returns a new instance of AutoModerationActionExecution.
+func (eh autoModerationActionExecutionEventHandler) New() interface{} {
+	return &AutoModerationActionExecution{}
+}
+
+// Handle is the handler for AutoModerationActionExecution events.
+func (eh autoModerationActionExecutionEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*AutoModerationActionExecution); ok {
+		eh(s, t)
+	}
+}
+
+// autoModerationRuleCreateEventHandler is an event handler for AutoModerationRuleCreate events.
+type autoModerationRuleCreateEventHandler func(*Session, *AutoModerationRuleCreate)
+
+// Type returns the event type for AutoModerationRuleCreate events.
+func (eh autoModerationRuleCreateEventHandler) Type() string {
+	return autoModerationRuleCreateEventType
+}
+
+// New returns a new instance of AutoModerationRuleCreate.
+func (eh autoModerationRuleCreateEventHandler) New() interface{} {
+	return &AutoModerationRuleCreate{}
+}
+
+// Handle is the handler for AutoModerationRuleCreate events.
+func (eh autoModerationRuleCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*AutoModerationRuleCreate); ok {
+		eh(s, t)
+	}
+}
+
+// autoModerationRuleDeleteEventHandler is an event handler for AutoModerationRuleDelete events.
+type autoModerationRuleDeleteEventHandler func(*Session, *AutoModerationRuleDelete)
+
+// Type returns the event type for AutoModerationRuleDelete events.
+func (eh autoModerationRuleDeleteEventHandler) Type() string {
+	return autoModerationRuleDeleteEventType
+}
+
+// New returns a new instance of AutoModerationRuleDelete.
+func (eh autoModerationRuleDeleteEventHandler) New() interface{} {
+	return &AutoModerationRuleDelete{}
+}
+
+// Handle is the handler for AutoModerationRuleDelete events.
+func (eh autoModerationRuleDeleteEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*AutoModerationRuleDelete); ok {
+		eh(s, t)
+	}
+}
+
+// autoModerationRuleUpdateEventHandler is an event handler for AutoModerationRuleUpdate events.
+type autoModerationRuleUpdateEventHandler func(*Session, *AutoModerationRuleUpdate)
+
+// Type returns the event type for AutoModerationRuleUpdate events.
+func (eh autoModerationRuleUpdateEventHandler) Type() string {
+	return autoModerationRuleUpdateEventType
+}
+
+// New returns a new instance of AutoModerationRuleUpdate.
+func (eh autoModerationRuleUpdateEventHandler) New() interface{} {
+	return &AutoModerationRuleUpdate{}
+}
+
+// Handle is the handler for AutoModerationRuleUpdate events.
+func (eh autoModerationRuleUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*AutoModerationRuleUpdate); ok {
 		eh(s, t)
 	}
 }
@@ -1297,6 +1381,14 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return interfaceEventHandler(v)
 	case func(*Session, *ApplicationCommandPermissionsUpdate):
 		return applicationCommandPermissionsUpdateEventHandler(v)
+	case func(*Session, *AutoModerationActionExecution):
+		return autoModerationActionExecutionEventHandler(v)
+	case func(*Session, *AutoModerationRuleCreate):
+		return autoModerationRuleCreateEventHandler(v)
+	case func(*Session, *AutoModerationRuleDelete):
+		return autoModerationRuleDeleteEventHandler(v)
+	case func(*Session, *AutoModerationRuleUpdate):
+		return autoModerationRuleUpdateEventHandler(v)
 	case func(*Session, *ChannelCreate):
 		return channelCreateEventHandler(v)
 	case func(*Session, *ChannelDelete):
@@ -1426,6 +1518,10 @@ func handlerForInterface(handler interface{}) EventHandler {
 
 func init() {
 	registerInterfaceProvider(applicationCommandPermissionsUpdateEventHandler(nil))
+	registerInterfaceProvider(autoModerationActionExecutionEventHandler(nil))
+	registerInterfaceProvider(autoModerationRuleCreateEventHandler(nil))
+	registerInterfaceProvider(autoModerationRuleDeleteEventHandler(nil))
+	registerInterfaceProvider(autoModerationRuleUpdateEventHandler(nil))
 	registerInterfaceProvider(channelCreateEventHandler(nil))
 	registerInterfaceProvider(channelDeleteEventHandler(nil))
 	registerInterfaceProvider(channelPinsUpdateEventHandler(nil))

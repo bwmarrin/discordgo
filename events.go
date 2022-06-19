@@ -406,3 +406,34 @@ type InviteDelete struct {
 type ApplicationCommandPermissionsUpdate struct {
 	*GuildApplicationCommandPermissions
 }
+
+// AutoModerationRuleCreate is the data for an AutoModerationRuleCreate event.
+type AutoModerationRuleCreate struct {
+	*AutoModerationRule
+}
+
+// AutoModerationRuleUpdate is the data for an AutoModerationRuleUpdate event.
+type AutoModerationRuleUpdate struct {
+	*AutoModerationRule
+	// TODO: BeforeUpdate *AutoModerationRule
+}
+
+// AutoModerationRuleDelete is the data for an AutoModerationRuleDelete event.
+type AutoModerationRuleDelete struct {
+	*AutoModerationRule
+	// TODO: BeforeDelete *AutoModerationRule
+}
+
+// AutoModerationActionExecution is the data for an AutoModerationActionExecution event.
+type AutoModerationActionExecution struct {
+	GuildID              string                        `json:"guild_id"`
+	Action               AutoModerationAction          `json:"action"`
+	RuleID               string                        `json:"rule_id"`
+	RuleTriggerType      AutoModerationRuleTriggerType `json:"rule_trigger_type"`
+	ChannelID            string                        `json:"channel_id"`
+	MessageID            string                        `json:"message_id"`
+	AlertSystemMessageID string                        `json:"alert_system_message_id"`
+	Content              string                        `json:"content"`
+	MatchedKeyword       string                        `json:"matched_keyword"`
+	MatchedContent       string                        `json:"matched_content"`
+}

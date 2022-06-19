@@ -3111,3 +3111,80 @@ func (s *Session) GuildScheduledEventUsers(guildID, eventID string, limit int, w
 	err = unmarshal(body, &st)
 	return
 }
+
+// ----------------------------------------------------------------------
+// Functions specific to auto moderation
+// ----------------------------------------------------------------------
+
+// AutoModerationRules returns a list of auto moderation rules.
+// guildID : ID of the guild
+func (s *Session) AutoModerationRules(guildID string) (st []*AutoModerationRule, err error) {
+	endpoint := EndpointGuildAutoModerationRules(guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// AutoModerationRule returns an auto moderation rule.
+// guildID : ID of the guild
+// ruleID  : ID of the auto moderation rule
+func (s *Session) AutoModerationRule(guildID, ruleID string) (st *AutoModerationRule, err error) {
+	endpoint := EndpointGuildAutoModerationRule(guildID, ruleID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// AutoModerationRuleCreate creates an auto moderation rule with the given data and returns it.
+// guildID : ID of the guild
+// rule    : Rule data
+func (s *Session) AutoModerationRuleCreate(guildID string, rule *AutoModerationRule) (st *AutoModerationRule, err error) {
+	endpoint := EndpointGuildAutoModerationRules(guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("POST", endpoint, rule, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// AutoModerationRuleEdit edits and returns the updated auto moderation rule.
+// guildID : ID of the guild
+// ruleID  : ID of the auto moderation rule
+// rule    : New rule data
+func (s *Session) AutoModerationRuleEdit(guildID, ruleID string, rule *AutoModerationRule) (st *AutoModerationRule, err error) {
+	endpoint := EndpointGuildAutoModerationRule(guildID, ruleID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("PATCH", endpoint, rule, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// AutoModerationRuleDelete deletes an auto moderation rule.
+// guildID : ID of the guild
+// ruleID  : ID of the auto moderation rule
+func (s *Session) AutoModerationRuleDelete(guildID, ruleID string) (err error) {
+	endpoint := EndpointGuildAutoModerationRule(guildID, ruleID)
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
+	return
+}
