@@ -246,6 +246,8 @@ type Invite struct {
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
+
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 // ChannelType is the type of a Channel
@@ -946,19 +948,19 @@ type GuildScheduledEventUser struct {
 	Member                *Member `json:"member"`
 }
 
-// A GuildTemplate represents
+// A GuildTemplate represents a replicable template for guild creation
 type GuildTemplate struct {
 	// The unique code for the guild template
 	Code string `json:"code"`
 
 	// The name of the template
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// The description for the template
-	Description string `json:"description"`
+	Description *string `json:"description,omitempty"`
 
 	// The number of times this template has been used
-	UsageCount string `json:"usage_count"`
+	UsageCount int `json:"usage_count"`
 
 	// The ID of the user who created the template
 	CreatorID string `json:"creator_id"`
@@ -1098,15 +1100,19 @@ func (r Roles) Swap(i, j int) {
 
 // A VoiceState stores the voice states of Guilds
 type VoiceState struct {
-	UserID    string `json:"user_id"`
-	SessionID string `json:"session_id"`
-	ChannelID string `json:"channel_id"`
-	GuildID   string `json:"guild_id"`
-	Suppress  bool   `json:"suppress"`
-	SelfMute  bool   `json:"self_mute"`
-	SelfDeaf  bool   `json:"self_deaf"`
-	Mute      bool   `json:"mute"`
-	Deaf      bool   `json:"deaf"`
+	GuildID                 string     `json:"guild_id"`
+	ChannelID               string     `json:"channel_id"`
+	UserID                  string     `json:"user_id"`
+	Member                  *Member    `json:"member"`
+	SessionID               string     `json:"session_id"`
+	Deaf                    bool       `json:"deaf"`
+	Mute                    bool       `json:"mute"`
+	SelfDeaf                bool       `json:"self_deaf"`
+	SelfMute                bool       `json:"self_mute"`
+	SelfStream              bool       `json:"self_stream"`
+	SelfVideo               bool       `json:"self_video"`
+	Suppress                bool       `json:"suppress"`
+	RequestToSpeakTimestamp *time.Time `json:"request_to_speak_timestamp"`
 }
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
