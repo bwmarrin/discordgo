@@ -661,18 +661,6 @@ func (s *State) ThreadMemberUpdate(mu *ThreadMemberUpdate) error {
 	return nil
 }
 
-// GuildChannel gets a channel by ID from a guild.
-// This method is Deprecated, use Channel(channelID)
-func (s *State) GuildChannel(guildID, channelID string) (*Channel, error) {
-	return s.Channel(channelID)
-}
-
-// PrivateChannel gets a private channel by ID.
-// This method is Deprecated, use Channel(channelID)
-func (s *State) PrivateChannel(channelID string) (*Channel, error) {
-	return s.Channel(channelID)
-}
-
 // Channel gets a channel by ID, it will look in all guilds and private channels.
 func (s *State) Channel(channelID string) (*Channel, error) {
 	if s == nil {
