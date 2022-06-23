@@ -17,6 +17,7 @@ import (
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
+	AppID          = flag.String("app", "", "Application ID")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
@@ -556,7 +557,7 @@ func main() {
 	log.Println("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 	for i, v := range commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		cmd, err := s.ApplicationCommandCreate(*AppID, *GuildID, v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
@@ -576,13 +577,13 @@ func main() {
 		// // We are doing this from the returned commands on line 375, because using
 		// // this will delete all the commands, which might not be desirable, so we
 		// // are deleting only the commands that we added.
-		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+		// registeredCommands, err := s.ApplicationCommands(*AppID, *GuildID)
 		// if err != nil {
 		// 	log.Fatalf("Could not fetch registered commands: %v", err)
 		// }
 
 		for _, v := range registeredCommands {
-			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
+			err := s.ApplicationCommandDelete(*AppID, *GuildID, v.ID)
 			if err != nil {
 				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 			}
