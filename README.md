@@ -31,10 +31,9 @@ Gophers](https://discord.gg/golang) chat server.**
 This assumes you already have a working Go environment, if not please see
 [this page](https://golang.org/doc/install) first.
 
-`go get` *will always pull the latest tagged release from the master branch.*
 
 ```sh
-go get github.com/bwmarrin/discordgo
+go install github.com/bwmarrin/discordgo@latest
 ```
 
 ### Usage
