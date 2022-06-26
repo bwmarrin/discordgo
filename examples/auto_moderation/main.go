@@ -23,6 +23,7 @@ func init() { flag.Parse() }
 func main() {
 	session, _ := discordgo.New("Bot " + *BotToken)
 	session.Identify.Intents |= discordgo.IntentAutoModerationExecution
+	session.Identify.Intents |= discordgo.IntentMessageContent
 
 	enabled := true
 	rule, err := session.AutoModerationRuleCreate(*GuildID, &discordgo.AutoModerationRule{
