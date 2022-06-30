@@ -207,6 +207,9 @@ type Interaction struct {
 	// NOTE: this field is only filled when a button click triggered the interaction. Otherwise it will be nil.
 	Message *Message `json:"message"`
 
+	// Bitwise set of permissions the app or bot has within the channel the interaction was sent from
+	AppPermissions int64 `json:"app_permissions,string"`
+
 	// The member who invoked this interaction.
 	// NOTE: this field is only filled when the slash command was invoked in a guild;
 	// if it was invoked in a DM, the `User` field will be filled instead.
