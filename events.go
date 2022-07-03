@@ -430,6 +430,7 @@ type AutoModerationActionExecution struct {
 	Action               AutoModerationAction          `json:"action"`
 	RuleID               string                        `json:"rule_id"`
 	RuleTriggerType      AutoModerationRuleTriggerType `json:"rule_trigger_type"`
+	UserID               string                        `json:"user_id"`
 	ChannelID            string                        `json:"channel_id"`
 	MessageID            string                        `json:"message_id"`
 	AlertSystemMessageID string                        `json:"alert_system_message_id"`
