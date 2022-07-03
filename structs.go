@@ -1323,6 +1323,7 @@ type AutoModerationRuleEventType int
 
 // Auto moderation rule event types.
 const (
+	// AutoModerationEventMessageSend is checked when a member sends or edits a message in the guild
 	AutoModerationEventMessageSend AutoModerationRuleEventType = 1
 )
 
