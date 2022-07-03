@@ -415,13 +415,11 @@ type AutoModerationRuleCreate struct {
 // AutoModerationRuleUpdate is the data for an AutoModerationRuleUpdate event.
 type AutoModerationRuleUpdate struct {
 	*AutoModerationRule
-	// TODO: BeforeUpdate *AutoModerationRule
 }
 
 // AutoModerationRuleDelete is the data for an AutoModerationRuleDelete event.
 type AutoModerationRuleDelete struct {
 	*AutoModerationRule
-	// TODO: BeforeDelete *AutoModerationRule
 }
 
 // AutoModerationActionExecution is the data for an AutoModerationActionExecution event.
