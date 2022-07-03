@@ -42,8 +42,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Println("Successfully created the rule")
 	defer session.AutoModerationRuleDelete(*GuildID, rule.ID)
+
 	session.AddHandlerOnce(func(s *discordgo.Session, e *discordgo.AutoModerationActionExecution) {
 		_, err = session.AutoModerationRuleEdit(*GuildID, rule.ID, &discordgo.AutoModerationRule{
 			TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
@@ -60,10 +62,12 @@ func main() {
 			session.AutoModerationRuleDelete(*GuildID, rule.ID)
 			panic(err)
 		}
+
 		s.ChannelMessageSend(e.ChannelID, "Congratulations! You have just triggered an auto moderation rule.\n"+
 			"The current trigger can match anywhere in the word, so even if you write the trigger word as a part of another word, it will still match.\n"+
 			"The rule has now been changed, now the trigger matches only in the full words.\n"+
 			"Additionally, when you send a message, an alert will be sent to this channel and you will be **timed out** for a minute.\n")
+
 		var counter int
 		var counterMutex sync.Mutex
 		session.AddHandler(func(s *discordgo.Session, e *discordgo.AutoModerationActionExecution) {
@@ -76,6 +80,7 @@ func main() {
 			case discordgo.AutoModerationRuleActionTimeout:
 				action = "timeout"
 			}
+
 			counterMutex.Lock()
 			counter++
 			if counter == 1 {
@@ -95,9 +100,9 @@ func main() {
 				session.AutoModerationRuleDelete(*GuildID, rule.ID)
 				os.Exit(0)
 			}
-
 		})
 	})
+
 	err = session.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
