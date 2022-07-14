@@ -118,6 +118,10 @@ type ApplicationCommandOption struct {
 	MinValue *float64 `json:"min_value,omitempty"`
 	// Maximum value of number/integer option.
 	MaxValue float64 `json:"max_value,omitempty"`
+	// Minimum length of string option.
+	MinLength *int `json:"min_length,omitempty"`
+	// Maximum length of string option.
+	MaxLength int `json:"max_length,omitempty"`
 }
 
 // ApplicationCommandOptionChoice represents a slash command option choice.
