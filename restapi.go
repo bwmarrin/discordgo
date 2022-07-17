@@ -334,6 +334,18 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 	return
 }
 
+// UserGuildMember returns a guild member object for the current user in the given guildID
+// guildID : ID of the guild
+func (s *Session) UserGuildMember(guildID string) (st *Member, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointUserGuildMember("@me", guildID), nil, EndpointUserGuildMember("@me", guildID))
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // UserGuilds returns an array of UserGuild structures for all guilds.
 // limit     : The number guilds that can be returned. (max 100)
 // beforeID  : If provided all guilds returned will be before given ID.
