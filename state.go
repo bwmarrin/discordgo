@@ -7,7 +7,7 @@
 
 // This file contains code related to state tracking.  If enabled, state
 // tracking will capture the initial READY packet and many other websocket
-// events and maintain an in-memory state of of guilds, channels, users, and
+// events and maintain an in-memory state of guilds, channels, users, and
 // so forth.  This information can be accessed through the Session.State struct.
 
 package discordgo

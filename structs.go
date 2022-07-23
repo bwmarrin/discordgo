@@ -59,12 +59,12 @@ type Session struct {
 	ShardCount int
 
 	// Should state tracking be enabled.
-	// State tracking is the best way for getting the the users
+	// State tracking is the best way for getting the users
 	// active guilds and the members of the guilds.
 	StateEnabled bool
 
 	// Whether or not to call event handlers synchronously.
-	// e.g false = launch event handlers in their own goroutines.
+	// e.g. false = launch event handlers in their own goroutines.
 	SyncEvents bool
 
 	// Exposed but should not be modified by User.
@@ -75,7 +75,7 @@ type Session struct {
 	// Max number of REST API retries
 	MaxRestRetries int
 
-	// Status stores the currect status of the websocket connection
+	// Status stores the current status of the websocket connection
 	// this is being tested, may stay, may go away.
 	status int32
 
@@ -222,8 +222,8 @@ type InviteTargetType uint8
 
 // Invite target types
 const (
-	InviteTargetStream             InviteTargetType = 1
-	InviteTargetEmbeddedAppliction InviteTargetType = 2
+	InviteTargetStream              InviteTargetType = 1
+	InviteTargetEmbeddedApplication InviteTargetType = 2
 )
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
