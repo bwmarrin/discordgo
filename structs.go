@@ -1407,8 +1407,8 @@ type AutoModerationAction struct {
 
 // A GuildEmbed stores data for a guild embed.
 type GuildEmbed struct {
-	Enabled   bool   `json:"enabled"`
-	ChannelID string `json:"channel_id"`
+	Enabled   *bool  `json:"enabled,omitempty"`
+	ChannelID string `json:"channel_id,omitempty"`
 }
 
 // A GuildAuditLog stores data for a guild audit log.
