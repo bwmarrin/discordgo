@@ -1519,19 +1519,10 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	return
 }
 
-// ChannelEdit edits the given channel
-// channelID  : The ID of a Channel
-// name       : The new name to assign the channel.
-func (s *Session) ChannelEdit(channelID, name string) (*Channel, error) {
-	return s.ChannelEditComplex(channelID, &ChannelEdit{
-		Name: name,
-	})
-}
-
-// ChannelEditComplex edits an existing channel, replacing the parameters entirely with ChannelEdit struct
-// channelID  : The ID of a Channel
-// data          : The channel struct to send
-func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *Channel, err error) {
+// ChannelEdit edits the given channel and returns the updated Channel data.
+// channelID  : The ID of a Channel.
+// data       : New Channel data.
+func (s *Session) ChannelEdit(channelID string, data *ChannelEdit) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(channelID), data, EndpointChannel(channelID))
 	if err != nil {
 		return
@@ -1539,6 +1530,14 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *C
 
 	err = unmarshal(body, &st)
 	return
+
+}
+
+// ChannelEditComplex edits an existing channel, replacing the parameters entirely with ChannelEdit struct
+// channelID     : The ID of a Channel
+// data          : The channel struct to send
+func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *Channel, err error) {
+	return s.ChannelEdit(channelID, data)
 }
 
 // ChannelDelete deletes the given channel
