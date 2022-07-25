@@ -1083,6 +1083,20 @@ func (r *Role) Mention() string {
 	return fmt.Sprintf("<@&%s>", r.ID)
 }
 
+// RoleParams represents the parameters needed to create or update a Role
+type RoleParams struct {
+	// The role's name
+	Name string `json:"name,omitempty"`
+	// The color the role should have (as a decimal, not hex)
+	Color *int `json:"color,omitempty"`
+	// Whether to display the role's users separately
+	Hoist *bool `json:"hoist,omitempty"`
+	// The overall permissions number of the role
+	Permissions *int64 `json:"permissions,omitempty,string"`
+	// Whether this role is mentionable
+	Mentionable *bool `json:"mentionable,omitempty"`
+}
+
 // Roles are a collection of Role
 type Roles []*Role
 

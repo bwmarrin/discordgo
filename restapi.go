@@ -1045,29 +1045,16 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	return
 }
 
-// GuildRoleEdit updates an existing Guild Role with new values
+// GuildRoleEdit updates an existing Guild Role and updated Role data.
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
-// name      : The name of the Role.
-// color     : The color of the role (decimal, not hex).
-// hoist     : Whether to display the role's users separately.
-// perm      : The permissions for the role.
-// mention   : Whether this role is mentionable
-func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int64, mention bool) (st *Role, err error) {
+// data 		 : Updated Role data.
+func (s *Session) GuildRoleEdit(guildID, roleID string, data *RoleParams) (st *Role, err error) {
 
 	// Prevent sending a color int that is too big.
-	if color > 0xFFFFFF {
-		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
-		return nil, err
+	if data.Color != nil && *data.Color > 0xFFFFFF {
+		return nil, fmt.Errorf("color value cannot be larger than 0xFFFFFF")
 	}
-
-	data := struct {
-		Name        string `json:"name"`               // The role's name (overwrites existing)
-		Color       int    `json:"color"`              // The color the role should have (as a decimal, not hex)
-		Hoist       bool   `json:"hoist"`              // Whether to display the role's users separately
-		Permissions int64  `json:"permissions,string"` // The overall permissions number of the role (overwrites existing)
-		Mentionable bool   `json:"mentionable"`        // Whether this role is mentionable
-	}{name, color, hoist, perm, mention}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""))
 	if err != nil {
