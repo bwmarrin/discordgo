@@ -1031,11 +1031,11 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 	return // TODO return pointer
 }
 
-// GuildRoleCreate returns a new Guild Role.
-// guildID: The ID of a Guild.
-func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
-
-	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
+// GuildRoleCreate creates a new Guild Role and returns it.
+// guildID : The ID of a Guild.
+// data    : New role parameters.
+func (s *Session) GuildRoleCreate(guildID string, data *RoleParams) (st *Role, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), data, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
 	}
