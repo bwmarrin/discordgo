@@ -1273,12 +1273,10 @@ func (s *Session) GuildEmbed(guildID string) (st *GuildEmbed, err error) {
 	return
 }
 
-// GuildEmbedEdit returns the embed for a Guild.
+// GuildEmbedEdit edits the embed of a Guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string) (err error) {
-
-	data := GuildEmbed{enabled, channelID}
-
+// data      : New embed data.
+func (s *Session) GuildEmbedEdit(guildID string, data *GuildEmbed) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildEmbed(guildID), data, EndpointGuildEmbed(guildID))
 	return
 }
