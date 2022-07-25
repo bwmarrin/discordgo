@@ -1534,6 +1534,7 @@ func (s *Session) ChannelEdit(channelID string, data *ChannelEdit) (st *Channel,
 }
 
 // ChannelEditComplex edits an existing channel, replacing the parameters entirely with ChannelEdit struct
+// NOTE: deprecated, use ChannelEdit instead
 // channelID     : The ID of a Channel
 // data          : The channel struct to send
 func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *Channel, err error) {
