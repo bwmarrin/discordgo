@@ -48,9 +48,11 @@ func main() {
 			games[m.ChannelID] = time.Now()
 			<-time.After(timeout)
 			if time.Since(games[m.ChannelID]) >= timeout {
+				archived := true
+				locked := true
 				_, err := s.ChannelEditComplex(m.ChannelID, &discordgo.ChannelEdit{
-					Archived: true,
-					Locked:   true,
+					Archived: &archived,
+					Locked:   &locked,
 				})
 				if err != nil {
 					panic(err)

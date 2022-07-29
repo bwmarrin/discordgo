@@ -360,7 +360,7 @@ func (c *Channel) IsThread() bool {
 type ChannelEdit struct {
 	Name                 string                 `json:"name,omitempty"`
 	Topic                string                 `json:"topic,omitempty"`
-	NSFW                 bool                   `json:"nsfw,omitempty"`
+	NSFW                 *bool                  `json:"nsfw,omitempty"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate,omitempty"`
 	UserLimit            int                    `json:"user_limit,omitempty"`
@@ -370,10 +370,10 @@ type ChannelEdit struct {
 
 	// NOTE: threads only
 
-	Archived            bool `json:"archived,omitempty"`
-	AutoArchiveDuration int  `json:"auto_archive_duration,omitempty"`
-	Locked              bool `json:"locked,bool"`
-	Invitable           bool `json:"invitable,omitempty"`
+	Archived            *bool `json:"archived,omitempty"`
+	AutoArchiveDuration int   `json:"auto_archive_duration,omitempty"`
+	Locked              *bool `json:"locked,omitempty"`
+	Invitable           *bool `json:"invitable,omitempty"`
 }
 
 // A ChannelFollow holds data returned after following a news channel
