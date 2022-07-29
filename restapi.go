@@ -808,25 +808,11 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 	return
 }
 
-// GuildMemberEdit edits the roles of a member.
+// GuildMemberEdit edits and returns updated member.
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
-// roles    : A list of role ID's to set on the member.
-func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
-
-	data := struct {
-		Roles []string `json:"roles"`
-	}{roles}
-
-	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
-	return
-}
-
-// GuildMemberEditComplex edits the nickname and roles of a member.
-// guildID  : The ID of a Guild.
-// userID   : The ID of a User.
-// data     : A GuildMemberEditData struct with the new nickname and roles
-func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
+// data     : Updated GuildMember data.
+func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -835,6 +821,14 @@ func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMembe
 
 	err = unmarshal(body, &st)
 	return
+}
+
+// GuildMemberEditComplex edits the nickname and roles of a member.
+// guildID  : The ID of a Guild.
+// userID   : The ID of a User.
+// data     : A GuildMemberEditData struct with the new nickname and roles
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
+	return s.GuildMemberEdit(guildID, userID, data)
 }
 
 // GuildMemberMove moves a guild member from one voice channel to another/none
