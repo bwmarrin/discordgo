@@ -824,6 +824,7 @@ func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberParams
 }
 
 // GuildMemberEditComplex edits the nickname and roles of a member.
+// NOTE: deprecated, use GuildMemberEdit instead.
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
 // data     : A GuildMemberEditData struct with the new nickname and roles
