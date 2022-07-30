@@ -1352,18 +1352,11 @@ func (s *Session) GuildEmojiCreate(guildID string, data EmojiParams) (emoji *Emo
 	return
 }
 
-// GuildEmojiEdit modifies an emoji
+// GuildEmojiEdit modifies and returns updated emoji.
 // guildID : The ID of a Guild.
 // emojiID : The ID of an Emoji.
-// name    : The Name of the Emoji.
-// roles   : The roles for which this emoji will be whitelisted, if nil or empty the roles will be reset.
-func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) (emoji *Emoji, err error) {
-
-	data := struct {
-		Name  string   `json:"name"`
-		Roles []string `json:"roles"`
-	}{name, roles}
-
+// data    : Updated emoji data.
+func (s *Session) GuildEmojiEdit(guildID, emojiID string, data EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildEmoji(guildID, emojiID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
 		return
