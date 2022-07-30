@@ -1339,19 +1339,10 @@ func (s *Session) GuildEmoji(guildID, emojiID string) (emoji *Emoji, err error) 
 	return
 }
 
-// GuildEmojiCreate creates a new emoji
+// GuildEmojiCreate creates a new Emoji.
 // guildID : The ID of a Guild.
-// name    : The Name of the Emoji.
-// image   : The base64 encoded emoji image, has to be smaller than 256KB.
-// roles   : The roles for which this emoji will be whitelisted, can be nil.
-func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) (emoji *Emoji, err error) {
-
-	data := struct {
-		Name  string   `json:"name"`
-		Image string   `json:"image"`
-		Roles []string `json:"roles,omitempty"`
-	}{name, image, roles}
-
+// data    : New Emoji data.
+func (s *Session) GuildEmojiCreate(guildID string, data EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildEmojis(guildID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
 		return

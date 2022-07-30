@@ -491,6 +491,17 @@ func (e *Emoji) APIName() string {
 	return e.ID
 }
 
+// EmojiParams represents parameters needed to create or update an Emoji.
+type EmojiParams struct {
+	// Name of the emoji
+	Name string `json:"name,omitempty"`
+	// A base64 encoded emoji image, has to be smaller than 256KB.
+	// NOTE: can be only set on creation.
+	Image string `json:"image,omitempty"`
+	// Roles for which this emoji will be available.
+	Roles []string `json:"roles,omitempty"`
+}
+
 // StickerFormat is the file format of the Sticker.
 type StickerFormat int
 
