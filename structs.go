@@ -1699,6 +1699,8 @@ type GuildMemberParams struct {
 	Nick string `json:"nick,omitempty"`
 	// Array of role ids the member is assigned
 	Roles *[]string `json:"roles,omitempty"`
+	// Timeout user until as ISO8601 timestamp
+	CommunicationDisabledUntil string `json:"communication_disabled_until,omitempty"`
 }
 
 // An APIErrorMessage is an api error message returned from discord
