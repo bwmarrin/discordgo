@@ -334,7 +334,7 @@ func (s *Session) UserChannelCreate(recipientID string) (st *Channel, err error)
 	return
 }
 
-// UserGuildMember returns a guild member object for the current user in the given guildID
+// UserGuildMember returns a guild member object for the current user in the given Guild.
 // guildID : ID of the guild
 func (s *Session) UserGuildMember(guildID string) (st *Member, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointUserGuildMember("@me", guildID), nil, EndpointUserGuildMember("@me", guildID))
