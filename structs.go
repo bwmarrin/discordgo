@@ -59,12 +59,12 @@ type Session struct {
 	ShardCount int
 
 	// Should state tracking be enabled.
-	// State tracking is the best way for getting the the users
+	// State tracking is the best way for getting the users
 	// active guilds and the members of the guilds.
 	StateEnabled bool
 
 	// Whether or not to call event handlers synchronously.
-	// e.g false = launch event handlers in their own goroutines.
+	// e.g. false = launch event handlers in their own goroutines.
 	SyncEvents bool
 
 	// Exposed but should not be modified by User.
@@ -75,7 +75,7 @@ type Session struct {
 	// Max number of REST API retries
 	MaxRestRetries int
 
-	// Status stores the currect status of the websocket connection
+	// Status stores the current status of the websocket connection
 	// this is being tested, may stay, may go away.
 	status int32
 
@@ -222,8 +222,8 @@ type InviteTargetType uint8
 
 // Invite target types
 const (
-	InviteTargetStream             InviteTargetType = 1
-	InviteTargetEmbeddedAppliction InviteTargetType = 2
+	InviteTargetStream              InviteTargetType = 1
+	InviteTargetEmbeddedApplication InviteTargetType = 2
 )
 
 // A Invite stores all data related to a specific Discord Guild or Channel invite.
@@ -246,6 +246,8 @@ type Invite struct {
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 	ApproximateMemberCount   int `json:"approximate_member_count"`
+
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 // ChannelType is the type of a Channel
@@ -358,7 +360,7 @@ func (c *Channel) IsThread() bool {
 type ChannelEdit struct {
 	Name                 string                 `json:"name,omitempty"`
 	Topic                string                 `json:"topic,omitempty"`
-	NSFW                 bool                   `json:"nsfw,omitempty"`
+	NSFW                 *bool                  `json:"nsfw,omitempty"`
 	Position             int                    `json:"position"`
 	Bitrate              int                    `json:"bitrate,omitempty"`
 	UserLimit            int                    `json:"user_limit,omitempty"`
@@ -368,10 +370,10 @@ type ChannelEdit struct {
 
 	// NOTE: threads only
 
-	Archived            bool `json:"archived,omitempty"`
-	AutoArchiveDuration int  `json:"auto_archive_duration,omitempty"`
-	Locked              bool `json:"locked,bool"`
-	Invitable           bool `json:"invitable,omitempty"`
+	Archived            *bool `json:"archived,omitempty"`
+	AutoArchiveDuration int   `json:"auto_archive_duration,omitempty"`
+	Locked              *bool `json:"locked,omitempty"`
+	Invitable           *bool `json:"invitable,omitempty"`
 }
 
 // A ChannelFollow holds data returned after following a news channel
@@ -946,19 +948,19 @@ type GuildScheduledEventUser struct {
 	Member                *Member `json:"member"`
 }
 
-// A GuildTemplate represents
+// A GuildTemplate represents a replicable template for guild creation
 type GuildTemplate struct {
 	// The unique code for the guild template
 	Code string `json:"code"`
 
 	// The name of the template
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// The description for the template
-	Description string `json:"description"`
+	Description *string `json:"description,omitempty"`
 
 	// The number of times this template has been used
-	UsageCount string `json:"usage_count"`
+	UsageCount int `json:"usage_count"`
 
 	// The ID of the user who created the template
 	CreatorID string `json:"creator_id"`
@@ -1098,15 +1100,19 @@ func (r Roles) Swap(i, j int) {
 
 // A VoiceState stores the voice states of Guilds
 type VoiceState struct {
-	UserID    string `json:"user_id"`
-	SessionID string `json:"session_id"`
-	ChannelID string `json:"channel_id"`
-	GuildID   string `json:"guild_id"`
-	Suppress  bool   `json:"suppress"`
-	SelfMute  bool   `json:"self_mute"`
-	SelfDeaf  bool   `json:"self_deaf"`
-	Mute      bool   `json:"mute"`
-	Deaf      bool   `json:"deaf"`
+	GuildID                 string     `json:"guild_id"`
+	ChannelID               string     `json:"channel_id"`
+	UserID                  string     `json:"user_id"`
+	Member                  *Member    `json:"member"`
+	SessionID               string     `json:"session_id"`
+	Deaf                    bool       `json:"deaf"`
+	Mute                    bool       `json:"mute"`
+	SelfDeaf                bool       `json:"self_deaf"`
+	SelfMute                bool       `json:"self_mute"`
+	SelfStream              bool       `json:"self_stream"`
+	SelfVideo               bool       `json:"self_video"`
+	Suppress                bool       `json:"suppress"`
+	RequestToSpeakTimestamp *time.Time `json:"request_to_speak_timestamp"`
 }
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
@@ -1301,6 +1307,88 @@ type GuildRole struct {
 type GuildBan struct {
 	Reason string `json:"reason"`
 	User   *User  `json:"user"`
+}
+
+// AutoModerationRule stores data for an auto moderation rule.
+type AutoModerationRule struct {
+	ID              string                         `json:"id,omitempty"`
+	GuildID         string                         `json:"guild_id,omitempty"`
+	Name            string                         `json:"name,omitempty"`
+	CreatorID       string                         `json:"creator_id,omitempty"`
+	EventType       AutoModerationRuleEventType    `json:"event_type,omitempty"`
+	TriggerType     AutoModerationRuleTriggerType  `json:"trigger_type,omitempty"`
+	TriggerMetadata *AutoModerationTriggerMetadata `json:"trigger_metadata,omitempty"`
+	Actions         []AutoModerationAction         `json:"actions,omitempty"`
+	Enabled         *bool                          `json:"enabled,omitempty"`
+	ExemptRoles     *[]string                      `json:"exempt_roles,omitempty"`
+	ExemptChannels  *[]string                      `json:"exempt_channels,omitempty"`
+}
+
+// AutoModerationRuleEventType indicates in what event context a rule should be checked.
+type AutoModerationRuleEventType int
+
+// Auto moderation rule event types.
+const (
+	// AutoModerationEventMessageSend is checked when a member sends or edits a message in the guild
+	AutoModerationEventMessageSend AutoModerationRuleEventType = 1
+)
+
+// AutoModerationRuleTriggerType represents the type of content which can trigger the rule.
+type AutoModerationRuleTriggerType int
+
+// Auto moderation rule trigger types.
+const (
+	AutoModerationEventTriggerKeyword       AutoModerationRuleTriggerType = 1
+	AutoModerationEventTriggerHarmfulLink   AutoModerationRuleTriggerType = 2
+	AutoModerationEventTriggerSpam          AutoModerationRuleTriggerType = 3
+	AutoModerationEventTriggerKeywordPreset AutoModerationRuleTriggerType = 4
+)
+
+// AutoModerationKeywordPreset represents an internally pre-defined wordset.
+type AutoModerationKeywordPreset uint
+
+// Auto moderation keyword presets.
+const (
+	AutoModerationKeywordPresetProfanity     AutoModerationKeywordPreset = 1
+	AutoModerationKeywordPresetSexualContent AutoModerationKeywordPreset = 2
+	AutoModerationKeywordPresetSlurs         AutoModerationKeywordPreset = 3
+)
+
+// AutoModerationTriggerMetadata represents additional metadata used to determine whether rule should be triggered.
+type AutoModerationTriggerMetadata struct {
+	// Substrings which will be searched for in content.
+	// NOTE: should be only used with keyword trigger type.
+	KeywordFilter []string `json:"keyword_filter,omitempty"`
+	// Internally pre-defined wordsets which will be searched for in content.
+	// NOTE: should be only used with keyword preset trigger type.
+	Presets []AutoModerationKeywordPreset `json:"presets,omitempty"`
+}
+
+// AutoModerationActionType represents an action which will execute whenever a rule is triggered.
+type AutoModerationActionType int
+
+// Auto moderation actions types.
+const (
+	AutoModerationRuleActionBlockMessage     AutoModerationActionType = 1
+	AutoModerationRuleActionSendAlertMessage AutoModerationActionType = 2
+	AutoModerationRuleActionTimeout          AutoModerationActionType = 3
+)
+
+// AutoModerationActionMetadata represents additional metadata needed during execution for a specific action type.
+type AutoModerationActionMetadata struct {
+	// Channel to which user content should be logged.
+	// NOTE: should be only used with send alert message action type.
+	ChannelID string `json:"channel_id,omitempty"`
+
+	// Timeout duration in seconds (maximum of 2419200 - 4 weeks).
+	// NOTE: should be only used with timeout action type.
+	Duration int `json:"duration_seconds,omitempty"`
+}
+
+// AutoModerationAction stores data for an auto moderation action.
+type AutoModerationAction struct {
+	Type     AutoModerationActionType      `json:"type"`
+	Metadata *AutoModerationActionMetadata `json:"metadata,omitempty"`
 }
 
 // A GuildEmbed stores data for a guild embed.
@@ -2061,23 +2149,25 @@ type Intent int
 
 // Constants for the different bit offsets of intents
 const (
-	IntentGuilds                 Intent = 1 << 0
-	IntentGuildMembers           Intent = 1 << 1
-	IntentGuildBans              Intent = 1 << 2
-	IntentGuildEmojis            Intent = 1 << 3
-	IntentGuildIntegrations      Intent = 1 << 4
-	IntentGuildWebhooks          Intent = 1 << 5
-	IntentGuildInvites           Intent = 1 << 6
-	IntentGuildVoiceStates       Intent = 1 << 7
-	IntentGuildPresences         Intent = 1 << 8
-	IntentGuildMessages          Intent = 1 << 9
-	IntentGuildMessageReactions  Intent = 1 << 10
-	IntentGuildMessageTyping     Intent = 1 << 11
-	IntentDirectMessages         Intent = 1 << 12
-	IntentDirectMessageReactions Intent = 1 << 13
-	IntentDirectMessageTyping    Intent = 1 << 14
-	IntentMessageContent         Intent = 1 << 15
-	IntentGuildScheduledEvents   Intent = 1 << 16
+	IntentGuilds                      Intent = 1 << 0
+	IntentGuildMembers                Intent = 1 << 1
+	IntentGuildBans                   Intent = 1 << 2
+	IntentGuildEmojis                 Intent = 1 << 3
+	IntentGuildIntegrations           Intent = 1 << 4
+	IntentGuildWebhooks               Intent = 1 << 5
+	IntentGuildInvites                Intent = 1 << 6
+	IntentGuildVoiceStates            Intent = 1 << 7
+	IntentGuildPresences              Intent = 1 << 8
+	IntentGuildMessages               Intent = 1 << 9
+	IntentGuildMessageReactions       Intent = 1 << 10
+	IntentGuildMessageTyping          Intent = 1 << 11
+	IntentDirectMessages              Intent = 1 << 12
+	IntentDirectMessageReactions      Intent = 1 << 13
+	IntentDirectMessageTyping         Intent = 1 << 14
+	IntentMessageContent              Intent = 1 << 15
+	IntentGuildScheduledEvents        Intent = 1 << 16
+	IntentAutoModerationConfiguration Intent = 1 << 20
+	IntentAutoModerationExecution     Intent = 1 << 21
 
 	// TODO: remove when compatibility is not needed
 
@@ -2112,7 +2202,9 @@ const (
 		IntentDirectMessages |
 		IntentDirectMessageReactions |
 		IntentDirectMessageTyping |
-		IntentGuildScheduledEvents
+		IntentGuildScheduledEvents |
+		IntentAutoModerationConfiguration |
+		IntentAutoModerationExecution
 
 	IntentsAll = IntentsAllWithoutPrivileged |
 		IntentGuildMembers |
