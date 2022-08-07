@@ -1726,6 +1726,21 @@ type GuildMemberParams struct {
 	Roles *[]string `json:"roles,omitempty"`
 }
 
+// GuildMemberAddParams stores data needed to add a user to a guild.
+// NOTE: All fields are optional, except AccessToken.
+type GuildMemberAddParams struct {
+	// Valid access_token for the user.
+	AccessToken string `json:"access_token"`
+	// Value to set users nickname to.
+	Nick string `json:"nick,omitempty"`
+	// A list of role ID's to set on the member.
+	Roles []string `json:"roles,omitempty"`
+	// Whether the user is muted.
+	Mute bool `json:"mute,omitempty"`
+	// Whether the user is deafened.
+	Deaf bool `json:"deaf,omitempty"`
+}
+
 // An APIErrorMessage is an api error message returned from discord
 type APIErrorMessage struct {
 	Code    int    `json:"code"`

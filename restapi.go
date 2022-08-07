@@ -760,22 +760,10 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 }
 
 // GuildMemberAdd force joins a user to the guild.
-//  accessToken   : Valid access_token for the user.
 //  guildID       : The ID of a Guild.
 //  userID        : The ID of a User.
-//  nick          : Value to set users nickname to
-//  roles         : A list of role ID's to set on the member.
-//  mute          : If the user is muted.
-//  deaf          : If the user is deafened.
-func (s *Session) GuildMemberAdd(accessToken, guildID, userID, nick string, roles []string, mute, deaf bool) (err error) {
-
-	data := struct {
-		AccessToken string   `json:"access_token"`
-		Nick        string   `json:"nick,omitempty"`
-		Roles       []string `json:"roles,omitempty"`
-		Mute        bool     `json:"mute,omitempty"`
-		Deaf        bool     `json:"deaf,omitempty"`
-	}{accessToken, nick, roles, mute, deaf}
+//  data          : Parameters of the user to add.
+func (s *Session) GuildMemberAdd(guildID, userID string, data GuildMemberAddParams) (err error) {
 
 	_, err = s.RequestWithBucketID("PUT", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
