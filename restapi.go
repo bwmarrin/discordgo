@@ -1410,16 +1410,9 @@ func (s *Session) GuildTemplates(guildID string) (st []*GuildTemplate, err error
 }
 
 // GuildTemplateCreate creates a template for the guild
-// guildID: The ID of the guild
-// name: The name of the template (1-100 characters)
-// description: The description for the template (0-120 characters)
-func (s *Session) GuildTemplateCreate(guildID, name, description string) (st *GuildTemplate) {
-
-	data := struct {
-		Name        string `json:"name"`
-		Description string `json:"description"`
-	}{name, description}
-
+// guildID : The ID of the guild
+// data    : Template metadata
+func (s *Session) GuildTemplateCreate(guildID string, data GuildTemplateParams) (st *GuildTemplate) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildTemplates(guildID), data, EndpointGuildTemplates(guildID))
 	if err != nil {
 		return
