@@ -1439,16 +1439,10 @@ func (s *Session) GuildTemplateSync(guildID, templateCode string) (err error) {
 }
 
 // GuildTemplateEdit modifies the template's metadata
-// guildID: The ID of the guild
-// templateCode: The code of the template
-// name: The name of the template (1-100 characters)
-// description: The description for the template (0-120 characters)
-func (s *Session) GuildTemplateEdit(guildID, templateCode, name, description string) (st *GuildTemplate, err error) {
-
-	data := struct {
-		Name        string `json:"name,omitempty"`
-		Description string `json:"description,omitempty"`
-	}{name, description}
+// guildID      : The ID of the guild
+// templateCode : The code of the template
+// data         : New template metadata
+func (s *Session) GuildTemplateEdit(guildID, templateCode string, data GuildTemplateParams) (st *GuildTemplate, err error) {
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildTemplateSync(guildID, templateCode), data, EndpointGuildTemplateSync(guildID, ""))
 	if err != nil {

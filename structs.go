@@ -995,6 +995,14 @@ type GuildTemplate struct {
 	IsDirty bool `json:"is_dirty"`
 }
 
+// GuildTemplateParams stores the data needed to create or update a GuildTemplate.
+type GuildTemplateParams struct {
+	// The name of the template (1-100 characters)
+	Name string `json:"name,omitempty"`
+	// The description of the template (0-120 characters)
+	Description string `json:"description,omitempty"`
+}
+
 // MessageNotifications is the notification level for a guild
 // https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
 type MessageNotifications int
