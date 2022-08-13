@@ -46,8 +46,6 @@ var (
 	EndpointVoice        = EndpointAPI + "/voice/"
 	EndpointVoiceRegions = EndpointVoice + "regions"
 
-	// TODO: EndpointUserGuildMember
-
 	EndpointUser               = func(uID string) string { return EndpointUsers + uID }
 	EndpointUserAvatar         = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".png" }
 	EndpointUserAvatarAnimated = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".gif" }
@@ -64,6 +62,7 @@ var (
 
 	EndpointUserGuilds      = func(uID string) string { return EndpointUsers + uID + "/guilds" }
 	EndpointUserGuild       = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID }
+	EndpointUserGuildMember = func(uID, gID string) string { return EndpointUserGuild(uID, gID) + "/member" }
 	EndpointUserChannels    = func(uID string) string { return EndpointUsers + uID + "/channels" }
 	EndpointUserConnections = func(uID string) string { return EndpointUsers + uID + "/connections" }
 
