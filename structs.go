@@ -95,6 +95,9 @@ type Session struct {
 	// The http client used for REST requests
 	Client *http.Client
 
+	// The dialer used for WebSocket connection
+	Dialer *websocket.Dialer
+
 	// The user agent used for REST APIs
 	UserAgent string
 
