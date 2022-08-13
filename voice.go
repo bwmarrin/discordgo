@@ -304,7 +304,7 @@ func (v *VoiceConnection) open() (err error) {
 	// Connect to VoiceConnection Websocket
 	vg := "wss://" + strings.TrimSuffix(v.endpoint, ":80")
 	v.log(LogInformational, "connecting to voice endpoint %s", vg)
-	v.wsConn, _, err = websocket.DefaultDialer.Dial(vg, nil)
+	v.wsConn, _, err = v.session.Dialer.Dial(vg, nil)
 	if err != nil {
 		v.log(LogWarning, "error connecting to voice endpoint %s, %s", vg, err)
 		v.log(LogDebug, "voice struct: %#v\n", v)
