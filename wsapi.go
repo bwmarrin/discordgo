@@ -63,7 +63,10 @@ func (s *Session) Open() error {
 	}
 
 	// Get the gateway to use for the Websocket connection
-	if s.gateway == "" {
+	if s.resumeGatewayURL != "" {
+		s.log(LogInformational, "resuming on gateway %s", s.resumeGatewayURL)
+		s.gateway = s.resumeGatewayURL + "?v=" + APIVersion + "&encoding=json"
+	} else if s.gateway == "" {
 		s.gateway, err = s.Gateway()
 		if err != nil {
 			return err

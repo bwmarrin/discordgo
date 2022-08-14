@@ -124,6 +124,9 @@ type Session struct {
 	// sequence tracks the current gateway api websocket sequence number
 	sequence *int64
 
+	// stores URL of the gateway for resuming connections
+	resumeGatewayURL string
+
 	// stores sessions current Discord Gateway
 	gateway string
 
