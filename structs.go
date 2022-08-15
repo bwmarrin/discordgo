@@ -699,7 +699,7 @@ type Guild struct {
 	NSFWLevel GuildNSFWLevel `json:"nsfw_level"`
 
 	// The list of enabled guild features
-	Features []string `json:"features"`
+	Features []GuildFeature `json:"features"`
 
 	// Required MFA level for the guild
 	MfaLevel MfaLevel `json:"mfa_level"`
@@ -1038,7 +1038,7 @@ type UserGuild struct {
 	Features    []GuildFeature `json:"features"`
 }
 
-// A Guild feature indicates the presence of a feature in a guild
+// GuildFeature indicates the presence of a feature in a guild
 type GuildFeature string
 
 // Constants for GuildFeature
@@ -1060,7 +1060,7 @@ const (
 	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
-	GuildFeatureVanityUrl                     GuildFeature = "VANITY_URL"
+	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                      GuildFeature = "VERIFIED"
 	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
 	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
