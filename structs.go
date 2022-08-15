@@ -699,7 +699,7 @@ type Guild struct {
 	NSFWLevel GuildNSFWLevel `json:"nsfw_level"`
 
 	// The list of enabled guild features
-	Features []string `json:"features"`
+	Features []GuildFeature `json:"features"`
 
 	// Required MFA level for the guild
 	MfaLevel MfaLevel `json:"mfa_level"`
@@ -1030,12 +1030,41 @@ func (g *Guild) BannerURL() string {
 
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Icon        string `json:"icon"`
-	Owner       bool   `json:"owner"`
-	Permissions int64  `json:"permissions,string"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Icon        string         `json:"icon"`
+	Owner       bool           `json:"owner"`
+	Permissions int64          `json:"permissions,string"`
+	Features    []GuildFeature `json:"features"`
 }
+
+// GuildFeature indicates the presence of a feature in a guild
+type GuildFeature string
+
+// Constants for GuildFeature
+const (
+	GuildFeatureAnimatedBanner                GuildFeature = "ANIMATED_BANNER"
+	GuildFeatureAnimatedIcon                  GuildFeature = "ANIMATED_ICON"
+	GuildFeatureAutoModeration                GuildFeature = "AUTO_MODERATION"
+	GuildFeatureBanner                        GuildFeature = "BANNER"
+	GuildFeatureCommunity                     GuildFeature = "COMMUNITY"
+	GuildFeatureDiscoverable                  GuildFeature = "DISCOVERABLE"
+	GuildFeatureFeaturable                    GuildFeature = "FEATURABLE"
+	GuildFeatureInviteSplash                  GuildFeature = "INVITE_SPLASH"
+	GuildFeatureMemberVerificationGateEnabled GuildFeature = "MEMBER_VERIFICATION_GATE_ENABLED"
+	GuildFeatureMonetizationEnabled           GuildFeature = "MONETIZATION_ENABLED"
+	GuildFeatureMoreStickers                  GuildFeature = "MORE_STICKERS"
+	GuildFeatureNews                          GuildFeature = "NEWS"
+	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
+	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
+	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
+	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
+	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
+	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
+	GuildFeatureVerified                      GuildFeature = "VERIFIED"
+	GuildFeatureVipRegions                    GuildFeature = "VIP_REGIONS"
+	GuildFeatureWelcomeScreenEnabled          GuildFeature = "WELCOME_SCREEN_ENABLED"
+)
 
 // A GuildParams stores all the data needed to update discord guild settings
 type GuildParams struct {
