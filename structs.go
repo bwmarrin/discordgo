@@ -1038,7 +1038,7 @@ type UserGuild struct {
 	Features    []GuildFeature `json:"features"`
 }
 
-// A Guild feature indicates the presence of certain features in a guild
+// A Guild feature indicates the presence of a feature in a guild
 type GuildFeature string
 
 // Constants for GuildFeature
