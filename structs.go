@@ -479,6 +479,17 @@ func (e *Emoji) APIName() string {
 	return e.ID
 }
 
+// EmojiParams represents parameters needed to create or update an Emoji.
+type EmojiParams struct {
+	// Name of the emoji
+	Name string `json:"name,omitempty"`
+	// A base64 encoded emoji image, has to be smaller than 256KB.
+	// NOTE: can be only set on creation.
+	Image string `json:"image,omitempty"`
+	// Roles for which this emoji will be available.
+	Roles []string `json:"roles,omitempty"`
+}
+
 // StickerFormat is the file format of the Sticker.
 type StickerFormat int
 
@@ -972,6 +983,14 @@ type GuildTemplate struct {
 	IsDirty bool `json:"is_dirty"`
 }
 
+// GuildTemplateParams stores the data needed to create or update a GuildTemplate.
+type GuildTemplateParams struct {
+	// The name of the template (1-100 characters)
+	Name string `json:"name,omitempty"`
+	// The description of the template (0-120 characters)
+	Description string `json:"description,omitempty"`
+}
+
 // MessageNotifications is the notification level for a guild
 // https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
 type MessageNotifications int
@@ -1098,6 +1117,20 @@ type Role struct {
 // Mention returns a string which mentions the role
 func (r *Role) Mention() string {
 	return fmt.Sprintf("<@&%s>", r.ID)
+}
+
+// RoleParams represents the parameters needed to create or update a Role
+type RoleParams struct {
+	// The role's name
+	Name string `json:"name,omitempty"`
+	// The color the role should have (as a decimal, not hex)
+	Color *int `json:"color,omitempty"`
+	// Whether to display the role's users separately
+	Hoist *bool `json:"hoist,omitempty"`
+	// The overall permissions number of the role
+	Permissions *int64 `json:"permissions,omitempty,string"`
+	// Whether this role is mentionable
+	Mentionable *bool `json:"mentionable,omitempty"`
 }
 
 // Roles are a collection of Role
@@ -1372,8 +1405,8 @@ type AutoModerationAction struct {
 
 // A GuildEmbed stores data for a guild embed.
 type GuildEmbed struct {
-	Enabled   bool   `json:"enabled"`
-	ChannelID string `json:"channel_id"`
+	Enabled   *bool  `json:"enabled,omitempty"`
+	ChannelID string `json:"channel_id,omitempty"`
 }
 
 // A GuildAuditLog stores data for a guild audit log.
@@ -1699,6 +1732,21 @@ func (p GuildMemberParams) MarshalJSON() (res []byte, err error) {
 	}
 
 	return json.Marshal(v)
+}
+
+// GuildMemberAddParams stores data needed to add a user to a guild.
+// NOTE: All fields are optional, except AccessToken.
+type GuildMemberAddParams struct {
+	// Valid access_token for the user.
+	AccessToken string `json:"access_token"`
+	// Value to set users nickname to.
+	Nick string `json:"nick,omitempty"`
+	// A list of role ID's to set on the member.
+	Roles []string `json:"roles,omitempty"`
+	// Whether the user is muted.
+	Mute bool `json:"mute,omitempty"`
+	// Whether the user is deafened.
+	Deaf bool `json:"deaf,omitempty"`
 }
 
 // An APIErrorMessage is an api error message returned from discord

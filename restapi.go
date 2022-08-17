@@ -772,22 +772,10 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 }
 
 // GuildMemberAdd force joins a user to the guild.
-//  accessToken   : Valid access_token for the user.
 //  guildID       : The ID of a Guild.
 //  userID        : The ID of a User.
-//  nick          : Value to set users nickname to
-//  roles         : A list of role ID's to set on the member.
-//  mute          : If the user is muted.
-//  deaf          : If the user is deafened.
-func (s *Session) GuildMemberAdd(accessToken, guildID, userID, nick string, roles []string, mute, deaf bool) (err error) {
-
-	data := struct {
-		AccessToken string   `json:"access_token"`
-		Nick        string   `json:"nick,omitempty"`
-		Roles       []string `json:"roles,omitempty"`
-		Mute        bool     `json:"mute,omitempty"`
-		Deaf        bool     `json:"deaf,omitempty"`
-	}{accessToken, nick, roles, mute, deaf}
+//  data          : Parameters of the user to add.
+func (s *Session) GuildMemberAdd(guildID, userID string, data *GuildMemberAddParams) (err error) {
 
 	_, err = s.RequestWithBucketID("PUT", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -820,25 +808,11 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 	return
 }
 
-// GuildMemberEdit edits the roles of a member.
+// GuildMemberEdit edits and returns updated member.
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
-// roles    : A list of role ID's to set on the member.
-func (s *Session) GuildMemberEdit(guildID, userID string, roles []string) (err error) {
-
-	data := struct {
-		Roles []string `json:"roles"`
-	}{roles}
-
-	_, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
-	return
-}
-
-// GuildMemberEditComplex edits the nickname and roles of a member.
-// guildID  : The ID of a Guild.
-// userID   : The ID of a User.
-// data     : A GuildMemberEditData struct with the new nickname and roles
-func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
+// data     : Updated GuildMember data.
+func (s *Session) GuildMemberEdit(guildID, userID string, data *GuildMemberParams) (st *Member, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -847,6 +821,15 @@ func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMembe
 
 	err = unmarshal(body, &st)
 	return
+}
+
+// GuildMemberEditComplex edits the nickname and roles of a member.
+// NOTE: deprecated, use GuildMemberEdit instead.
+// guildID  : The ID of a Guild.
+// userID   : The ID of a User.
+// data     : A GuildMemberEditData struct with the new nickname and roles
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data *GuildMemberParams) (st *Member, err error) {
+	return s.GuildMemberEdit(guildID, userID, data)
 }
 
 // GuildMemberMove moves a guild member from one voice channel to another/none
@@ -1043,11 +1026,11 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 	return // TODO return pointer
 }
 
-// GuildRoleCreate returns a new Guild Role.
-// guildID: The ID of a Guild.
-func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
-
-	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), nil, EndpointGuildRoles(guildID))
+// GuildRoleCreate creates a new Guild Role and returns it.
+// guildID : The ID of a Guild.
+// data    : New Role parameters.
+func (s *Session) GuildRoleCreate(guildID string, data *RoleParams) (st *Role, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), data, EndpointGuildRoles(guildID))
 	if err != nil {
 		return
 	}
@@ -1057,29 +1040,16 @@ func (s *Session) GuildRoleCreate(guildID string) (st *Role, err error) {
 	return
 }
 
-// GuildRoleEdit updates an existing Guild Role with new values
+// GuildRoleEdit updates an existing Guild Role and returns updated Role data.
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
-// name      : The name of the Role.
-// color     : The color of the role (decimal, not hex).
-// hoist     : Whether to display the role's users separately.
-// perm      : The permissions for the role.
-// mention   : Whether this role is mentionable
-func (s *Session) GuildRoleEdit(guildID, roleID, name string, color int, hoist bool, perm int64, mention bool) (st *Role, err error) {
+// data 		 : Updated Role data.
+func (s *Session) GuildRoleEdit(guildID, roleID string, data *RoleParams) (st *Role, err error) {
 
 	// Prevent sending a color int that is too big.
-	if color > 0xFFFFFF {
-		err = fmt.Errorf("color value cannot be larger than 0xFFFFFF")
-		return nil, err
+	if data.Color != nil && *data.Color > 0xFFFFFF {
+		return nil, fmt.Errorf("color value cannot be larger than 0xFFFFFF")
 	}
-
-	data := struct {
-		Name        string `json:"name"`               // The role's name (overwrites existing)
-		Color       int    `json:"color"`              // The color the role should have (as a decimal, not hex)
-		Hoist       bool   `json:"hoist"`              // Whether to display the role's users separately
-		Permissions int64  `json:"permissions,string"` // The overall permissions number of the role (overwrites existing)
-		Mentionable bool   `json:"mentionable"`        // Whether this role is mentionable
-	}{name, color, hoist, perm, mention}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""))
 	if err != nil {
@@ -1298,12 +1268,10 @@ func (s *Session) GuildEmbed(guildID string) (st *GuildEmbed, err error) {
 	return
 }
 
-// GuildEmbedEdit returns the embed for a Guild.
+// GuildEmbedEdit edits the embed of a Guild.
 // guildID   : The ID of a Guild.
-func (s *Session) GuildEmbedEdit(guildID string, enabled bool, channelID string) (err error) {
-
-	data := GuildEmbed{enabled, channelID}
-
+// data      : New GuildEmbed data.
+func (s *Session) GuildEmbedEdit(guildID string, data *GuildEmbed) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildEmbed(guildID), data, EndpointGuildEmbed(guildID))
 	return
 }
@@ -1371,19 +1339,10 @@ func (s *Session) GuildEmoji(guildID, emojiID string) (emoji *Emoji, err error) 
 	return
 }
 
-// GuildEmojiCreate creates a new emoji
+// GuildEmojiCreate creates a new Emoji.
 // guildID : The ID of a Guild.
-// name    : The Name of the Emoji.
-// image   : The base64 encoded emoji image, has to be smaller than 256KB.
-// roles   : The roles for which this emoji will be whitelisted, can be nil.
-func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) (emoji *Emoji, err error) {
-
-	data := struct {
-		Name  string   `json:"name"`
-		Image string   `json:"image"`
-		Roles []string `json:"roles,omitempty"`
-	}{name, image, roles}
-
+// data    : New Emoji data.
+func (s *Session) GuildEmojiCreate(guildID string, data *EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildEmojis(guildID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
 		return
@@ -1393,18 +1352,11 @@ func (s *Session) GuildEmojiCreate(guildID, name, image string, roles []string) 
 	return
 }
 
-// GuildEmojiEdit modifies an emoji
+// GuildEmojiEdit modifies and returns updated Emoji.
 // guildID : The ID of a Guild.
 // emojiID : The ID of an Emoji.
-// name    : The Name of the Emoji.
-// roles   : The roles for which this emoji will be whitelisted, if nil or empty the roles will be reset.
-func (s *Session) GuildEmojiEdit(guildID, emojiID, name string, roles []string) (emoji *Emoji, err error) {
-
-	data := struct {
-		Name  string   `json:"name"`
-		Roles []string `json:"roles"`
-	}{name, roles}
-
+// data    : Updated Emoji data.
+func (s *Session) GuildEmojiEdit(guildID, emojiID string, data *EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildEmoji(guildID, emojiID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
 		return
@@ -1470,16 +1422,9 @@ func (s *Session) GuildTemplates(guildID string) (st []*GuildTemplate, err error
 }
 
 // GuildTemplateCreate creates a template for the guild
-// guildID: The ID of the guild
-// name: The name of the template (1-100 characters)
-// description: The description for the template (0-120 characters)
-func (s *Session) GuildTemplateCreate(guildID, name, description string) (st *GuildTemplate) {
-
-	data := struct {
-		Name        string `json:"name"`
-		Description string `json:"description"`
-	}{name, description}
-
+// guildID : The ID of the guild
+// data    : Template metadata
+func (s *Session) GuildTemplateCreate(guildID string, data *GuildTemplateParams) (st *GuildTemplate) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildTemplates(guildID), data, EndpointGuildTemplates(guildID))
 	if err != nil {
 		return
@@ -1499,16 +1444,10 @@ func (s *Session) GuildTemplateSync(guildID, templateCode string) (err error) {
 }
 
 // GuildTemplateEdit modifies the template's metadata
-// guildID: The ID of the guild
-// templateCode: The code of the template
-// name: The name of the template (1-100 characters)
-// description: The description for the template (0-120 characters)
-func (s *Session) GuildTemplateEdit(guildID, templateCode, name, description string) (st *GuildTemplate, err error) {
-
-	data := struct {
-		Name        string `json:"name,omitempty"`
-		Description string `json:"description,omitempty"`
-	}{name, description}
+// guildID      : The ID of the guild
+// templateCode : The code of the template
+// data         : New template metadata
+func (s *Session) GuildTemplateEdit(guildID, templateCode string, data *GuildTemplateParams) (st *GuildTemplate, err error) {
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildTemplateSync(guildID, templateCode), data, EndpointGuildTemplateSync(guildID, ""))
 	if err != nil {
@@ -1544,19 +1483,10 @@ func (s *Session) Channel(channelID string) (st *Channel, err error) {
 	return
 }
 
-// ChannelEdit edits the given channel
-// channelID  : The ID of a Channel
-// name       : The new name to assign the channel.
-func (s *Session) ChannelEdit(channelID, name string) (*Channel, error) {
-	return s.ChannelEditComplex(channelID, &ChannelEdit{
-		Name: name,
-	})
-}
-
-// ChannelEditComplex edits an existing channel, replacing the parameters entirely with ChannelEdit struct
-// channelID  : The ID of a Channel
-// data          : The channel struct to send
-func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *Channel, err error) {
+// ChannelEdit edits the given channel and returns the updated Channel data.
+// channelID  : The ID of a Channel.
+// data       : New Channel data.
+func (s *Session) ChannelEdit(channelID string, data *ChannelEdit) (st *Channel, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointChannel(channelID), data, EndpointChannel(channelID))
 	if err != nil {
 		return
@@ -1564,6 +1494,15 @@ func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *C
 
 	err = unmarshal(body, &st)
 	return
+
+}
+
+// ChannelEditComplex edits an existing channel, replacing the parameters entirely with ChannelEdit struct
+// NOTE: deprecated, use ChannelEdit instead
+// channelID     : The ID of a Channel
+// data          : The channel struct to send
+func (s *Session) ChannelEditComplex(channelID string, data *ChannelEdit) (st *Channel, err error) {
+	return s.ChannelEdit(channelID, data)
 }
 
 // ChannelDelete deletes the given channel
