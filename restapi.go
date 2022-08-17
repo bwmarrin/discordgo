@@ -763,7 +763,7 @@ func (s *Session) GuildMember(guildID, userID string) (st *Member, err error) {
 //  guildID       : The ID of a Guild.
 //  userID        : The ID of a User.
 //  data          : Parameters of the user to add.
-func (s *Session) GuildMemberAdd(guildID, userID string, data GuildMemberAddParams) (err error) {
+func (s *Session) GuildMemberAdd(guildID, userID string, data *GuildMemberAddParams) (err error) {
 
 	_, err = s.RequestWithBucketID("PUT", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -800,7 +800,7 @@ func (s *Session) GuildMemberDeleteWithReason(guildID, userID, reason string) (e
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
 // data     : Updated GuildMember data.
-func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
+func (s *Session) GuildMemberEdit(guildID, userID string, data *GuildMemberParams) (st *Member, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, userID), data, EndpointGuildMember(guildID, ""))
 	if err != nil {
@@ -816,7 +816,7 @@ func (s *Session) GuildMemberEdit(guildID, userID string, data GuildMemberParams
 // guildID  : The ID of a Guild.
 // userID   : The ID of a User.
 // data     : A GuildMemberEditData struct with the new nickname and roles
-func (s *Session) GuildMemberEditComplex(guildID, userID string, data GuildMemberParams) (st *Member, err error) {
+func (s *Session) GuildMemberEditComplex(guildID, userID string, data *GuildMemberParams) (st *Member, err error) {
 	return s.GuildMemberEdit(guildID, userID, data)
 }
 
@@ -1330,7 +1330,7 @@ func (s *Session) GuildEmoji(guildID, emojiID string) (emoji *Emoji, err error) 
 // GuildEmojiCreate creates a new Emoji.
 // guildID : The ID of a Guild.
 // data    : New Emoji data.
-func (s *Session) GuildEmojiCreate(guildID string, data EmojiParams) (emoji *Emoji, err error) {
+func (s *Session) GuildEmojiCreate(guildID string, data *EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildEmojis(guildID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
 		return
@@ -1344,7 +1344,7 @@ func (s *Session) GuildEmojiCreate(guildID string, data EmojiParams) (emoji *Emo
 // guildID : The ID of a Guild.
 // emojiID : The ID of an Emoji.
 // data    : Updated emoji data.
-func (s *Session) GuildEmojiEdit(guildID, emojiID string, data EmojiParams) (emoji *Emoji, err error) {
+func (s *Session) GuildEmojiEdit(guildID, emojiID string, data *EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildEmoji(guildID, emojiID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
 		return
@@ -1412,7 +1412,7 @@ func (s *Session) GuildTemplates(guildID string) (st []*GuildTemplate, err error
 // GuildTemplateCreate creates a template for the guild
 // guildID : The ID of the guild
 // data    : Template metadata
-func (s *Session) GuildTemplateCreate(guildID string, data GuildTemplateParams) (st *GuildTemplate) {
+func (s *Session) GuildTemplateCreate(guildID string, data *GuildTemplateParams) (st *GuildTemplate) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildTemplates(guildID), data, EndpointGuildTemplates(guildID))
 	if err != nil {
 		return
@@ -1435,7 +1435,7 @@ func (s *Session) GuildTemplateSync(guildID, templateCode string) (err error) {
 // guildID      : The ID of the guild
 // templateCode : The code of the template
 // data         : New template metadata
-func (s *Session) GuildTemplateEdit(guildID, templateCode string, data GuildTemplateParams) (st *GuildTemplate, err error) {
+func (s *Session) GuildTemplateEdit(guildID, templateCode string, data *GuildTemplateParams) (st *GuildTemplate, err error) {
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildTemplateSync(guildID, templateCode), data, EndpointGuildTemplateSync(guildID, ""))
 	if err != nil {
