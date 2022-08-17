@@ -1016,7 +1016,7 @@ func (s *Session) GuildRoles(guildID string) (st []*Role, err error) {
 
 // GuildRoleCreate creates a new Guild Role and returns it.
 // guildID : The ID of a Guild.
-// data    : New role parameters.
+// data    : New Role parameters.
 func (s *Session) GuildRoleCreate(guildID string, data *RoleParams) (st *Role, err error) {
 	body, err := s.RequestWithBucketID("POST", EndpointGuildRoles(guildID), data, EndpointGuildRoles(guildID))
 	if err != nil {
@@ -1028,7 +1028,7 @@ func (s *Session) GuildRoleCreate(guildID string, data *RoleParams) (st *Role, e
 	return
 }
 
-// GuildRoleEdit updates an existing Guild Role and updated Role data.
+// GuildRoleEdit updates an existing Guild Role and returns updated Role data.
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
 // data 		 : Updated Role data.
@@ -1258,7 +1258,7 @@ func (s *Session) GuildEmbed(guildID string) (st *GuildEmbed, err error) {
 
 // GuildEmbedEdit edits the embed of a Guild.
 // guildID   : The ID of a Guild.
-// data      : New embed data.
+// data      : New GuildEmbed data.
 func (s *Session) GuildEmbedEdit(guildID string, data *GuildEmbed) (err error) {
 	_, err = s.RequestWithBucketID("PATCH", EndpointGuildEmbed(guildID), data, EndpointGuildEmbed(guildID))
 	return
@@ -1340,10 +1340,10 @@ func (s *Session) GuildEmojiCreate(guildID string, data *EmojiParams) (emoji *Em
 	return
 }
 
-// GuildEmojiEdit modifies and returns updated emoji.
+// GuildEmojiEdit modifies and returns updated Emoji.
 // guildID : The ID of a Guild.
 // emojiID : The ID of an Emoji.
-// data    : Updated emoji data.
+// data    : Updated Emoji data.
 func (s *Session) GuildEmojiEdit(guildID, emojiID string, data *EmojiParams) (emoji *Emoji, err error) {
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildEmoji(guildID, emojiID), data, EndpointGuildEmojis(guildID))
 	if err != nil {
