@@ -1753,24 +1753,28 @@ func (p GuildMemberParams) MarshalJSON() (res []byte, err error) {
 		CommunicationDisabledUntil json.RawMessage `json:"communication_disabled_until,omitempty"`
 	}{guildMemberParams: guildMemberParams(p)}
 
-	if p.ChannelID != nil && *p.ChannelID == "" {
-		v.ChannelID = json.RawMessage(`null`)
-	} else {
-		res, err = json.Marshal(v.ChannelID)
-		if err != nil {
-			return
+	if p.ChannelID != nil {
+		if *p.ChannelID == "" {
+			v.ChannelID = json.RawMessage(`null`)
+		} else {
+			res, err = json.Marshal(p.ChannelID)
+			if err != nil {
+				return
+			}
+			v.ChannelID = res
 		}
-		v.ChannelID = res
 	}
 
-	if p.CommunicationDisabledUntil != nil && p.CommunicationDisabledUntil.IsZero() {
-		v.CommunicationDisabledUntil = json.RawMessage(`null`)
-	} else {
-		res, err = json.Marshal(v.CommunicationDisabledUntil)
-		if err != nil {
-			return
+	if p.CommunicationDisabledUntil != nil {
+		if p.CommunicationDisabledUntil.IsZero() {
+			v.CommunicationDisabledUntil = json.RawMessage(`null`)
+		} else {
+			res, err = json.Marshal(p.CommunicationDisabledUntil)
+			if err != nil {
+				return
+			}
+			v.CommunicationDisabledUntil = res
 		}
-		v.CommunicationDisabledUntil = res
 	}
 
 	return json.Marshal(v)
