@@ -553,7 +553,7 @@ func (s *Session) GuildCreate(name string) (st *Guild, err error) {
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
 // g 		 : A GuildParams struct with the values Name, Region and VerificationLevel defined.
-func (s *Session) GuildEdit(guildID string, g GuildParams) (st *Guild, err error) {
+func (s *Session) GuildEdit(guildID string, g *GuildParams) (st *Guild, err error) {
 
 	// Bounds checking for VerificationLevel, interval: [0, 4]
 	if g.VerificationLevel != nil {
