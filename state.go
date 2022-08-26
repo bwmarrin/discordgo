@@ -192,6 +192,29 @@ func (s *State) Guild(guildID string) (*Guild, error) {
 	return nil, ErrStateNotFound
 }
 
+// retrieves IDs of guilds the bot is present in
+func (s *State) GuildIDs() ([]string, error) {
+	if s == nil {
+		return nil, ErrNilState
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	if len(s.guildMap) == 0 {
+		return nil, ErrStateNotFound
+	}
+
+	ids := make([]string, len(s.guildMap))
+	i := 0
+	for k := range s.guildMap {
+		ids[i] = k
+		i++
+	}
+
+	return ids, nil
+}
+
 func (s *State) presenceAdd(guildID string, presence *Presence) error {
 	guild, ok := s.guildMap[guildID]
 	if !ok {

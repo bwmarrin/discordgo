@@ -1,5 +1,6 @@
 # IDE-specific metadata
 .idea/
+.vscode/
 
 # Environment variables. Useful for examples.
 .env
