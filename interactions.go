@@ -472,7 +472,7 @@ func (o ApplicationCommandInteractionDataOption) RoleValue(s *Session, gID strin
 		return &Role{ID: roleID}
 	}
 
-	r, err := s.State.Role(roleID, gID)
+	r, err := s.State.Role(gID, roleID)
 	if err != nil {
 		roles, err := s.GuildRoles(gID)
 		if err == nil {
