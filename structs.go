@@ -1078,7 +1078,7 @@ type GuildParams struct {
 	DefaultMessageNotifications int                `json:"default_message_notifications,omitempty"` // TODO: Separate type?
 	AfkChannelID                string             `json:"afk_channel_id,omitempty"`
 	AfkTimeout                  int                `json:"afk_timeout,omitempty"`
-	Icon                        string             `json:"icon,omitempty"`
+	Icon                        []*File            `json:"icon,omitempty"`
 	OwnerID                     string             `json:"owner_id,omitempty"`
 	Splash                      string             `json:"splash,omitempty"`
 	Banner                      string             `json:"banner,omitempty"`
@@ -1249,9 +1249,10 @@ func (m *Member) Mention() string {
 }
 
 // AvatarURL returns the URL of the member's avatar
-//    size:    The size of the user's avatar as a power of two
-//             if size is an empty string, no size parameter will
-//             be added to the URL.
+//
+//	size:    The size of the user's avatar as a power of two
+//	         if size is an empty string, no size parameter will
+//	         be added to the URL.
 func (m *Member) AvatarURL(size string) string {
 	if m.Avatar == "" {
 		return m.User.AvatarURL(size)
