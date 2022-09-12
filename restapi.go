@@ -590,9 +590,9 @@ func (s *Session) GuildEdit(guildID string, g *GuildParams) (st *Guild, err erro
 			return st, encodeErr
 		}
 
-		response, err = s.request("POST", EndpointGuild(guildID), contentType, body, EndpointGuild(guildID), 0)
+		response, err = s.request("PATCH", EndpointGuild(guildID), contentType, body, EndpointGuild(guildID), 0)
 	} else {
-		response, err = s.RequestWithBucketID("POST", EndpointGuild(guildID), g, EndpointGuild(guildID))
+		response, err = s.RequestWithBucketID("PATCH", EndpointGuild(guildID), g, EndpointGuild(guildID))
 	}
 
 	//response, err := s.RequestWithBucketID("PATCH", EndpointGuild(guildID), g, EndpointGuild(guildID))
