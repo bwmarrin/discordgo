@@ -2566,7 +2566,7 @@ func (s *Session) ForumThreadStart(channelID, name string, archiveDuration int, 
 	}, &MessageSend{Content: content})
 }
 
-// ForumThreadStart starts a new thread (post) in a forum channel.
+// ForumThreadStartEmbed starts a new thread (post) in a forum channel.
 // channelID       : Channel to create thread in.
 // name            : Name of the thread
 // archiveDuration : Auto archive duration
@@ -2578,7 +2578,7 @@ func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration 
 	}, &MessageSend{Embeds: []*MessageEmbed{embed}})
 }
 
-// ForumThreadStart starts a new thread (post) in a forum channel.
+// ForumThreadStartEmbeds starts a new thread (post) in a forum channel.
 // channelID       : Channel to create thread in.
 // name            : Name of the thread
 // archiveDuration : Auto archive duration
