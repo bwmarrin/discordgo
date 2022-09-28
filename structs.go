@@ -393,7 +393,7 @@ type ChannelEdit struct {
 	// NOTE: forum channels only
 
 	AvailableTags        *[]ForumTag      `json:"available_tags,omitempty"`
-	DefaultReactionEmoji *DefaultReaction `json:"default_reaction_emoji,omitempty"`
+	DefaultReactionEmoji *ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
 
 	// NOTE: forum threads only
 	AppliedTags *[]string `json:"applied_tags,omitempty"`
@@ -476,9 +476,9 @@ type AddedThreadMember struct {
 	Presence *Presence `json:"presence"`
 }
 
-// DefaultReaction specifies emoji to use as the default reaction to a forum post.
+// ForumDefaultReaction specifies emoji to use as the default reaction to a forum post.
 // NOTE: Exactly one of EmojiID and EmojiName must be set.
-type DefaultReaction struct {
+type ForumDefaultReaction struct {
 	// The id of a guild's custom emoji.
 	EmojiID string `json:"emoji_id,omitempty"`
 	// The unicode character of the emoji.
