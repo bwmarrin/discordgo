@@ -267,7 +267,7 @@ const (
 	ChannelFlagPinned ChannelFlags = 1 << 1
 	// ChannelFlagRequireTag indicates whether a tag is required to be specified when creating a thread.
 	// NOTE: forum channels only.
-	ChannelFlagRequireTag ChannelFlags = 1 << 2
+	ChannelFlagRequireTag ChannelFlags = 1 << 4
 )
 
 // A Channel holds all data related to an individual Discord channel.
