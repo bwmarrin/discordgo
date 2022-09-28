@@ -2497,9 +2497,9 @@ func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDu
 }
 
 // ForumThreadStartComplex starts a new thread (creates a post) in a forum channel.
-// channelID : Channel to create thread in
-// threadData : Parameters of the thread
-// messageData : Parameters of the starting message
+// channelID : Channel to create thread in.
+// threadData : Parameters of the thread.
+// messageData : Parameters of the starting message.
 func (s *Session) ForumThreadStartComplex(channelID string, threadData *ThreadStart, messageData *MessageSend) (th *Channel, err error) {
 	endpoint := EndpointChannelThreads(channelID)
 
@@ -2556,9 +2556,9 @@ func (s *Session) ForumThreadStartComplex(channelID string, threadData *ThreadSt
 
 // ForumThreadStart starts a new thread (post) in a forum channel.
 // channelID       : Channel to create thread in.
-// name            : Name of the thread
-// archiveDuration : Auto archive duration
-// content         : Content of the starting message
+// name            : Name of the thread.
+// archiveDuration : Auto archive duration.
+// content         : Content of the starting message.
 func (s *Session) ForumThreadStart(channelID, name string, archiveDuration int, content string) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,
@@ -2568,8 +2568,8 @@ func (s *Session) ForumThreadStart(channelID, name string, archiveDuration int, 
 
 // ForumThreadStartEmbed starts a new thread (post) in a forum channel.
 // channelID       : Channel to create thread in.
-// name            : Name of the thread
-// archiveDuration : Auto archive duration
+// name            : Name of the thread.
+// archiveDuration : Auto archive duration.
 // embed           : Embed data of the starting message.
 func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration int, embed *MessageEmbed) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
@@ -2580,8 +2580,8 @@ func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration 
 
 // ForumThreadStartEmbeds starts a new thread (post) in a forum channel.
 // channelID       : Channel to create thread in.
-// name            : Name of the thread
-// archiveDuration : Auto archive duration
+// name            : Name of the thread.
+// archiveDuration : Auto archive duration.
 // embeds           : Embeds data of the starting message.
 func (s *Session) ForumThreadStartEmbeds(channelID, name string, archiveDuration int, embeds []*MessageEmbed) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
