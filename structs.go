@@ -357,7 +357,7 @@ type Channel struct {
 	AppliedTags []string `json:"applied_tags"`
 
 	// Emoji to use as the default reaction to a forum post.
-	DefaultReactionEmoji DefaultReaction `json:"default_reaction_emoji"`
+	DefaultReactionEmoji ForumDefaultReaction `json:"default_reaction_emoji"`
 }
 
 // Mention returns a string which mentions the channel
