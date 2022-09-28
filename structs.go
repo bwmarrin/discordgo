@@ -392,7 +392,7 @@ type ChannelEdit struct {
 
 	// NOTE: forum channels only
 
-	AvailableTags        *[]ForumTag      `json:"available_tags,omitempty"`
+	AvailableTags        *[]ForumTag           `json:"available_tags,omitempty"`
 	DefaultReactionEmoji *ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
 
 	// NOTE: forum threads only
