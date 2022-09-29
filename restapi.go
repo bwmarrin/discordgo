@@ -2497,8 +2497,8 @@ func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDu
 }
 
 // ForumThreadStartComplex starts a new thread (creates a post) in a forum channel.
-// channelID : Channel to create thread in.
-// threadData : Parameters of the thread.
+// channelID   : Channel to create thread in.
+// threadData  : Parameters of the thread.
 // messageData : Parameters of the starting message.
 func (s *Session) ForumThreadStartComplex(channelID string, threadData *ThreadStart, messageData *MessageSend) (th *Channel, err error) {
 	endpoint := EndpointChannelThreads(channelID)
