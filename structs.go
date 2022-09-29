@@ -254,6 +254,20 @@ const (
 	ChannelTypeGuildPublicThread  ChannelType = 11
 	ChannelTypeGuildPrivateThread ChannelType = 12
 	ChannelTypeGuildStageVoice    ChannelType = 13
+	ChannelTypeGuildForum         ChannelType = 15
+)
+
+// ChannelFlags represent flags of a channel/thread.
+type ChannelFlags int
+
+// Block containing known ChannelFlags values.
+const (
+	// ChannelFlagPinned indicates whether the thread is pinned in the forum channel.
+	// NOTE: forum threads only.
+	ChannelFlagPinned ChannelFlags = 1 << 1
+	// ChannelFlagRequireTag indicates whether a tag is required to be specified when creating a thread.
+	// NOTE: forum channels only.
+	ChannelFlagRequireTag ChannelFlags = 1 << 4
 )
 
 // A Channel holds all data related to an individual Discord channel.
@@ -332,6 +346,18 @@ type Channel struct {
 
 	// All thread members. State channels only.
 	Members []*ThreadMember `json:"-"`
+
+	// Channel flags.
+	Flags ChannelFlags `json:"flags"`
+
+	// The set of tags that can be used in a forum channel.
+	AvailableTags []ForumTag `json:"available_tags"`
+
+	// The IDs of the set of tags that have been applied to a thread in a forum channel.
+	AppliedTags []string `json:"applied_tags"`
+
+	// Emoji to use as the default reaction to a forum post.
+	DefaultReactionEmoji ForumDefaultReaction `json:"default_reaction_emoji"`
 }
 
 // Mention returns a string which mentions the channel
@@ -355,6 +381,7 @@ type ChannelEdit struct {
 	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 	ParentID             string                 `json:"parent_id,omitempty"`
 	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
+	Flags                *ChannelFlags          `json:"flags,omitempty"`
 
 	// NOTE: threads only
 
@@ -362,6 +389,14 @@ type ChannelEdit struct {
 	AutoArchiveDuration int   `json:"auto_archive_duration,omitempty"`
 	Locked              *bool `json:"locked,omitempty"`
 	Invitable           *bool `json:"invitable,omitempty"`
+
+	// NOTE: forum channels only
+
+	AvailableTags        *[]ForumTag           `json:"available_tags,omitempty"`
+	DefaultReactionEmoji *ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
+
+	// NOTE: forum threads only
+	AppliedTags *[]string `json:"applied_tags,omitempty"`
 }
 
 // A ChannelFollow holds data returned after following a news channel
@@ -395,6 +430,9 @@ type ThreadStart struct {
 	Type                ChannelType `json:"type,omitempty"`
 	Invitable           bool        `json:"invitable"`
 	RateLimitPerUser    int         `json:"rate_limit_per_user,omitempty"`
+
+	// NOTE: forum threads only
+	AppliedTags []string `json:"applied_tags,omitempty"`
 }
 
 // ThreadMetadata contains a number of thread-specific channel fields that are not needed by other channel types.
@@ -436,6 +474,24 @@ type AddedThreadMember struct {
 	*ThreadMember
 	Member   *Member   `json:"member"`
 	Presence *Presence `json:"presence"`
+}
+
+// ForumDefaultReaction specifies emoji to use as the default reaction to a forum post.
+// NOTE: Exactly one of EmojiID and EmojiName must be set.
+type ForumDefaultReaction struct {
+	// The id of a guild's custom emoji.
+	EmojiID string `json:"emoji_id,omitempty"`
+	// The unicode character of the emoji.
+	EmojiName string `json:"emoji_name,omitempty"`
+}
+
+// ForumTag represents a tag that is able to be applied to a thread in a forum channel.
+type ForumTag struct {
+	ID        string `json:"id,omitempty"`
+	Name      string `json:"name"`
+	Moderated bool   `json:"moderated"`
+	EmojiID   string `json:"emoji_id,omitempty"`
+	EmojiName string `json:"emoji_name,omitempty"`
 }
 
 // Emoji struct holds data related to Emoji's
@@ -2074,6 +2130,7 @@ const (
 	ErrCodeUnknownGuildWelcomeScreen             = 10069
 	ErrCodeUnknownGuildScheduledEvent            = 10070
 	ErrCodeUnknownGuildScheduledEventUser        = 10071
+	ErrUnknownTag                                = 10087
 
 	ErrCodeBotsCannotUseEndpoint                                            = 20001
 	ErrCodeOnlyBotsCanUseEndpoint                                           = 20002
@@ -2087,28 +2144,30 @@ const (
 	ErrCodeStageTopicContainsNotAllowedWordsForPublicStages                 = 20031
 	ErrCodeGuildPremiumSubscriptionLevelTooLow                              = 20035
 
-	ErrCodeMaximumGuildsReached                                    = 30001
-	ErrCodeMaximumPinsReached                                      = 30003
-	ErrCodeMaximumNumberOfRecipientsReached                        = 30004
-	ErrCodeMaximumGuildRolesReached                                = 30005
-	ErrCodeMaximumNumberOfWebhooksReached                          = 30007
-	ErrCodeMaximumNumberOfEmojisReached                            = 30008
-	ErrCodeTooManyReactions                                        = 30010
-	ErrCodeMaximumNumberOfGuildChannelsReached                     = 30013
-	ErrCodeMaximumNumberOfAttachmentsInAMessageReached             = 30015
-	ErrCodeMaximumNumberOfInvitesReached                           = 30016
-	ErrCodeMaximumNumberOfAnimatedEmojisReached                    = 30018
-	ErrCodeMaximumNumberOfServerMembersReached                     = 30019
-	ErrCodeMaximumNumberOfGuildDiscoverySubcategoriesReached       = 30030
-	ErrCodeGuildAlreadyHasATemplate                                = 30031
-	ErrCodeMaximumNumberOfThreadParticipantsReached                = 30033
-	ErrCodeMaximumNumberOfBansForNonGuildMembersHaveBeenExceeded   = 30035
-	ErrCodeMaximumNumberOfBansFetchesHasBeenReached                = 30037
-	ErrCodeMaximumNumberOfUncompletedGuildScheduledEventsReached   = 30038
-	ErrCodeMaximumNumberOfStickersReached                          = 30039
-	ErrCodeMaximumNumberOfPruneRequestsHasBeenReached              = 30040
-	ErrCodeMaximumNumberOfGuildWidgetSettingsUpdatesHasBeenReached = 30042
-	ErrCodeMaximumNumberOfEditsToMessagesOlderThanOneHourReached   = 30046
+	ErrCodeMaximumGuildsReached                                     = 30001
+	ErrCodeMaximumPinsReached                                       = 30003
+	ErrCodeMaximumNumberOfRecipientsReached                         = 30004
+	ErrCodeMaximumGuildRolesReached                                 = 30005
+	ErrCodeMaximumNumberOfWebhooksReached                           = 30007
+	ErrCodeMaximumNumberOfEmojisReached                             = 30008
+	ErrCodeTooManyReactions                                         = 30010
+	ErrCodeMaximumNumberOfGuildChannelsReached                      = 30013
+	ErrCodeMaximumNumberOfAttachmentsInAMessageReached              = 30015
+	ErrCodeMaximumNumberOfInvitesReached                            = 30016
+	ErrCodeMaximumNumberOfAnimatedEmojisReached                     = 30018
+	ErrCodeMaximumNumberOfServerMembersReached                      = 30019
+	ErrCodeMaximumNumberOfGuildDiscoverySubcategoriesReached        = 30030
+	ErrCodeGuildAlreadyHasATemplate                                 = 30031
+	ErrCodeMaximumNumberOfThreadParticipantsReached                 = 30033
+	ErrCodeMaximumNumberOfBansForNonGuildMembersHaveBeenExceeded    = 30035
+	ErrCodeMaximumNumberOfBansFetchesHasBeenReached                 = 30037
+	ErrCodeMaximumNumberOfUncompletedGuildScheduledEventsReached    = 30038
+	ErrCodeMaximumNumberOfStickersReached                           = 30039
+	ErrCodeMaximumNumberOfPruneRequestsHasBeenReached               = 30040
+	ErrCodeMaximumNumberOfGuildWidgetSettingsUpdatesHasBeenReached  = 30042
+	ErrCodeMaximumNumberOfEditsToMessagesOlderThanOneHourReached    = 30046
+	ErrCodeMaximumNumberOfPinnedThreadsInForumChannelHasBeenReached = 30047
+	ErrCodeMaximumNumberOfTagsInForumChannelHasBeenReached          = 30048
 
 	ErrCodeUnauthorized                           = 40001
 	ErrCodeActionRequiredVerifiedAccount          = 40002
@@ -2121,6 +2180,7 @@ const (
 	ErrCodeMessageAlreadyCrossposted              = 40033
 	ErrCodeAnApplicationWithThatNameAlreadyExists = 40041
 	ErrCodeInteractionHasAlreadyBeenAcknowledged  = 40060
+	ErrCodeTagNamesMustBeUnique                   = 40061
 
 	ErrCodeMissingAccess                                                = 50001
 	ErrCodeInvalidAccountType                                           = 50002

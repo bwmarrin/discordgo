@@ -2496,6 +2496,100 @@ func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDu
 	})
 }
 
+// ForumThreadStartComplex starts a new thread (creates a post) in a forum channel.
+// channelID   : Channel to create thread in.
+// threadData  : Parameters of the thread.
+// messageData : Parameters of the starting message.
+func (s *Session) ForumThreadStartComplex(channelID string, threadData *ThreadStart, messageData *MessageSend) (th *Channel, err error) {
+	endpoint := EndpointChannelThreads(channelID)
+
+	// TODO: Remove this when compatibility is not required.
+	if messageData.Embed != nil {
+		if messageData.Embeds == nil {
+			messageData.Embeds = []*MessageEmbed{messageData.Embed}
+		} else {
+			err = fmt.Errorf("cannot specify both Embed and Embeds")
+			return
+		}
+	}
+
+	for _, embed := range messageData.Embeds {
+		if embed.Type == "" {
+			embed.Type = "rich"
+		}
+	}
+
+	// TODO: Remove this when compatibility is not required.
+	files := messageData.Files
+	if messageData.File != nil {
+		if files == nil {
+			files = []*File{messageData.File}
+		} else {
+			err = fmt.Errorf("cannot specify both File and Files")
+			return
+		}
+	}
+
+	data := struct {
+		*ThreadStart
+		Message *MessageSend `json:"message"`
+	}{ThreadStart: threadData, Message: messageData}
+
+	var response []byte
+	if len(files) > 0 {
+		contentType, body, encodeErr := MultipartBodyWithJSON(data, files)
+		if encodeErr != nil {
+			return th, encodeErr
+		}
+
+		response, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
+	} else {
+		response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint)
+	}
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &th)
+	return
+}
+
+// ForumThreadStart starts a new thread (post) in a forum channel.
+// channelID       : Channel to create thread in.
+// name            : Name of the thread.
+// archiveDuration : Auto archive duration.
+// content         : Content of the starting message.
+func (s *Session) ForumThreadStart(channelID, name string, archiveDuration int, content string) (th *Channel, err error) {
+	return s.ForumThreadStartComplex(channelID, &ThreadStart{
+		Name:                name,
+		AutoArchiveDuration: archiveDuration,
+	}, &MessageSend{Content: content})
+}
+
+// ForumThreadStartEmbed starts a new thread (post) in a forum channel.
+// channelID       : Channel to create thread in.
+// name            : Name of the thread.
+// archiveDuration : Auto archive duration.
+// embed           : Embed data of the starting message.
+func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration int, embed *MessageEmbed) (th *Channel, err error) {
+	return s.ForumThreadStartComplex(channelID, &ThreadStart{
+		Name:                name,
+		AutoArchiveDuration: archiveDuration,
+	}, &MessageSend{Embeds: []*MessageEmbed{embed}})
+}
+
+// ForumThreadStartEmbeds starts a new thread (post) in a forum channel.
+// channelID       : Channel to create thread in.
+// name            : Name of the thread.
+// archiveDuration : Auto archive duration.
+// embeds          : Embeds data of the starting message.
+func (s *Session) ForumThreadStartEmbeds(channelID, name string, archiveDuration int, embeds []*MessageEmbed) (th *Channel, err error) {
+	return s.ForumThreadStartComplex(channelID, &ThreadStart{
+		Name:                name,
+		AutoArchiveDuration: archiveDuration,
+	}, &MessageSend{Embeds: embeds})
+}
+
 // ThreadJoin adds current user to a thread
 func (s *Session) ThreadJoin(id string) error {
 	endpoint := EndpointThreadMember(id, "@me")
