@@ -2582,7 +2582,7 @@ func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration 
 // channelID       : Channel to create thread in.
 // name            : Name of the thread.
 // archiveDuration : Auto archive duration.
-// embeds           : Embeds data of the starting message.
+// embeds          : Embeds data of the starting message.
 func (s *Session) ForumThreadStartEmbeds(channelID, name string, archiveDuration int, embeds []*MessageEmbed) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,

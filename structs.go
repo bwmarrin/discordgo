@@ -485,7 +485,7 @@ type ForumDefaultReaction struct {
 	EmojiName string `json:"emoji_name,omitempty"`
 }
 
-// ForumTag represents a tag that is able to be applied to a thread in a GUILD_FORUM channel.
+// ForumTag represents a tag that is able to be applied to a thread in a forum channel.
 type ForumTag struct {
 	ID        string `json:"id,omitempty"`
 	Name      string `json:"name"`
