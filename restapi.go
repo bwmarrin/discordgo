@@ -1729,7 +1729,19 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit) (st *Message, err er
 			embed.Type = "rich"
 		}
 	}
-	response, err := s.RequestWithBucketID("PATCH", EndpointChannelMessage(m.Channel, m.ID), m, EndpointChannelMessage(m.Channel, ""))
+
+	endpoint := EndpointChannelMessage(m.Channel, m.ID)
+
+	var response []byte
+	if len(m.Files) > 0 {
+		contentType, body, encodeErr := MultipartBodyWithJSON(m, m.Files)
+		if encodeErr != nil {
+			return st, encodeErr
+		}
+		response, err = s.request("PATCH", endpoint, contentType, body, EndpointChannelMessage(m.Channel, ""), 0)
+	} else {
+		response, err = s.RequestWithBucketID("PATCH", endpoint, m, EndpointChannelMessage(m.Channel, ""))
+	}
 	if err != nil {
 		return
 	}
