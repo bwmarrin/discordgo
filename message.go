@@ -250,7 +250,7 @@ type MessageEdit struct {
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags            `json:"flags,omitempty"`
 	// Files to append to the message
-	Files []*File `json:"files,omitempty"`
+	Files []*File `json:"-"`
 	// Overwrite existing attachments
 	Attachments *[]*MessageAttachment `json:"attachments,omitempty"`
 
