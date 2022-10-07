@@ -973,13 +973,13 @@ type GuildScheduledEventStatus int
 
 const (
 	// GuildScheduledEventStatusScheduled represents the current event is in scheduled state
-	GuildScheduledEventStatusScheduled = 1
+	GuildScheduledEventStatusScheduled GuildScheduledEventStatus = 1
 	// GuildScheduledEventStatusActive represents the current event is in active state
-	GuildScheduledEventStatusActive = 2
+	GuildScheduledEventStatusActive GuildScheduledEventStatus = 2
 	// GuildScheduledEventStatusCompleted represents the current event is in completed state
-	GuildScheduledEventStatusCompleted = 3
+	GuildScheduledEventStatusCompleted GuildScheduledEventStatus = 3
 	// GuildScheduledEventStatusCanceled represents the current event is in canceled state
-	GuildScheduledEventStatusCanceled = 4
+	GuildScheduledEventStatusCanceled GuildScheduledEventStatus = 4
 )
 
 // GuildScheduledEventEntityType is the type of entity associated with a guild scheduled event.
@@ -988,11 +988,11 @@ type GuildScheduledEventEntityType int
 
 const (
 	// GuildScheduledEventEntityTypeStageInstance represents a stage channel
-	GuildScheduledEventEntityTypeStageInstance = 1
+	GuildScheduledEventEntityTypeStageInstance GuildScheduledEventEntityType = 1
 	// GuildScheduledEventEntityTypeVoice represents a voice channel
-	GuildScheduledEventEntityTypeVoice = 2
+	GuildScheduledEventEntityTypeVoice GuildScheduledEventEntityType = 2
 	// GuildScheduledEventEntityTypeExternal represents an external event
-	GuildScheduledEventEntityTypeExternal = 3
+	GuildScheduledEventEntityTypeExternal GuildScheduledEventEntityType = 3
 )
 
 // GuildScheduledEventUser is a user subscribed to a scheduled event.
