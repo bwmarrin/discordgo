@@ -735,6 +735,21 @@ func (s *State) EmojisAdd(guildID string, emojis []*Emoji) error {
 	return nil
 }
 
+// EmojisUpdate updates entire emoji list for a guild id.
+func (s *State) EmojisUpdate(guildID string, emojis []*Emoji) error {
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	guild.Emojis = emojis
+
+	return nil
+}
+
 // MessageAdd adds a message to the current world state, or updates it if it exists.
 // If the channel cannot be found, the message is discarded.
 // Messages are kept in state up to s.MaxMessageCount per channel.
@@ -1023,7 +1038,7 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *GuildEmojisUpdate:
 		if s.TrackEmojis {
-			err = s.EmojisAdd(t.GuildID, t.Emojis)
+			err = s.EmojisUpdate(t.GuildID, t.Emojis)
 		}
 	case *ChannelCreate:
 		if s.TrackChannels {
