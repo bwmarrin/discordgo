@@ -389,8 +389,8 @@ type MessageEmbedAuthor struct {
 
 // MessageEmbedField is a part of a MessageEmbed struct.
 type MessageEmbedField struct {
-	Name   string `json:"name,omitempty"`
-	Value  string `json:"value,omitempty"`
+	Name   string `json:"name"`
+	Value  string `json:"value"`
 	Inline bool   `json:"inline,omitempty"`
 }
 
