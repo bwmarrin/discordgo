@@ -39,7 +39,7 @@ type Ready struct {
 	Version         int          `json:"v"`
 	SessionID       string       `json:"session_id"`
 	User            *User        `json:"user"`
-	Shard           [2]int       `json:"shard"`
+	Shard           *[2]int      `json:"shard"`
 	Application     *Application `json:"application"`
 	Guilds          []*Guild     `json:"guilds"`
 	PrivateChannels []*Channel   `json:"private_channels"`
