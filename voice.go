@@ -835,7 +835,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		if opus, ok := secretbox.Open(nil, recvbuf[12:rlen], &nonce, &v.op4.SecretKey); ok {
 			p.Opus = opus
 		} else {
-			return
+			continue
 		}
 
 		// extension bit set, and not a RTCP packet
