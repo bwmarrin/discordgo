@@ -2946,10 +2946,11 @@ func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, 
 // resp        : Response message data.
 func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse) error {
 	s.httpInteractionsMu.Lock()
-	defer s.httpInteractionsMu.Unlock()
 	if respondFunc, ok := s.httpInteractions[interaction.ID]; ok {
+		s.httpInteractionsMu.Unlock()
 		return respondFunc(resp)
 	}
+	s.httpInteractionsMu.Unlock()
 
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
