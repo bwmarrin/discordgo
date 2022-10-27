@@ -171,6 +171,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 	for i, v := range v.RawComponents {
 		m.Components[i] = v.MessageComponent
 	}
+	m.json = data
 	return err
 }
 
