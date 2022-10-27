@@ -150,6 +150,9 @@ type Message struct {
 
 	// An array of Sticker objects, if any were sent.
 	StickerItems []*Sticker `json:"sticker_items"`
+
+	// Raw JSON
+	json []byte
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
@@ -169,6 +172,10 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		m.Components[i] = v.MessageComponent
 	}
 	return err
+}
+
+func (m *Message) MarshalJSON() ([]byte, error) {
+	return m.json, nil
 }
 
 // GetCustomEmojis pulls out all the custom (Non-unicode) emojis from a message and returns a Slice of the Emoji struct.
