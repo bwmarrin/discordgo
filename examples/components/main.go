@@ -388,6 +388,60 @@ var (
 				panic(err)
 			}
 		},
+		"entity-select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "In addition to normal select menus, Discord provides auto-populated selects, which let you select a user, role, channel." +
+						"Whether they are auto-populated and with which entities, is controlled by `MenuType` field",
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.SelectMenu{
+									MenuType:    discordgo.ChannelSelectMenuComponent,
+									CustomID:    "eslct_channel",
+									Placeholder: "Pick your favorite channel",
+									ChannelTypes: []discordgo.ChannelType{
+										discordgo.ChannelTypeGuildText,
+										discordgo.ChannelTypeGuildPublicThread,
+									},
+								},
+							},
+						},
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.SelectMenu{
+									MenuType:    discordgo.UserSelectMenuComponent,
+									CustomID:    "eslct_user",
+									Placeholder: "Pick a member of the guild",
+								},
+							},
+						},
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.SelectMenu{
+									MenuType:    discordgo.RoleSelectMenuComponent,
+									CustomID:    "eslct_role",
+									Placeholder: "Pick a role you desire",
+								},
+							},
+						},
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.SelectMenu{
+									MenuType:    discordgo.MentionableSelectMenuComponent,
+									CustomID:    "eslct_mentionable",
+									Placeholder: "Pick anything mentionable",
+								},
+							},
+						},
+					},
+				},
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
 	}
 )
 
@@ -432,6 +486,15 @@ func main() {
 			},
 		},
 		Description: "Lo and behold: dropdowns are coming",
+	})
+
+	if err != nil {
+		log.Fatalf("Cannot create slash command: %v", err)
+	}
+
+	_, err = s.ApplicationCommandCreate(*AppID, *GuildID, &discordgo.ApplicationCommand{
+		Name:        "entity-select",
+		Description: "Lets you pick a user, channel or role.",
 	})
 
 	if err != nil {

@@ -10,10 +10,14 @@ type ComponentType uint
 
 // MessageComponent types.
 const (
-	ActionsRowComponent ComponentType = 1
-	ButtonComponent     ComponentType = 2
-	SelectMenuComponent ComponentType = 3
-	TextInputComponent  ComponentType = 4
+	ActionsRowComponent            ComponentType = 1
+	ButtonComponent                ComponentType = 2
+	SelectMenuComponent            ComponentType = 3
+	TextInputComponent             ComponentType = 4
+	UserSelectMenuComponent        ComponentType = 5
+	RoleSelectMenuComponent        ComponentType = 6
+	MentionableSelectMenuComponent ComponentType = 7
+	ChannelSelectMenuComponent     ComponentType = 8
 )
 
 // MessageComponent is a base interface for all message components.
@@ -41,7 +45,8 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 		umc.MessageComponent = &ActionsRow{}
 	case ButtonComponent:
 		umc.MessageComponent = &Button{}
-	case SelectMenuComponent:
+	case SelectMenuComponent, ChannelSelectMenuComponent, UserSelectMenuComponent,
+		RoleSelectMenuComponent, MentionableSelectMenuComponent:
 		umc.MessageComponent = &SelectMenu{}
 	case TextInputComponent:
 		umc.MessageComponent = &TextInput{}
@@ -171,7 +176,10 @@ type SelectMenuOption struct {
 
 // SelectMenu represents select menu component.
 type SelectMenu struct {
-	CustomID string `json:"custom_id,omitempty"`
+	// Type of the select menu.
+	// NOTE: if the type is not a select menu, behavior is undefined.
+	MenuType ComponentType `json:"type,omitempty"`
+	CustomID string        `json:"custom_id,omitempty"`
 	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
 	Placeholder string `json:"placeholder"`
 	// This value determines the minimal amount of selected items in the menu.
@@ -179,25 +187,28 @@ type SelectMenu struct {
 	// This value determines the maximal amount of selected items in the menu.
 	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
 	MaxValues int                `json:"max_values,omitempty"`
-	Options   []SelectMenuOption `json:"options"`
+	Options   []SelectMenuOption `json:"options,omitempty"`
 	Disabled  bool               `json:"disabled"`
+
+	// NOTE: Can only be used in SelectMenu with Channel component type.
+	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
 }
 
 // Type is a method to get the type of a component.
-func (SelectMenu) Type() ComponentType {
-	return SelectMenuComponent
+func (s SelectMenu) Type() ComponentType {
+	return s.MenuType
 }
 
 // MarshalJSON is a method for marshaling SelectMenu to a JSON object.
-func (m SelectMenu) MarshalJSON() ([]byte, error) {
+func (s SelectMenu) MarshalJSON() ([]byte, error) {
 	type selectMenu SelectMenu
 
 	return Marshal(struct {
 		selectMenu
 		Type ComponentType `json:"type"`
 	}{
-		selectMenu: selectMenu(m),
-		Type:       m.Type(),
+		selectMenu: selectMenu(s),
+		Type:       s.Type(),
 	})
 }
 
