@@ -360,6 +360,25 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 				v.wsConn = nil
 				v.Unlock()
 
+				// Wait for VOICE_SERVER_UPDATE.
+				// When the bot is moved by the user to another voice channel,
+				// VOICE_SERVER_UPDATE is received after the code 4014.
+				for i := 0; i < 5; i++ {
+					<-time.After(1 * time.Second)
+
+					v.Lock()
+					reconnected := v.wsConn != nil
+					v.Unlock()
+					if !reconnected {
+						continue
+					}
+					v.log(LogInformational, "successfully reconnected due to code 4014")
+					return
+				}
+
+				// When VOICE_SERVER_UPDATE is not received, disconnect as usual.
+				v.log(LogInformational, "disconnect due to code 4014")
+
 				v.session.Lock()
 				delete(v.session.VoiceConnections, v.GuildID)
 				v.session.Unlock()
