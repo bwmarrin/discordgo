@@ -1,4 +1,4 @@
-<img align="right" src="/docs/img/discordgo.svg">
+<img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
 This example demonstrates how to utilize DiscordGo to send and process text
 inputs in modals. If you have not read `slash_commands` and `components`

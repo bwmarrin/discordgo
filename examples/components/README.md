@@ -1,4 +1,4 @@
-<img align="right" src="/docs/img/discordgo.svg">
+<img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
 This example demonstrates how to utilize DiscordGo to create and use message
 components, such as buttons and select menus. For usage of the text input
