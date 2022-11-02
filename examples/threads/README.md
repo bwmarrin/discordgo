@@ -1,4 +1,4 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img align="right" src="/docs/img/discordgo.svg">
 
 This example demonstrates how to utilize DiscordGo to manage threads
 in a channel.

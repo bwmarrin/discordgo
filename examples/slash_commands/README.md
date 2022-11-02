@@ -1,4 +1,4 @@
-<img align="right" src="http://bwmarrin.github.io/discordgo/img/discordgo.png">
+<img align="right" src="/docs/img/discordgo.svg">
 
 This example demonstrates how to utilize DiscordGo to create a Slash Command based bot,
 which would be able to listen and respond to interactions. This example covers all aspects
