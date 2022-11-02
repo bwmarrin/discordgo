@@ -1,5 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
+## DiscordGo Auto Moderation Example
+
 This example demonstrates how to utilize DiscordGo to manage auto moderation
 rules and triggers.
 

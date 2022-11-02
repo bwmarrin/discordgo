@@ -1,5 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
+## DiscordGo Slash Commands Example
+
 This example demonstrates how to utilize DiscordGo to create a Slash Command based bot,
 which would be able to listen and respond to interactions. This example covers all aspects
 of slash command interactions: options, choices, responses and followup messages.

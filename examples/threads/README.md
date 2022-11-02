@@ -1,7 +1,8 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
-This example demonstrates how to utilize DiscordGo to manage threads
-in a channel.
+## DiscordGo Threads Example
+
+This example demonstrates how to utilize DiscordGo to manage channel threads.
 
 **Join [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP)
 Discord chat channel for support.**

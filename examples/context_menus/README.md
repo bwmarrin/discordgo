@@ -1,5 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
+## DiscordGo Context Menu Commands Example
+
 This example demonstrates how to utilize DiscordGo to create and use context
 menu commands. This example heavily relies on `slash_commands` example in
 command handling and registration, therefore it is recommended to be read

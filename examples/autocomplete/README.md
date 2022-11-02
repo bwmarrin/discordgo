@@ -1,5 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
+## DiscordGo Slash Command Autocomplete Option Example
+
 This example demonstrates how to utilize DiscordGo to create and use
 autocomplete options in Slash Commands. As this example uses interactions,
 slash commands and slash command options, it is recommended to read

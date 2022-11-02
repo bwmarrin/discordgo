@@ -1,4 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
+
+## DiscordGo Stage Instance Example
+
 This example demonstrates how to utilize DiscordGo to manage stage instances.
 
 **Join [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP)

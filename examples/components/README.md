@@ -1,5 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
+## DiscordGo Components Example
+
 This example demonstrates how to utilize DiscordGo to create and use message
 components, such as buttons and select menus. For usage of the text input
 component and modals, please refer to the `modals` example.

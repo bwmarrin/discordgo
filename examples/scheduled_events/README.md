@@ -1,5 +1,7 @@
 <img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
 
+## DiscordGo Scheduled Events Example
+
 This example demonstrates how to utilize DiscordGo to manage scheduled events
 in a guild.
 
