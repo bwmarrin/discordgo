@@ -377,7 +377,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 				}
 
 				// When VOICE_SERVER_UPDATE is not received, disconnect as usual.
-				v.log(LogInformational, "disconnect due to code 4014")
+				v.log(LogInformational, "disconnect due to 4014 manual disconnection")
 
 				v.session.Lock()
 				delete(v.session.VoiceConnections, v.GuildID)
