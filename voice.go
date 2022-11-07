@@ -372,7 +372,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 					if !reconnected {
 						continue
 					}
-					v.log(LogInformational, "successfully reconnected due to code 4014")
+					v.log(LogInformational, "successfully reconnected after 4014 manual disconnection")
 					return
 				}
 
