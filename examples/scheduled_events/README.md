@@ -1,4 +1,4 @@
-<img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="400">
+<img align="right" alt="DiscordGo logo" src="/docs/img/discordgo.svg" width="200">
 
 ## DiscordGo Scheduled Events Example
 
