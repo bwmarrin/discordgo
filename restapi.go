@@ -92,13 +92,59 @@ func (e RateLimitError) Error() string {
 	return "Rate limit exceeded on " + e.URL + ", retry after " + e.RetryAfter.String()
 }
 
+type RequestConfig struct {
+	Request                *http.Request
+	ShouldRetryOnRateLimit bool
+	MaxRestRetries         int
+	Client                 *http.Client
+}
+
+func (s *Session) requestConfig(req *http.Request) *RequestConfig {
+	return &RequestConfig{
+		ShouldRetryOnRateLimit: s.ShouldRetryOnRateLimit,
+		MaxRestRetries:         s.MaxRestRetries,
+		Client:                 s.Client,
+		Request:                req,
+	}
+}
+
+type RequestOption func(cfg *RequestConfig)
+
+func WithClient(client *http.Client) RequestOption {
+	return func(cfg *RequestConfig) {
+		if client != nil {
+			cfg.Client = client
+		}
+	}
+}
+
+func WithRetryOnRatelimit(retry bool) RequestOption {
+	return func(cfg *RequestConfig) {
+		cfg.ShouldRetryOnRateLimit = retry
+	}
+}
+
+func WithHeader(key, value string) RequestOption {
+	return func(cfg *RequestConfig) {
+		cfg.Request.Header.Set(key, value)
+	}
+}
+
+func WithAuditLogReason(reason string) RequestOption {
+	return WithHeader("X-Audit-Log-Reason", reason)
+}
+
+func WithLocale(locale Locale) RequestOption {
+	return WithHeader("X-Discord-Locale", string(locale))
+}
+
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
 func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
 	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
 }
 
 // RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
-func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string) (response []byte, err error) {
+func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string, options ...RequestOption) (response []byte, err error) {
 	var body []byte
 	if data != nil {
 		body, err = Marshal(data)
@@ -107,21 +153,21 @@ func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, b
 		}
 	}
 
-	return s.request(method, urlStr, "application/json", body, bucketID, 0)
+	return s.request(method, urlStr, "application/json", body, bucketID, 0, options...)
 }
 
 // request makes a (GET/POST/...) Requests to Discord REST API.
 // Sequence is the sequence number, if it fails with a 502 it will
 // retry with sequence+1 until it either succeeds or sequence >= session.MaxRestRetries
-func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID string, sequence int) (response []byte, err error) {
+func (s *Session) request(method, urlStr, contentType string, b []byte, bucketID string, sequence int, options ...RequestOption) (response []byte, err error) {
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence)
+	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence, options...)
 }
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked
-func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int) (response []byte, err error) {
+func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, options ...RequestOption) (response []byte, err error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -148,13 +194,18 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	// TODO: Make a configurable static variable.
 	req.Header.Set("User-Agent", s.UserAgent)
 
+	cfg := s.requestConfig(req)
+	for _, opt := range options {
+		opt(cfg)
+	}
+
 	if s.Debug {
 		for k, v := range req.Header {
 			log.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
 		}
 	}
 
-	resp, err := s.Client.Do(req)
+	resp, err := cfg.Client.Do(req)
 	if err != nil {
 		bucket.Release(nil)
 		return
@@ -191,7 +242,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	case http.StatusNoContent:
 	case http.StatusBadGateway:
 		// Retry sending request if possible
-		if sequence < s.MaxRestRetries {
+		if sequence < cfg.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
 			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
@@ -206,7 +257,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			return
 		}
 
-		if s.ShouldRetryOnRateLimit {
+		if cfg.ShouldRetryOnRateLimit {
 			s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
 			s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
