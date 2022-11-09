@@ -5,8 +5,7 @@
 This example demonstrates how to utilize DiscordGo to create a Slash Command based bot,
 which would be able to listen and respond to interactions. This example covers all aspects
 of slash command interactions: options, choices, responses and followup messages.
-Additionally, to avoid confusion, this example must be viewed more as a **step-by-step tutorial**,
-than a demonstration bot.
+To avoid confusion, this example is more of a **step-by-step tutorial**, than a demonstration bot.
 
 **Join [Discord Gophers](https://discord.gg/0f1SbxBZjYoCtNPP)
 Discord chat channel for support.**
