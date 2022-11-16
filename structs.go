@@ -1427,6 +1427,10 @@ type AutoModerationTriggerMetadata struct {
 	// Substrings which will be searched for in content.
 	// NOTE: should be only used with keyword trigger type.
 	KeywordFilter []string `json:"keyword_filter,omitempty"`
+	// Regular expression patterns which will be matched against content (maximum of 10).
+	// NOTE: should be only used with keyword trigger type.
+	RegexPatterns []string `json:"regex_patterns,omitempty"`
+
 	// Internally pre-defined wordsets which will be searched for in content.
 	// NOTE: should be only used with keyword preset trigger type.
 	Presets []AutoModerationKeywordPreset `json:"presets,omitempty"`
