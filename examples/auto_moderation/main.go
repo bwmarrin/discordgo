@@ -32,6 +32,7 @@ func main() {
 		TriggerType: discordgo.AutoModerationEventTriggerKeyword,
 		TriggerMetadata: &discordgo.AutoModerationTriggerMetadata{
 			KeywordFilter: []string{"*cat*"},
+			RegexPatterns: []string{"(c|b)at"},
 		},
 
 		Enabled: &enabled,
