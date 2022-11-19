@@ -398,7 +398,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.SelectMenu{
-									MenuType:    discordgo.ChannelSelectMenuComponent,
+									MenuType:    discordgo.ChannelSelectMenu,
 									CustomID:    "eslct_channel",
 									Placeholder: "Pick your favorite channel",
 									ChannelTypes: []discordgo.ChannelType{
@@ -411,7 +411,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.SelectMenu{
-									MenuType:    discordgo.UserSelectMenuComponent,
+									MenuType:    discordgo.UserSelectMenu,
 									CustomID:    "eslct_user",
 									Placeholder: "Pick a member of the guild",
 								},
@@ -420,7 +420,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.SelectMenu{
-									MenuType:    discordgo.RoleSelectMenuComponent,
+									MenuType:    discordgo.RoleSelectMenu,
 									CustomID:    "eslct_role",
 									Placeholder: "Pick a role you desire",
 								},
@@ -429,7 +429,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.SelectMenu{
-									MenuType:    discordgo.MentionableSelectMenuComponent,
+									MenuType:    discordgo.MentionableSelectMenu,
 									CustomID:    "eslct_mentionable",
 									Placeholder: "Pick anything mentionable",
 								},

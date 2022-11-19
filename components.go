@@ -174,12 +174,24 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
+// SelectMenuType represents select menu component types.
+type SelectMenuType ComponentType
+
+// SelectMenu types.
+const (
+	StringSelectMenu      = SelectMenuType(SelectMenuComponent)
+	UserSelectMenu        = SelectMenuType(UserSelectMenuComponent)
+	RoleSelectMenu        = SelectMenuType(RoleSelectMenuComponent)
+	MentionableSelectMenu = SelectMenuType(MentionableSelectMenuComponent)
+	ChannelSelectMenu     = SelectMenuType(ChannelSelectMenuComponent)
+)
+
 // SelectMenu represents select menu component.
 type SelectMenu struct {
 	// Type of the select menu.
-	// NOTE: if the type is not a select menu, behavior is undefined.
-	MenuType ComponentType `json:"type,omitempty"`
-	CustomID string        `json:"custom_id,omitempty"`
+	MenuType SelectMenuType `json:"type,omitempty"`
+	// CustomID is a developer-defined identifier for the select menu.
+	CustomID string `json:"custom_id,omitempty"`
 	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
 	Placeholder string `json:"placeholder"`
 	// This value determines the minimal amount of selected items in the menu.
@@ -196,7 +208,7 @@ type SelectMenu struct {
 
 // Type is a method to get the type of a component.
 func (s SelectMenu) Type() ComponentType {
-	return s.MenuType
+	return ComponentType(s.MenuType)
 }
 
 // MarshalJSON is a method for marshaling SelectMenu to a JSON object.
