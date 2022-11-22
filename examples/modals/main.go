@@ -73,6 +73,30 @@ var (
 								},
 							},
 						},
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.SelectMenu{
+									CustomID:    "Menu",
+									Placeholder: "Select an option",
+									MaxValues:   1,
+
+									Options: []discordgo.SelectMenuOption{
+										{
+											Label:       "Option 1",
+											Description: "A fine option",
+											Value:       "1",
+											Default:     false,
+										},
+										{
+											Label:       "Option 2",
+											Description: "The backup option",
+											Value:       "2",
+											Default:     false,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			})
@@ -113,10 +137,11 @@ func main() {
 
 			userid := strings.Split(data.CustomID, "_")[2]
 			_, err = s.ChannelMessageSend(*ResultsChannel, fmt.Sprintf(
-				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s",
+				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s\n\n**Selected**:\n%s",
 				userid,
 				data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
 				data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
+				data.Components[2].(*discordgo.ActionsRow).Components[0].(*discordgo.SelectMenu).Values[0],
 			))
 			if err != nil {
 				panic(err)
