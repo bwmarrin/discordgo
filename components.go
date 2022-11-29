@@ -208,7 +208,10 @@ type SelectMenu struct {
 
 // Type is a method to get the type of a component.
 func (s SelectMenu) Type() ComponentType {
-	return ComponentType(s.MenuType)
+	if s.MenuType != 0 {
+		return ComponentType(s.MenuType)
+	}
+	return SelectMenuComponent
 }
 
 // MarshalJSON is a method for marshaling SelectMenu to a JSON object.
