@@ -394,6 +394,7 @@ var (
 				Data: &discordgo.InteractionResponseData{
 					Content: "In addition to normal select menus, Discord provides auto-populated selects, which let you select a user, role, channel." +
 						"Whether they are auto-populated and with which entities, is controlled by `MenuType` field",
+					Flags: discordgo.MessageFlagsEphemeral,
 					Components: []discordgo.MessageComponent{
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
