@@ -165,38 +165,52 @@ var (
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
 			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-				Content: "Now you know everything about select component. If you want to know more or ask a question - feel free to.",
-				Components: []discordgo.MessageComponent{
-					discordgo.ActionsRow{
-						Components: []discordgo.MessageComponent{
-							discordgo.Button{
-								Emoji: discordgo.ComponentEmoji{
-									Name: "📜",
+				Content: "But wait, there is more! You can also auto populate the select menu. Try executing `/selects auto-populated`.",
+				Flags:   discordgo.MessageFlagsEphemeral,
+			})
+			if err != nil {
+				panic(err)
+			}
+		},
+		"channel_select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "This is it. You've reached your destination. Your choice was <#" + i.MessageComponentData().Values[0] + ">\n" +
+						"If you want to know more, check out the links below",
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "📜",
+									},
+									Label: "Documentation",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
 								},
-								Label: "Documentation",
-								Style: discordgo.LinkButton,
-								URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
-							},
-							discordgo.Button{
-								Emoji: discordgo.ComponentEmoji{
-									Name: "🔧",
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🔧",
+									},
+									Label: "Discord developers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/discord-developers",
 								},
-								Label: "Discord developers",
-								Style: discordgo.LinkButton,
-								URL:   "https://discord.gg/discord-developers",
-							},
-							discordgo.Button{
-								Emoji: discordgo.ComponentEmoji{
-									Name: "🦫",
+								discordgo.Button{
+									Emoji: discordgo.ComponentEmoji{
+										Name: "🦫",
+									},
+									Label: "Discord Gophers",
+									Style: discordgo.LinkButton,
+									URL:   "https://discord.gg/7RuRrVHyXF",
 								},
-								Label: "Discord Gophers",
-								Style: discordgo.LinkButton,
-								URL:   "https://discord.gg/7RuRrVHyXF",
 							},
 						},
 					},
+
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
-				Flags: discordgo.MessageFlagsEphemeral,
 			})
 			if err != nil {
 				panic(err)
@@ -318,7 +332,7 @@ var (
 				response = &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
-						Content: "The tastiest things are left for the end. Let's see how the multi-item select menu works: " +
+						Content: "Now let's see how the multi-item select menu works: " +
 							"try generating your own stackoverflow search link",
 						Flags: discordgo.MessageFlagsEphemeral,
 						Components: []discordgo.MessageComponent{
@@ -381,7 +395,27 @@ var (
 						},
 					},
 				}
-
+			case "auto-populated":
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "The tastiest things are left for the end. Meet auto populated select menus.\n" +
+							"By setting `MenuType` on the select menu you can tell Discord to automatically populate the menu with entities of your choice: roles, members, channels. Try one below.",
+						Flags: discordgo.MessageFlagsEphemeral,
+						Components: []discordgo.MessageComponent{
+							discordgo.ActionsRow{
+								Components: []discordgo.MessageComponent{
+									discordgo.SelectMenu{
+										MenuType:     discordgo.ChannelSelectMenu,
+										CustomID:     "channel_select",
+										Placeholder:  "Pick your favorite channel!",
+										ChannelTypes: []discordgo.ChannelType{discordgo.ChannelTypeGuildText},
+									},
+								},
+							},
+						},
+					},
+				}
 			}
 			err := s.InteractionRespond(i.Interaction, response)
 			if err != nil {
@@ -429,6 +463,11 @@ func main() {
 				Type:        discordgo.ApplicationCommandOptionSubCommand,
 				Name:        "single",
 				Description: "Single-item select menu",
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+				Name:        "auto-populated",
+				Description: "Automatically populated select menu, which lets you pick a member, channel or role",
 			},
 		},
 		Description: "Lo and behold: dropdowns are coming",
