@@ -174,7 +174,7 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
-// SelectMenuType represents select menu types.
+// SelectMenuType represents select menu type.
 type SelectMenuType ComponentType
 
 // SelectMenu types.
