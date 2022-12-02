@@ -172,7 +172,7 @@ var (
 				panic(err)
 			}
 		},
-		"eslct_channel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"channel_select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -404,7 +404,7 @@ var (
 								Components: []discordgo.MessageComponent{
 									discordgo.SelectMenu{
 										MenuType:     discordgo.ChannelSelectMenu,
-										CustomID:     "eslct_channel",
+										CustomID:     "channel_select",
 										Placeholder:  "Pick your favorite channel!",
 										ChannelTypes: []discordgo.ChannelType{discordgo.ChannelTypeGuildText},
 									},
