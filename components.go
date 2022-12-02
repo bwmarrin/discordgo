@@ -174,7 +174,7 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
-// SelectMenuType represents select menu component types.
+// SelectMenuType represents select menu types.
 type SelectMenuType ComponentType
 
 // SelectMenu types.
@@ -202,7 +202,7 @@ type SelectMenu struct {
 	Options   []SelectMenuOption `json:"options,omitempty"`
 	Disabled  bool               `json:"disabled"`
 
-	// NOTE: Can only be used in SelectMenu with Channel component type.
+	// NOTE: Can only be used in SelectMenu with Channel menu type.
 	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
 }
 
