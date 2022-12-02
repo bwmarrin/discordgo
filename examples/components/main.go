@@ -474,10 +474,6 @@ func main() {
 		log.Fatalf("Cannot create slash command: %v", err)
 	}
 
-	if err != nil {
-		log.Fatalf("Cannot create slash command: %v", err)
-	}
-
 	err = s.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
