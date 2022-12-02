@@ -173,7 +173,7 @@ var (
 			}
 		},
 		"channel_select": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "This is it. You've reached your destination. Your choice was <#" + i.MessageComponentData().Values[0] + ">\n" +
@@ -212,6 +212,9 @@ var (
 					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			})
+			if err != nil {
+				panic(err)
+			}
 		},
 	}
 	commandsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
