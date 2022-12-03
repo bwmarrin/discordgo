@@ -366,9 +366,9 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 				for i := 0; i < 5; i++ {
 					<-time.After(1 * time.Second)
 
-					v.Lock()
+					v.RLock()
 					reconnected := v.wsConn != nil
-					v.Unlock()
+					v.RUnlock()
 					if !reconnected {
 						continue
 					}
