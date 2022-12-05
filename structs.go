@@ -1064,9 +1064,9 @@ type SystemChannelFlag int
 // Block containing known SystemChannelFlag values
 const (
 	SystemChannelFlagsSuppressJoinNotifications         SystemChannelFlag = 1 << 0
-	SystemChannelFlagsSuppressPremium      SystemChannelFlag = 1 << 1
+	SystemChannelFlagsSuppressPremium                   SystemChannelFlag = 1 << 1
 	SystemChannelFlagsSupressGuildReminderNotifications SystemChannelFlag = 1 << 2
-	SystemChannelFlagsSupressJoinNotificationReplies   SystemChannelFlag = 1 << 3
+	SystemChannelFlagsSupressJoinNotificationReplies    SystemChannelFlag = 1 << 3
 )
 
 // IconURL returns a URL to the guild's icon.
@@ -1140,7 +1140,7 @@ type GuildParams struct {
 	Icon                        string             `json:"icon,omitempty"`
 	OwnerID                     string             `json:"owner_id,omitempty"`
 	Splash                      string             `json:"splash,omitempty"`
-	DiscoverySplash              string             `json:"discovery_splash,omitempty"`
+	DiscoverySplash             string             `json:"discovery_splash,omitempty"`
 	Banner                      string             `json:"banner,omitempty"`
 	SystemChannelID             string             `json:"system_channel_id,omitempty"`
 	SystemChannelFlags          SystemChannelFlag  `json:"system_channel_flags,omitempty"`
