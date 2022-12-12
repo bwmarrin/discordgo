@@ -190,6 +190,10 @@ var (
 		return EndpointWebhookMessage(aID, iToken, mID)
 	}
 
+	EndpointApplicationRoleConnectionMetadata = func(aID string) string {
+		return EndpointApplication(aID) + "/role-connections/metadata"
+	}
+
 	EndpointGuildCreate = EndpointAPI + "guilds"
 
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invites/" + iID }

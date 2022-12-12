@@ -3245,3 +3245,32 @@ func (s *Session) AutoModerationRuleDelete(guildID, ruleID string) (err error) {
 	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint)
 	return
 }
+
+// ApplicationRoleConnectionMetadata returns application role connection metadata.
+// appID : ID of the application
+func (s *Session) ApplicationRoleConnectionMetadata(appID string) (st []*ApplicationRoleConnectionMetadata, err error) {
+	endpoint := EndpointApplicationRoleConnectionMetadata(appID)
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
+// ApplicationRoleConnectionMetadataUpdate updates and returns application role connection metadata.
+// appID    : ID of the application
+// metadata : New metadata
+func (s *Session) ApplicationRoleConnectionMetadataUpdate(appID string, metadata []*ApplicationRoleConnectionMetadata) (st []*ApplicationRoleConnectionMetadata, err error) {
+	endpoint := EndpointApplicationRoleConnectionMetadata(appID)
+	var body []byte
+	body, err = s.RequestWithBucketID("PUT", endpoint, metadata, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
