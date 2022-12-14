@@ -181,6 +181,13 @@ type ApplicationRoleConnectionMetadata struct {
 	DescriptionLocalizations map[Locale]string                     `json:"description_localizations"`
 }
 
+// ApplicationRoleConnection represents the role connection that an application has attached to a user.
+type ApplicationRoleConnection struct {
+	PlatformName     string            `json:"platform_name"`
+	PlatformUsername string            `json:"platform_username"`
+	Metadata         map[string]string `json:"metadata"`
+}
+
 // UserConnection is a Connection returned from the UserConnections endpoint
 type UserConnection struct {
 	ID           string         `json:"id"`

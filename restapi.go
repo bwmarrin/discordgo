@@ -3274,3 +3274,33 @@ func (s *Session) ApplicationRoleConnectionMetadataUpdate(appID string, metadata
 	err = unmarshal(body, &st)
 	return
 }
+
+// UserApplicationRoleConnection returns user role connection to the specified application.
+// appID : ID of the application
+func (s *Session) UserApplicationRoleConnection(appID string) (st *ApplicationRoleConnection, err error) {
+	endpoint := EndpointUserApplicationRoleConnection(appID)
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+
+}
+
+// UserApplicationRoleConnectionUpdate updates and returns user role connection to the specified application.
+// appID      : ID of the application
+// connection : New ApplicationRoleConnection data
+func (s *Session) UserApplicationRoleConnectionUpdate(appID string, rconn *ApplicationRoleConnection) (st *ApplicationRoleConnection, err error) {
+	endpoint := EndpointUserApplicationRoleConnection(appID)
+	var body []byte
+	body, err = s.RequestWithBucketID("PUT", endpoint, rconn, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}

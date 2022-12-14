@@ -60,11 +60,12 @@ var (
 		return EndpointCDNBanners + uID + "/" + cID + ".gif"
 	}
 
-	EndpointUserGuilds      = func(uID string) string { return EndpointUsers + uID + "/guilds" }
-	EndpointUserGuild       = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID }
-	EndpointUserGuildMember = func(uID, gID string) string { return EndpointUserGuild(uID, gID) + "/member" }
-	EndpointUserChannels    = func(uID string) string { return EndpointUsers + uID + "/channels" }
-	EndpointUserConnections = func(uID string) string { return EndpointUsers + uID + "/connections" }
+	EndpointUserGuilds                    = func(uID string) string { return EndpointUsers + uID + "/guilds" }
+	EndpointUserGuild                     = func(uID, gID string) string { return EndpointUsers + uID + "/guilds/" + gID }
+	EndpointUserGuildMember               = func(uID, gID string) string { return EndpointUserGuild(uID, gID) + "/member" }
+	EndpointUserChannels                  = func(uID string) string { return EndpointUsers + uID + "/channels" }
+	EndpointUserApplicationRoleConnection = func(aID string) string { return EndpointUsers + "@me/applications/" + aID + "/role-connection" }
+	EndpointUserConnections               = func(uID string) string { return EndpointUsers + uID + "/connections" }
 
 	EndpointGuild                    = func(gID string) string { return EndpointGuilds + gID }
 	EndpointGuildAutoModeration      = func(gID string) string { return EndpointGuild(gID) + "/auto-moderation" }
