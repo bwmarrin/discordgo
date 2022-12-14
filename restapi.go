@@ -26,6 +26,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"context"
 )
 
 // All error constants
@@ -124,6 +126,12 @@ func WithRetryOnRatelimit(retry bool) RequestOption {
 	}
 }
 
+func WithRestRetries(max int) RequestOption {
+	return func(cfg *RequestConfig) {
+		cfg.MaxRestRetries = max
+	}
+}
+
 func WithHeader(key, value string) RequestOption {
 	return func(cfg *RequestConfig) {
 		cfg.Request.Header.Set(key, value)
@@ -136,6 +144,12 @@ func WithAuditLogReason(reason string) RequestOption {
 
 func WithLocale(locale Locale) RequestOption {
 	return WithHeader("X-Discord-Locale", string(locale))
+}
+
+func WithContext(ctx context.Context) RequestOption {
+	return func(cfg *RequestConfig) {
+		cfg.Request = cfg.Request.WithContext(ctx)
+	}
 }
 
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
