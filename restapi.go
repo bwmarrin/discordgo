@@ -94,6 +94,7 @@ func (e RateLimitError) Error() string {
 	return "Rate limit exceeded on " + e.URL + ", retry after " + e.RetryAfter.String()
 }
 
+// RequestConfig represents configuration for a HTTP request.
 type RequestConfig struct {
 	Request                *http.Request
 	ShouldRetryOnRateLimit bool
@@ -101,7 +102,7 @@ type RequestConfig struct {
 	Client                 *http.Client
 }
 
-func (s *Session) requestConfig(req *http.Request) *RequestConfig {
+func requestConfig(s *Session, req *http.Request) *RequestConfig {
 	return &RequestConfig{
 		ShouldRetryOnRateLimit: s.ShouldRetryOnRateLimit,
 		MaxRestRetries:         s.MaxRestRetries,
@@ -110,8 +111,11 @@ func (s *Session) requestConfig(req *http.Request) *RequestConfig {
 	}
 }
 
+// RequestOption represents a function which mutates the request config.
+// It can be supplied as an argument to any REST method.
 type RequestOption func(cfg *RequestConfig)
 
+// WithClient uses a custom HTTP client for the request.
 func WithClient(client *http.Client) RequestOption {
 	return func(cfg *RequestConfig) {
 		if client != nil {
@@ -120,32 +124,38 @@ func WithClient(client *http.Client) RequestOption {
 	}
 }
 
+// WithRetryOnRatelimit controls whether session will retry the request on rate limit.
 func WithRetryOnRatelimit(retry bool) RequestOption {
 	return func(cfg *RequestConfig) {
 		cfg.ShouldRetryOnRateLimit = retry
 	}
 }
 
+// WithRestRetries changes maximum amount of retries if request fails.
 func WithRestRetries(max int) RequestOption {
 	return func(cfg *RequestConfig) {
 		cfg.MaxRestRetries = max
 	}
 }
 
+// WithHeader sets a header in the request.
 func WithHeader(key, value string) RequestOption {
 	return func(cfg *RequestConfig) {
 		cfg.Request.Header.Set(key, value)
 	}
 }
 
+// WithAuditLogReason changes the request reason displayed in the audit log.
 func WithAuditLogReason(reason string) RequestOption {
 	return WithHeader("X-Audit-Log-Reason", reason)
 }
 
+// WithLocale changes accepted locale for the request.
 func WithLocale(locale Locale) RequestOption {
 	return WithHeader("X-Discord-Locale", string(locale))
 }
 
+// WithContext changes request context.
 func WithContext(ctx context.Context) RequestOption {
 	return func(cfg *RequestConfig) {
 		cfg.Request = cfg.Request.WithContext(ctx)
@@ -208,7 +218,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	// TODO: Make a configurable static variable.
 	req.Header.Set("User-Agent", s.UserAgent)
 
-	cfg := s.requestConfig(req)
+	cfg := requestConfig(s, req)
 	for _, opt := range options {
 		opt(cfg)
 	}
