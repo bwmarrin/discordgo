@@ -363,7 +363,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 				// Wait for VOICE_SERVER_UPDATE.
 				// When the bot is moved by the user to another voice channel,
 				// VOICE_SERVER_UPDATE is received after the code 4014.
-				for i := 0; i < 5; i++ {
+				for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
 					<-time.After(1 * time.Second)
 
 					v.RLock()
