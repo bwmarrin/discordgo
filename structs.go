@@ -1063,10 +1063,10 @@ type SystemChannelFlag int
 
 // Block containing known SystemChannelFlag values
 const (
-	SystemChannelFlagsSuppressJoinNotifications         SystemChannelFlag = 1 << 0
-	SystemChannelFlagsSuppressPremium                   SystemChannelFlag = 1 << 1
-	SystemChannelFlagsSupressGuildReminderNotifications SystemChannelFlag = 1 << 2
-	SystemChannelFlagsSupressJoinNotificationReplies    SystemChannelFlag = 1 << 3
+	SystemChannelFlagsSuppressJoinNotifications          SystemChannelFlag = 1 << 0
+	SystemChannelFlagsSuppressPremium                    SystemChannelFlag = 1 << 1
+	SystemChannelFlagsSuppressGuildReminderNotifications SystemChannelFlag = 1 << 2
+	SystemChannelFlagsSuppressJoinNotificationReplies    SystemChannelFlag = 1 << 3
 )
 
 // IconURL returns a URL to the guild's icon.
