@@ -1149,7 +1149,7 @@ type GuildParams struct {
 	PreferredLocale             Locale             `json:"preferred_locale,omitempty"`
 	Features                    []GuildFeature     `json:"features,omitempty"`
 	Description                 string             `json:"description,omitempty"`
-	PremiumProgressBarEnabled   bool               `json:"premium_progress_bar_enabled,omitempty"`
+	PremiumProgressBarEnabled   *bool              `json:"premium_progress_bar_enabled,omitempty"`
 }
 
 // A Role stores information about Discord guild member roles.
