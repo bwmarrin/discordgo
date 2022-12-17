@@ -1146,7 +1146,7 @@ type GuildParams struct {
 	SystemChannelFlags          SystemChannelFlag  `json:"system_channel_flags,omitempty"`
 	RulesChannelID              string             `json:"rules_channel_id,omitempty"`
 	PublicUpdatesChannelID      string             `json:"public_updates_channel_id,omitempty"`
-	PreferredLocale             string             `json:"preferred_locale,omitempty"`
+	PreferredLocale             Locale             `json:"preferred_locale,omitempty"`
 	Features                    []GuildFeature     `json:"features,omitempty"`
 	Description                 string             `json:"description,omitempty"`
 	PremiumProgressBarEnabled   bool               `json:"premium_progress_bar_enabled,omitempty"`
