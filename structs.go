@@ -1070,24 +1070,41 @@ const (
 )
 
 // IconURL returns a URL to the guild's icon.
-func (g *Guild) IconURL() string {
+func (g *Guild) IconURL(size string) string {
+	var URL string
 	if g.Icon == "" {
 		return ""
 	}
 
 	if strings.HasPrefix(g.Icon, "a_") {
-		return EndpointGuildIconAnimated(g.ID, g.Icon)
+		URL = EndpointGuildIconAnimated(g.ID, g.Icon)
+	} else {
+		URL = EndpointGuildIcon(g.ID, g.Icon)
 	}
 
-	return EndpointGuildIcon(g.ID, g.Icon)
+	if size != "" {
+		return URL + "?size=" + size
+	}
+	return URL
 }
 
 // BannerURL returns a URL to the guild's banner.
-func (g *Guild) BannerURL() string {
+func (g *Guild) BannerURL(size string) string {
+	var URL string
 	if g.Banner == "" {
 		return ""
 	}
-	return EndpointGuildBanner(g.ID, g.Banner)
+
+	if strings.HasPrefix(g.Banner, "a_") {
+		URL = EndpointGuildBannerAnimated(g.ID, g.Banner)
+	} else {
+		URL = EndpointGuildBanner(g.ID, g.Banner)
+	}
+
+	if size != "" {
+		return URL + "?size=" + size
+	}
+	return URL
 }
 
 // A UserGuild holds a brief version of a Guild
@@ -1235,10 +1252,17 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User       *User       `json:"user"`
-	Status     Status      `json:"status"`
-	Activities []*Activity `json:"activities"`
-	Since      *int        `json:"since"`
+	User         *User         `json:"user"`
+	Status       Status        `json:"status"`
+	ClientStatus *ClientStatus `json:"client_status"`
+	Activities   []*Activity   `json:"activities"`
+	Since        *int          `json:"since"`
+}
+
+type ClientStatus struct {
+	Desktop Status `json:"desktop"`
+	Mobile  Status `json:"mobile"`
+	Web     Status `json:"web"`
 }
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
