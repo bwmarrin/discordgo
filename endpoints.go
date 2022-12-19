@@ -96,6 +96,7 @@ var (
 	EndpointGuildEmojis              = func(gID string) string { return EndpointGuilds + gID + "/emojis" }
 	EndpointGuildEmoji               = func(gID, eID string) string { return EndpointGuilds + gID + "/emojis/" + eID }
 	EndpointGuildBanner              = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".png" }
+	EndpointGuildBannerAnimated      = func(gID, hash string) string { return EndpointCDNBanners + gID + "/" + hash + ".gif" }
 	EndpointGuildStickers            = func(gID string) string { return EndpointGuilds + gID + "/stickers" }
 	EndpointGuildSticker             = func(gID, sID string) string { return EndpointGuilds + gID + "/stickers/" + sID }
 	EndpointStageInstance            = func(cID string) string { return EndpointStageInstances + "/" + cID }
