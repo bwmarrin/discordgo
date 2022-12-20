@@ -343,11 +343,20 @@ func (ApplicationCommandInteractionData) Type() InteractionType {
 
 // MessageComponentInteractionData contains the data of message component interaction.
 type MessageComponentInteractionData struct {
-	CustomID      string        `json:"custom_id"`
-	ComponentType ComponentType `json:"component_type"`
+	CustomID      string                                  `json:"custom_id"`
+	ComponentType ComponentType                           `json:"component_type"`
+	Resolved      MessageComponentInteractionDataResolved `json:"resolved"`
 
 	// NOTE: Only filled when ComponentType is SelectMenuComponent (3). Otherwise is nil.
 	Values []string `json:"values"`
+}
+
+// MessageComponentInteractionDataResolved contains the resolved data of selected option.
+type MessageComponentInteractionDataResolved struct {
+	Users    map[string]*User    `json:"users"`
+	Members  map[string]*Member  `json:"members"`
+	Roles    map[string]*Role    `json:"roles"`
+	Channels map[string]*Channel `json:"channels"`
 }
 
 // Type returns the type of interaction data.
