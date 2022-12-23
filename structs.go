@@ -1331,6 +1331,7 @@ func (m *Member) AvatarURL(size string) string {
 
 }
 
+// ClientStatus stores the online, offline, idle, or dnd status of each devices of Guild members.
 type ClientStatus struct {
 	Desktop Status `json:"desktop"`
 	Mobile  Status `json:"mobile"`
