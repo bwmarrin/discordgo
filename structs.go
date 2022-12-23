@@ -270,6 +270,30 @@ const (
 	ChannelFlagRequireTag ChannelFlags = 1 << 4
 )
 
+// SortOrderType represent type of a forum channel.
+type SortOrderType int
+
+// Block contains known SortOrderType values.
+const (
+	// 	Sort forum posts by activity
+	LatestActivity SortOrderType = 0
+	// Sort forum posts by creation time (from most recent to oldest)
+	CreationDate SortOrderType = 1
+)
+
+// ForumLayout represent layout of a forum channel.
+type ForumLayout int
+
+// Block contains known ForumLayout values.
+const (
+	// No default has been set for forum channel
+	NotSet ForumLayout = 0
+	// Display posts as a list
+	ListView ForumLayout = 1
+	//Display posts as a collection of tiles
+	GalleryView ForumLayout = 2
+)
+
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
 	// The ID of the channel.
@@ -358,6 +382,18 @@ type Channel struct {
 
 	// Emoji to use as the default reaction to a forum post.
 	DefaultReactionEmoji ForumDefaultReaction `json:"default_reaction_emoji"`
+
+	// The initial RateLimitPerUser to set on newly created threads in a channel.
+	// This field is copied to the thread at creation time and does not live update.
+	DefaultRateLimitPerUser int `json:"default_rate_limit_per_user"`
+
+	// The default sort order type used to order posts in forum channels.
+	// Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin.
+	DefaultSortOrder SortOrderType `json:"default_sort_order"`
+
+	// the default forum layout view used to display posts in forum channels.
+	// Defaults to 0, which indicates a layout view has not been set by a channel admin.
+	DefaultForumLayout ForumLayout `json:"default_forum_layout"`
 }
 
 // Mention returns a string which mentions the channel
