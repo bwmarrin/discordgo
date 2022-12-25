@@ -191,10 +191,6 @@ var (
 		return EndpointWebhookMessage(aID, iToken, mID)
 	}
 
-	EndpointApplicationRoleConnectionMetadata = func(aID string) string {
-		return EndpointApplication(aID) + "/role-connections/metadata"
-	}
-
 	EndpointGuildCreate = EndpointAPI + "guilds"
 
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invites/" + iID }
@@ -202,8 +198,9 @@ var (
 	EndpointEmoji         = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".png" }
 	EndpointEmojiAnimated = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".gif" }
 
-	EndpointApplications = EndpointAPI + "applications"
-	EndpointApplication  = func(aID string) string { return EndpointApplications + "/" + aID }
+	EndpointApplications                      = EndpointAPI + "applications"
+	EndpointApplication                       = func(aID string) string { return EndpointApplications + "/" + aID }
+	EndpointApplicationRoleConnectionMetadata = func(aID string) string { return EndpointApplication(aID) + "/role-connections/metadata" }
 
 	EndpointOAuth2                  = EndpointAPI + "oauth2/"
 	EndpointOAuth2Applications      = EndpointOAuth2 + "applications"
