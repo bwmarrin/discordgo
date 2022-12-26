@@ -391,7 +391,7 @@ type Channel struct {
 	// Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin.
 	DefaultSortOrder *ForumSortOrderType `json:"default_sort_order"`
 
-	// the default forum layout view used to display posts in forum channels.
+	// The default forum layout view used to display posts in forum channels.
 	// Defaults to 0, which indicates a layout view has not been set by a channel admin.
 	DefaultForumLayout ForumLayout `json:"default_forum_layout"`
 }
