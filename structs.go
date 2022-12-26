@@ -270,15 +270,15 @@ const (
 	ChannelFlagRequireTag ChannelFlags = 1 << 4
 )
 
-// SortOrderType represent type of a forum channel.
-type SortOrderType int
+// ForumSortOrderType represent sort order type of a forum channel.
+type ForumSortOrderType int
 
-// Block contains known SortOrderType values.
+// Block contains known ForumSortOrderType values.
 const (
 	// 	Sort forum posts by activity
-	LatestActivity SortOrderType = 0
+	ForumSortOrderLatestActivity ForumSortOrderType = 0
 	// Sort forum posts by creation time (from most recent to oldest)
-	CreationDate SortOrderType = 1
+	ForumSortOrderCreationDate ForumSortOrderType = 1
 )
 
 // ForumLayout represent layout of a forum channel.
@@ -389,7 +389,7 @@ type Channel struct {
 
 	// The default sort order type used to order posts in forum channels.
 	// Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin.
-	DefaultSortOrder SortOrderType `json:"default_sort_order"`
+	DefaultSortOrder *ForumSortOrderType `json:"default_sort_order"`
 
 	// the default forum layout view used to display posts in forum channels.
 	// Defaults to 0, which indicates a layout view has not been set by a channel admin.
