@@ -287,11 +287,11 @@ type ForumLayout int
 // Block contains known ForumLayout values.
 const (
 	// No default has been set for forum channel
-	NotSet ForumLayout = 0
+	ForumLayoutNotSet ForumLayout = 0
 	// Display posts as a list
-	ListView ForumLayout = 1
+	ForumLayoutListView ForumLayout = 1
 	//Display posts as a collection of tiles
-	GalleryView ForumLayout = 2
+	ForumLayoutGalleryView ForumLayout = 2
 )
 
 // A Channel holds all data related to an individual Discord channel.
