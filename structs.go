@@ -421,15 +421,18 @@ type ChannelEdit struct {
 
 	// NOTE: threads only
 
-	Archived            *bool `json:"archived,omitempty"`
-	AutoArchiveDuration int   `json:"auto_archive_duration,omitempty"`
-	Locked              *bool `json:"locked,omitempty"`
-	Invitable           *bool `json:"invitable,omitempty"`
+	Archived                *bool `json:"archived,omitempty"`
+	AutoArchiveDuration     int   `json:"auto_archive_duration,omitempty"`
+	Locked                  *bool `json:"locked,omitempty"`
+	Invitable               *bool `json:"invitable,omitempty"`
+	DefaultRateLimitPerUser int   `json:"default_thread_rate_limit_per_user,omitempty"`
 
 	// NOTE: forum channels only
 
 	AvailableTags        *[]ForumTag           `json:"available_tags,omitempty"`
 	DefaultReactionEmoji *ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
+	DefaultSortOrder     *ForumSortOrderType   `json:"default_sort_order,omitempty"`
+	DefaultForumLayout   ForumLayout           `json:"default_forum_layout,omitempty"`
 
 	// NOTE: forum threads only
 	AppliedTags *[]string `json:"applied_tags,omitempty"`
