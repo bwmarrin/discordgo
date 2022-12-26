@@ -408,24 +408,24 @@ func (c *Channel) IsThread() bool {
 
 // A ChannelEdit holds Channel Field data for a channel edit.
 type ChannelEdit struct {
-	Name                 string                 `json:"name,omitempty"`
-	Topic                string                 `json:"topic,omitempty"`
-	NSFW                 *bool                  `json:"nsfw,omitempty"`
-	Position             int                    `json:"position"`
-	Bitrate              int                    `json:"bitrate,omitempty"`
-	UserLimit            int                    `json:"user_limit,omitempty"`
-	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             string                 `json:"parent_id,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
-	Flags                *ChannelFlags          `json:"flags,omitempty"`
+	Name                          string                 `json:"name,omitempty"`
+	Topic                         string                 `json:"topic,omitempty"`
+	NSFW                          *bool                  `json:"nsfw,omitempty"`
+	Position                      int                    `json:"position"`
+	Bitrate                       int                    `json:"bitrate,omitempty"`
+	UserLimit                     int                    `json:"user_limit,omitempty"`
+	PermissionOverwrites          []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      string                 `json:"parent_id,omitempty"`
+	RateLimitPerUser              *int                   `json:"rate_limit_per_user,omitempty"`
+	Flags                         *ChannelFlags          `json:"flags,omitempty"`
+	DefaultThreadRateLimitPerUser int                    `json:"default_thread_rate_limit_per_user,omitempty"`
 
 	// NOTE: threads only
 
-	Archived                *bool `json:"archived,omitempty"`
-	AutoArchiveDuration     int   `json:"auto_archive_duration,omitempty"`
-	Locked                  *bool `json:"locked,omitempty"`
-	Invitable               *bool `json:"invitable,omitempty"`
-	DefaultRateLimitPerUser int   `json:"default_thread_rate_limit_per_user,omitempty"`
+	Archived            *bool `json:"archived,omitempty"`
+	AutoArchiveDuration int   `json:"auto_archive_duration,omitempty"`
+	Locked              *bool `json:"locked,omitempty"`
+	Invitable           *bool `json:"invitable,omitempty"`
 
 	// NOTE: forum channels only
 
