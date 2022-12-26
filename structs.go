@@ -385,7 +385,7 @@ type Channel struct {
 
 	// The initial RateLimitPerUser to set on newly created threads in a channel.
 	// This field is copied to the thread at creation time and does not live update.
-	DefaultRateLimitPerUser int `json:"default_rate_limit_per_user"`
+	DefaultRateLimitPerUser int `json:"default_thread_rate_limit_per_user"`
 
 	// The default sort order type used to order posts in forum channels.
 	// Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin.
