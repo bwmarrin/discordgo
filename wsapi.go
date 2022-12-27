@@ -590,15 +590,19 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	// Invalid Session
 	// Must respond with a Identify packet.
 	if e.Operation == 9 {
-
-		s.log(LogInformational, "sending identify packet to gateway in response to Op9")
-
-		err = s.identify()
-		if err != nil {
-			s.log(LogWarning, "error sending gateway identify packet, %s, %s", s.gateway, err)
+		var resumable bool
+		if err := json.Unmarshal(e.RawData, &resumable); err != nil {
+			s.log(LogError, "error unmarshalling invalid session event, %s", err)
 			return e, err
 		}
 
+		if !resumable {
+			s.resumeGatewayURL = ""
+			s.sessionID = ""
+			atomic.StoreInt64(s.sequence, 0)
+		}
+
+		s.reconnect()
 		return e, nil
 	}
 
