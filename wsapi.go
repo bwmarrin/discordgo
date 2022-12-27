@@ -591,17 +591,18 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	// Must respond with a Identify packet.
 	if e.Operation == 9 {
 		var resumable bool
+		s.log(LogInformational, "Closing and reconnecting in response to Op9")
 		if err := json.Unmarshal(e.RawData, &resumable); err != nil {
 			s.log(LogError, "error unmarshalling invalid session event, %s", err)
 			return e, err
 		}
 
 		if !resumable {
+			s.log(LogInformational, "Gateway session is not resumable, discarding its information")
 			s.resumeGatewayURL = ""
 			s.sessionID = ""
 			atomic.StoreInt64(s.sequence, 0)
 		}
-
 		s.reconnect()
 		return e, nil
 	}
