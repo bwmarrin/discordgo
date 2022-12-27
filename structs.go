@@ -1478,6 +1478,14 @@ type AutoModerationTriggerMetadata struct {
 	// Internally pre-defined wordsets which will be searched for in content.
 	// NOTE: should be only used with keyword preset trigger type.
 	Presets []AutoModerationKeywordPreset `json:"presets,omitempty"`
+
+	// Substrings which should not trigger the rule.
+	// NOTE: should be only used with keyword or keyword preset trigger type.
+	AllowList *[]string `json:"allow_list,omitempty"`
+
+	// Total number of unique role and user mentions allowed per message.
+	// NOTE: should be only used with mention spam trigger type.
+	MentionTotalLimit int `json:"mention_total_limit,omitempty"`
 }
 
 // AutoModerationActionType represents an action which will execute whenever a rule is triggered.
