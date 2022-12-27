@@ -150,6 +150,7 @@ type GuildMemberAdd struct {
 // GuildMemberUpdate is the data for a GuildMemberUpdate event.
 type GuildMemberUpdate struct {
 	*Member
+	BeforeUpdate *Member `json:"-"`
 }
 
 // GuildMemberRemove is the data for a GuildMemberRemove event.
