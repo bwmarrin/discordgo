@@ -1449,7 +1449,7 @@ type AutoModerationTriggerMetadata struct {
 
 	// Substrings which should not trigger the rule.
 	// NOTE: should be only used with keyword or keyword preset trigger type.
-	AllowList []string `json:"allow_list,omitempty"`
+	AllowList []*string `json:"allow_list,omitempty"`
 
 	// Total number of unique role and user mentions allowed per message.
 	// NOTE: should be only used with mention spam trigger type.
