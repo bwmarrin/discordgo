@@ -207,6 +207,15 @@ func (s *State) presenceAdd(guildID string, presence *Presence) error {
 			if presence.Status != "" {
 				guild.Presences[i].Status = presence.Status
 			}
+			if presence.ClientStatus.Desktop != "" {
+				guild.Presences[i].ClientStatus.Desktop = presence.ClientStatus.Desktop
+			}
+			if presence.ClientStatus.Mobile != "" {
+				guild.Presences[i].ClientStatus.Mobile = presence.ClientStatus.Mobile
+			}
+			if presence.ClientStatus.Web != "" {
+				guild.Presences[i].ClientStatus.Web = presence.ClientStatus.Web
+			}
 
 			//Update the optionally sent user information
 			//ID Is a mandatory field so you should not need to check if it is empty

@@ -1267,10 +1267,11 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User       *User       `json:"user"`
-	Status     Status      `json:"status"`
-	Activities []*Activity `json:"activities"`
-	Since      *int        `json:"since"`
+	User         *User        `json:"user"`
+	Status       Status       `json:"status"`
+	Activities   []*Activity  `json:"activities"`
+	Since        *int         `json:"since"`
+	ClientStatus ClientStatus `json:"client_status"`
 }
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
@@ -1360,6 +1361,13 @@ func (m *Member) AvatarURL(size string) string {
 	return avatarURL(m.Avatar, "", EndpointGuildMemberAvatar(m.GuildID, m.User.ID, m.Avatar),
 		EndpointGuildMemberAvatarAnimated(m.GuildID, m.User.ID, m.Avatar), size)
 
+}
+
+// ClientStatus stores the online, offline, idle, or dnd status of each device of a Guild member.
+type ClientStatus struct {
+	Desktop Status `json:"desktop"`
+	Mobile  Status `json:"mobile"`
+	Web     Status `json:"web"`
 }
 
 // Status type definition
