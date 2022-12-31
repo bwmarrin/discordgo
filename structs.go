@@ -275,9 +275,9 @@ type ForumSortOrderType int
 
 // Block contains known ForumSortOrderType values.
 const (
-	// 	Sort forum posts by activity
+	// ForumSortOrderLatestActivity sorts posts by activity.
 	ForumSortOrderLatestActivity ForumSortOrderType = 0
-	// Sort forum posts by creation time (from most recent to oldest)
+	// ForumSortOrderCreationDate sorts posts by creation time (from most recent to oldest).
 	ForumSortOrderCreationDate ForumSortOrderType = 1
 )
 
@@ -286,11 +286,11 @@ type ForumLayout int
 
 // Block contains known ForumLayout values.
 const (
-	// No default has been set for forum channel
+	// ForumLayoutNotSet represents no default layout.
 	ForumLayoutNotSet ForumLayout = 0
-	// Display posts as a list
+	// ForumLayoutListView displays forum posts as a list.
 	ForumLayoutListView ForumLayout = 1
-	//Display posts as a collection of tiles
+	// ForumLayoutGalleryView displays forum posts as a collection of tiles.
 	ForumLayoutGalleryView ForumLayout = 2
 )
 
@@ -392,7 +392,7 @@ type Channel struct {
 	DefaultSortOrder *ForumSortOrderType `json:"default_sort_order"`
 
 	// The default forum layout view used to display posts in forum channels.
-	// Defaults to 0, which indicates a layout view has not been set by a channel admin.
+	// Defaults to ForumLayoutNotSet, which indicates a layout view has not been set by a channel admin.
 	DefaultForumLayout ForumLayout `json:"default_forum_layout"`
 }
 
@@ -418,7 +418,7 @@ type ChannelEdit struct {
 	ParentID                      string                 `json:"parent_id,omitempty"`
 	RateLimitPerUser              *int                   `json:"rate_limit_per_user,omitempty"`
 	Flags                         *ChannelFlags          `json:"flags,omitempty"`
-	DefaultThreadRateLimitPerUser int                    `json:"default_thread_rate_limit_per_user,omitempty"`
+	DefaultThreadRateLimitPerUser *int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 
 	// NOTE: threads only
 
@@ -431,8 +431,8 @@ type ChannelEdit struct {
 
 	AvailableTags        *[]ForumTag           `json:"available_tags,omitempty"`
 	DefaultReactionEmoji *ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
-	DefaultSortOrder     *ForumSortOrderType   `json:"default_sort_order,omitempty"`
-	DefaultForumLayout   ForumLayout           `json:"default_forum_layout,omitempty"`
+	DefaultSortOrder     *ForumSortOrderType   `json:"default_sort_order,omitempty"` // TODO: null
+	DefaultForumLayout   *ForumLayout          `json:"default_forum_layout,omitempty"`
 
 	// NOTE: forum threads only
 	AppliedTags *[]string `json:"applied_tags,omitempty"`
