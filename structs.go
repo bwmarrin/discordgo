@@ -270,10 +270,9 @@ const (
 	ChannelFlagRequireTag ChannelFlags = 1 << 4
 )
 
-// ForumSortOrderType represent sort order type of a forum channel.
+// ForumSortOrderType represents sort order of a forum channel.
 type ForumSortOrderType int
 
-// Block contains known ForumSortOrderType values.
 const (
 	// ForumSortOrderLatestActivity sorts posts by activity.
 	ForumSortOrderLatestActivity ForumSortOrderType = 0
@@ -281,10 +280,9 @@ const (
 	ForumSortOrderCreationDate ForumSortOrderType = 1
 )
 
-// ForumLayout represent layout of a forum channel.
+// ForumLayout represents layout of a forum channel.
 type ForumLayout int
 
-// Block contains known ForumLayout values.
 const (
 	// ForumLayoutNotSet represents no default layout.
 	ForumLayoutNotSet ForumLayout = 0
