@@ -302,6 +302,28 @@ const (
 	ChannelFlagRequireTag ChannelFlags = 1 << 4
 )
 
+// ForumSortOrderType represents sort order of a forum channel.
+type ForumSortOrderType int
+
+const (
+	// ForumSortOrderLatestActivity sorts posts by activity.
+	ForumSortOrderLatestActivity ForumSortOrderType = 0
+	// ForumSortOrderCreationDate sorts posts by creation time (from most recent to oldest).
+	ForumSortOrderCreationDate ForumSortOrderType = 1
+)
+
+// ForumLayout represents layout of a forum channel.
+type ForumLayout int
+
+const (
+	// ForumLayoutNotSet represents no default layout.
+	ForumLayoutNotSet ForumLayout = 0
+	// ForumLayoutListView displays forum posts as a list.
+	ForumLayoutListView ForumLayout = 1
+	// ForumLayoutGalleryView displays forum posts as a collection of tiles.
+	ForumLayoutGalleryView ForumLayout = 2
+)
+
 // A Channel holds all data related to an individual Discord channel.
 type Channel struct {
 	// The ID of the channel.
@@ -390,6 +412,18 @@ type Channel struct {
 
 	// Emoji to use as the default reaction to a forum post.
 	DefaultReactionEmoji ForumDefaultReaction `json:"default_reaction_emoji"`
+
+	// The initial RateLimitPerUser to set on newly created threads in a channel.
+	// This field is copied to the thread at creation time and does not live update.
+	DefaultThreadRateLimitPerUser int `json:"default_thread_rate_limit_per_user"`
+
+	// The default sort order type used to order posts in forum channels.
+	// Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin.
+	DefaultSortOrder *ForumSortOrderType `json:"default_sort_order"`
+
+	// The default forum layout view used to display posts in forum channels.
+	// Defaults to ForumLayoutNotSet, which indicates a layout view has not been set by a channel admin.
+	DefaultForumLayout ForumLayout `json:"default_forum_layout"`
 }
 
 // Mention returns a string which mentions the channel
@@ -404,16 +438,17 @@ func (c *Channel) IsThread() bool {
 
 // A ChannelEdit holds Channel Field data for a channel edit.
 type ChannelEdit struct {
-	Name                 string                 `json:"name,omitempty"`
-	Topic                string                 `json:"topic,omitempty"`
-	NSFW                 *bool                  `json:"nsfw,omitempty"`
-	Position             int                    `json:"position"`
-	Bitrate              int                    `json:"bitrate,omitempty"`
-	UserLimit            int                    `json:"user_limit,omitempty"`
-	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	ParentID             string                 `json:"parent_id,omitempty"`
-	RateLimitPerUser     *int                   `json:"rate_limit_per_user,omitempty"`
-	Flags                *ChannelFlags          `json:"flags,omitempty"`
+	Name                          string                 `json:"name,omitempty"`
+	Topic                         string                 `json:"topic,omitempty"`
+	NSFW                          *bool                  `json:"nsfw,omitempty"`
+	Position                      int                    `json:"position"`
+	Bitrate                       int                    `json:"bitrate,omitempty"`
+	UserLimit                     int                    `json:"user_limit,omitempty"`
+	PermissionOverwrites          []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	ParentID                      string                 `json:"parent_id,omitempty"`
+	RateLimitPerUser              *int                   `json:"rate_limit_per_user,omitempty"`
+	Flags                         *ChannelFlags          `json:"flags,omitempty"`
+	DefaultThreadRateLimitPerUser *int                   `json:"default_thread_rate_limit_per_user,omitempty"`
 
 	// NOTE: threads only
 
@@ -426,6 +461,8 @@ type ChannelEdit struct {
 
 	AvailableTags        *[]ForumTag           `json:"available_tags,omitempty"`
 	DefaultReactionEmoji *ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
+	DefaultSortOrder     *ForumSortOrderType   `json:"default_sort_order,omitempty"` // TODO: null
+	DefaultForumLayout   *ForumLayout          `json:"default_forum_layout,omitempty"`
 
 	// NOTE: forum threads only
 	AppliedTags *[]string `json:"applied_tags,omitempty"`
