@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/LightningDev1/discordgo"
 )
 
 func init() {
@@ -52,10 +52,6 @@ func main() {
 
 	// Register guildCreate as a callback for the guildCreate events.
 	dg.AddHandler(guildCreate)
-
-	// We need information about guilds (which includes their channels),
-	// messages and voice states.
-	dg.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
 
 	// Open the websocket and begin listening.
 	err = dg.Open()

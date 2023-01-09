@@ -3,7 +3,7 @@
 This page is dedicated to helping you get started on your way to making the
 next great Discord bot or client with DiscordGo. Once you've done that please
 don't forget to submit it to the 
-[Awesome DiscordGo](https://github.com/bwmarrin/discordgo/wiki/Awesome-DiscordGo) list :).
+[Awesome DiscordGo](https://github.com/LightningDev1/discordgo/wiki/Awesome-DiscordGo) list :).
 
 
 **First, lets cover a few topics so you can make the best choices on how to 
@@ -61,7 +61,7 @@ always pull the latest tagged release from the master branch. Then run
 Run go get to download the package to your GOPATH/src folder.
 
 ```sh
-go get github.com/bwmarrin/discordgo
+go get github.com/LightningDev1/discordgo
 ```
 
 Finally, compile and install the package into the GOPATH/pkg folder. This isn't
@@ -69,7 +69,7 @@ absolutely required but doing this will allow the Go plugin for your editor to
 provide autocomplete for all DiscordGo functions.
 
 ```sh
-cd $GOPATH/src/github.com/bwmarrin/discordgo
+cd $GOPATH/src/github.com/LightningDev1/discordgo
 go install
 ```
 

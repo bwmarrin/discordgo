@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/LightningDev1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -175,8 +175,9 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 // Guild gets a guild by ID.
 // Useful for querying if @me is in a guild:
-//     _, err := discordgo.Session.State.Guild(guildID)
-//     isInGuild := err == nil
+//
+//	_, err := discordgo.Session.State.Guild(guildID)
+//	isInGuild := err == nil
 func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {
 		return nil, ErrNilState
@@ -299,6 +300,29 @@ func (s *State) Presence(guildID, userID string) (*Presence, error) {
 		}
 	}
 
+	return nil, ErrStateNotFound
+}
+
+// GetUser gets a user by ID.
+func (s *State) GetUser(userID string) (*User, error) {
+	if s == nil {
+		return nil, ErrNilState
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	if userID == s.User.ID {
+		return s.User, nil
+	}
+
+	for _, guild := range s.guildMap {
+		for _, member := range guild.Members {
+			if member.User.ID == userID {
+				return member.User, nil
+			}
+		}
+	}
 	return nil, ErrStateNotFound
 }
 
@@ -918,11 +942,9 @@ func (s *State) onReady(se *Session, r *Ready) (err error) {
 	// if state is disabled, store the bare essentials.
 	if !se.StateEnabled {
 		ready := Ready{
-			Version:     r.Version,
-			SessionID:   r.SessionID,
-			User:        r.User,
-			Shard:       r.Shard,
-			Application: r.Application,
+			Version:   r.Version,
+			SessionID: r.SessionID,
+			User:      r.User,
 		}
 
 		s.Ready = ready

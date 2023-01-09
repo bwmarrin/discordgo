@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/LightningDev1/discordgo"
 )
 
 // Command line flags
@@ -22,8 +22,6 @@ func init() { flag.Parse() }
 
 func main() {
 	session, _ := discordgo.New("Bot " + *BotToken)
-	session.Identify.Intents |= discordgo.IntentAutoModerationExecution
-	session.Identify.Intents |= discordgo.IntentMessageContent
 
 	enabled := true
 	rule, err := session.AutoModerationRuleCreate(*GuildID, &discordgo.AutoModerationRule{

@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/LightningDev1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -66,6 +66,9 @@ var (
 	EndpointUserChannels                  = func(uID string) string { return EndpointUsers + uID + "/channels" }
 	EndpointUserApplicationRoleConnection = func(aID string) string { return EndpointUsers + "@me/applications/" + aID + "/role-connection" }
 	EndpointUserConnections               = func(uID string) string { return EndpointUsers + uID + "/connections" }
+	EndpointUserRelationships             = func(uID string) string { return EndpointUsers + uID + "/relationships" }
+	EndpointUserProfile                   = func(uID string) string { return EndpointUsers + uID + "/profile" }
+	EndpointUserInvites                   = func(uID string) string { return EndpointUsers + uID + "/invites" }
 
 	EndpointGuild                    = func(gID string) string { return EndpointGuilds + gID }
 	EndpointGuildAutoModeration      = func(gID string) string { return EndpointGuild(gID) + "/auto-moderation" }
@@ -112,6 +115,7 @@ var (
 	EndpointGuildMemberAvatarAnimated = func(gId, uID, aID string) string {
 		return EndpointCDNGuilds + gId + "/users/" + uID + "/avatars/" + aID + ".gif"
 	}
+	EndpointGuildAck = func(gID string) string { return EndpointGuilds + gID + "/ack" }
 
 	EndpointChannel                             = func(cID string) string { return EndpointChannels + cID }
 	EndpointChannelThreads                      = func(cID string) string { return EndpointChannel(cID) + "/threads" }
@@ -155,6 +159,9 @@ var (
 	EndpointMessageReaction = func(cID, mID, eID, uID string) string {
 		return EndpointMessageReactions(cID, mID, eID) + "/" + uID
 	}
+	EndpointMessageAck = func(cID, mID string) string {
+		return EndpointChannelMessage(cID, mID) + "/ack"
+	}
 
 	EndpointApplicationGlobalCommands = func(aID string) string {
 		return EndpointApplication(aID) + "/commands"
@@ -175,7 +182,8 @@ var (
 	EndpointApplicationCommandsGuildPermissions = func(aID, gID string) string {
 		return EndpointApplicationGuildCommands(aID, gID) + "/permissions"
 	}
-	EndpointInteraction = func(aID, iToken string) string {
+	EndpointInteractions = EndpointAPI + "interactions"
+	EndpointInteraction  = func(aID, iToken string) string {
 		return EndpointAPI + "interactions/" + aID + "/" + iToken
 	}
 	EndpointInteractionResponse = func(iID, iToken string) string {

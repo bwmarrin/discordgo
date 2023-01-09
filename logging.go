@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/LightningDev1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -39,10 +39,11 @@ var Logger func(msgL, caller int, format string, a ...interface{})
 
 // msglog provides package wide logging consistency for discordgo
 // the format, a...  portion this command follows that of fmt.Printf
-//   msgL   : LogLevel of the message
-//   caller : 1 + the number of callers away from the message source
-//   format : Printf style message format
-//   a ...  : comma separated list of values to pass
+//
+//	msgL   : LogLevel of the message
+//	caller : 1 + the number of callers away from the message source
+//	format : Printf style message format
+//	a ...  : comma separated list of values to pass
 func msglog(msgL, caller int, format string, a ...interface{}) {
 
 	if Logger != nil {

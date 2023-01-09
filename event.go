@@ -51,7 +51,6 @@ func registerInterfaceProvider(eh EventInterfaceProvider) {
 		// fmt.Errorf("event %s already registered", eh.Type())
 	}
 	registeredInterfaceProviders[eh.Type()] = eh
-	return
 }
 
 // eventHandlerInstance is a wrapper around an event handler, as functions

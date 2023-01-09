@@ -1,5 +1,7 @@
 package discordgo
 
+import "time"
+
 // UserFlags is the flags of "user" (see UserFlags* consts)
 // https://discord.com/developers/docs/resources/user#user-object-user-flags
 type UserFlags int
@@ -104,4 +106,26 @@ func (u *User) AvatarURL(size string) string {
 //             Image size can be any power of two between 16 and 4096.
 func (u *User) BannerURL(size string) string {
 	return bannerURL(u.Banner, EndpointUserBanner(u.ID, u.Banner), EndpointUserBannerAnimated(u.ID, u.Banner), size)
+}
+
+type Profile struct {
+	// The user who owns the profile.
+	User *User `json:"user"`
+
+	// The user's connected accounts.
+	Connections []*UserConnection `json:"connections"`
+
+	PremiumSince *time.Time `json:"premium_since"`
+
+	BoostingSince *time.Time `json:"premium_guild_since"`
+
+	MutualGuilds []struct {
+		ID       string `json:"id"`
+		Nickname string `json:"nick"`
+	} `json:"mutual_guilds"`
+
+	UserProfile struct {
+		Bio         string `json:"bio"`
+		AccentColor int    `json:"accent_color"`
+	} `json:"user_profile"`
 }

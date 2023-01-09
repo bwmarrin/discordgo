@@ -565,6 +565,54 @@ type InteractionResponseData struct {
 	Title    string `json:"title,omitempty"`
 }
 
+// InteractionClickData is the data to send when clicking a button.
+type InteractionClickData struct {
+	ComponentType int    `json:"component_type"`
+	CustomID      string `json:"custom_id"`
+}
+
+// InteractionModalCreate is the data to send when creating a modal.
+type InteractionModalCreate struct {
+	ModalSubmitInteractionData
+
+	Title       string      `json:"title"`
+	Nonce       string      `json:"nonce"`
+	ID          string      `json:"id"`
+	ChannelID   string      `json:"channel_id"`
+	Application Application `json:"application"`
+}
+
+// InteractionClick is the data to send when clicking a button.
+type InteractionClick struct {
+	ApplicationID string               `json:"application_id"`
+	ChannelID     string               `json:"channel_id"`
+	Data          InteractionClickData `json:"data"`
+	GuildID       string               `json:"guild_id"`
+	MessageFlags  int                  `json:"message_flags"`
+	MessageID     string               `json:"message_id"`
+	Nonce         string               `json:"nonce"`
+	SessionID     string               `json:"session_id"`
+	Type          int                  `json:"type"`
+}
+
+// ModalSubmitData is the data to send when submitting a modal.
+type ModalSubmitData struct {
+	ID         string       `json:"id"`
+	CustomID   string       `json:"custom_id"`
+	Components []ActionsRow `json:"components"`
+}
+
+// ModalSubmit is the data to send when submitting a modal.
+type ModalSubmit struct {
+	Type          InteractionType `json:"type"`
+	ApplicationID string          `json:"application_id"`
+	ChannelID     string          `json:"channel_id"`
+	GuildID       string          `json:"guild_id"`
+	Data          ModalSubmitData `json:"data"`
+	SessionID     string          `json:"session_id"`
+	Nonce         string          `json:"nonce"`
+}
+
 // VerifyInteraction implements message verification of the discord interactions api
 // signing algorithm, as documented here:
 // https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization

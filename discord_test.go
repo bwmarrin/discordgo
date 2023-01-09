@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-//////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////// VARS NEEDED FOR TESTING
+// ////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////// VARS NEEDED FOR TESTING
 var (
 	dg    *Session // Stores a global discordgo user session
 	dgBot *Session // Stores a global discordgo bot session
@@ -243,7 +243,7 @@ func TestScheduledEvents(t *testing.T) {
 	}
 
 	// Usage of 1 and 1 is just the pseudo data with the purpose to run all branches in the function without crashes.
-	// see https://github.com/bwmarrin/discordgo/pull/1032#discussion_r815438303 for more details.
+	// see https://github.com/LightningDev1/discordgo/pull/1032#discussion_r815438303 for more details.
 	users, err := dgBot.GuildScheduledEventUsers(envGuild, event.ID, 1, true, "1", "1")
 	if err != nil {
 		t.Fatal(err)

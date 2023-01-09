@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/LightningDev1/discordgo"
 )
 
 // Flags
@@ -60,7 +60,6 @@ func main() {
 			}
 		}
 	})
-	s.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAllWithoutPrivileged)
 
 	err := s.Open()
 	if err != nil {

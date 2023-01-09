@@ -2,6 +2,10 @@ package discordgo
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"runtime"
 )
 
 // This file contains all the possible structs that can be
@@ -36,13 +40,105 @@ type Event struct {
 
 // A Ready stores all data for the websocket READY event.
 type Ready struct {
-	Version         int          `json:"v"`
-	SessionID       string       `json:"session_id"`
-	User            *User        `json:"user"`
-	Shard           *[2]int      `json:"shard"`
-	Application     *Application `json:"application"`
-	Guilds          []*Guild     `json:"guilds"`
-	PrivateChannels []*Channel   `json:"private_channels"`
+	Version           int                  `json:"v"`
+	SessionID         string               `json:"session_id"`
+	User              *User                `json:"user"`
+	ReadState         []*ReadState         `json:"read_state"`
+	PrivateChannels   []*Channel           `json:"private_channels"`
+	Guilds            []*Guild             `json:"guilds"`
+	Sessions          []*DiscordSession    `json:"sessions"`
+	UserGuildSettings []*UserGuildSettings `json:"user_guild_settings"`
+	Relationships     []*Relationship      `json:"relationships"`
+}
+
+func (r *Ready) UnmarshalJSON(data []byte) error {
+	type rawReady struct {
+		Version           int                    `json:"v"`
+		Users             []*User                `json:"users"`
+		UserGuildSettings *UserGuildSettingsData `json:"user_guild_settings"`
+		User              *User                  `json:"user"`
+		Sessions          []*DiscordSession      `json:"sessions"`
+		SessionID         string                 `json:"session_id"`
+		Relationships     []*Relationship        `json:"relationships"`
+		ReadState         *ReadStateData         `json:"read_state"`
+		PrivateChannels   []*Channel             `json:"private_channels"`
+		Guilds            []*ReadyGuild          `json:"guilds"`
+		CountryCode       string                 `json:"country_code"`
+		ConnectedAccounts []*UserConnection      `json:"connected_accounts"`
+	}
+
+	var ready rawReady
+
+	ioutil.WriteFile("C:\\Users\\kaani\\Desktop\\ready.json", data, os.ModePerm)
+
+	if err := json.Unmarshal(data, &ready); err != nil {
+		return err
+	}
+
+	r.Version = ready.Version
+	r.SessionID = ready.SessionID
+	r.User = ready.User
+	r.ReadState = ready.ReadState.Entries
+	r.PrivateChannels = ready.PrivateChannels
+	r.Sessions = ready.Sessions
+	r.UserGuildSettings = ready.UserGuildSettings.Entries
+	r.Relationships = ready.Relationships
+
+	for _, readyGuild := range ready.Guilds {
+		guild := Guild{
+			Properties:                  readyGuild.Properties,
+			ID:                          readyGuild.ID,
+			Large:                       readyGuild.Large,
+			Lazy:                        readyGuild.Lazy,
+			MemberCount:                 readyGuild.MemberCount,
+			PremiumSubscriptionCount:    readyGuild.PremiumSubscriptionCount,
+			JoinedAt:                    readyGuild.JoinedAt,
+			Threads:                     readyGuild.Threads,
+			Stickers:                    readyGuild.Stickers,
+			StageInstances:              readyGuild.StageInstances,
+			ScheduledEvents:             readyGuild.ScheduledEvents,
+			Roles:                       readyGuild.Roles,
+			Channels:                    readyGuild.Channels,
+			Emojis:                      readyGuild.Emojis,
+			VerificationLevel:           readyGuild.Properties.VerificationLevel,
+			VanityURLCode:               readyGuild.Properties.VanityURLCode,
+			SystemChannelID:             readyGuild.Properties.SystemChannelID,
+			SystemChannelFlags:          readyGuild.Properties.SystemChannelFlags,
+			Splash:                      readyGuild.Properties.Splash,
+			SafetyAlertsChannelID:       readyGuild.Properties.SafetyAlertsChannelID,
+			RulesChannelID:              readyGuild.Properties.RulesChannelID,
+			PublicUpdatesChannelID:      readyGuild.Properties.PublicUpdatesChannelID,
+			PremiumTier:                 readyGuild.Properties.PremiumTier,
+			PremiumProgressBarEnabled:   readyGuild.Properties.PremiumProgressBarEnabled,
+			PreferredLocale:             readyGuild.Properties.PreferredLocale,
+			OwnerID:                     readyGuild.Properties.OwnerID,
+			NSFWLevel:                   readyGuild.Properties.NSFWLevel,
+			NSFW:                        readyGuild.Properties.NSFW,
+			Name:                        readyGuild.Properties.Name,
+			MfaLevel:                    readyGuild.Properties.MfaLevel,
+			MaxVideoChannelUsers:        readyGuild.Properties.MaxVideoChannelUsers,
+			MaxStageVideoChannelUsers:   readyGuild.Properties.MaxStageVideoChannelUsers,
+			MaxMembers:                  readyGuild.Properties.MaxMembers,
+			Icon:                        readyGuild.Properties.Icon,
+			HubType:                     readyGuild.Properties.HubType,
+			HomeHeader:                  readyGuild.Properties.HomeHeader,
+			Features:                    readyGuild.Properties.Features,
+			ExplicitContentFilter:       readyGuild.Properties.ExplicitContentFilter,
+			DiscoverySplash:             readyGuild.Properties.DiscoverySplash,
+			Description:                 readyGuild.Properties.Description,
+			DefaultMessageNotifications: readyGuild.Properties.DefaultMessageNotifications,
+			Banner:                      readyGuild.Properties.Banner,
+			ApplicationID:               readyGuild.Properties.ApplicationID,
+			AfkTimeout:                  readyGuild.Properties.AfkTimeout,
+			AfkChannelID:                readyGuild.Properties.AfkChannelID,
+		}
+
+		r.Guilds = append(r.Guilds, &guild)
+	}
+
+	runtime.GC()
+
+	return nil
 }
 
 // ChannelCreate is the data for a ChannelCreate event.
@@ -191,6 +287,15 @@ type GuildMembersChunk struct {
 	Nonce      string      `json:"nonce,omitempty"`
 }
 
+type GuildMemberListUpdate struct {
+	OnlineCount int              `json:"online_count"`
+	MemberCount int              `json:"member_count"`
+	ID          string           `json:"id"`
+	GuildID     string           `json:"guild_id"`
+	Ops         []*Operator      `json:"ops"`
+	Groups      []*SyncItemGroup `json:"groups"`
+}
+
 // GuildIntegrationsUpdate is the data for a GuildIntegrationsUpdate event.
 type GuildIntegrationsUpdate struct {
 	GuildID string `json:"guild_id"`
@@ -301,6 +406,16 @@ type PresenceUpdate struct {
 // Resumed is the data for a Resumed event.
 type Resumed struct {
 	Trace []string `json:"_trace"`
+}
+
+// RelationshipAdd is the data for a RelationshipAdd event.
+type RelationshipAdd struct {
+	*Relationship
+}
+
+// RelationshipRemove is the data for a RelationshipRemove event.
+type RelationshipRemove struct {
+	*Relationship
 }
 
 // TypingStart is the data for a TypingStart event.

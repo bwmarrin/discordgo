@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/LightningDev1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -201,8 +201,26 @@ func (s *Session) Open() error {
 	go s.heartbeat(s.wsConn, s.listening, h.HeartbeatInterval)
 	go s.listen(s.wsConn, s.listening)
 
+	if s.ShouldSubscribeGuilds {
+		go s.subscribeGuilds(s.wsConn, s.listening)
+	}
+
 	s.log(LogInformational, "exiting")
 	return nil
+}
+
+func (s *Session) subscribeGuilds(wsConn *websocket.Conn, listening <-chan interface{}) {
+	s.log(LogInformational, "subscribing to guilds")
+
+	for _, guild := range s.State.Guilds {
+		s.log(LogInformational, "subscribing to guild %s", guild.ID)
+
+		_, _ = s.FetchGuildMembers(NewFetchGuildMembersParams(guild.ID))
+
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	s.log(LogInformational, "subscribed to guilds")
 }
 
 // listen polls the websocket connection for events, it will stop when the
@@ -323,7 +341,8 @@ func (s *Session) heartbeat(wsConn *websocket.Conn, listening <-chan interface{}
 // UpdateStatusData is provided to UpdateStatusComplex()
 type UpdateStatusData struct {
 	IdleSince  *int        `json:"since"`
-	Activities []*Activity `json:"activities"`
+	Activities []*Activity `json:"activities,omitempty"`
+	Game       *Activity   `json:"game"`
 	AFK        bool        `json:"afk"`
 	Status     string      `json:"status"`
 }
@@ -416,9 +435,25 @@ func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 	return
 }
 
+// SendWsData sends raw data to the websocket connection
+func (s *Session) SendWsData(data interface{}) (err error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	if s.wsConn == nil {
+		return ErrWSNotFound
+	}
+
+	s.wsMutex.Lock()
+	defer s.wsMutex.Unlock()
+
+	err = s.wsConn.WriteJSON(data)
+
+	return
+}
+
 type requestGuildMembersData struct {
-	// TODO: Deprecated. Use string instead of []string
-	GuildIDs  []string  `json:"guild_id"`
+	GuildID   string    `json:"guild_id"`
 	Query     *string   `json:"query,omitempty"`
 	UserIDs   *[]string `json:"user_ids,omitempty"`
 	Limit     int       `json:"limit"`
@@ -439,7 +474,7 @@ type requestGuildMembersOp struct {
 // nonce     : Nonce to identify the Guild Members Chunk response
 // presences : Whether to request presences of guild members
 func (s *Session) RequestGuildMembers(guildID, query string, limit int, nonce string, presences bool) error {
-	return s.RequestGuildMembersBatch([]string{guildID}, query, limit, nonce, presences)
+	return s.RequestGuildMembersBatch(guildID, query, limit, nonce, presences)
 }
 
 // RequestGuildMembersList requests guild members from the gateway
@@ -450,7 +485,7 @@ func (s *Session) RequestGuildMembers(guildID, query string, limit int, nonce st
 // nonce     : Nonce to identify the Guild Members Chunk response
 // presences : Whether to request presences of guild members
 func (s *Session) RequestGuildMembersList(guildID string, userIDs []string, limit int, nonce string, presences bool) error {
-	return s.RequestGuildMembersBatchList([]string{guildID}, userIDs, limit, nonce, presences)
+	return s.RequestGuildMembersBatchList(guildID, userIDs, limit, nonce, presences)
 }
 
 // RequestGuildMembersBatch requests guild members from the gateway
@@ -462,9 +497,9 @@ func (s *Session) RequestGuildMembersList(guildID string, userIDs []string, limi
 // presences : Whether to request presences of guild members
 //
 // NOTE: this function is deprecated, please use RequestGuildMembers instead
-func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limit int, nonce string, presences bool) (err error) {
+func (s *Session) RequestGuildMembersBatch(guildID string, query string, limit int, nonce string, presences bool) (err error) {
 	data := requestGuildMembersData{
-		GuildIDs:  guildIDs,
+		GuildID:   guildID,
 		Query:     &query,
 		Limit:     limit,
 		Nonce:     nonce,
@@ -483,9 +518,9 @@ func (s *Session) RequestGuildMembersBatch(guildIDs []string, query string, limi
 // presences : Whether to request presences of guild members
 //
 // NOTE: this function is deprecated, please use RequestGuildMembersList instead
-func (s *Session) RequestGuildMembersBatchList(guildIDs []string, userIDs []string, limit int, nonce string, presences bool) (err error) {
+func (s *Session) RequestGuildMembersBatchList(guildID string, userIDs []string, limit int, nonce string, presences bool) (err error) {
 	data := requestGuildMembersData{
-		GuildIDs:  guildIDs,
+		GuildID:   guildID,
 		UserIDs:   &userIDs,
 		Limit:     limit,
 		Nonce:     nonce,
@@ -506,6 +541,39 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 
 	s.wsMutex.Lock()
 	err = s.wsConn.WriteJSON(requestGuildMembersOp{8, data})
+	s.wsMutex.Unlock()
+
+	return
+}
+
+// Lazy Guild Implementation
+
+type RequestLazyGuildData struct {
+	GuildID           string             `json:"guild_id"`
+	Typing            bool               `json:"typing"`
+	Threads           bool               `json:"threads"`
+	Activities        bool               `json:"activities"`
+	Members           []string           `json:"members"`
+	Channels          map[string][][]int `json:"channels"`
+	ThreadMemberLists []string           `json:"thread_member_lists"`
+}
+
+type requestLazyGuildOp struct {
+	Op   int                  `json:"op"`
+	Data RequestLazyGuildData `json:"d"`
+}
+
+func (s *Session) RequestLazyGuild(data RequestLazyGuildData) (err error) {
+	s.log(LogInformational, "called")
+
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return ErrWSNotFound
+	}
+
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(requestLazyGuildOp{14, data})
 	s.wsMutex.Unlock()
 
 	return
@@ -553,6 +621,8 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	}
 
 	s.log(LogDebug, "Op: %d, Seq: %d, Type: %s, Data: %s\n\n", e.Operation, e.Sequence, e.Type, string(e.RawData))
+
+	//fmt.Println(e.Operation, e.Type)
 
 	// Ping request.
 	// Must respond with a heartbeat packet within 5 seconds
@@ -662,10 +732,10 @@ type voiceChannelJoinOp struct {
 
 // ChannelVoiceJoin joins the session user to a voice channel.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
 	s.log(LogInformational, "called")
@@ -709,10 +779,10 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 //
 // This should only be used when the VoiceServerUpdate will be intercepted and used elsewhere.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join, leave empty to disconnect.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join, leave empty to disconnect.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
 
 	s.log(LogInformational, "called")
@@ -808,7 +878,7 @@ func (s *Session) identify() error {
 
 	// TODO: This is a temporary block of code to help
 	// maintain backwards compatibility
-	if s.Compress == false {
+	if !s.Compress {
 		s.Identify.Compress = false
 	}
 
@@ -816,18 +886,6 @@ func (s *Session) identify() error {
 	// maintain backwards compatibility
 	if s.Token != "" && s.Identify.Token == "" {
 		s.Identify.Token = s.Token
-	}
-
-	// TODO: Below block should be refactored so ShardID and ShardCount
-	// can be deprecated and their usage moved to the Session.Identify
-	// struct
-	if s.ShardCount > 1 {
-
-		if s.ShardID >= s.ShardCount {
-			return ErrWSShardBounds
-		}
-
-		s.Identify.Shard = &[2]int{s.ShardID, s.ShardCount}
 	}
 
 	// Send Identify packet to Discord

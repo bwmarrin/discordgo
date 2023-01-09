@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/LightningDev1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -34,6 +34,12 @@ type Session struct {
 	// TODO: Remove Below, Deprecated, Use Identify struct
 	Token string
 
+	// Discord X-Super-Properties value
+	SuperProperties string
+
+	// Default headers to send with every request
+	Headers map[string]string
+
 	MFA bool
 
 	// Debug for printing JSON request/responses
@@ -62,6 +68,9 @@ type Session struct {
 	// State tracking is the best way for getting the users
 	// active guilds and the members of the guilds.
 	StateEnabled bool
+
+	// Should the session subscribe to guilds.
+	ShouldSubscribeGuilds bool
 
 	// Whether or not to call event handlers synchronously.
 	// e.g. false = launch event handlers in their own goroutines.
@@ -194,6 +203,12 @@ type UserConnection struct {
 	Name         string         `json:"name"`
 	Type         string         `json:"type"`
 	Revoked      bool           `json:"revoked"`
+	Visibility   int            `json:"visibility"`
+	ShowActivity bool           `json:"show_activity"`
+	Verified     bool           `json:"verified"`
+	FriendSync   bool           `json:"friend_sync"`
+	TwoWayLink   bool           `json:"two_way_link"`
+	AccessToken  string         `json:"access_token"`
 	Integrations []*Integration `json:"integrations"`
 }
 
@@ -604,6 +619,13 @@ func (e *Emoji) APIName() string {
 	return e.ID
 }
 
+func (e *Emoji) URL() string {
+	if e.Animated {
+		return EndpointEmojiAnimated(e.ID)
+	}
+	return EndpointEmoji(e.ID)
+}
+
 // EmojiParams represents parameters needed to create or update an Emoji.
 type EmojiParams struct {
 	// Name of the emoji
@@ -713,9 +735,153 @@ const (
 	PremiumTier3    PremiumTier = 3
 )
 
+type GuildProperties struct {
+	// The guild's verification level
+	VerificationLevel VerificationLevel `json:"verification_level"`
+
+	// The guild's vanity URL code
+	VanityURLCode string `json:"vanity_url_code"`
+
+	// The guild's system channel ID
+	SystemChannelID string `json:"system_channel_id"`
+
+	// The guild's system channel flags
+	SystemChannelFlags SystemChannelFlag `json:"system_channel_flags"`
+
+	// The guild's splash hash
+	Splash string `json:"splash"`
+
+	// The guild's safety alerts channel ID
+	SafetyAlertsChannelID string `json:"safety_alerts_channel_id"`
+
+	// The guild's rules channel ID
+	RulesChannelID string `json:"rules_channel_id"`
+
+	// The guild's public updates channel ID
+	PublicUpdatesChannelID string `json:"public_updates_channel_id"`
+
+	// The guild's premium tier
+	PremiumTier PremiumTier `json:"premium_tier"`
+
+	// If the guild's premium progress bar is enabled
+	PremiumProgressBarEnabled bool `json:"premium_progress_bar_enabled"`
+
+	// The guild's preferred locale
+	PreferredLocale string `json:"preferred_locale"`
+
+	// The guild's owner ID
+	OwnerID string `json:"owner_id"`
+
+	// The guild's NSFW level
+	NSFWLevel GuildNSFWLevel `json:"nsfw_level"`
+
+	// If the guild is NSFW
+	NSFW bool `json:"nsfw"`
+
+	// The guild's name
+	Name string `json:"name"`
+
+	// The guild's MFA level
+	MfaLevel MfaLevel `json:"mfa_level"`
+
+	// The guild's maximum video channel users
+	MaxVideoChannelUsers int `json:"max_video_channel_users"`
+
+	// The guild's maximum stage video channel users
+	MaxStageVideoChannelUsers int `json:"max_stage_video_channel_users"`
+
+	// The guild's maximum members
+	MaxMembers int `json:"max_members"`
+
+	// The guild's ID
+	ID string `json:"id"`
+
+	// The guild's icon hash
+	Icon string `json:"icon"`
+
+	// The guild's hub type
+	HubType int `json:"hub_type"`
+
+	// The guild's home header hash
+	HomeHeader string `json:"home_header"`
+
+	// The guild's features
+	Features []GuildFeature `json:"features"`
+
+	// The guild's explicit content filter level
+	ExplicitContentFilter ExplicitContentFilterLevel `json:"explicit_content_filter"`
+
+	// The guild's discovery splash hash
+	DiscoverySplash string `json:"discovery_splash"`
+
+	// The guild's description
+	Description string `json:"description"`
+
+	// The guild's default message notifications
+	DefaultMessageNotifications MessageNotifications `json:"default_message_notifications"`
+
+	// The guild's banner hash
+	Banner string `json:"banner"`
+
+	// The guild's application ID
+	ApplicationID string `json:"application_id"`
+
+	// The guild's AFK timeout
+	AfkTimeout int `json:"afk_timeout"`
+
+	// The guild's AFK channel ID
+	AfkChannelID string `json:"afk_channel_id"`
+}
+
+type ReadyGuild struct {
+	// The ID of the guild
+	ID string `json:"id"`
+
+	// If the guild is large
+	Large bool `json:"large"`
+
+	// If the guild should be lazy loaded
+	Lazy bool `json:"lazy"`
+
+	// The guild's member count
+	MemberCount int `json:"member_count"`
+
+	// The guild's boost count
+	PremiumSubscriptionCount int `json:"premium_subscription_count"`
+
+	// When the user joined the guild
+	JoinedAt time.Time `json:"joined_at"`
+
+	// The guild's threads
+	Threads []*Channel `json:"threads"`
+
+	// The guild's stickers
+	Stickers []*Sticker `json:"stickers"`
+
+	// The guild's stage instances
+	StageInstances []*StageInstance `json:"stage_instances"`
+
+	// The guild's scheduled events
+	ScheduledEvents []*GuildScheduledEvent `json:"scheduled_events"`
+
+	// The guild's roles
+	Roles []*Role `json:"roles"`
+
+	// The guild's channels
+	Channels []*Channel `json:"channels"`
+
+	// The guild's emojis
+	Emojis []*Emoji `json:"emojis"`
+
+	// The guild's properties
+	Properties *GuildProperties `json:"properties"`
+}
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {
+	Properties *GuildProperties
+	
 	// The ID of the guild.
 	ID string `json:"id"`
 
@@ -764,6 +930,9 @@ type Guild struct {
 	// determined by a member threshold in the identify packet,
 	// and is currently hard-coded at 250 members in the library.
 	Large bool `json:"large"`
+
+	// If the guild should be lazy loaded
+	Lazy bool `json:"lazy"`
 
 	// The default message notification setting for the guild.
 	DefaultMessageNotifications MessageNotifications `json:"default_message_notifications"`
@@ -819,6 +988,9 @@ type Guild struct {
 	// The NSFW Level of the guild
 	NSFWLevel GuildNSFWLevel `json:"nsfw_level"`
 
+	// If the guild is NSFW
+	NSFW bool `json:"nsfw"`
+
 	// The list of enabled guild features
 	Features []GuildFeature `json:"features"`
 
@@ -840,6 +1012,9 @@ type Guild struct {
 	// The System channel flags
 	SystemChannelFlags SystemChannelFlag `json:"system_channel_flags"`
 
+	// The guild's safety alerts channel ID
+	SafetyAlertsChannelID string `json:"safety_alerts_channel_id"`
+
 	// The ID of the rules channel ID, used for rules.
 	RulesChannelID string `json:"rules_channel_id"`
 
@@ -855,6 +1030,9 @@ type Guild struct {
 	// The premium tier of the guild
 	PremiumTier PremiumTier `json:"premium_tier"`
 
+	// If the guild's premium progress bar is enabled
+	PremiumProgressBarEnabled bool `json:"premium_progress_bar_enabled"`
+
 	// The total number of users currently boosting this server
 	PremiumSubscriptionCount int `json:"premium_subscription_count"`
 
@@ -867,6 +1045,9 @@ type Guild struct {
 	// The maximum amount of users in a video channel
 	MaxVideoChannelUsers int `json:"max_video_channel_users"`
 
+	// The guild's maximum stage video channel users
+	MaxStageVideoChannelUsers int `json:"max_stage_video_channel_users"`
+
 	// Approximate number of members in this guild, returned from the GET /guild/<id> endpoint when with_counts is true
 	ApproximateMemberCount int `json:"approximate_member_count"`
 
@@ -878,6 +1059,15 @@ type Guild struct {
 
 	// Stage instances in the guild
 	StageInstances []*StageInstance `json:"stage_instances"`
+
+	// The guild's scheduled events
+	ScheduledEvents []*GuildScheduledEvent `json:"scheduled_events"`
+
+	// The guild's hub type
+	HubType int `json:"hub_type"`
+
+	// The guild's home header hash
+	HomeHeader string `json:"home_header"`
 }
 
 // A GuildPreview holds data related to a specific public Discord Guild, even if the user is not in the guild.
@@ -1379,6 +1569,9 @@ type Member struct {
 	// The time at which the member's timeout will expire.
 	// Time in the past or nil if the user is not timed out.
 	CommunicationDisabledUntil *time.Time `json:"communication_disabled_until"`
+
+	// The member's presence
+	Presence *Presence `json:"presence"`
 }
 
 // Mention creates a member mention
@@ -1387,9 +1580,10 @@ func (m *Member) Mention() string {
 }
 
 // AvatarURL returns the URL of the member's avatar
-//    size:    The size of the user's avatar as a power of two
-//             if size is an empty string, no size parameter will
-//             be added to the URL.
+//
+//	size:    The size of the user's avatar as a power of two
+//	         if size is an empty string, no size parameter will
+//	         be added to the URL.
 func (m *Member) AvatarURL(size string) string {
 	if m.Avatar == "" {
 		return m.User.AvatarURL(size)
@@ -1398,6 +1592,25 @@ func (m *Member) AvatarURL(size string) string {
 	return avatarURL(m.Avatar, "", EndpointGuildMemberAvatar(m.GuildID, m.User.ID, m.Avatar),
 		EndpointGuildMemberAvatarAnimated(m.GuildID, m.User.ID, m.Avatar), size)
 
+}
+
+// A Settings stores data for a specific users Discord client settings.
+type Settings struct {
+	RenderEmbeds           bool               `json:"render_embeds"`
+	InlineEmbedMedia       bool               `json:"inline_embed_media"`
+	InlineAttachmentMedia  bool               `json:"inline_attachment_media"`
+	EnableTTSCommand       bool               `json:"enable_tts_command"`
+	MessageDisplayCompact  bool               `json:"message_display_compact"`
+	ShowCurrentGame        bool               `json:"show_current_game"`
+	ConvertEmoticons       bool               `json:"convert_emoticons"`
+	Locale                 string             `json:"locale"`
+	Theme                  string             `json:"theme"`
+	GuildPositions         []string           `json:"guild_positions"`
+	RestrictedGuilds       []string           `json:"restricted_guilds"`
+	FriendSourceFlags      *FriendSourceFlags `json:"friend_source_flags"`
+	Status                 Status             `json:"status"`
+	DetectPlatformAccounts bool               `json:"detect_platform_accounts"`
+	DeveloperMode          bool               `json:"developer_mode"`
 }
 
 // ClientStatus stores the online, offline, idle, or dnd status of each device of a Guild member.
@@ -1418,6 +1631,20 @@ const (
 	StatusInvisible    Status = "invisible"
 	StatusOffline      Status = "offline"
 )
+
+// FriendSourceFlags stores who can add the logged in useruser as a friend
+type FriendSourceFlags struct {
+	All           bool `json:"all"`
+	MutualGuilds  bool `json:"mutual_guilds"`
+	MutualFriends bool `json:"mutual_friends"`
+}
+
+// A Relationship between the logged in user and Relationship.User
+type Relationship struct {
+	User *User  `json:"user"`
+	Type int    `json:"type"` // 1 = friend, 2 = blocked, 3 = incoming friend req, 4 = sent friend req
+	ID   string `json:"id"`
+}
 
 // A TooManyRequests struct holds information received from Discord
 // when receiving a HTTP 429 response.
@@ -1449,9 +1676,17 @@ func (t *TooManyRequests) UnmarshalJSON(b []byte) error {
 
 // A ReadState stores data on the read state of channels.
 type ReadState struct {
-	MentionCount  int    `json:"mention_count"`
-	LastMessageID string `json:"last_message_id"`
-	ID            string `json:"id"`
+	MentionCount     int        `json:"mention_count"`
+	LastPinTimestamp *time.Time `json:"last_pin_timestamp"`
+	LastMessageID    any        `json:"last_message_id"` // string or int
+	ID               string     `json:"id"`
+}
+
+// ReadStateData is sent in the READY event
+type ReadStateData struct {
+	Version int          `json:"version"`
+	Partial bool         `json:"partial"`
+	Entries []*ReadState `json:"entries"`
 }
 
 // A GuildRole stores data for guild roles.
@@ -1835,6 +2070,32 @@ const (
 	AuditLogActionApplicationCommandPermissionUpdate AuditLogAction = 121
 )
 
+// A UserGuildSettingsChannelOverride stores data for a channel override for a users guild settings.
+type UserGuildSettingsChannelOverride struct {
+	Muted                bool   `json:"muted"`
+	MessageNotifications int    `json:"message_notifications"`
+	ChannelID            string `json:"channel_id"`
+}
+
+// A UserGuildSettings stores data for a users guild settings.
+type UserGuildSettings struct {
+	SuppressRoles        bool                                `json:"suppress_roles"`
+	SuppressEveryone     bool                                `json:"suppress_everyone"`
+	Muted                bool                                `json:"muted"`
+	MobilePush           bool                                `json:"mobile_push"`
+	MessageNotifications int                                 `json:"message_notifications"`
+	HideMutedChannels    bool                                `json:"hide_muted_channels"`
+	GuildID              string                              `json:"guild_id"`
+	ChannelOverrides     []*UserGuildSettingsChannelOverride `json:"channel_overrides"`
+}
+
+// UserGuildSettingsData is sent in the READY event
+type UserGuildSettingsData struct {
+	Version int                  `json:"version"`
+	Partial bool                 `json:"partial"`
+	Entries []*UserGuildSettings `json:"entries"`
+}
+
 // GuildMemberParams stores data needed to update a member
 // https://discord.com/developers/docs/resources/guild#modify-guild-member
 type GuildMemberParams struct {
@@ -2035,23 +2296,46 @@ const (
 // Identify is sent during initial handshake with the discord gateway.
 // https://discord.com/developers/docs/topics/gateway#identify
 type Identify struct {
-	Token          string              `json:"token"`
-	Properties     IdentifyProperties  `json:"properties"`
-	Compress       bool                `json:"compress"`
-	LargeThreshold int                 `json:"large_threshold"`
-	Shard          *[2]int             `json:"shard,omitempty"`
-	Presence       GatewayStatusUpdate `json:"presence,omitempty"`
-	Intents        Intent              `json:"intents"`
+	Token        string              `json:"token"`
+	Properties   IdentifyProperties  `json:"properties"`
+	Compress     bool                `json:"compress"`
+	Capabilities int                 `json:"capabilities"`
+	Presence     GatewayStatusUpdate `json:"presence,omitempty"`
 }
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
 // https://discord.com/developers/docs/topics/gateway#identify-identify-connection-properties
 type IdentifyProperties struct {
-	OS              string `json:"$os"`
-	Browser         string `json:"$browser"`
-	Device          string `json:"$device"`
-	Referer         string `json:"$referer"`
-	ReferringDomain string `json:"$referring_domain"`
+	Browser                string `json:"browser"`                  // Chrome
+	BrowserUserAgent       string `json:"browser_user_agent"`       // Chrome User Agent
+	BrowserVersion         string `json:"browser_version"`          // Chrome Version
+	ClientBuildNumber      int    `json:"client_build_number"`      // Discord Build Number
+	ClientEventSource      any    `json:"client_event_source"`      // null
+	Device                 string `json:"device"`                   // Empty String
+	OS                     string `json:"os"`                       // Windows
+	OSVersion              string `json:"os_version"`               // Windows Version
+	Referrer               string `json:"referrer"`                 // Empty String
+	ReferrerCurrent        string `json:"referrer_current"`         // Empty String
+	ReferringDomain        string `json:"referring_domain"`         // Empty String
+	ReferringDomainCurrent string `json:"referring_domain_current"` // Empty String
+	ReleaseChannel         string `json:"release_channel"`          // "stable"
+	SystemLocale           string `json:"system_locale"`            // "en-US"
+}
+
+// DiscordSessionClientInfo holds information about the client used for a Discord session.
+type DiscordSessionClientInfo struct {
+	Version int    `json:"version"`
+	OS      string `json:"os"`
+	Client  string `json:"client"`
+}
+
+// DiscordSession holds information about a Discord session.
+type DiscordSession struct {
+	Status     string                   `json:"status"`
+	SessionID  string                   `json:"session_id"`
+	ClientInfo DiscordSessionClientInfo `json:"client_info"`
+	Activities []*Activity              `json:"activities"`
+	Active     bool                     `json:"active"`
 }
 
 // StageInstance holds information about a live stage.

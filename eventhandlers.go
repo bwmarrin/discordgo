@@ -26,6 +26,7 @@ const (
 	guildEmojisUpdateEventType                   = "GUILD_EMOJIS_UPDATE"
 	guildIntegrationsUpdateEventType             = "GUILD_INTEGRATIONS_UPDATE"
 	guildMemberAddEventType                      = "GUILD_MEMBER_ADD"
+	guildMemberListUpdateEventType               = "GUILD_MEMBER_LIST_UPDATE"
 	guildMemberRemoveEventType                   = "GUILD_MEMBER_REMOVE"
 	guildMemberUpdateEventType                   = "GUILD_MEMBER_UPDATE"
 	guildMembersChunkEventType                   = "GUILD_MEMBERS_CHUNK"
@@ -52,6 +53,8 @@ const (
 	presencesReplaceEventType                    = "PRESENCES_REPLACE"
 	rateLimitEventType                           = "__RATE_LIMIT__"
 	readyEventType                               = "READY"
+	relationshipAddEventType                     = "RELATIONSHIP_ADD"
+	relationshipRemoveEventType                  = "RELATIONSHIP_REMOVE"
 	resumedEventType                             = "RESUMED"
 	stageInstanceEventCreateEventType            = "STAGE_INSTANCE_EVENT_CREATE"
 	stageInstanceEventDeleteEventType            = "STAGE_INSTANCE_EVENT_DELETE"
@@ -430,6 +433,26 @@ func (eh guildMemberAddEventHandler) New() interface{} {
 // Handle is the handler for GuildMemberAdd events.
 func (eh guildMemberAddEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildMemberAdd); ok {
+		eh(s, t)
+	}
+}
+
+// guildMemberListUpdateEventHandler is an event handler for GuildMemberListUpdate events.
+type guildMemberListUpdateEventHandler func(*Session, *GuildMemberListUpdate)
+
+// Type returns the event type for GuildMemberListUpdate events.
+func (eh guildMemberListUpdateEventHandler) Type() string {
+	return guildMemberListUpdateEventType
+}
+
+// New returns a new instance of GuildMemberListUpdate.
+func (eh guildMemberListUpdateEventHandler) New() interface{} {
+	return &GuildMemberListUpdate{}
+}
+
+// Handle is the handler for GuildMemberListUpdate events.
+func (eh guildMemberListUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*GuildMemberListUpdate); ok {
 		eh(s, t)
 	}
 }
@@ -949,6 +972,46 @@ func (eh readyEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// relationshipAddEventHandler is an event handler for RelationshipAdd events.
+type relationshipAddEventHandler func(*Session, *RelationshipAdd)
+
+// Type returns the event type for RelationshipAdd events.
+func (eh relationshipAddEventHandler) Type() string {
+	return relationshipAddEventType
+}
+
+// New returns a new instance of RelationshipAdd.
+func (eh relationshipAddEventHandler) New() interface{} {
+	return &RelationshipAdd{}
+}
+
+// Handle is the handler for RelationshipAdd events.
+func (eh relationshipAddEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*RelationshipAdd); ok {
+		eh(s, t)
+	}
+}
+
+// relationshipRemoveEventHandler is an event handler for RelationshipRemove events.
+type relationshipRemoveEventHandler func(*Session, *RelationshipRemove)
+
+// Type returns the event type for RelationshipRemove events.
+func (eh relationshipRemoveEventHandler) Type() string {
+	return relationshipRemoveEventType
+}
+
+// New returns a new instance of RelationshipRemove.
+func (eh relationshipRemoveEventHandler) New() interface{} {
+	return &RelationshipRemove{}
+}
+
+// Handle is the handler for RelationshipRemove events.
+func (eh relationshipRemoveEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*RelationshipRemove); ok {
+		eh(s, t)
+	}
+}
+
 // resumedEventHandler is an event handler for Resumed events.
 type resumedEventHandler func(*Session, *Resumed)
 
@@ -1291,6 +1354,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return guildIntegrationsUpdateEventHandler(v)
 	case func(*Session, *GuildMemberAdd):
 		return guildMemberAddEventHandler(v)
+	case func(*Session, *GuildMemberListUpdate):
+		return guildMemberListUpdateEventHandler(v)
 	case func(*Session, *GuildMemberRemove):
 		return guildMemberRemoveEventHandler(v)
 	case func(*Session, *GuildMemberUpdate):
@@ -1343,6 +1408,10 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return rateLimitEventHandler(v)
 	case func(*Session, *Ready):
 		return readyEventHandler(v)
+	case func(*Session, *RelationshipAdd):
+		return relationshipAddEventHandler(v)
+	case func(*Session, *RelationshipRemove):
+		return relationshipRemoveEventHandler(v)
 	case func(*Session, *Resumed):
 		return resumedEventHandler(v)
 	case func(*Session, *StageInstanceEventCreate):
@@ -1395,6 +1464,7 @@ func init() {
 	registerInterfaceProvider(guildEmojisUpdateEventHandler(nil))
 	registerInterfaceProvider(guildIntegrationsUpdateEventHandler(nil))
 	registerInterfaceProvider(guildMemberAddEventHandler(nil))
+	registerInterfaceProvider(guildMemberListUpdateEventHandler(nil))
 	registerInterfaceProvider(guildMemberRemoveEventHandler(nil))
 	registerInterfaceProvider(guildMemberUpdateEventHandler(nil))
 	registerInterfaceProvider(guildMembersChunkEventHandler(nil))
@@ -1420,6 +1490,8 @@ func init() {
 	registerInterfaceProvider(presenceUpdateEventHandler(nil))
 	registerInterfaceProvider(presencesReplaceEventHandler(nil))
 	registerInterfaceProvider(readyEventHandler(nil))
+	registerInterfaceProvider(relationshipAddEventHandler(nil))
+	registerInterfaceProvider(relationshipRemoveEventHandler(nil))
 	registerInterfaceProvider(resumedEventHandler(nil))
 	registerInterfaceProvider(stageInstanceEventCreateEventHandler(nil))
 	registerInterfaceProvider(stageInstanceEventDeleteEventHandler(nil))
