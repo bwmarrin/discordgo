@@ -163,8 +163,8 @@ func WithContext(ctx context.Context) RequestOption {
 }
 
 // Request is the same as RequestWithBucketID but the bucket id is the same as the urlStr
-func (s *Session) Request(method, urlStr string, data interface{}) (response []byte, err error) {
-	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0])
+func (s *Session) Request(method, urlStr string, data interface{}, options ...RequestOption) (response []byte, err error) {
+	return s.RequestWithBucketID(method, urlStr, data, strings.SplitN(urlStr, "?", 2)[0], options...)
 }
 
 // RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
@@ -269,7 +269,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		if sequence < cfg.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1)
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1, options...)
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
@@ -289,7 +289,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			// we can make the above smarter
 			// this method can cause longer delays than required
 
-			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence)
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence, options...)
 		} else {
 			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
 		}
@@ -335,11 +335,11 @@ func (s *Session) User(userID string, options ...RequestOption) (st *User, err e
 // UserAvatar is deprecated. Please use UserAvatarDecode
 // userID    : A user ID or "@me" which is a shortcut of current user ID
 func (s *Session) UserAvatar(userID string, options ...RequestOption) (img image.Image, err error) {
-	u, err := s.User(userID)
+	u, err := s.User(userID, options...)
 	if err != nil {
 		return
 	}
-	img, err = s.UserAvatarDecode(u)
+	img, err = s.UserAvatarDecode(u, options...)
 	return
 }
 
@@ -460,7 +460,7 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string, options ...Req
 //
 // NOTE: This function is now deprecated and will be removed in the future.
 // Please see the same function inside state.go
-func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions int64, err error) {
+func (s *Session) UserChannelPermissions(userID, channelID string, fetchOptions ...RequestOption) (apermissions int64, err error) {
 	// Try to just get permissions from state.
 	apermissions, err = s.State.UserChannelPermissions(userID, channelID)
 	if err == nil {
@@ -470,7 +470,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 	// Otherwise try get as much data from state as possible, falling back to the network.
 	channel, err := s.State.Channel(channelID)
 	if err != nil || channel == nil {
-		channel, err = s.Channel(channelID)
+		channel, err = s.Channel(channelID, fetchOptions...)
 		if err != nil {
 			return
 		}
@@ -478,7 +478,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 
 	guild, err := s.State.Guild(channel.GuildID)
 	if err != nil || guild == nil {
-		guild, err = s.Guild(channel.GuildID)
+		guild, err = s.Guild(channel.GuildID, fetchOptions...)
 		if err != nil {
 			return
 		}
@@ -491,7 +491,7 @@ func (s *Session) UserChannelPermissions(userID, channelID string) (apermissions
 
 	member, err := s.State.Member(guild.ID, userID)
 	if err != nil || member == nil {
-		member, err = s.GuildMember(guild.ID, userID)
+		member, err = s.GuildMember(guild.ID, userID, fetchOptions...)
 		if err != nil {
 			return
 		}
@@ -642,7 +642,7 @@ func (s *Session) GuildEdit(guildID string, g *GuildParams, options ...RequestOp
 	// Bounds checking for regions
 	if g.Region != "" {
 		isValid := false
-		regions, _ := s.VoiceRegions()
+		regions, _ := s.VoiceRegions(options...)
 		for _, r := range regions {
 			if g.Region == r.ID {
 				isValid = true
@@ -1300,7 +1300,7 @@ func (s *Session) GuildIntegrationDelete(guildID, integrationID string, options 
 // GuildIcon returns an image.Image of a guild icon.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildIcon(guildID string, options ...RequestOption) (img image.Image, err error) {
-	g, err := s.Guild(guildID)
+	g, err := s.Guild(guildID, options...)
 	if err != nil {
 		return
 	}
@@ -1322,7 +1322,7 @@ func (s *Session) GuildIcon(guildID string, options ...RequestOption) (img image
 // GuildSplash returns an image.Image of a guild splash image.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildSplash(guildID string, options ...RequestOption) (img image.Image, err error) {
-	g, err := s.Guild(guildID)
+	g, err := s.Guild(guildID, options...)
 	if err != nil {
 		return
 	}
@@ -1871,7 +1871,7 @@ func (s *Session) ChannelMessagesBulkDelete(channelID string, messages []string,
 	}
 
 	if len(messages) == 1 {
-		err = s.ChannelMessageDelete(channelID, messages[0])
+		err = s.ChannelMessageDelete(channelID, messages[0], options...)
 		return
 	}
 
@@ -2167,7 +2167,7 @@ func (s *Session) Gateway(options ...RequestOption) (gateway string, err error) 
 // GatewayBot returns the websocket Gateway address and the recommended number of shards
 func (s *Session) GatewayBot(options ...RequestOption) (st *GatewayBotResponse, err error) {
 
-	response, err := s.RequestWithBucketID("GET", EndpointGatewayBot, nil, EndpointGatewayBot)
+	response, err := s.RequestWithBucketID("GET", EndpointGatewayBot, nil, EndpointGatewayBot, options...)
 	if err != nil {
 		return
 	}
@@ -2356,7 +2356,7 @@ func (s *Session) webhookExecute(webhookID, token string, wait bool, threadID st
 			return st, encodeErr
 		}
 
-		response, err = s.request("POST", uri, contentType, body, uri, 0)
+		response, err = s.request("POST", uri, contentType, body, uri, 0, options...)
 	} else {
 		response, err = s.RequestWithBucketID("POST", uri, data, uri, options...)
 	}
@@ -3035,7 +3035,7 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 			return err
 		}
 
-		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0)
+		_, err = s.request("POST", endpoint, contentType, body, endpoint, 0, options...)
 		return err
 	}
 
