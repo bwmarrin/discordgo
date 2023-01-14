@@ -42,6 +42,7 @@ type ApplicationCommand struct {
 	DefaultPermission        *bool  `json:"default_permission,omitempty"`
 	DefaultMemberPermissions *int64 `json:"default_member_permissions,string,omitempty"`
 	DMPermission             *bool  `json:"dm_permission,omitempty"`
+	NSFW                     *bool  `json:"nsfw,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 
