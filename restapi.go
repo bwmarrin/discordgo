@@ -94,7 +94,7 @@ func (e RateLimitError) Error() string {
 	return "Rate limit exceeded on " + e.URL + ", retry after " + e.RetryAfter.String()
 }
 
-// RequestConfig represents configuration for a HTTP request.
+// RequestConfig is an HTTP request configuration.
 type RequestConfig struct {
 	Request                *http.Request
 	ShouldRetryOnRateLimit bool
@@ -111,11 +111,11 @@ func requestConfig(s *Session, req *http.Request) *RequestConfig {
 	}
 }
 
-// RequestOption represents a function which mutates the request config.
+// RequestOption is a function which mutates request configuration.
 // It can be supplied as an argument to any REST method.
 type RequestOption func(cfg *RequestConfig)
 
-// WithClient uses a custom HTTP client for the request.
+// WithClient changes the HTTP client used for the request.
 func WithClient(client *http.Client) RequestOption {
 	return func(cfg *RequestConfig) {
 		if client != nil {
@@ -145,17 +145,17 @@ func WithHeader(key, value string) RequestOption {
 	}
 }
 
-// WithAuditLogReason changes the request reason displayed in the audit log.
+// WithAuditLogReason changes audit log reason associated with the request.
 func WithAuditLogReason(reason string) RequestOption {
 	return WithHeader("X-Audit-Log-Reason", reason)
 }
 
-// WithLocale changes accepted locale for the request.
+// WithLocale changes accepted locale of the request.
 func WithLocale(locale Locale) RequestOption {
 	return WithHeader("X-Discord-Locale", string(locale))
 }
 
-// WithContext changes request context.
+// WithContext changes context of the request.
 func WithContext(ctx context.Context) RequestOption {
 	return func(cfg *RequestConfig) {
 		cfg.Request = cfg.Request.WithContext(ctx)
