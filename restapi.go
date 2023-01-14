@@ -102,7 +102,8 @@ type RequestConfig struct {
 	Client                 *http.Client
 }
 
-func requestConfig(s *Session, req *http.Request) *RequestConfig {
+// newRequestConfig returns a new HTTP request configuration based on parameters in Session.
+func newRequestConfig(s *Session, req *http.Request) *RequestConfig {
 	return &RequestConfig{
 		ShouldRetryOnRateLimit: s.ShouldRetryOnRateLimit,
 		MaxRestRetries:         s.MaxRestRetries,
@@ -218,7 +219,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	// TODO: Make a configurable static variable.
 	req.Header.Set("User-Agent", s.UserAgent)
 
-	cfg := requestConfig(s, req)
+	cfg := newRequestConfig(s, req)
 	for _, opt := range options {
 		opt(cfg)
 	}
