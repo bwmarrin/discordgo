@@ -1763,7 +1763,7 @@ func (s *Session) ChannelMessageSendReply(channelID string, content string, refe
 // embed   : The embed data to send.
 // reference : The message reference to send.
 func (s *Session) ChannelMessageSendEmbedReply(channelID string, embed *MessageEmbed, reference *MessageReference, options ...RequestOption) (*Message, error) {
-	return s.ChannelMessageSendEmbedsReply(channelID, []*MessageEmbed{embed}, reference)
+	return s.ChannelMessageSendEmbedsReply(channelID, []*MessageEmbed{embed}, reference, options...)
 }
 
 // ChannelMessageSendEmbedsReply sends a message to the given channel with reference data and multiple embedded data.
