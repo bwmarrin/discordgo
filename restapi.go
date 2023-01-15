@@ -456,8 +456,9 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string, options ...Req
 }
 
 // UserChannelPermissions returns the permission of a user in a channel.
-// userID    : The ID of the user to calculate permissions for.
-// channelID : The ID of the channel to calculate permission for.
+// userID        : The ID of the user to calculate permissions for.
+// channelID     : The ID of the channel to calculate permission for.
+// fetchOptions  : Options used to fetch guild, member or channel if they are not present in state.
 //
 // NOTE: This function is now deprecated and will be removed in the future.
 // Please see the same function inside state.go
