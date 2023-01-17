@@ -916,6 +916,9 @@ type GuildPreview struct {
 }
 
 // IconURL returns a URL to the guild's icon.
+//
+//	size:    The size of the desired icon image as a power of two
+//	         Image size can be any power of two between 16 and 4096.
 func (g *GuildPreview) IconURL(size string) string {
 	return iconURL(g.Icon, EndpointGuildIcon(g.ID, g.Icon), EndpointGuildIconAnimated(g.ID, g.Icon), size)
 }
