@@ -1252,17 +1252,10 @@ type VoiceState struct {
 
 // A Presence stores the online, offline, or idle and game status of Guild members.
 type Presence struct {
-	User         *User         `json:"user"`
-	Status       Status        `json:"status"`
-	ClientStatus *ClientStatus `json:"client_status"`
-	Activities   []*Activity   `json:"activities"`
-	Since        *int          `json:"since"`
-}
-
-type ClientStatus struct {
-	Desktop Status `json:"desktop"`
-	Mobile  Status `json:"mobile"`
-	Web     Status `json:"web"`
+	User       *User       `json:"user"`
+	Status     Status      `json:"status"`
+	Activities []*Activity `json:"activities"`
+	Since      *int        `json:"since"`
 }
 
 // A TimeStamps struct contains start and end times used in the rich presence "playing .." Game
