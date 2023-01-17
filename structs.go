@@ -1070,6 +1070,9 @@ const (
 )
 
 // IconURL returns a URL to the guild's icon.
+//
+//	size:    The size of the desired icon image as a power of two
+//	         Image size can be any power of two between 16 and 4096.
 func (g *Guild) IconURL(size string) string {
 	var URL string
 	if g.Icon == "" {
@@ -1089,6 +1092,9 @@ func (g *Guild) IconURL(size string) string {
 }
 
 // BannerURL returns a URL to the guild's banner.
+//
+//	size:    The size of the desired banner image as a power of two
+//	         Image size can be any power of two between 16 and 4096.
 func (g *Guild) BannerURL(size string) string {
 	var URL string
 	if g.Banner == "" {
@@ -1334,9 +1340,10 @@ func (m *Member) Mention() string {
 }
 
 // AvatarURL returns the URL of the member's avatar
-//    size:    The size of the user's avatar as a power of two
-//             if size is an empty string, no size parameter will
-//             be added to the URL.
+//
+//	size:    The size of the user's avatar as a power of two
+//	         if size is an empty string, no size parameter will
+//	         be added to the URL.
 func (m *Member) AvatarURL(size string) string {
 	if m.Avatar == "" {
 		return m.User.AvatarURL(size)
