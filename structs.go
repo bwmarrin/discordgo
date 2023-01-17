@@ -17,7 +17,6 @@ import (
 	"math"
 	"net/http"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -848,16 +847,8 @@ type GuildPreview struct {
 }
 
 // IconURL returns a URL to the guild's icon.
-func (g *GuildPreview) IconURL() string {
-	if g.Icon == "" {
-		return ""
-	}
-
-	if strings.HasPrefix(g.Icon, "a_") {
-		return EndpointGuildIconAnimated(g.ID, g.Icon)
-	}
-
-	return EndpointGuildIcon(g.ID, g.Icon)
+func (g *GuildPreview) IconURL(size string) string {
+	return iconURL(g.Icon, EndpointGuildIcon(g.ID, g.Icon), EndpointGuildIconAnimated(g.ID, g.Icon), size)
 }
 
 // GuildScheduledEvent is a representation of a scheduled event in a guild. Only for retrieval of the data.
@@ -1074,21 +1065,7 @@ const (
 //	size:    The size of the desired icon image as a power of two
 //	         Image size can be any power of two between 16 and 4096.
 func (g *Guild) IconURL(size string) string {
-	var URL string
-	if g.Icon == "" {
-		return ""
-	}
-
-	if strings.HasPrefix(g.Icon, "a_") {
-		URL = EndpointGuildIconAnimated(g.ID, g.Icon)
-	} else {
-		URL = EndpointGuildIcon(g.ID, g.Icon)
-	}
-
-	if size != "" {
-		return URL + "?size=" + size
-	}
-	return URL
+	return iconURL(g.Icon, EndpointGuildIcon(g.ID, g.Icon), EndpointGuildIconAnimated(g.ID, g.Icon), size)
 }
 
 // BannerURL returns a URL to the guild's banner.
@@ -1096,21 +1073,7 @@ func (g *Guild) IconURL(size string) string {
 //	size:    The size of the desired banner image as a power of two
 //	         Image size can be any power of two between 16 and 4096.
 func (g *Guild) BannerURL(size string) string {
-	var URL string
-	if g.Banner == "" {
-		return ""
-	}
-
-	if strings.HasPrefix(g.Banner, "a_") {
-		URL = EndpointGuildBannerAnimated(g.ID, g.Banner)
-	} else {
-		URL = EndpointGuildBanner(g.ID, g.Banner)
-	}
-
-	if size != "" {
-		return URL + "?size=" + size
-	}
-	return URL
+	return bannerURL(g.Banner, EndpointGuildBanner(g.ID, g.Banner), EndpointGuildBannerAnimated(g.ID, g.Banner), size)
 }
 
 // A UserGuild holds a brief version of a Guild
