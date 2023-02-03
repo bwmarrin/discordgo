@@ -401,3 +401,7 @@ type AutoModerationActionExecution struct {
 	MatchedKeyword       string                        `json:"matched_keyword"`
 	MatchedContent       string                        `json:"matched_content"`
 }
+
+type GuildAuditLogEntryCreate struct {
+	*AuditLogEntry
+}
