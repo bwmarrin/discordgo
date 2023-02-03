@@ -528,6 +528,8 @@ type ThreadMember struct {
 	JoinTimestamp time.Time `json:"join_timestamp"`
 	// Any user-thread settings, currently only used for notifications
 	Flags int
+	// Additional information about the user
+	Member *Member
 }
 
 // ThreadsList represents a list of threads alongisde with thread member objects for the current user.
