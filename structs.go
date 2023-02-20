@@ -622,6 +622,7 @@ const (
 	StickerFormatTypePNG    StickerFormat = 1
 	StickerFormatTypeAPNG   StickerFormat = 2
 	StickerFormatTypeLottie StickerFormat = 3
+	StickerFormatTypeGIF    StickerFormat = 4
 )
 
 // StickerType is the type of sticker.
