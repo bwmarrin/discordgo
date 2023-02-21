@@ -3064,10 +3064,31 @@ func (s *Session) InteractionResponseDelete(interaction *Interaction, options ..
 
 // FollowupMessageCreate creates the followup message for an interaction.
 // interaction : Interaction instance.
-// wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
-func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams, options ...RequestOption) (*Message, error) {
-	return s.WebhookExecute(interaction.AppID, interaction.Token, wait, data, options...)
+func (s *Session) FollowupMessageCreate(interaction *Interaction, data *WebhookParams, options ...RequestOption) (st *Message, err error) {
+	uri := EndpointWebhookToken(interaction.AppID, interaction.Token)
+
+	v := url.Values{}
+	v.Set("wait", "true")
+	uri += "?" + v.Encode()
+
+	var response []byte
+	if len(data.Files) > 0 {
+		contentType, body, encodeErr := MultipartBodyWithJSON(data, data.Files)
+		if encodeErr != nil {
+			return st, encodeErr
+		}
+
+		response, err = s.request("POST", uri, contentType, body, EndpointWebhookToken(interaction.AppID, "followup"), 0, options...)
+	} else {
+		response, err = s.RequestWithBucketID("POST", uri, data, EndpointWebhookToken(interaction.AppID, "followup"), options...)
+	}
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
