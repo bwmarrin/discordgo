@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/wu56781234/discordgo"
 )
 
 // Bot parameters
@@ -85,7 +85,7 @@ var (
 				i.ApplicationCommandData().TargetID,
 			)
 			if err != nil {
-				_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
 					Content: fmt.Sprintf("Mission failed. Cannot send a message to this user: %q", err.Error()),
 					Flags:   discordgo.MessageFlagsEphemeral,
 				})
