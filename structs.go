@@ -1239,11 +1239,34 @@ type Role struct {
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the permission.
 	Permissions int64 `json:"permissions,string"`
+
+	// The hash of the role icon. Use Role.IconURL to retrieve the icon's URL.
+	Icon string `json:"icon"`
+
+	// The emoji assigned to this role.
+	UnicodeEmoji string `json:"unicode_emoji"`
 }
 
 // Mention returns a string which mentions the role
 func (r *Role) Mention() string {
 	return fmt.Sprintf("<@&%s>", r.ID)
+}
+
+// IconURL returns the URL of the users's banner image.
+//
+//	size:    The size of the desired role icon as a power of two
+//	         Image size can be any power of two between 16 and 4096.
+func (r *Role) IconURL(size string) string {
+	if r.Icon == "" {
+		return ""
+	}
+
+	URL := EndpointRoleIcon(r.ID, r.Icon)
+
+	if size != "" {
+		return URL + "?size=" + size
+	}
+	return URL
 }
 
 // RoleParams represents the parameters needed to create or update a Role

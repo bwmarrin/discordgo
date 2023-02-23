@@ -42,6 +42,10 @@ var (
 	EndpointCDNChannelIcons = EndpointCDN + "channel-icons/"
 	EndpointCDNBanners      = EndpointCDN + "banners/"
 	EndpointCDNGuilds       = EndpointCDN + "guilds/"
+	EndpointCDNRoleIcons    = EndpointCDN + "role-icons/"
+	EndpointRoleIcon        = func(rID, cID string) string {
+		return EndpointCDNRoleIcons + rID + "/" + cID + ".png"
+	}
 
 	EndpointVoice        = EndpointAPI + "/voice/"
 	EndpointVoiceRegions = EndpointVoice + "regions"
