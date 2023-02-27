@@ -225,12 +225,12 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	}
 
 	if s.Debug {
-		for k, v := range req.Header {
+		for k, v := range cfg.Request.Header {
 			log.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
 		}
 	}
 
-	resp, err := cfg.Client.Do(req)
+	resp, err := cfg.Client.Do(cfg.Request)
 	if err != nil {
 		bucket.Release(nil)
 		return
@@ -301,7 +301,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		}
 		fallthrough
 	default: // Error condition
-		err = newRestError(req, resp, response)
+		err = newRestError(cfg.Request, resp, response)
 	}
 
 	return
