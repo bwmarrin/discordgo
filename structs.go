@@ -529,7 +529,7 @@ type ThreadMember struct {
 	// Any user-thread settings, currently only used for notifications
 	Flags int
 	// Additional information about the user
-	Member *Member
+	Member *Member `json:"member,omitempty"`
 }
 
 // ThreadsList represents a list of threads alongisde with thread member objects for the current user.
