@@ -8,6 +8,7 @@ package discordgo
 // EventTypes surrounded by __ are synthetic and are internal to DiscordGo.
 const (
 	applicationCommandPermissionsUpdateEventType = "APPLICATION_COMMAND_PERMISSIONS_UPDATE"
+	auditLogEntryCreateEventType                 = "AUDIT_LOG_ENTRY_CREATE"
 	autoModerationActionExecutionEventType       = "AUTO_MODERATION_ACTION_EXECUTION"
 	autoModerationRuleCreateEventType            = "AUTO_MODERATION_RULE_CREATE"
 	autoModerationRuleDeleteEventType            = "AUTO_MODERATION_RULE_DELETE"
@@ -85,6 +86,26 @@ func (eh applicationCommandPermissionsUpdateEventHandler) New() interface{} {
 // Handle is the handler for ApplicationCommandPermissionsUpdate events.
 func (eh applicationCommandPermissionsUpdateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*ApplicationCommandPermissionsUpdate); ok {
+		eh(s, t)
+	}
+}
+
+// auditLogEntryCreateEventHandler is an event handler for AuditLogEntryCreate events.
+type auditLogEntryCreateEventHandler func(*Session, *AuditLogEntryCreate)
+
+// Type returns the event type for AuditLogEntryCreate events.
+func (eh auditLogEntryCreateEventHandler) Type() string {
+	return auditLogEntryCreateEventType
+}
+
+// New returns a new instance of AuditLogEntryCreate.
+func (eh auditLogEntryCreateEventHandler) New() interface{} {
+	return &AuditLogEntryCreate{}
+}
+
+// Handle is the handler for AuditLogEntryCreate events.
+func (eh auditLogEntryCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*AuditLogEntryCreate); ok {
 		eh(s, t)
 	}
 }
@@ -1255,6 +1276,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return interfaceEventHandler(v)
 	case func(*Session, *ApplicationCommandPermissionsUpdate):
 		return applicationCommandPermissionsUpdateEventHandler(v)
+	case func(*Session, *AuditLogEntryCreate):
+		return auditLogEntryCreateEventHandler(v)
 	case func(*Session, *AutoModerationActionExecution):
 		return autoModerationActionExecutionEventHandler(v)
 	case func(*Session, *AutoModerationRuleCreate):
@@ -1380,6 +1403,7 @@ func handlerForInterface(handler interface{}) EventHandler {
 
 func init() {
 	registerInterfaceProvider(applicationCommandPermissionsUpdateEventHandler(nil))
+	registerInterfaceProvider(auditLogEntryCreateEventHandler(nil))
 	registerInterfaceProvider(autoModerationActionExecutionEventHandler(nil))
 	registerInterfaceProvider(autoModerationRuleCreateEventHandler(nil))
 	registerInterfaceProvider(autoModerationRuleDeleteEventHandler(nil))
