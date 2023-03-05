@@ -233,6 +233,7 @@ type MessageSend struct {
 	Files           []*File                 `json:"-"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Reference       *MessageReference       `json:"message_reference,omitempty"`
+	StickerIds      []string                `json:"sticker_ids"`
 
 	// TODO: Remove this when compatibility is not required.
 	File *File `json:"-"`

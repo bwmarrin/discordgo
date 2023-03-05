@@ -1699,13 +1699,19 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend,
 		}
 	}
 
+	if data.StickerIds != nil {
+		if len(data.StickerIds) > 3 {
+			err = fmt.Errorf("cannot send more than 3 stickers")
+			return
+		}
+	}
+
 	var response []byte
 	if len(files) > 0 {
 		contentType, body, encodeErr := MultipartBodyWithJSON(data, files)
 		if encodeErr != nil {
 			return st, encodeErr
 		}
-
 		response, err = s.request("POST", endpoint, contentType, body, endpoint, 0, options...)
 	} else {
 		response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint, options...)
