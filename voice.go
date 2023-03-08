@@ -598,29 +598,48 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		v.log(LogWarning, "error connecting to udp addr %s, %s", addr.String(), err)
 		return
 	}
+	// https://discord.com/developers/docs/topics/voice-connections#ip-discovery
+	// Set packet type to request (0x1)
+    packetType := make([]byte, 2)
+	binary.BigEndian.PutUint16(packetType, 0x1)
 
-	// Create a 70 byte array and put the SSRC code from the Op 2 VoiceConnection event
-	// into it.  Then send that over the UDP connection to Discord
-	sb := make([]byte, 70)
-	binary.BigEndian.PutUint32(sb, v.op2.SSRC)
-	_, err = v.udpConn.Write(sb)
+    // Set message length to 70
+    length := make([]byte, 2)
+    binary.BigEndian.PutUint16(length, 70)
+
+    // Set SSRC
+    ssrc := make([]byte, 4)
+    binary.BigEndian.PutUint32(ssrc, v.op2.SSRC)
+
+	// Create a byte slice of length 64 filled with null bytes
+    nullAdress := make([]byte, 64)
+
+    // Create a byte slice of length 2 filled with null bytes
+    nullPort := make([]byte, 2)
+
+	// Concatenate all fields to create the packet
+    packet := append(packetType, length...)
+    packet = append(packet, ssrc...)
+	packet = append(packet, nullAdress...)
+    packet = append(packet, nullPort...)
+
+	_, err = v.udpConn.Write(packet)
 	if err != nil {
 		v.log(LogWarning, "udp write error to %s, %s", addr.String(), err)
 		return
 	}
-
-	// Create a 70 byte array and listen for the initial handshake response
+	// Create a 74 byte array and listen for the initial handshake response
 	// from Discord.  Once we get it parse the IP and PORT information out
 	// of the response.  This should be our public IP and PORT as Discord
 	// saw us.
-	rb := make([]byte, 70)
+	rb := make([]byte, 74)
 	rlen, _, err := v.udpConn.ReadFromUDP(rb)
 	if err != nil {
 		v.log(LogWarning, "udp read error, %s, %s", addr.String(), err)
 		return
 	}
 
-	if rlen < 70 {
+	if rlen < 74 {
 		v.log(LogWarning, "received udp packet too small")
 		return fmt.Errorf("received udp packet too small")
 	}
@@ -628,7 +647,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	// Loop over position 4 through 20 to grab the IP address
 	// Should never be beyond position 20.
 	var ip string
-	for i := 4; i < 20; i++ {
+	for i := 8; i < 72; i++ {
 		if rb[i] == 0 {
 			break
 		}
@@ -636,7 +655,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	}
 
 	// Grab port from position 68 and 69
-	port := binary.BigEndian.Uint16(rb[68:70])
+	port := binary.BigEndian.Uint16(rb[72:74])
 
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
