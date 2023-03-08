@@ -600,26 +600,26 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	}
 	// https://discord.com/developers/docs/topics/voice-connections#ip-discovery
 	// Set packet type to request (0x1)
-    packetType := make([]byte, 2)
+	packetType := make([]byte, 2)
 	binary.BigEndian.PutUint16(packetType, 0x1)
 
-    // Set message length to 70
-    length := make([]byte, 2)
-    binary.BigEndian.PutUint16(length, 70)
+	// Set message length to 70
+	length := make([]byte, 2)
+	binary.BigEndian.PutUint16(length, 70)
 
-    // Set SSRC
-    ssrc := make([]byte, 4)
-    binary.BigEndian.PutUint32(ssrc, v.op2.SSRC)
+	// Set SSRC
+	ssrc := make([]byte, 4)
+	binary.BigEndian.PutUint32(ssrc, v.op2.SSRC)
 
 	// Create byte slices filled with null bytes for padding (packet must be 74 bytes long)
-    nullAdress := make([]byte, 64)
-    nullPort := make([]byte, 2)
+	nullAdress := make([]byte, 64)
+	nullPort := make([]byte, 2)
 
 	// Concatenate all fields to create the packet
-    packet := append(packetType, length...)
-    packet = append(packet, ssrc...)
+	packet := append(packetType, length...)
+	packet = append(packet, ssrc...)
 	packet = append(packet, nullAdress...)
-    packet = append(packet, nullPort...)
+	packet = append(packet, nullPort...)
 
 	_, err = v.udpConn.Write(packet)
 	if err != nil {
