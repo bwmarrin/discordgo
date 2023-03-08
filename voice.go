@@ -611,10 +611,8 @@ func (v *VoiceConnection) udpOpen() (err error) {
     ssrc := make([]byte, 4)
     binary.BigEndian.PutUint32(ssrc, v.op2.SSRC)
 
-	// Create a byte slice of length 64 filled with null bytes
+	// Create byte slices filled with null bytes for padding (packet must be 74 bytes long)
     nullAdress := make([]byte, 64)
-
-    // Create a byte slice of length 2 filled with null bytes
     nullPort := make([]byte, 2)
 
 	// Concatenate all fields to create the packet
@@ -644,8 +642,8 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return fmt.Errorf("received udp packet too small")
 	}
 
-	// Loop over position 4 through 20 to grab the IP address
-	// Should never be beyond position 20.
+	// Loop over position 8 through 72 to grab the IP address
+	// Should never be beyond position 72.
 	var ip string
 	for i := 8; i < 72; i++ {
 		if rb[i] == 0 {
@@ -654,7 +652,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		ip += string(rb[i])
 	}
 
-	// Grab port from position 68 and 69
+	// Grab port from position 72 and 74
 	port := binary.BigEndian.Uint16(rb[72:74])
 
 	// Take the data from above and send it back to Discord to finalize
