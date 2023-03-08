@@ -616,12 +616,12 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	nullPort := make([]byte, 2)
 
 	// Concatenate all fields to create the packet
-	packet := append(packetType, length...)
-	packet = append(packet, ssrc...)
-	packet = append(packet, nullAdress...)
-	packet = append(packet, nullPort...)
+	sb := append(packetType, length...)
+	sb = append(sb, ssrc...)
+	sb = append(sb, nullAdress...)
+	sb = append(sb, nullPort...)
 
-	_, err = v.udpConn.Write(packet)
+	_, err = v.udpConn.Write(sb)
 	if err != nil {
 		v.log(LogWarning, "udp write error to %s, %s", addr.String(), err)
 		return
