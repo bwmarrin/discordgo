@@ -627,7 +627,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return fmt.Errorf("received udp packet too small")
 	}
 
-	// Loop over position 8 through 68 to grab the IP address.
+	// Loop over position 8 through 71 to grab the IP address.
 	var ip string
 	for i := 8; i < len(rb)-2; i++ {
 		if rb[i] == 0 {
@@ -636,7 +636,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		ip += string(rb[i])
 	}
 
-	// Grab port from position 68 and 69
+	// Grab port from position 72 and 73
 	port := binary.BigEndian.Uint16(rb[len(rb)-2:])
 
 	// Take the data from above and send it back to Discord to finalize
