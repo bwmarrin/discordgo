@@ -241,7 +241,7 @@ func Test_unmarshal(t *testing.T) {
 func TestWithContext(t *testing.T) {
 	// Set up a test context.
 	type key struct{}
-	ctx := context.WithValue(context.Background(), key{}, "foo")
+	ctx := context.WithValue(context.Background(), key{}, "value")
 
 	// Set up a test client.
 	session, err := New("")
@@ -254,8 +254,8 @@ func TestWithContext(t *testing.T) {
 	// Intercept the request to assert the context.
 	session.Client.Transport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 		val, _ := r.Context().Value(key{}).(string)
-		if val != "foo" {
-			t.Errorf("missing value in context (got %q, wanted %q)", val, "foo")
+		if val != "value" {
+			t.Errorf("missing value in context (got %q, wanted %q)", val, "value")
 		}
 		return nil, testErr
 	})
