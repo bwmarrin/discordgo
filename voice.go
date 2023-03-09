@@ -599,12 +599,13 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return
 	}
 
-	// Create a 74 byte array and put the SSRC code from the Op 2 VoiceConnection event
-	// into it.  Then send that over the UDP connection to Discord
+	// Create a 74 byte array to store the packet data
 	sb := make([]byte, 74)
-	binary.BigEndian.PutUint16(sb, 1)
-	binary.BigEndian.PutUint16(sb[2:], 70)
-	binary.BigEndian.PutUint32(sb[4:], v.op2.SSRC)
+	binary.BigEndian.PutUint16(sb, 1)              // Packet type (0x1 is request, 0x2 is response)
+	binary.BigEndian.PutUint16(sb[2:], 70)         // Packet length (excluding type and length fields)
+	binary.BigEndian.PutUint32(sb[4:], v.op2.SSRC) // The SSRC code from the Op 2 VoiceConnection event
+
+	// And send that data over the UDP connection to Discord.
 	_, err = v.udpConn.Write(sb)
 	if err != nil {
 		v.log(LogWarning, "udp write error to %s, %s", addr.String(), err)
