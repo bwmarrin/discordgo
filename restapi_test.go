@@ -244,7 +244,7 @@ func TestWithContext(t *testing.T) {
 	ctx := context.WithValue(context.Background(), key{}, "foo")
 
 	// Set up a test client.
-	sess, err := New("")
+	session, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,7 +252,7 @@ func TestWithContext(t *testing.T) {
 	testErr := errors.New("test")
 
 	// Intercept the request to assert the context.
-	sess.Client.Transport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+	session.Client.Transport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
 		val, _ := r.Context().Value(key{}).(string)
 		if val != "foo" {
 			t.Errorf("missing value in context (got %q, wanted %q)", val, "foo")
@@ -261,7 +261,7 @@ func TestWithContext(t *testing.T) {
 	})
 
 	// Run any client method using WithContext.
-	_, err = sess.User("", WithContext(ctx))
+	_, err = session.User("", WithContext(ctx))
 
 	// Verify that the assertion code was actually run.
 	if !errors.Is(err, testErr) {
