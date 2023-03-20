@@ -28,7 +28,6 @@ type RateLimiter struct {
 
 // NewRatelimiter returns a new RateLimiter
 func NewRatelimiter() *RateLimiter {
-
 	return &RateLimiter{
 		buckets: make(map[string]*Bucket),
 		global:  new(int64),
@@ -67,6 +66,19 @@ func (r *RateLimiter) GetBucket(key string) *Bucket {
 
 	r.buckets[key] = b
 	return b
+}
+
+// CleanExpiredBucket remove buckets reset before now - expiredDuration
+func (r *RateLimiter) CleanExpiredBucket(expiredDuration time.Duration) {
+	r.Lock()
+	defer r.Unlock()
+
+	now := time.Now()
+	for key, bucket := range r.buckets {
+		if bucket.reset.Add(expiredDuration).Before(now) {
+			delete(r.buckets, key)
+		}
+	}
 }
 
 // GetWaitTime returns the duration you should wait for a Bucket
