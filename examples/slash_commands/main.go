@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wu56781234/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 // Bot parameters
@@ -456,7 +456,7 @@ var (
 					Type: discordgo.InteractionResponseType(i.ApplicationCommandData().Options[0].IntValue()),
 				})
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 				}
@@ -470,7 +470,7 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				return
@@ -483,7 +483,7 @@ var (
 					Content: &content,
 				})
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 						Content: "Something went wrong",
 					})
 					return
@@ -507,11 +507,11 @@ var (
 					Content: "Surprise!",
 				},
 			})
-			msg, err := s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+			msg, err := s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Followup message has been created, after 5 seconds it will be edited",
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
 				return
@@ -527,7 +527,7 @@ var (
 
 			s.FollowupMessageDelete(i.Interaction, msg.ID)
 
-			s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+			s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "For those, who didn't skip anything and followed tutorial along fairly, " +
 					"take a unicorn :unicorn: as reward!\n" +
 					"Also, as bonus... look at the original interaction response :D",

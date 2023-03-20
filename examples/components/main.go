@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wu56781234/discordgo"
+	"github.com/bwmarrin/discordgo"
 )
 
 // Bot parameters
@@ -139,7 +139,7 @@ var (
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "Anyways, now when you know how to use single select menus, let's see how multi select menus work. " +
 					"Try calling `/selects multi` command.",
 				Flags: discordgo.MessageFlagsEphemeral,
@@ -164,7 +164,7 @@ var (
 				panic(err)
 			}
 			time.Sleep(time.Second) // Doing that so user won't see instant response.
-			_, err = s.FollowupMessageCreate(i.Interaction, &discordgo.WebhookParams{
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "But wait, there is more! You can also auto populate the select menu. Try executing `/selects auto-populated`.",
 				Flags:   discordgo.MessageFlagsEphemeral,
 			})
