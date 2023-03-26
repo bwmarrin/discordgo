@@ -745,11 +745,11 @@ func (s *Session) GuildBan(guildID, userID string, options ...RequestOption) (st
 	return
 }
 
-// GuildBanCreateWithReason bans the given user from the given guild also providing a reaso.
+// GuildBanCreateWithReason bans the given user from the given guild also providing a reason.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
 // reason    : The reason for this ban
-// days      : The number of days of previous comments to delete.
+// days      : The number of days of previous comments to delete, between 0 and 7.
 func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days int, options ...RequestOption) (err error) {
 
 	uri := EndpointGuildBan(guildID, userID)
@@ -757,6 +757,31 @@ func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days 
 	queryParams := url.Values{}
 	if days > 0 {
 		queryParams.Set("delete_message_days", strconv.Itoa(days))
+	}
+	if reason != "" {
+		queryParams.Set("reason", reason)
+	}
+
+	if len(queryParams) > 0 {
+		uri += "?" + queryParams.Encode()
+	}
+
+	_, err = s.RequestWithBucketID("PUT", uri, nil, EndpointGuildBan(guildID, ""), options...)
+	return
+}
+
+// GuildBanCreateWithReasonDeleteBySeconds bans the given user from the given guild also providing a reason, with deleting messages by seconds.
+// guildID   : The ID of a Guild.
+// userID    : The ID of a User
+// reason    : The reason for this ban
+// seconds      : The number of seconds of previous comments to delete, between 0 and 604800 (7 days).
+
+func (s *Session) GuildBanCreateWithReasonDeleteBySeconds(guildID, userID, reason string, seconds int, options ...RequestOption) (err error) {
+	uri := EndpointGuildBan(guildID, userID)
+
+	queryParams := url.Values{}
+	if seconds > 0 {
+		queryParams.Set("delete_message_seconds", strconv.Itoa(seconds))
 	}
 	if reason != "" {
 		queryParams.Set("reason", reason)
