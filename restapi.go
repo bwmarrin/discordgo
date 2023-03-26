@@ -3171,8 +3171,9 @@ func (s *Session) InteractionResponseDelete(interaction *Interaction, options ..
 
 // FollowupMessageCreate creates the followup message for an interaction.
 // interaction : Interaction instance.
+// wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
-func (s *Session) FollowupMessageCreate(interaction *Interaction, data *WebhookParams, options ...RequestOption) (st *Message, err error) {
+func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams, options ...RequestOption) (st *Message, err error) {
 	if data == nil {
 		return nil, errors.New("data is nil")
 	}
