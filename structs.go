@@ -330,99 +330,99 @@ type Channel struct {
 
 	// The ID of the guild to which the channel belongs, if it is in a guild.
 	// Else, this ID is empty (e.g. DM channels).
-	GuildID string `json:"guild_id"`
+	GuildID string `json:"guild_id,omitempty"`
 
 	// The name of the channel.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// The topic of the channel.
-	Topic string `json:"topic"`
+	Topic string `json:"topic,omitempty"`
 
 	// The type of the channel.
-	Type ChannelType `json:"type"`
+	Type ChannelType `json:"type,omitempty"`
 
 	// The ID of the last message sent in the channel. This is not
 	// guaranteed to be an ID of a valid message.
-	LastMessageID string `json:"last_message_id"`
+	LastMessageID string `json:"last_message_id,omitempty"`
 
 	// The timestamp of the last pinned message in the channel.
 	// nil if the channel has no pinned messages.
-	LastPinTimestamp *time.Time `json:"last_pin_timestamp"`
+	LastPinTimestamp *time.Time `json:"last_pin_timestamp,omitempty"`
 
 	// An approximate count of messages in a thread, stops counting at 50
-	MessageCount int `json:"message_count"`
+	MessageCount int `json:"message_count,omitempty"`
 	// An approximate count of users in a thread, stops counting at 50
-	MemberCount int `json:"member_count"`
+	MemberCount int `json:"member_count,omitempty"`
 
 	// Whether the channel is marked as NSFW.
-	NSFW bool `json:"nsfw"`
+	NSFW bool `json:"nsfw,omitempty"`
 
 	// Icon of the group DM channel.
-	Icon string `json:"icon"`
+	Icon string `json:"icon,omitempty"`
 
 	// The position of the channel, used for sorting in client.
-	Position int `json:"position"`
+	Position int `json:"position,omitempty"`
 
 	// The bitrate of the channel, if it is a voice channel.
-	Bitrate int `json:"bitrate"`
+	Bitrate int `json:"bitrate,omitempty"`
 
 	// The recipients of the channel. This is only populated in DM channels.
-	Recipients []*User `json:"recipients"`
+	Recipients []*User `json:"recipients,omitempty"`
 
 	// The messages in the channel. This is only present in state-cached channels,
 	// and State.MaxMessageCount must be non-zero.
 	Messages []*Message `json:"-"`
 
 	// A list of permission overwrites present for the channel.
-	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites"`
+	PermissionOverwrites []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
 
 	// The user limit of the voice channel.
-	UserLimit int `json:"user_limit"`
+	UserLimit int `json:"user_limit,omitempty"`
 
 	// The ID of the parent channel, if the channel is under a category. For threads - id of the channel thread was created in.
-	ParentID string `json:"parent_id"`
+	ParentID string `json:"parent_id,omitempty"`
 
 	// Amount of seconds a user has to wait before sending another message or creating another thread (0-21600)
 	// bots, as well as users with the permission manage_messages or manage_channel, are unaffected
-	RateLimitPerUser int `json:"rate_limit_per_user"`
+	RateLimitPerUser int `json:"rate_limit_per_user,omitempty"`
 
 	// ID of the creator of the group DM or thread
-	OwnerID string `json:"owner_id"`
+	OwnerID string `json:"owner_id,omitempty"`
 
 	// ApplicationID of the DM creator Zeroed if guild channel or not a bot user
-	ApplicationID string `json:"application_id"`
+	ApplicationID string `json:"application_id,omitempty"`
 
 	// Thread-specific fields not needed by other channels
 	ThreadMetadata *ThreadMetadata `json:"thread_metadata,omitempty"`
 	// Thread member object for the current user, if they have joined the thread, only included on certain API endpoints
-	Member *ThreadMember `json:"thread_member"`
+	Member *ThreadMember `json:"thread_member,omitempty"`
 
 	// All thread members. State channels only.
 	Members []*ThreadMember `json:"-"`
 
 	// Channel flags.
-	Flags ChannelFlags `json:"flags"`
+	Flags ChannelFlags `json:"flags,omitempty"`
 
 	// The set of tags that can be used in a forum channel.
-	AvailableTags []ForumTag `json:"available_tags"`
+	AvailableTags []ForumTag `json:"available_tags,omitempty"`
 
 	// The IDs of the set of tags that have been applied to a thread in a forum channel.
-	AppliedTags []string `json:"applied_tags"`
+	AppliedTags []string `json:"applied_tags,omitempty"`
 
 	// Emoji to use as the default reaction to a forum post.
-	DefaultReactionEmoji ForumDefaultReaction `json:"default_reaction_emoji"`
+	DefaultReactionEmoji ForumDefaultReaction `json:"default_reaction_emoji,omitempty"`
 
 	// The initial RateLimitPerUser to set on newly created threads in a channel.
 	// This field is copied to the thread at creation time and does not live update.
-	DefaultThreadRateLimitPerUser int `json:"default_thread_rate_limit_per_user"`
+	DefaultThreadRateLimitPerUser int `json:"default_thread_rate_limit_per_user,omitempty"`
 
 	// The default sort order type used to order posts in forum channels.
 	// Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin.
-	DefaultSortOrder *ForumSortOrderType `json:"default_sort_order"`
+	DefaultSortOrder *ForumSortOrderType `json:"default_sort_order,omitempty"`
 
 	// The default forum layout view used to display posts in forum channels.
 	// Defaults to ForumLayoutNotSet, which indicates a layout view has not been set by a channel admin.
-	DefaultForumLayout ForumLayout `json:"default_forum_layout"`
+	DefaultForumLayout ForumLayout `json:"default_forum_layout,omitempty"`
 }
 
 // Mention returns a string which mentions the channel
@@ -1221,24 +1221,24 @@ type Role struct {
 
 	// Whether this role is managed by an integration, and
 	// thus cannot be manually added to, or taken from, members.
-	Managed bool `json:"managed"`
+	Managed bool `json:"managed,omitempty"`
 
 	// Whether this role is mentionable.
-	Mentionable bool `json:"mentionable"`
+	Mentionable bool `json:"mentionable,omitempty"`
 
 	// Whether this role is hoisted (shows up separately in member list).
-	Hoist bool `json:"hoist"`
+	Hoist bool `json:"hoist,omitempty"`
 
 	// The hex color of this role.
-	Color int `json:"color"`
+	Color int `json:"color,omitempty"`
 
 	// The position of this role in the guild's role hierarchy.
-	Position int `json:"position"`
+	Position int `json:"position,omitempty"`
 
 	// The permissions of the role on the guild (doesn't include channel overrides).
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the permission.
-	Permissions int64 `json:"permissions,string"`
+	Permissions int64 `json:"permissions,string,omitempty"`
 }
 
 // Mention returns a string which mentions the role
@@ -1334,41 +1334,41 @@ type Assets struct {
 // member represents a certain user's presence in a guild.
 type Member struct {
 	// The guild ID on which the member exists.
-	GuildID string `json:"guild_id"`
+	GuildID string `json:"guild_id,omitempty"`
 
 	// The time at which the member joined the guild.
-	JoinedAt time.Time `json:"joined_at"`
+	JoinedAt time.Time `json:"joined_at,omitempty"`
 
 	// The nickname of the member, if they have one.
-	Nick string `json:"nick"`
+	Nick string `json:"nick,omitempty"`
 
 	// Whether the member is deafened at a guild level.
-	Deaf bool `json:"deaf"`
+	Deaf bool `json:"deaf,omitempty"`
 
 	// Whether the member is muted at a guild level.
-	Mute bool `json:"mute"`
+	Mute bool `json:"mute,omitempty"`
 
 	// The hash of the avatar for the guild member, if any.
-	Avatar string `json:"avatar"`
+	Avatar string `json:"avatar,omitempty"`
 
 	// The underlying user on which the member is based.
-	User *User `json:"user"`
+	User *User `json:"user,omitempty"`
 
 	// A list of IDs of the roles which are possessed by the member.
-	Roles []string `json:"roles"`
+	Roles []string `json:"roles,omitempty"`
 
 	// When the user used their Nitro boost on the server
-	PremiumSince *time.Time `json:"premium_since"`
+	PremiumSince *time.Time `json:"premium_since,omitempty"`
 
 	// Is true while the member hasn't accepted the membership screen.
-	Pending bool `json:"pending"`
+	Pending bool `json:"pending,omitempty"`
 
 	// Total permissions of the member in the channel, including overrides, returned when in the interaction object.
-	Permissions int64 `json:"permissions,string"`
+	Permissions int64 `json:"permissions,string,omitempty"`
 
 	// The time at which the member's timeout will expire.
 	// Time in the past or nil if the user is not timed out.
-	CommunicationDisabledUntil *time.Time `json:"communication_disabled_until"`
+	CommunicationDisabledUntil *time.Time `json:"communication_disabled_until,omitempty"`
 }
 
 // Mention creates a member mention
