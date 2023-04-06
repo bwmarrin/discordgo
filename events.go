@@ -402,7 +402,7 @@ type AutoModerationActionExecution struct {
 	MatchedContent       string                        `json:"matched_content"`
 }
 
-// AuditLogEntryCreate is the data for an AuditLogEntryCreate event.
-type AuditLogEntryCreate struct {
+// GuildAuditLogEntryCreate is the data for a GuildAuditLogEntryCreate event.
+type GuildAuditLogEntryCreate struct {
 	*AuditLogEntry
 }
