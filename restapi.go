@@ -775,7 +775,6 @@ func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days 
 // userID    : The ID of a User
 // reason    : The reason for this ban
 // seconds      : The number of seconds of previous comments to delete, between 0 and 604800 (7 days).
-
 func (s *Session) GuildBanCreateWithReasonDeleteBySeconds(guildID, userID, reason string, seconds int, options ...RequestOption) (err error) {
 	uri := EndpointGuildBan(guildID, userID)
 
