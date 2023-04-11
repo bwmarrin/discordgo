@@ -317,6 +317,8 @@ type ApplicationCommandInteractionData struct {
 	ID       string                                     `json:"id"`
 	Name     string                                     `json:"name"`
 	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
+	// The type of the invoked command
+	CommandType ApplicationCommandType `json:"type"`
 
 	// Slash command options
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
