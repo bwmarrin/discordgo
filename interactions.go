@@ -314,11 +314,10 @@ type InteractionData interface {
 
 // ApplicationCommandInteractionData contains the data of application command interaction.
 type ApplicationCommandInteractionData struct {
-	ID       string                                     `json:"id"`
-	Name     string                                     `json:"name"`
-	Resolved *ApplicationCommandInteractionDataResolved `json:"resolved"`
-	// The type of the invoked command
-	CommandType ApplicationCommandType `json:"type"`
+	ID          string                                     `json:"id"`
+	Name        string                                     `json:"name"`
+	Resolved    *ApplicationCommandInteractionDataResolved `json:"resolved"`
+	CommandType ApplicationCommandType                     `json:"type"`
 
 	// Slash command options
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
