@@ -1816,7 +1816,7 @@ const (
 	AuditLogActionStickerDelete AuditLogAction = 92
 
 	AuditLogGuildScheduledEventCreate AuditLogAction = 100
-	AuditLogGuildScheduledEventUpdare AuditLogAction = 101
+	AuditLogGuildScheduledEventUpdate AuditLogAction = 101
 	AuditLogGuildScheduledEventDelete AuditLogAction = 102
 
 	AuditLogActionThreadCreate AuditLogAction = 110
