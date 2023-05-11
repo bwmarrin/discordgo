@@ -2302,7 +2302,7 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string, op
 		Name   string `json:"name,omitempty"`
 		Avatar string `json:"avatar,omitempty"`
 	}{name, avatar}
-	
+
 	var body []byte
 	body, err = s.RequestWithBucketID("PATCH", EndpointWebhookToken(webhookID, token), data, EndpointWebhookToken("", ""), options...)
 	if err != nil {
