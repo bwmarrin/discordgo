@@ -2303,7 +2303,8 @@ func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string, op
 		Avatar string `json:"avatar,omitempty"`
 	}{name, avatar}
 
-	body, err := s.RequestWithBucketID("PATCH", EndpointWebhookToken(webhookID, token), data, EndpointWebhookToken("", ""), options...)
+	var body []byte
+	body, err = s.RequestWithBucketID("PATCH", EndpointWebhookToken(webhookID, token), data, EndpointWebhookToken("", ""), options...)
 	if err != nil {
 		return
 	}
