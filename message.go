@@ -476,7 +476,7 @@ func (m *Message) reference(failIfNotExists bool) *MessageReference {
 	}
 }
 
-// Reference returns a MessageReference of the given message
+// Reference returns a MessageReference of the given message.
 func (m *Message) Reference() *MessageReference {
 	return m.reference(true)
 }
