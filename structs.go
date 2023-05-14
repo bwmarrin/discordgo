@@ -1746,6 +1746,7 @@ type AuditLogOptions struct {
 	ID                            string               `json:"id"`
 	Type                          *AuditLogOptionsType `json:"type"`
 	RoleName                      string               `json:"role_name"`
+	ApplicationID                 string               `json:"application_id"`
 	AutoModerationRuleName        string               `json:"auto_moderation_rule_name"`
 	AutoModerationRuleTriggerType string               `json:"auto_moderation_rule_trigger_type"`
 }
