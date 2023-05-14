@@ -461,18 +461,30 @@ type MessageApplication struct {
 
 // MessageReference contains reference data sent with crossposted messages
 type MessageReference struct {
-	MessageID string `json:"message_id"`
-	ChannelID string `json:"channel_id,omitempty"`
-	GuildID   string `json:"guild_id,omitempty"`
+	MessageID       string `json:"message_id"`
+	ChannelID       string `json:"channel_id,omitempty"`
+	GuildID         string `json:"guild_id,omitempty"`
+	FailIfNotExists *bool  `json:"fail_if_not_exists,omitempty"`
 }
 
-// Reference returns MessageReference of given message
-func (m *Message) Reference() *MessageReference {
+func (m *Message) reference(failIfNotExists bool) *MessageReference {
 	return &MessageReference{
-		GuildID:   m.GuildID,
-		ChannelID: m.ChannelID,
-		MessageID: m.ID,
+		GuildID:         m.GuildID,
+		ChannelID:       m.ChannelID,
+		MessageID:       m.ID,
+		FailIfNotExists: &failIfNotExists,
 	}
+}
+
+// Reference returns a MessageReference of the given message.
+func (m *Message) Reference() *MessageReference {
+	return m.reference(true)
+}
+
+// SoftReference returns a MessageReference of the given message.
+// If the message doesn't exist it will instead be sent as a non-reply message.
+func (m *Message) SoftReference() *MessageReference {
+	return m.reference(false)
 }
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
