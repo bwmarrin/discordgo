@@ -33,21 +33,21 @@ func New(token string) (s *Session, err error) {
 
 	// Create an empty Session interface.
 	s = &Session{
-		State:                           NewState(),
-		Ratelimiter:                     NewRatelimiter(),
-		StateEnabled:                    true,
-		Compress:                        true,
-		ShouldReconnectOnError:          true,
+		State:                              NewState(),
+		Ratelimiter:                        NewRatelimiter(),
+		StateEnabled:                       true,
+		Compress:                           true,
+		ShouldReconnectOnError:             true,
 		ShouldReconnectVoiceOnSessionError: true,
-		ShouldRetryOnRateLimit:          true,
-		ShardID:                         0,
-		ShardCount:                      1,
-		MaxRestRetries:                  3,
-		Client:                          &http.Client{Timeout: (20 * time.Second)},
-		Dialer:                          websocket.DefaultDialer,
-		UserAgent:                       "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
-		sequence:                        new(int64),
-		LastHeartbeatAck:                time.Now().UTC(),
+		ShouldRetryOnRateLimit:             true,
+		ShardID:                            0,
+		ShardCount:                         1,
+		MaxRestRetries:                     3,
+		Client:                             &http.Client{Timeout: (20 * time.Second)},
+		Dialer:                             websocket.DefaultDialer,
+		UserAgent:                          "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
+		sequence:                           new(int64),
+		LastHeartbeatAck:                   time.Now().UTC(),
 	}
 
 	// Initialize the Identify Package with defaults
