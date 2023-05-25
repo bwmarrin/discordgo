@@ -672,14 +672,9 @@ func (s *Session) GuildEdit(guildID string, g *GuildParams, options ...RequestOp
 
 // GuildDelete deletes a Guild.
 // guildID   : The ID of a Guild
-func (s *Session) GuildDelete(guildID string, options ...RequestOption) (st *Guild, err error) {
+func (s *Session) GuildDelete(guildID string, options ...RequestOption) (err error) {
 
-	body, err := s.RequestWithBucketID("DELETE", EndpointGuild(guildID), nil, EndpointGuild(guildID), options...)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
+	_, err = s.RequestWithBucketID("DELETE", EndpointGuild(guildID), nil, EndpointGuild(guildID), options...)
 	return
 }
 
