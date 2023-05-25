@@ -38,7 +38,7 @@ func New(token string) (s *Session, err error) {
 		StateEnabled:                    true,
 		Compress:                        true,
 		ShouldReconnectOnError:          true,
-		ShouldReconnectVoiceConnOnError: true,
+		ShouldReconnectVoiceOnSessionError: true,
 		ShouldRetryOnRateLimit:          true,
 		ShardID:                         0,
 		ShardCount:                      1,

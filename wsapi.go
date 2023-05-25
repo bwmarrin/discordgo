@@ -862,7 +862,7 @@ func (s *Session) reconnect() {
 				// However, there seems to be cases where something "weird"
 				// happens.  So we're doing this for now just to improve
 				// stability in those edge cases.
-				if s.ShouldReconnectVoiceConnOnError {
+				if s.ShouldReconnectVoiceOnSessionError {
 					s.RLock()
 					defer s.RUnlock()
 					for _, v := range s.VoiceConnections {
