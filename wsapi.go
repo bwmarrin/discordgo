@@ -862,17 +862,18 @@ func (s *Session) reconnect() {
 				// However, there seems to be cases where something "weird"
 				// happens.  So we're doing this for now just to improve
 				// stability in those edge cases.
-				s.RLock()
-				defer s.RUnlock()
-				for _, v := range s.VoiceConnections {
+				if s.ShouldReconnectVoiceOnSessionError {
+					s.RLock()
+					defer s.RUnlock()
+					for _, v := range s.VoiceConnections {
 
-					s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
-					go v.reconnect()
+						s.log(LogInformational, "reconnecting voice connection to guild %s", v.GuildID)
+						go v.reconnect()
 
-					// This is here just to prevent violently spamming the
-					// voice reconnects
-					time.Sleep(1 * time.Second)
-
+						// This is here just to prevent violently spamming the
+						// voice reconnects
+						time.Sleep(1 * time.Second)
+					}
 				}
 				return
 			}

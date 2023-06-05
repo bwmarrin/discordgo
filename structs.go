@@ -42,6 +42,9 @@ type Session struct {
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
 
+	// Should voice connections reconnect on a session reconnect.
+	ShouldReconnectVoiceOnSessionError bool
+
 	// Should the session retry requests when rate limited.
 	ShouldRetryOnRateLimit bool
 
