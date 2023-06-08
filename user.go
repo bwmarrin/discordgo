@@ -87,6 +87,9 @@ func (u *User) String() string {
 		return u.Username
 	}
 
+	// The code below is a fallback to the special case for a pre-existing user
+	// before all users were migrated to the new format
+	// Notes: https://support-dev.discord.com/hc/en-us/articles/13667755828631
 	return u.Username + "#" + u.Discriminator
 }
 
