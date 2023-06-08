@@ -81,7 +81,12 @@ type User struct {
 }
 
 // String returns a unique identifier of the form username#discriminator
+// or username only if the discriminator is "0"
 func (u *User) String() string {
+	if u.Discriminator == "0" || u.Discriminator == "" {
+		return u.Username
+	}
+
 	return u.Username + "#" + u.Discriminator
 }
 
