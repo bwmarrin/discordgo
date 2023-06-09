@@ -34,6 +34,9 @@ type User struct {
 	// The user's username.
 	Username string `json:"username"`
 
+	// the user's display name, if it is set. For bots, this is the application name
+	GlobalName string `json:"global_name"`
+
 	// The hash of the user's avatar. Use Session.UserAvatar
 	// to retrieve the avatar itself.
 	Avatar string `json:"avatar"`
