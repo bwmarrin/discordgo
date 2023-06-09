@@ -2401,7 +2401,7 @@ func (s *Session) WebhookMessage(webhookID, token, messageID string, options ...
 	return
 }
 
-// WebhookMessage gets a webhook message.
+// WebhookThreadMessage gets a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
 // messageID : The ID of message to get
@@ -2453,7 +2453,7 @@ func (s *Session) WebhookMessageEdit(webhookID, token, messageID string, data *W
 	return
 }
 
-// WebhookMessageEdit edits a webhook message in a thread and returns a new one.
+// WebhookThreadMessageEdit edits a webhook message in a thread and returns a new one.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
 // messageID : The ID of message to edit
@@ -2499,7 +2499,7 @@ func (s *Session) WebhookMessageDelete(webhookID, token, messageID string, optio
 	return
 }
 
-// WebhookMessageDelete deletes a webhook message.
+// WebhookThreadMessageDelete deletes a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
 // messageID : The ID of a message to edit
