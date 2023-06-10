@@ -45,7 +45,7 @@ type User struct {
 	Discriminator string `json:"discriminator"`
 	
 	// The user's display name, if it is set. 
-	// For bots, this is the application name
+	// For bots, this is the application name.
 	GlobalName string `json:"global_name"`
 
 	// The token of the user. This is only present for
