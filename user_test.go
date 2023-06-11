@@ -26,7 +26,7 @@ func TestUser(t *testing.T) {
 			want: "aldiwildan",
 		},
 		{
-			name: "Given a user with a username and a 0 discriminator, When String() is called, Then it should return the username",
+			name: "User with discriminator set to 0",
 			u: &User{
 				Username:      "aldiwildan",
 				Discriminator: "0",
