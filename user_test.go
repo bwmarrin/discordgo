@@ -11,7 +11,7 @@ func TestUser(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Username with a discriminator",
+			name: "User with a discriminator",
 			u: &User{
 				Username:      "bob",
 				Discriminator: "8192",
