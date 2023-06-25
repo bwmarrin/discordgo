@@ -31,6 +31,9 @@ type User struct {
 	// the application possesses the email scope for the user.
 	Email string `json:"email"`
 
+	// The user's display name, if it is set. For bots, this is the application name.
+	Name string `json:"global_name"`
+
 	// The user's username.
 	Username string `json:"username"`
 
