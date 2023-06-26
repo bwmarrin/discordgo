@@ -87,7 +87,7 @@ type User struct {
 // String returns a unique identifier of the form username#discriminator
 // or username only if the discriminator is "0"
 func (u *User) String() string {
-	if u.Discriminator == "0" || u.Discriminator == "" {
+	if u.isMigrated() {
 		return u.Username
 	}
 
@@ -105,9 +105,24 @@ func (u *User) Mention() string {
 //    size:    The size of the user's avatar as a power of two
 //             if size is an empty string, no size parameter will
 //             be added to the URL.
+//
+// Update: https://discord.com/developers/docs/change-log#default-avatars
+// Based on the update from new username
+// Users on the legacy username will use the discriminator % 5
+// Otherwise, users will use the (user_id >> 22) % 6
 func (u *User) AvatarURL(size string) string {
-	return avatarURL(u.Avatar, EndpointDefaultUserAvatar(u.Discriminator),
-		EndpointUserAvatar(u.ID, u.Avatar), EndpointUserAvatarAnimated(u.ID, u.Avatar), size)
+	defaultUserAvatar := EndpointDefaultUserAvatar(u.Discriminator)
+	if u.isMigrated() {
+		defaultUserAvatar = EndpointDefaultUserAvatarMigrated(u.ID)
+	}
+
+	return avatarURL(
+		u.Avatar,
+		defaultUserAvatar,
+		EndpointUserAvatar(u.ID, u.Avatar),
+		EndpointUserAvatarAnimated(u.ID, u.Avatar),
+		size,
+	)
 }
 
 // BannerURL returns the URL of the users's banner image.
@@ -115,4 +130,10 @@ func (u *User) AvatarURL(size string) string {
 //             Image size can be any power of two between 16 and 4096.
 func (u *User) BannerURL(size string) string {
 	return bannerURL(u.Banner, EndpointUserBanner(u.ID, u.Banner), EndpointUserBannerAnimated(u.ID, u.Banner), size)
+}
+
+// isMigrated returns true if the user is migrated from the legacy username system
+// https://discord.com/developers/docs/change-log#identifying-migrated-users
+func (u *User) isMigrated() bool {
+	return u.Discriminator == "" || u.Discriminator == "0"
 }

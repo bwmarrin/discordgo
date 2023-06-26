@@ -53,6 +53,10 @@ var (
 		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
 		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
 	}
+	EndpointDefaultUserAvatarMigrated = func(userID string) string {
+		userIDInt, _ := strconv.Atoi(userID)
+		return EndpointCDN + "embed/avatars/" + strconv.Itoa((userIDInt>>22)%5) + ".png"
+	}
 	EndpointUserBanner = func(uID, cID string) string {
 		return EndpointCDNBanners + uID + "/" + cID + ".png"
 	}

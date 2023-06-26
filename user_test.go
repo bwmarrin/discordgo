@@ -2,7 +2,7 @@ package discordgo
 
 import "testing"
 
-func TestUser(t *testing.T) {
+func TestUser_String(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
