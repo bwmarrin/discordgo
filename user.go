@@ -1,5 +1,9 @@
 package discordgo
 
+import (
+	"strconv"
+)
+
 // UserFlags is the flags of "user" (see UserFlags* consts)
 // https://discord.com/developers/docs/resources/user#user-object-user-flags
 type UserFlags int
@@ -102,23 +106,14 @@ func (u *User) Mention() string {
 }
 
 // AvatarURL returns a URL to the user's avatar.
-//    size:    The size of the user's avatar as a power of two
-//             if size is an empty string, no size parameter will
-//             be added to the URL.
 //
-// Update: https://discord.com/developers/docs/change-log#default-avatars
-// Based on the update from new username
-// Users on the legacy username will use the discriminator % 5
-// Otherwise, users will use the (user_id >> 22) % 6
+//	size:    The size of the user's avatar as a power of two
+//	         if size is an empty string, no size parameter will
+//	         be added to the URL.
 func (u *User) AvatarURL(size string) string {
-	defaultUserAvatar := EndpointDefaultUserAvatar(u.Discriminator)
-	if u.isMigrated() {
-		defaultUserAvatar = EndpointDefaultUserAvatarMigrated(u.ID)
-	}
-
 	return avatarURL(
 		u.Avatar,
-		defaultUserAvatar,
+		EndpointDefaultUserAvatar(u.AvatarIndex()),
 		EndpointUserAvatar(u.ID, u.Avatar),
 		EndpointUserAvatarAnimated(u.ID, u.Avatar),
 		size,
@@ -126,8 +121,9 @@ func (u *User) AvatarURL(size string) string {
 }
 
 // BannerURL returns the URL of the users's banner image.
-//    size:    The size of the desired banner image as a power of two
-//             Image size can be any power of two between 16 and 4096.
+//
+//	size:    The size of the desired banner image as a power of two
+//	         Image size can be any power of two between 16 and 4096.
 func (u *User) BannerURL(size string) string {
 	return bannerURL(u.Banner, EndpointUserBanner(u.ID, u.Banner), EndpointUserBannerAnimated(u.ID, u.Banner), size)
 }
@@ -136,4 +132,15 @@ func (u *User) BannerURL(size string) string {
 // https://discord.com/developers/docs/change-log#identifying-migrated-users
 func (u *User) isMigrated() bool {
 	return u.Discriminator == "" || u.Discriminator == "0"
+}
+
+// AvatarIndex returns the index of the user's avatar
+func (u *User) AvatarIndex() uint64 {
+	if u.isMigrated() {
+		id, _ := strconv.ParseUint(u.ID, 10, 64)
+		return (id >> 22) % 6
+	}
+
+	id, _ := strconv.Atoi(u.Discriminator)
+	return uint64(id % 5)
 }

@@ -49,13 +49,8 @@ var (
 	EndpointUser               = func(uID string) string { return EndpointUsers + uID }
 	EndpointUserAvatar         = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".png" }
 	EndpointUserAvatarAnimated = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".gif" }
-	EndpointDefaultUserAvatar  = func(uDiscriminator string) string {
-		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
-		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
-	}
-	EndpointDefaultUserAvatarMigrated = func(userID string) string {
-		userIDInt, _ := strconv.Atoi(userID)
-		return EndpointCDN + "embed/avatars/" + strconv.Itoa((userIDInt>>22)%5) + ".png"
+	EndpointDefaultUserAvatar  = func(idx uint64) string {
+		return EndpointCDN + "embed/avatars/" + strconv.FormatUint(idx, 10) + ".png"
 	}
 	EndpointUserBanner = func(uID, cID string) string {
 		return EndpointCDNBanners + uID + "/" + cID + ".png"
