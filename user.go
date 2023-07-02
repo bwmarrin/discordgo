@@ -89,7 +89,7 @@ type User struct {
 }
 
 // String returns a unique identifier of the form username#discriminator
-// or username only if the discriminator is "0"
+// or just username, if the discriminator is empty or "0".
 func (u *User) String() string {
 	if u.isMigrated() {
 		return u.Username
