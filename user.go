@@ -135,12 +135,12 @@ func (u *User) isMigrated() bool {
 }
 
 // DefaultAvatarIndex returns the index of the user's default avatar.
-func (u *User) DefaultAvatarIndex() uint64 {
+func (u *User) DefaultAvatarIndex() int {
 	if u.isMigrated() {
 		id, _ := strconv.ParseUint(u.ID, 10, 64)
-		return (id >> 22) % 6
+		return int((id >> 22) % 6)
 	}
 
 	id, _ := strconv.Atoi(u.Discriminator)
-	return uint64(id % 5)
+	return id % 5
 }
