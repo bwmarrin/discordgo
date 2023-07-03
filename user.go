@@ -113,7 +113,7 @@ func (u *User) Mention() string {
 func (u *User) AvatarURL(size string) string {
 	return avatarURL(
 		u.Avatar,
-		EndpointDefaultUserAvatar(u.AvatarIndex()),
+		EndpointDefaultUserAvatar(u.DefaultAvatarIndex()),
 		EndpointUserAvatar(u.ID, u.Avatar),
 		EndpointUserAvatarAnimated(u.ID, u.Avatar),
 		size,
@@ -134,8 +134,8 @@ func (u *User) isMigrated() bool {
 	return u.Discriminator == "" || u.Discriminator == "0"
 }
 
-// AvatarIndex returns the index of the user's avatar
-func (u *User) AvatarIndex() uint64 {
+// DefaultAvatarIndex returns the index of the user's default avatar.
+func (u *User) DefaultAvatarIndex() uint64 {
 	if u.isMigrated() {
 		id, _ := strconv.ParseUint(u.ID, 10, 64)
 		return (id >> 22) % 6
