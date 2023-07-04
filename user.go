@@ -92,7 +92,7 @@ type User struct {
 // or just username, if the discriminator is set to "0".
 func (u *User) String() string {
 	// If the user has been migrated from the legacy username system, their discriminator is "0".
-	// See https://support.discord.com/hc/articles/12620128861463
+	// See https://support-dev.discord.com/hc/en-us/articles/13667755828631
 	if u.Discriminator == "0" {
 		return u.Username
 	}
