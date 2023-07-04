@@ -19,13 +19,6 @@ func TestUser_String(t *testing.T) {
 			want: "bob#8192",
 		},
 		{
-			name: "User without a discriminator",
-			u: &User{
-				Username: "aldiwildan",
-			},
-			want: "aldiwildan",
-		},
-		{
 			name: "User with discriminator set to 0",
 			u: &User{
 				Username:      "aldiwildan",

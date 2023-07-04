@@ -89,14 +89,14 @@ type User struct {
 }
 
 // String returns a unique identifier of the form username#discriminator
-// or just username, if the discriminator is empty or "0".
+// or just username, if the discriminator is set to "0".
 func (u *User) String() string {
-	if u.isMigrated() {
+	// If the user has been migrated from the legacy username system, their discriminator is "0".
+	// See https://support.discord.com/hc/articles/12620128861463
+	if u.Discriminator == "0" {
 		return u.Username
 	}
 
-	// The code below handles applications and users without a migrated username.
-	// https://support-dev.discord.com/hc/en-us/articles/13667755828631
 	return u.Username + "#" + u.Discriminator
 }
 
@@ -128,15 +128,9 @@ func (u *User) BannerURL(size string) string {
 	return bannerURL(u.Banner, EndpointUserBanner(u.ID, u.Banner), EndpointUserBannerAnimated(u.ID, u.Banner), size)
 }
 
-// isMigrated returns true if the user is migrated from the legacy username system
-// https://discord.com/developers/docs/change-log#identifying-migrated-users
-func (u *User) isMigrated() bool {
-	return u.Discriminator == "" || u.Discriminator == "0"
-}
-
 // DefaultAvatarIndex returns the index of the user's default avatar.
 func (u *User) DefaultAvatarIndex() int {
-	if u.isMigrated() {
+	if u.Discriminator == "0" {
 		id, _ := strconv.ParseUint(u.ID, 10, 64)
 		return int((id >> 22) % 6)
 	}
