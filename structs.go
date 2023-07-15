@@ -1070,6 +1070,17 @@ type GuildScheduledEventUser struct {
 	Member                *Member `json:"member"`
 }
 
+// GuildOnboardingMode defines the criteria used to satisfy constraints that are required for enabling onboarding.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-mode
+type GuildOnboardingMode int
+
+const (
+	// GuildOnboardingModeDefault counts default channels towards constraints
+	GuildOnboardingModeDefault = 0
+	// GuildOnboardingModeDefault counts default channels and questions towards constraints
+	GuildOnboardingModeAdvanced = 1
+)
+
 // GuildOnboarding represents the onboarding flow for a guild
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object
 type GuildOnboarding struct {
@@ -1082,8 +1093,11 @@ type GuildOnboarding struct {
 	// Channel IDs that members get opted into automatically
 	DefaultChannelIDs []string `json:"default_channel_ids"`
 
-	// 	Whether onboarding is enabled in the guild
+	// Whether onboarding is enabled in the guild
 	Enabled bool `json:"enabled"`
+
+	// Current mode of onboarding
+	Mode GuildOnboardingMode `json:"mode"`
 }
 
 // GuildOnboardingPrompt is a prompt shown during onboarding and in customize community
