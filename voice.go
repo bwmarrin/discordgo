@@ -292,19 +292,18 @@ func (v *VoiceConnection) open() (err error) {
 	// TODO temp? loop to wait for the SessionID
 	i := 0
 	for {
-		v.Unlock()
-		sessionID := v.sessionID
-		v.Lock()
-
-		if sessionID != "" {
+		if v.sessionID != "" {
 			break
 		}
 
 		if i > 20 { // only loop for up to 1 second total
 			return fmt.Errorf("did not receive voice Session ID in time")
 		}
+		// release the lock so other processes can populate the sessionID if a ws message is received
+		v.Unlock()
 		time.Sleep(50 * time.Millisecond)
 		i++
+		v.Lock()
 	}
 
 	// Connect to VoiceConnection Websocket
