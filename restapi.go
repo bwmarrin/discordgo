@@ -3250,9 +3250,9 @@ func (s *Session) GuildScheduledEventUsers(guildID, eventID string, limit int, w
 	return
 }
 
-// GuildOnboarding returns the onboarding flow for a guild
+// GuildOnboarding returns the onboarding flow for a guild.
 // guildID   : The ID of a Guild
-func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onboarding GuildOnboarding, err error) {
+func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
 	endpoint := EndpointGuildOnboarding(guildID)
 
 	var body []byte

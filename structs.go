@@ -1074,58 +1074,59 @@ type GuildScheduledEventUser struct {
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-mode
 type GuildOnboardingMode int
 
+// Block containing known GuildOnboardingMode values
 const (
 	// GuildOnboardingModeDefault counts default channels towards constraints
 	GuildOnboardingModeDefault = 0
-	// GuildOnboardingModeDefault counts default channels and questions towards constraints
+	// GuildOnboardingModeAdvanced counts default channels and questions towards constraints
 	GuildOnboardingModeAdvanced = 1
 )
 
-// GuildOnboarding represents the onboarding flow for a guild
+// GuildOnboarding represents the onboarding flow for a guild.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object
 type GuildOnboarding struct {
-	// ID of the guild this onboarding is part of
+	// ID of the guild this onboarding is part of.
 	GuildID string `json:"guild_id"`
 
-	// Prompts shown during onboarding and in customize community
+	// Prompts shown during onboarding and in customize community.
 	Prompts []GuildOnboardingPrompt `json:"prompts"`
 
-	// Channel IDs that members get opted into automatically
+	// Channel IDs that members get opted into automatically.
 	DefaultChannelIDs []string `json:"default_channel_ids"`
 
-	// Whether onboarding is enabled in the guild
+	// Whether onboarding is enabled in the guild.
 	Enabled bool `json:"enabled"`
 
-	// Current mode of onboarding
+	// Current mode of onboarding.
 	Mode GuildOnboardingMode `json:"mode"`
 }
 
-// GuildOnboardingPrompt is a prompt shown during onboarding and in customize community
+// GuildOnboardingPrompt is a prompt shown during onboarding and in customize community.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-prompt-structure
 type GuildOnboardingPrompt struct {
-	// ID of the prompt
+	// ID of the prompt.
 	ID string `json:"id"`
 
-	// Type of prompt
+	// Type of prompt.
 	Type GuildOnboardingPromptType `json:"type"`
 
-	// Options available within the prompt
+	// Options available within the prompt.
 	Options []GuildOnboardingPromptOption `json:"options"`
 
-	// Title of the prompt
+	// Title of the prompt.
 	Title string `json:"title"`
 
-	// Indicates whether users are limited to selecting one option for the prompt
+	// Indicates whether users are limited to selecting one option for the prompt.
 	SingleSelect bool `json:"single_select"`
 
-	// Indicates whether the prompt is required before a user completes the onboarding flow
+	// Indicates whether the prompt is required before a user completes the onboarding flow.
 	Required bool `json:"required"`
 
-	// Indicates whether the prompt is present in the onboarding flow. If false, the prompt will only appear in the Channels & Roles tab
+	// Indicates whether the prompt is present in the onboarding flow. If false, the prompt will only appear in the Channels & Roles tab.
 	InOnboarding bool `json:"in_onboarding"`
 }
 
-// GuildOnboardingPromptType is the type of prompt during onboarding
+// GuildOnboardingPromptType is the type of prompt during onboarding.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-types
 type GuildOnboardingPromptType int
 
@@ -1135,26 +1136,26 @@ const (
 	GuildOnboardingPromptTypeDropdown       GuildOnboardingPromptType = 1
 )
 
-// GuildOnboardingPromptOption is an option available within an onboarding prompt
+// GuildOnboardingPromptOption is an option available within an onboarding prompt.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-option-structure
 type GuildOnboardingPromptOption struct {
-	// ID of the prompt option
+	// ID of the prompt option.
 	ID string `json:"id"`
 
-	// IDs for channels a member is added to when the option is selected
+	// IDs for channels a member is added to when the option is selected.
 	ChannelIDs []string `json:"channel_ids"`
 
-	// IDs for roles assigned to a member when the option is selected
+	// IDs for roles assigned to a member when the option is selected.
 	RoleIDs []string `json:"role_ids"`
 
-	// Emoji of the option
+	// Emoji of the option.
 	Emoji Emoji `json:"emoji"`
 
-	// Title of the option
+	// Title of the option.
 	Title string `json:"title"`
 
-	// Description of the option
-	Description string `json:"description,omitempty"`
+	// Description of the option.
+	Description *string `json:"description"`
 }
 
 // A GuildTemplate represents a replicable template for guild creation
