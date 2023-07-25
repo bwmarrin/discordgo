@@ -2214,14 +2214,20 @@ const (
 	// Deprecated: PermissionManageEmojis has been replaced by PermissionManageGuildExpressions.
 	PermissionManageEmojis = 1 << 30
 
-	// Allows management and editing of emojis, stickers, and soundboard sounds.
+	// Allows for editing and deleting emojis, stickers, and soundboard sounds created by all users.
 	PermissionManageGuildExpressions = 1 << 30
 
-	// Allows for creating, editing, and deleting scheduled events.
+	// Allows for editing and deleting scheduled events created by all users.
 	PermissionManageEvents = 1 << 33
 
 	// Allows for viewing role subscription insights.
 	PermissionViewCreatorMonetizationAnalytics = 1 << 41
+
+	// Allows for creating emojis, stickers, and soundboard sounds, and editing and deleting those created by the current user.
+	PermissionCreateGuildExpressions = 1 << 43
+
+	// Allows for creating scheduled events, and editing and deleting those created by the current user.
+	PermissionCreateEvents = 1 << 44
 )
 
 // Constants for the different bit offsets of general permissions
