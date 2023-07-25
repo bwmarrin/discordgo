@@ -2435,6 +2435,9 @@ const (
 
 	// Allows for sending messages in threads.
 	PermissionSendMessagesInThreads = 1 << 38
+
+	// Allows sending voice messages.
+	PermissionSendVoiceMessages = 1 << 46
 )
 
 // Constants for the different bit offsets of voice permissions
@@ -2468,6 +2471,12 @@ const (
 
 	// Allows for using Activities (applications with the EMBEDDED flag) in a voice channel.
 	PermissionUseActivities = 1 << 39
+
+	// Allows for using soundboard in a voice channel.
+	PermissionUseSoundboard = 1 << 42
+
+	// Allows the usage of custom soundboard sounds from other servers.
+	PermissionUseExternalSounds = 1 << 45
 )
 
 // Constants for general management.
@@ -2489,6 +2498,9 @@ const (
 
 	// Allows for creating, editing, and deleting scheduled events.
 	PermissionManageEvents = 1 << 33
+
+	// Allows for viewing role subscription insights.
+	PermissionViewCreatorMonetizationAnalytics = 1 << 41
 )
 
 // Constants for the different bit offsets of general permissions
