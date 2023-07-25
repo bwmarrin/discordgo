@@ -2418,8 +2418,11 @@ const (
 	// Allows the usage of custom emojis from other servers.
 	PermissionUseExternalEmojis = 1 << 18
 
-	// Allows members to use application commands, including slash commands and context menu commands.
+	// Deprecated: PermissionUseSlashCommands has been replaced by PermissionUseApplicationCommands
 	PermissionUseSlashCommands = 1 << 31
+
+	// Allows members to use application commands, including slash commands and context menu commands.
+	PermissionUseApplicationCommands = 1 << 31
 
 	// Allows for deleting and archiving threads, and viewing all private threads.
 	PermissionManageThreads = 1 << 34
@@ -2469,8 +2472,11 @@ const (
 	// Allows for requesting to speak in stage channels.
 	PermissionVoiceRequestToSpeak = 1 << 32
 
-	// Allows for using Activities (applications with the EMBEDDED flag) in a voice channel.
+	// Deprecated: PermissionUseActivities has been replaced by PermissionUseEmbeddedActivities.
 	PermissionUseActivities = 1 << 39
+
+	// Allows for using Activities (applications with the EMBEDDED flag) in a voice channel.
+	PermissionUseEmbeddedActivities = 1 << 39
 
 	// Allows for using soundboard in a voice channel.
 	PermissionUseSoundboard = 1 << 42
@@ -2493,8 +2499,11 @@ const (
 	// Allows management and editing of webhooks.
 	PermissionManageWebhooks = 1 << 29
 
-	// Allows management and editing of emojis, stickers, and soundboard sounds.
+	// Deprecated: PermissionManageEmojis has been replaced by PermissionManageGuildExpressions.
 	PermissionManageEmojis = 1 << 30
+
+	// Allows management and editing of emojis, stickers, and soundboard sounds.
+	PermissionManageGuildExpressions = 1 << 30
 
 	// Allows for creating, editing, and deleting scheduled events.
 	PermissionManageEvents = 1 << 33
@@ -2520,8 +2529,11 @@ const (
 	// Allows management and editing of channels.
 	PermissionManageChannels = 1 << 4
 
-	// Allows management and editing of the guil.
+	// Deprecated: PermissionManageServer has been replaced by PermissionManageGuild.
 	PermissionManageServer = 1 << 5
+
+	// Allows management and editing of the guild.
+	PermissionManageGuild = 1 << 5
 
 	// Allows for the addition of reactions to messages.
 	PermissionAddReactions = 1 << 6
