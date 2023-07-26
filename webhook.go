@@ -37,7 +37,8 @@ type WebhookParams struct {
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	// Only MessageFlagsSuppressEmbeds and MessageFlagsEphemeral can be set.
 	// MessageFlagsEphemeral can only be set when using Followup Message Create endpoint.
-	Flags MessageFlags `json:"flags,omitempty"`
+	Flags      MessageFlags `json:"flags,omitempty"`
+	ThreadName string       `json:"thread_name,omitempty"`
 }
 
 // WebhookEdit stores data for editing of a webhook message.
