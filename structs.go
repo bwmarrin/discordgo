@@ -1760,8 +1760,8 @@ type AuditLogOptionsType string
 
 // Valid Types for AuditLogOptionsType
 const (
-	AuditLogOptionsTypeMember AuditLogOptionsType = "member"
-	AuditLogOptionsTypeRole   AuditLogOptionsType = "role"
+	AuditLogOptionsTypeRole   AuditLogOptionsType = "0"
+	AuditLogOptionsTypeMember AuditLogOptionsType = "1"
 )
 
 // AuditLogAction is the Action of the AuditLog (see AuditLogAction* consts)
