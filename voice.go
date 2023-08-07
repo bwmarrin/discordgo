@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/Jacobbrewer1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -76,7 +76,8 @@ type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdat
 // Speaking sends a speaking notification to Discord over the voice websocket.
 // This must be sent as true prior to sending audio and should be set to false
 // once finished sending audio.
-//  b  : Send true if speaking, false if not.
+//
+//	b  : Send true if speaking, false if not.
 func (v *VoiceConnection) Speaking(b bool) (err error) {
 
 	v.log(LogDebug, "called (%t)", b)

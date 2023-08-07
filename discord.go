@@ -1,5 +1,5 @@
 // Discordgo - Discord bindings for Go
-// Available at https://github.com/bwmarrin/discordgo
+// Available at https://github.com/Jacobbrewer1/discordgo
 
 // Copyright 2015-2016 Bruce Marriner <bruce@sqls.net>.  All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -26,9 +26,12 @@ const VERSION = "0.27.1"
 
 // New creates a new Discord session with provided token.
 // If the token is for a bot, it must be prefixed with "Bot "
-// 		e.g. "Bot ..."
+//
+//	e.g. "Bot ..."
+//
 // Or if it is an OAuth2 token, it must be prefixed with "Bearer "
-//		e.g. "Bearer ..."
+//
+//	e.g. "Bearer ..."
 func New(token string) (s *Session, err error) {
 
 	// Create an empty Session interface.
@@ -45,7 +48,7 @@ func New(token string) (s *Session, err error) {
 		MaxRestRetries:                     3,
 		Client:                             &http.Client{Timeout: (20 * time.Second)},
 		Dialer:                             websocket.DefaultDialer,
-		UserAgent:                          "DiscordBot (https://github.com/bwmarrin/discordgo, v" + VERSION + ")",
+		UserAgent:                          "DiscordBot (https://github.com/Jacobbrewer1/discordgo, v" + VERSION + ")",
 		sequence:                           new(int64),
 		LastHeartbeatAck:                   time.Now().UTC(),
 	}

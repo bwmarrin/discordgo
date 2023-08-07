@@ -36,12 +36,12 @@ The below example shows how to start the bot from the airhorn example folder.
 
 ### Creating sounds
 
-Airhorn bot uses [DCA](https://github.com/bwmarrin/dca) files, which are 
+Airhorn bot uses [DCA](https://github.com/Jacobbrewer1/dca) files, which are 
 pre-computed files that are easy to send to Discord.
 
 
 See the below example of creating a DCA file from a MP3 file.  This also works
-with WAV, FLAC, and many other file formats. Of course, you will need to [install](https://github.com/bwmarrin/dca/tree/master/cmd/dca#Getting-Started)
+with WAV, FLAC, and many other file formats. Of course, you will need to [install](https://github.com/Jacobbrewer1/dca/tree/master/cmd/dca#Getting-Started)
 FFmpeg and the DCA CLI first.
 
 ```sh

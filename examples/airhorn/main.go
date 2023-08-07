@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/Jacobbrewer1/discordgo"
 )
 
 func init() {
@@ -33,7 +33,7 @@ func main() {
 	err := loadSound()
 	if err != nil {
 		fmt.Println("Error loading sound: ", err)
-		fmt.Println("Please copy $GOPATH/src/github.com/bwmarrin/examples/airhorn/airhorn.dca to this directory.")
+		fmt.Println("Please copy $GOPATH/src/github.com/Jacobbrewer1/examples/airhorn/airhorn.dca to this directory.")
 		return
 	}
 
