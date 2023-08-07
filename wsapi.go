@@ -520,6 +520,9 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 // If you use the AddHandler() function to register a handler for the
 // "OnEvent" event then all events will be passed to that handler.
 func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
+	if s.onMessage != nil {
+		s.onMessage()
+	}
 
 	var err error
 	var reader io.Reader

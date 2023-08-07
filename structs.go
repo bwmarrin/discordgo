@@ -134,6 +134,16 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	onMessage func()
+}
+
+// SetOnMessage sets the onMessage function. This function is called when a message is received from the gateway.
+// This function is called before any other event handlers. This function is called synchronously. This function
+// should not be used to handle messages. Use AddHandler instead. This function is intended to be used to log
+// messages or for monitoring purposes.
+func (s *Session) SetOnMessage(onMessage func()) {
+	s.onMessage = onMessage
 }
 
 // Application stores values for a Discord Application
