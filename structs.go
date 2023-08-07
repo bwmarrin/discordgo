@@ -1256,7 +1256,7 @@ type Role struct {
 // https://discord.com/developers/docs/topics/permissions#role-object-role-flags
 type RoleFlags int
 
-// Block containing known RoleFlags values
+// Block containing known RoleFlags values.
 const (
 	// RoleFlagInPrompt Role can be selected by members in an onboarding prompt.
 	RoleFlagInPrompt RoleFlags = 1 << 0
