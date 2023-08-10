@@ -1101,6 +1101,22 @@ type GuildOnboarding struct {
 	Mode GuildOnboardingMode `json:"mode"`
 }
 
+// GuildOnboardingParams stores all the data needed to update discord onboarding settings.
+// https://discord.com/developers/docs/resources/guild#modify-guild-onboarding-json-params
+type GuildOnboardingParams struct {
+	// Prompts shown during onboarding and in the Channel & Roles tab.
+	Prompts []GuildOnboardingPrompt `json:"prompts,omitempty"`
+
+	// Channel IDs that members get opted into automatically.
+	DefaultChannelIDs []string `json:"default_channel_ids,omitempty"`
+
+	// Whether onboarding is enabled.
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// Mode of onboarding.
+	Mode GuildOnboardingMode `json:"mode,omitempty"`
+}
+
 // GuildOnboardingPrompt is a prompt shown during onboarding and in customize community.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-prompt-structure
 type GuildOnboardingPrompt struct {
@@ -2442,6 +2458,9 @@ const (
 
 	ErrCodeCannotUpdateAFinishedEvent             = 180000
 	ErrCodeFailedToCreateStageNeededForStageEvent = 180002
+
+	ErrCodeCannotEnableOnboardingRequirementsAreNotMet  = 350000
+	ErrCodeCannotUpdateOnboardingWhileBelowRequirements = 350001
 )
 
 // Intent is the type of a Gateway Intent

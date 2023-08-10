@@ -3265,6 +3265,22 @@ func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onb
 	return
 }
 
+// GuildOnboardingEdit edits Onboarding for a Guild.
+// guildID   : The ID of a Guild.
+// o 		     : A GuildOnboardingParams struct.
+func (s *Session) GuildOnboardingEdit(guildID string, o *GuildOnboardingParams, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
+	endpoint := EndpointGuildOnboarding(guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("PUT", endpoint, o, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &onboarding)
+	return
+}
+
 // ----------------------------------------------------------------------
 // Functions specific to auto moderation
 // ----------------------------------------------------------------------
