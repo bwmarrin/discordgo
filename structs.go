@@ -1088,7 +1088,7 @@ type GuildOnboarding struct {
 	// ID of the guild this onboarding is part of.
 	GuildID string `json:"guild_id"`
 
-	// Prompts shown during onboarding and in customize community.
+	// Prompts shown during onboarding and in the Channel & Roles tab.
 	Prompts []GuildOnboardingPrompt `json:"prompts"`
 
 	// Channel IDs that members get opted into automatically.
