@@ -60,6 +60,37 @@ type eventHandlerInstance struct {
 	eventHandler EventHandler
 }
 
+// SetEventNotifier is to set the channel that will receive all events. This should be used for debugging and
+// monitoring purposes only. It is not recommended to use this for handling events. This should be set before calling
+// Open() or OpenWithIntents().
+//
+// It is recommended that this is a buffered channel.
+//
+// A good example of the use for this channel is for using it against Prometheus to monitor the number of events
+// received by the bot. This can be done by using the following code:
+//
+//	// Create a buffered channel with a size of 1000.
+//	eventNotifier := make(chan any, 1000)
+//
+//	// Set the event notifier.
+//	dg.SetEventNotifier(eventNotifier)
+//
+//	// Start a goroutine to receive events from the eventNotifier channel.
+//	go func() {
+//		for e := range a.eventNotifier {
+//			switch t := e.(type) {
+//			case *discordgo.Event:
+//				monitoring.TotalDiscordEvents.WithLabelValues(t.Type).Inc()
+//			default:
+//				a.Error("Unknown event type", slog.String("type", fmt.Sprintf("%T", e)))
+//				monitoring.TotalDiscordEvents.WithLabelValues("unknown").Inc()
+//			}
+//		}
+//	}
+func (s *Session) SetEventNotifier(eventNotifier chan<- any) {
+	s.eventNotifier = eventNotifier
+}
+
 // addEventHandler adds an event handler that will be fired anytime
 // the Discord WSAPI matching eventHandler.Type() fires.
 func (s *Session) addEventHandler(eventHandler EventHandler) func() {
@@ -102,12 +133,14 @@ func (s *Session) addEventHandlerOnce(eventHandler EventHandler) func() {
 // to a struct corresponding to the event for which you want to listen.
 //
 // eg:
-//     Session.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-//     })
+//
+//	Session.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+//	})
 //
 // or:
-//     Session.AddHandler(func(s *discordgo.Session, m *discordgo.PresenceUpdate) {
-//     })
+//
+//	Session.AddHandler(func(s *discordgo.Session, m *discordgo.PresenceUpdate) {
+//	})
 //
 // List of events can be found at this page, with corresponding names in the
 // library for each event: https://discord.com/developers/docs/topics/gateway#event-names

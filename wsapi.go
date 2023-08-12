@@ -521,6 +521,17 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 // "OnEvent" event then all events will be passed to that handler.
 func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 
+	// If the eventNotifier channel is not full and not nil then send to channel.
+	if s.eventNotifier != nil {
+		select {
+		case s.eventNotifier <- message:
+		default:
+			// If the channel is full, drop the event. This is to prevent blocking the gateway. This is not a problem
+			// as the eventNotifier channel is only used for monitoring purposes. If you want to handle events, use
+			// AddHandler.
+		}
+	}
+
 	var err error
 	var reader io.Reader
 	reader = bytes.NewBuffer(message)
@@ -662,10 +673,10 @@ type voiceChannelJoinOp struct {
 
 // ChannelVoiceJoin joins the session user to a voice channel.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
 	s.log(LogInformational, "called")
@@ -709,10 +720,10 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 //
 // This should only be used when the VoiceServerUpdate will be intercepted and used elsewhere.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join, leave empty to disconnect.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join, leave empty to disconnect.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
 
 	s.log(LogInformational, "called")

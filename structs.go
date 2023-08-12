@@ -134,6 +134,9 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	// eventNotifier is used to notify the event handler of events
+	eventNotifier chan<- any
 }
 
 // Application stores values for a Discord Application
