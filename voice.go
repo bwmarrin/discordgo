@@ -298,7 +298,7 @@ func (v *VoiceConnection) open() (err error) {
 		if i > 20 { // only loop for up to 1 second total
 			return fmt.Errorf("did not receive voice Session ID in time")
 		}
-		// release the lock so other processes can populate the sessionID if a ws message is received
+		// Release the lock, so sessionID can be populated upon receiving a VoiceStateUpdate event.
 		v.Unlock()
 		time.Sleep(50 * time.Millisecond)
 		i++
