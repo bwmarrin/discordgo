@@ -215,6 +215,10 @@ const (
 	MessageFlagsLoading MessageFlags = 1 << 7
 	// MessageFlagsFailedToMentionSomeRolesInThread this message failed to mention some roles and add their members to the thread.
 	MessageFlagsFailedToMentionSomeRolesInThread MessageFlags = 1 << 8
+	// MessageFlagsSuppressNotifications this message will not trigger push and desktop notifications.
+	MessageFlagsSuppressNotifications MessageFlags = 1 << 12
+	// MessageFlagsSuppressNotifications this message is a voice message.
+	MessageFlagsIsVoiceMessage MessageFlags = 1 << 13
 )
 
 // File stores info about files you e.g. send in messages.
