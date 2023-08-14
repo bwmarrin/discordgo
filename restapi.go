@@ -3267,8 +3267,8 @@ func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onb
 
 // GuildOnboardingEdit edits Onboarding for a Guild.
 // guildID   : The ID of a Guild.
-// o 		     : A GuildOnboardingParams struct.
-func (s *Session) GuildOnboardingEdit(guildID string, o *GuildOnboardingParams, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
+// o 		     : A GuildOnboarding struct.
+func (s *Session) GuildOnboardingEdit(guildID string, o *GuildOnboarding, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
 	endpoint := EndpointGuildOnboarding(guildID)
 
 	var body []byte

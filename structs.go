@@ -1086,35 +1086,19 @@ const (
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object
 type GuildOnboarding struct {
 	// ID of the guild this onboarding is part of.
-	GuildID string `json:"guild_id"`
+	GuildID string `json:"guild_id,omitempty"`
 
-	// Prompts shown during onboarding and in the Channel & Roles tab.
-	Prompts []GuildOnboardingPrompt `json:"prompts"`
-
-	// Channel IDs that members get opted into automatically.
-	DefaultChannelIDs []string `json:"default_channel_ids"`
-
-	// Whether onboarding is enabled in the guild.
-	Enabled bool `json:"enabled"`
-
-	// Current mode of onboarding.
-	Mode GuildOnboardingMode `json:"mode"`
-}
-
-// GuildOnboardingParams stores all the data needed to update discord onboarding settings.
-// https://discord.com/developers/docs/resources/guild#modify-guild-onboarding-json-params
-type GuildOnboardingParams struct {
 	// Prompts shown during onboarding and in the Channel & Roles tab.
 	Prompts []GuildOnboardingPrompt `json:"prompts,omitempty"`
 
 	// Channel IDs that members get opted into automatically.
 	DefaultChannelIDs []string `json:"default_channel_ids,omitempty"`
 
-	// Whether onboarding is enabled.
+	// Whether onboarding is enabled in the guild.
 	Enabled *bool `json:"enabled,omitempty"`
 
 	// Mode of onboarding.
-	Mode GuildOnboardingMode `json:"mode,omitempty"`
+	Mode *GuildOnboardingMode `json:"mode,omitempty"`
 }
 
 // GuildOnboardingPrompt is a prompt shown during onboarding and in customize community.
