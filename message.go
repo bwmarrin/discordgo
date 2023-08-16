@@ -217,7 +217,7 @@ const (
 	MessageFlagsFailedToMentionSomeRolesInThread MessageFlags = 1 << 8
 	// MessageFlagsSuppressNotifications this message will not trigger push and desktop notifications.
 	MessageFlagsSuppressNotifications MessageFlags = 1 << 12
-	// MessageFlagsSuppressNotifications this message is a voice message.
+	// MessageFlagsIsVoiceMessage this message is a voice message.
 	MessageFlagsIsVoiceMessage MessageFlags = 1 << 13
 )
 
