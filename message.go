@@ -234,7 +234,7 @@ type MessageSend struct {
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Reference       *MessageReference       `json:"message_reference,omitempty"`
 	StickerIDs      []string                `json:"sticker_ids"`
-	Flags           int                     `json:"flags,omitempty"`
+	Flags           MessageFlags            `json:"flags,omitempty"`
 
 	// TODO: Remove this when compatibility is not required.
 	File *File `json:"-"`
