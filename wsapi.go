@@ -389,6 +389,26 @@ func (s *Session) UpdateListeningStatus(name string) (err error) {
 	return s.UpdateStatusComplex(*newUpdateStatusData(0, ActivityTypeListening, name, ""))
 }
 
+// UpdateCustomStatus is used to update the user's custom status.
+// If state!="" then set the custom status.
+// Else, set user to active and remove the custom status.
+func (s *Session) UpdateCustomStatus(state string) (err error) {
+	data := UpdateStatusData{
+		Status: "online",
+	}
+
+	if state != "" {
+		// Discord requires a non-empty activity name, therefore we provide "Custom Status" as a placeholder.
+		data.Activities = []*Activity{{
+			Name:  "Custom Status",
+			Type:  ActivityTypeCustom,
+			State: state,
+		}}
+	}
+
+	return s.UpdateStatusComplex(data)
+}
+
 // UpdateStatusComplex allows for sending the raw status update data untouched by discordgo.
 func (s *Session) UpdateStatusComplex(usd UpdateStatusData) (err error) {
 	// The comment does say "untouched by discordgo", but we might need to lie a bit here.
