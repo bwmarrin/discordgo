@@ -1837,6 +1837,9 @@ const (
 	AuditLogActionAutoModerationBlockMessage              AuditLogAction = 143
 	AuditLogActionAutoModerationFlagToChannel             AuditLogAction = 144
 	AuditLogActionAutoModerationUserCommunicationDisabled AuditLogAction = 145
+
+	AuditLogActionCreatorMonetizationRequestCreated AuditLogAction = 150
+	AuditLogActionCreatorMonetizationTermsAccepted  AuditLogAction = 151
 )
 
 // GuildMemberParams stores data needed to update a member
