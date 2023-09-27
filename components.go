@@ -174,6 +174,24 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
+// SelectMenuDefaultValueType represents type of the entity selected by default in auto-populated select menus.
+type SelectMenuDefaultValueType string
+
+// SelectMenuDefaultValue types.
+const (
+	SelectMenuDefaultValueUser    SelectMenuDefaultValueType = "user"
+	SelectMenuDefaultValueRole    SelectMenuDefaultValueType = "role"
+	SelectMenuDefaultValueChannel SelectMenuDefaultValueType = "channel"
+)
+
+// SelectMenuDefaultValue represents an entity selected by default in auto-populated select menus.
+type SelectMenuDefaultValue struct {
+	// ID of the entity.
+	ID string `json:"id"`
+	// Type of the entity.
+	Type SelectMenuDefaultValueType `json:"type"`
+}
+
 // SelectMenuType represents select menu type.
 type SelectMenuType ComponentType
 
@@ -198,9 +216,13 @@ type SelectMenu struct {
 	MinValues *int `json:"min_values,omitempty"`
 	// This value determines the maximal amount of selected items in the menu.
 	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
-	MaxValues int                `json:"max_values,omitempty"`
-	Options   []SelectMenuOption `json:"options,omitempty"`
-	Disabled  bool               `json:"disabled"`
+	MaxValues int `json:"max_values,omitempty"`
+	// List of default values for auto-populated select menu.
+	// NOTE: Number of entries should be in the range defined by MinValues and MaxValues.
+	DefaultValues *[]SelectMenuDefaultValue `json:"default_values,omitempty"`
+
+	Options  []SelectMenuOption `json:"options,omitempty"`
+	Disabled bool               `json:"disabled"`
 
 	// NOTE: Can only be used in SelectMenu with Channel menu type.
 	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
