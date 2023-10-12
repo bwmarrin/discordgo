@@ -1089,7 +1089,7 @@ type GuildOnboarding struct {
 	GuildID string `json:"guild_id,omitempty"`
 
 	// Prompts shown during onboarding and in the Channel & Roles tab.
-	Prompts []GuildOnboardingPrompt `json:"prompts,omitempty"`
+	Prompts *[]GuildOnboardingPrompt `json:"prompts,omitempty"`
 
 	// Channel IDs that members get opted into automatically.
 	DefaultChannelIDs []string `json:"default_channel_ids,omitempty"`
