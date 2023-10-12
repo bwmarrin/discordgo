@@ -1077,9 +1077,9 @@ type GuildOnboardingMode int
 // Block containing known GuildOnboardingMode values
 const (
 	// GuildOnboardingModeDefault counts default channels towards constraints
-	GuildOnboardingModeDefault = 0
+	GuildOnboardingModeDefault GuildOnboardingMode = 0
 	// GuildOnboardingModeAdvanced counts default channels and questions towards constraints
-	GuildOnboardingModeAdvanced = 1
+	GuildOnboardingModeAdvanced GuildOnboardingMode = 1
 )
 
 // GuildOnboarding represents the onboarding flow for a guild.
