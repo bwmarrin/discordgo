@@ -3250,8 +3250,8 @@ func (s *Session) GuildScheduledEventUsers(guildID, eventID string, limit int, w
 	return
 }
 
-// GuildOnboarding returns the onboarding flow for a guild.
-// guildID   : The ID of a Guild
+// GuildOnboarding returns onboarding configuration of a guild.
+// guildID   : The ID of the guild
 func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
 	endpoint := EndpointGuildOnboarding(guildID)
 
@@ -3265,9 +3265,9 @@ func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onb
 	return
 }
 
-// GuildOnboardingEdit edits Onboarding for a Guild.
-// guildID   : The ID of a Guild.
-// o 		     : A GuildOnboarding struct.
+// GuildOnboardingEdit edits onboarding configuration of a guild.
+// guildID   : The ID of the guild
+// o 		     : New GuildOnboarding data
 func (s *Session) GuildOnboardingEdit(guildID string, o *GuildOnboarding, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
 	endpoint := EndpointGuildOnboarding(guildID)
 
