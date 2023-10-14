@@ -3267,7 +3267,7 @@ func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onb
 
 // GuildOnboardingEdit edits onboarding configuration of a guild.
 // guildID   : The ID of the guild
-// o 		     : New GuildOnboarding data
+// o         : New GuildOnboarding data
 func (s *Session) GuildOnboardingEdit(guildID string, o *GuildOnboarding, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
 	endpoint := EndpointGuildOnboarding(guildID)
 
