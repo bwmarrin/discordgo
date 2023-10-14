@@ -1105,7 +1105,9 @@ type GuildOnboarding struct {
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-prompt-structure
 type GuildOnboardingPrompt struct {
 	// ID of the prompt.
-	ID string `json:"id"`
+	// NOTE: always requires to be a valid snowflake (e.g. "0"), see
+	// https://github.com/discord/discord-api-docs/issues/6320 for more information.
+	ID string `json:"id,omitempty"`
 
 	// Type of prompt.
 	Type GuildOnboardingPromptType `json:"type"`
@@ -1140,7 +1142,7 @@ const (
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-option-structure
 type GuildOnboardingPromptOption struct {
 	// ID of the prompt option.
-	ID string `json:"id"`
+	ID string `json:"id,omitempty"`
 
 	// IDs for channels a member is added to when the option is selected.
 	ChannelIDs []string `json:"channel_ids"`
