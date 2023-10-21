@@ -1074,11 +1074,11 @@ type GuildScheduledEventUser struct {
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-mode
 type GuildOnboardingMode int
 
-// Block containing known GuildOnboardingMode values
+// Block containing known GuildOnboardingMode values.
 const (
-	// GuildOnboardingModeDefault counts default channels towards constraints
+	// GuildOnboardingModeDefault counts default channels towards constraints.
 	GuildOnboardingModeDefault GuildOnboardingMode = 0
-	// GuildOnboardingModeAdvanced counts default channels and questions towards constraints
+	// GuildOnboardingModeAdvanced counts default channels and questions towards constraints.
 	GuildOnboardingModeAdvanced GuildOnboardingMode = 1
 )
 
