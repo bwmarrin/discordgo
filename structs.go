@@ -1088,7 +1088,7 @@ type GuildOnboarding struct {
 	// ID of the guild this onboarding is part of.
 	GuildID string `json:"guild_id,omitempty"`
 
-	// Prompts shown during onboarding and in the Channel & Roles tab.
+	// Prompts shown during onboarding and in the customize community (Channels & Roles) tab.
 	Prompts *[]GuildOnboardingPrompt `json:"prompts,omitempty"`
 
 	// Channel IDs that members get opted into automatically.
@@ -1101,7 +1101,7 @@ type GuildOnboarding struct {
 	Mode *GuildOnboardingMode `json:"mode,omitempty"`
 }
 
-// GuildOnboardingPrompt is a prompt shown during onboarding and in customize community.
+// GuildOnboardingPrompt is a prompt shown during onboarding and in the customize community (Channels & Roles) tab.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-prompt-structure
 type GuildOnboardingPrompt struct {
 	// ID of the prompt.
