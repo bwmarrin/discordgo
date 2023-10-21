@@ -1157,7 +1157,7 @@ type GuildOnboardingPromptOption struct {
 	Title string `json:"title"`
 
 	// Description of the option.
-	Description *string `json:"description"`
+	Description string `json:"description"`
 }
 
 // A GuildTemplate represents a replicable template for guild creation
