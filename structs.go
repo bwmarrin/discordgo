@@ -1109,7 +1109,7 @@ type GuildOnboardingPrompt struct {
 	// https://github.com/discord/discord-api-docs/issues/6320 for more information.
 	ID string `json:"id,omitempty"`
 
-	// Type of prompt.
+	// Type of the prompt.
 	Type GuildOnboardingPromptType `json:"type"`
 
 	// Options available within the prompt.
