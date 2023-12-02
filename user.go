@@ -30,7 +30,7 @@ const (
 // https://discord.com/developers/docs/resources/user#user-object-premium-types
 type UserPremiumType int
 
-// Valid UserFlags values
+// Valid UserPremiumType values
 const (
 	UserPremiumTypeNone         UserPremiumType = 0
 	UserPremiumTypeNitroClassic UserPremiumType = 1
