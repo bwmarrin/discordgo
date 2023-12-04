@@ -26,11 +26,11 @@ const (
 	UserFlagDiscordCertifiedModerator UserFlags = 1 << 18
 )
 
-// UserPremiumType is the premium type of a user (see UserPremiumType* consts)
+// UserPremiumType is the premium type of a user (see UserPremiumType* consts).
 // https://discord.com/developers/docs/resources/user#user-object-premium-types
 type UserPremiumType int
 
-// Valid UserPremiumType values
+// Valid UserPremiumType values.
 const (
 	UserPremiumTypeNone         UserPremiumType = 0
 	UserPremiumTypeNitroClassic UserPremiumType = 1
