@@ -24,6 +24,8 @@ const (
 	UserFlagVerifiedBot               UserFlags = 1 << 16
 	UserFlagVerifiedBotDeveloper      UserFlags = 1 << 17
 	UserFlagDiscordCertifiedModerator UserFlags = 1 << 18
+	UserFlagBotHTTPInteractions       UserFlags = 1 << 19
+	UserFlagActiveBotDeveloper        UserFlags = 1 << 22
 )
 
 // UserPremiumType is the type of premium (nitro) subscription a user has (see UserPremiumType* consts).
