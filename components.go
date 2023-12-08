@@ -174,7 +174,7 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
-// SelectMenuDefaultValueType represents type of the entity selected by default in auto-populated select menus.
+// SelectMenuDefaultValueType represents the type of an entity selected by default in auto-populated select menus.
 type SelectMenuDefaultValueType string
 
 // SelectMenuDefaultValue types.
