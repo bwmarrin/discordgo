@@ -219,7 +219,7 @@ type SelectMenu struct {
 	MaxValues int `json:"max_values,omitempty"`
 	// List of default values for auto-populated select menu.
 	// NOTE: Number of entries should be in the range defined by MinValues and MaxValues.
-	DefaultValues *[]SelectMenuDefaultValue `json:"default_values,omitempty"`
+	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
 
 	Options  []SelectMenuOption `json:"options,omitempty"`
 	Disabled bool               `json:"disabled"`
