@@ -2708,8 +2708,8 @@ func (s *Session) ThreadMemberRemove(threadID, memberID string, options ...Reque
 	return err
 }
 
-// ThreadMember returns thread member object for the specified member of a thread
-// withMember : Whether to include a guild member object for each thread member
+// ThreadMember returns thread member object for the specified member of a thread.
+// withMember : Whether to include a guild member object for each thread member.
 func (s *Session) ThreadMember(threadID, memberID string, withMember bool, options ...RequestOption) (member *ThreadMember, err error) {
 	uri := EndpointThreadMember(threadID, memberID)
 
@@ -2735,8 +2735,8 @@ func (s *Session) ThreadMember(threadID, memberID string, withMember bool, optio
 
 // ThreadMembers returns all members of specified thread.
 // limit      : Max number of thread members to return (1-100). Defaults to 100.
-// afterID    : Get thread members after this user ID
-// withMember : Whether to include a guild member object for each thread member
+// afterID    : Get thread members after this user ID.
+// withMember : Whether to include a guild member object for each thread member.
 func (s *Session) ThreadMembers(threadID string, limit int, withMember bool, afterID string, options ...RequestOption) (members []*ThreadMember, err error) {
 	uri := EndpointThreadMembers(threadID)
 
