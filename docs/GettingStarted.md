@@ -41,7 +41,7 @@ You must already have a working Go environment setup to use DiscordGo.  If you
 are new to Go and have not yet installed and tested it on your computer then 
 please visit [this page](https://golang.org/doc/install) first then I highly
 recommend you walk though [A Tour of Go](https://tour.golang.org/welcome/1) to
-help get your familiar with the Go language.  Also checkout the relevent Go plugin 
+help get your familiar with the Go language.  Also checkout the relevant Go plugin 
 for your editor &mdash; they are hugely helpful when developing Go code.
 
 * Vim &mdash; [vim-go](https://github.com/fatih/vim-go)
