@@ -530,7 +530,7 @@ type ThreadMember struct {
 	// The time the current user last joined the thread
 	JoinTimestamp time.Time `json:"join_timestamp"`
 	// Any user-thread settings, currently only used for notifications
-  Flags int `json:"flags"`
+	Flags int `json:"flags"`
 	// Additional information about the user
 	Member *Member `json:"member,omitempty"`
 }
