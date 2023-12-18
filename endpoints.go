@@ -8,22 +8,40 @@
 // This file contains variables for all known Discord end points.  All functions
 // throughout the Discordgo package use these variables for all connections
 // to Discord.  These are all exported and you may modify them if needed.
-
+// 修改：单独从var()里拿出来下面四个变量，让它们可以被其他包赋值
 package discordgo
 
 import "strconv"
+
+var EndpointDiscord string
+
+func SetEndpointDiscord(value string) {
+	EndpointDiscord = value
+}
+
+var EndpointCDN string
+
+func SetEndpointCDN(value string) {
+	EndpointCDN = value
+}
+
+var EndpointStatus string
+
+func SetEndpointStatus(value string) {
+	EndpointStatus = value
+}
 
 // APIVersion is the Discord API version used for the REST and Websocket API.
 var APIVersion = "9"
 
 // Known Discord API Endpoints.
 var (
-	EndpointStatus     = "https://status.discord.com/api/v2/"
+	// EndpointStatus     = "https://status.discord.com/api/v2/"
 	EndpointSm         = EndpointStatus + "scheduled-maintenances/"
 	EndpointSmActive   = EndpointSm + "active.json"
 	EndpointSmUpcoming = EndpointSm + "upcoming.json"
 
-	EndpointDiscord        = "https://discord.com/"
+	// EndpointDiscord        = "https://discord.com/"
 	EndpointAPI            = EndpointDiscord + "api/v" + APIVersion + "/"
 	EndpointGuilds         = EndpointAPI + "guilds/"
 	EndpointChannels       = EndpointAPI + "channels/"
@@ -34,7 +52,7 @@ var (
 	EndpointStickers       = EndpointAPI + "stickers/"
 	EndpointStageInstances = EndpointAPI + "stage-instances"
 
-	EndpointCDN             = "https://cdn.discordapp.com/"
+	// EndpointCDN             = "https://cdn.discordapp.com/"
 	EndpointCDNAttachments  = EndpointCDN + "attachments/"
 	EndpointCDNAvatars      = EndpointCDN + "avatars/"
 	EndpointCDNIcons        = EndpointCDN + "icons/"
@@ -49,8 +67,9 @@ var (
 	EndpointUser               = func(uID string) string { return EndpointUsers + uID }
 	EndpointUserAvatar         = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".png" }
 	EndpointUserAvatarAnimated = func(uID, aID string) string { return EndpointCDNAvatars + uID + "/" + aID + ".gif" }
-	EndpointDefaultUserAvatar  = func(idx int) string {
-		return EndpointCDN + "embed/avatars/" + strconv.Itoa(idx) + ".png"
+	EndpointDefaultUserAvatar  = func(uDiscriminator string) string {
+		uDiscriminatorInt, _ := strconv.Atoi(uDiscriminator)
+		return EndpointCDN + "embed/avatars/" + strconv.Itoa(uDiscriminatorInt%5) + ".png"
 	}
 	EndpointUserBanner = func(uID, cID string) string {
 		return EndpointCDNBanners + uID + "/" + cID + ".png"
@@ -103,7 +122,7 @@ var (
 	EndpointGuildScheduledEvents     = func(gID string) string { return EndpointGuilds + gID + "/scheduled-events" }
 	EndpointGuildScheduledEvent      = func(gID, eID string) string { return EndpointGuilds + gID + "/scheduled-events/" + eID }
 	EndpointGuildScheduledEventUsers = func(gID, eID string) string { return EndpointGuildScheduledEvent(gID, eID) + "/users" }
-	EndpointGuildTemplate            = func(tID string) string { return EndpointGuilds + "templates/" + tID }
+	EndpointGuildTemplate            = func(tID string) string { return EndpointGuilds + "/templates/" + tID }
 	EndpointGuildTemplates           = func(gID string) string { return EndpointGuilds + gID + "/templates" }
 	EndpointGuildTemplateSync        = func(gID, tID string) string { return EndpointGuilds + gID + "/templates/" + tID }
 	EndpointGuildMemberAvatar        = func(gId, uID, aID string) string {

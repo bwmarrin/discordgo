@@ -8,6 +8,7 @@
 // This file contains all structures for the discordgo package.  These
 // may be moved about later into separate files but I find it easier to have
 // them all located together.
+// 修改：增加MjGatewa字段用来方便赋值传参给gateway
 
 package discordgo
 
@@ -41,9 +42,6 @@ type Session struct {
 
 	// Should the session reconnect the websocket on errors.
 	ShouldReconnectOnError bool
-
-	// Should voice connections reconnect on a session reconnect.
-	ShouldReconnectVoiceOnSessionError bool
 
 	// Should the session retry requests when rate limited.
 	ShouldRetryOnRateLimit bool
@@ -128,6 +126,9 @@ type Session struct {
 
 	// stores sessions current Discord Gateway
 	gateway string
+
+	// 修改：增加MjGateway传参给gateway
+	MjGateway string
 
 	// stores session ID of current Gateway connection
 	sessionID string
@@ -443,7 +444,7 @@ type ChannelEdit struct {
 	Name                          string                 `json:"name,omitempty"`
 	Topic                         string                 `json:"topic,omitempty"`
 	NSFW                          *bool                  `json:"nsfw,omitempty"`
-	Position                      *int                   `json:"position,omitempty"`
+	Position                      int                    `json:"position"`
 	Bitrate                       int                    `json:"bitrate,omitempty"`
 	UserLimit                     int                    `json:"user_limit,omitempty"`
 	PermissionOverwrites          []*PermissionOverwrite `json:"permission_overwrites,omitempty"`
@@ -1741,18 +1742,14 @@ const (
 // AuditLogOptions optional data for the AuditLog
 // https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-optional-audit-entry-info
 type AuditLogOptions struct {
-	DeleteMemberDays              string               `json:"delete_member_days"`
-	MembersRemoved                string               `json:"members_removed"`
-	ChannelID                     string               `json:"channel_id"`
-	MessageID                     string               `json:"message_id"`
-	Count                         string               `json:"count"`
-	ID                            string               `json:"id"`
-	Type                          *AuditLogOptionsType `json:"type"`
-	RoleName                      string               `json:"role_name"`
-	ApplicationID                 string               `json:"application_id"`
-	AutoModerationRuleName        string               `json:"auto_moderation_rule_name"`
-	AutoModerationRuleTriggerType string               `json:"auto_moderation_rule_trigger_type"`
-	IntegrationType               string               `json:"integration_type"`
+	DeleteMemberDays string               `json:"delete_member_days"`
+	MembersRemoved   string               `json:"members_removed"`
+	ChannelID        string               `json:"channel_id"`
+	MessageID        string               `json:"message_id"`
+	Count            string               `json:"count"`
+	ID               string               `json:"id"`
+	Type             *AuditLogOptionsType `json:"type"`
+	RoleName         string               `json:"role_name"`
 }
 
 // AuditLogOptionsType of the AuditLogOption
@@ -1761,8 +1758,8 @@ type AuditLogOptionsType string
 
 // Valid Types for AuditLogOptionsType
 const (
-	AuditLogOptionsTypeRole   AuditLogOptionsType = "0"
-	AuditLogOptionsTypeMember AuditLogOptionsType = "1"
+	AuditLogOptionsTypeMember AuditLogOptionsType = "member"
+	AuditLogOptionsTypeRole   AuditLogOptionsType = "role"
 )
 
 // AuditLogAction is the Action of the AuditLog (see AuditLogAction* consts)
@@ -1823,7 +1820,7 @@ const (
 	AuditLogActionStickerDelete AuditLogAction = 92
 
 	AuditLogGuildScheduledEventCreate AuditLogAction = 100
-	AuditLogGuildScheduledEventUpdate AuditLogAction = 101
+	AuditLogGuildScheduledEventUpdare AuditLogAction = 101
 	AuditLogGuildScheduledEventDelete AuditLogAction = 102
 
 	AuditLogActionThreadCreate AuditLogAction = 110
@@ -1831,16 +1828,6 @@ const (
 	AuditLogActionThreadDelete AuditLogAction = 112
 
 	AuditLogActionApplicationCommandPermissionUpdate AuditLogAction = 121
-
-	AuditLogActionAutoModerationRuleCreate                AuditLogAction = 140
-	AuditLogActionAutoModerationRuleUpdate                AuditLogAction = 141
-	AuditLogActionAutoModerationRuleDelete                AuditLogAction = 142
-	AuditLogActionAutoModerationBlockMessage              AuditLogAction = 143
-	AuditLogActionAutoModerationFlagToChannel             AuditLogAction = 144
-	AuditLogActionAutoModerationUserCommunicationDisabled AuditLogAction = 145
-
-	AuditLogActionCreatorMonetizationRequestCreated AuditLogAction = 150
-	AuditLogActionCreatorMonetizationTermsAccepted  AuditLogAction = 151
 )
 
 // GuildMemberParams stores data needed to update a member
@@ -2368,7 +2355,7 @@ type Intent int
 const (
 	IntentGuilds                      Intent = 1 << 0
 	IntentGuildMembers                Intent = 1 << 1
-	IntentGuildModeration             Intent = 1 << 2
+	IntentGuildBans                   Intent = 1 << 2
 	IntentGuildEmojis                 Intent = 1 << 3
 	IntentGuildIntegrations           Intent = 1 << 4
 	IntentGuildWebhooks               Intent = 1 << 5
@@ -2387,8 +2374,6 @@ const (
 	IntentAutoModerationExecution     Intent = 1 << 21
 
 	// TODO: remove when compatibility is not needed
-
-	IntentGuildBans Intent = IntentGuildModeration
 
 	IntentsGuilds                 Intent = 1 << 0
 	IntentsGuildMembers           Intent = 1 << 1
