@@ -2712,7 +2712,7 @@ func (s *Session) ThreadMemberRemove(threadID, memberID string, options ...Reque
 }
 
 // ThreadMember returns thread member object for the specified member of a thread.
-// withMember : Whether to include a guild member object for each thread member.
+// withMember : Whether to include a guild member object.
 func (s *Session) ThreadMember(threadID, memberID string, withMember bool, options ...RequestOption) (member *ThreadMember, err error) {
 	uri := EndpointThreadMember(threadID, memberID)
 
