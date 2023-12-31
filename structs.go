@@ -1124,7 +1124,8 @@ type GuildOnboardingPrompt struct {
 	// Indicates whether the prompt is required before a user completes the onboarding flow.
 	Required bool `json:"required"`
 
-	// Indicates whether the prompt is present in the onboarding flow. If false, the prompt will only appear in the Channels & Roles tab.
+	// Indicates whether the prompt is present in the onboarding flow.
+	// If false, the prompt will only appear in the customize community (Channels & Roles) tab.
 	InOnboarding bool `json:"in_onboarding"`
 }
 
