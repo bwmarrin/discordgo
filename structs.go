@@ -1151,13 +1151,25 @@ type GuildOnboardingPromptOption struct {
 	RoleIDs []string `json:"role_ids"`
 
 	// Emoji of the option.
-	Emoji Emoji `json:"emoji"`
+	// NOTE: when creating or updating a prompt option
+	// EmojiID, EmojiName and EmojiAnimated should be used instead.
+	Emoji *Emoji `json:"emoji,omitempty"`
 
 	// Title of the option.
 	Title string `json:"title"`
 
 	// Description of the option.
 	Description string `json:"description"`
+
+	// ID of the option's emoji.
+	// NOTE: only used when creating or updating a prompt option.
+	EmojiID string `json:"emoji_id,omitempty"`
+	// Name of the option's emoji.
+	// NOTE: only used when creating or updating a prompt option.
+	EmojiName string `json:"emoji_name,omitempty"`
+	// Whether the option's emoji is animated.
+	// NOTE: only used when creating or updating a prompt option.
+	EmojiAnimated *bool `json:"emoji_animated,omitempty"`
 }
 
 // A GuildTemplate represents a replicable template for guild creation
