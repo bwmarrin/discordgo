@@ -1128,7 +1128,7 @@ type GuildOnboardingPrompt struct {
 	InOnboarding bool `json:"in_onboarding"`
 }
 
-// GuildOnboardingPromptType is the type of prompt during onboarding.
+// GuildOnboardingPromptType is the type of onboarding prompt.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-types
 type GuildOnboardingPromptType int
 
