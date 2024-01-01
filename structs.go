@@ -1085,7 +1085,7 @@ const (
 // GuildOnboarding represents the onboarding flow for a guild.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object
 type GuildOnboarding struct {
-	// ID of the guild this onboarding is part of.
+	// ID of the guild this onboarding flow is part of.
 	GuildID string `json:"guild_id,omitempty"`
 
 	// Prompts shown during onboarding and in the customize community (Channels & Roles) tab.
@@ -1129,11 +1129,11 @@ type GuildOnboardingPrompt struct {
 	InOnboarding bool `json:"in_onboarding"`
 }
 
-// GuildOnboardingPromptType is the type of onboarding prompt.
+// GuildOnboardingPromptType is the type of an onboarding prompt.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-types
 type GuildOnboardingPromptType int
 
-// Block containing known GuildOnboardingPromptType values
+// Block containing known GuildOnboardingPromptType values.
 const (
 	GuildOnboardingPromptTypeMultipleChoice GuildOnboardingPromptType = 0
 	GuildOnboardingPromptTypeDropdown       GuildOnboardingPromptType = 1
