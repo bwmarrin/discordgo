@@ -254,7 +254,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	}
 
 	if s.Debug {
-
 		log.Printf("API RESPONSE  STATUS :: %s\n", resp.Status)
 		for k, v := range resp.Header {
 			log.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
@@ -292,6 +291,114 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			// this method can cause longer delays than required
 
 			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence, options...)
+		} else {
+			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
+		}
+	case http.StatusUnauthorized:
+		if strings.Index(s.Token, "Bot ") != 0 {
+			s.log(LogInformational, ErrUnauthorized.Error())
+			err = ErrUnauthorized
+		}
+		fallthrough
+	default: // Error condition
+		err = newRestError(req, resp, response)
+	}
+
+	return
+}
+
+// RequestWithoutBucket make a request that doesn't bound to rate limit
+func (s *Session) RequestWithoutBucket(method, urlStr, contentType string, b []byte, sequence int, options ...RequestOption) (response []byte, err error) {
+	if s.Debug {
+		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
+		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
+	}
+
+	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
+	if err != nil {
+		return
+	}
+
+	// Not used on initial login..
+	// TODO: Verify if a login, otherwise complain about no-token
+	if s.Token != "" {
+		req.Header.Set("authorization", s.Token)
+	}
+
+	// Discord's API returns a 400 Bad Request is Content-Type is set, but the
+	// request body is empty.
+	if b != nil {
+		req.Header.Set("Content-Type", contentType)
+	}
+
+	// TODO: Make a configurable static variable.
+	req.Header.Set("User-Agent", s.UserAgent)
+
+	cfg := newRequestConfig(s, req)
+	for _, opt := range options {
+		opt(cfg)
+	}
+
+	if s.Debug {
+		for k, v := range req.Header {
+			log.Printf("API REQUEST   HEADER :: [%s] = %+v\n", k, v)
+		}
+	}
+
+	resp, err := cfg.Client.Do(req)
+	if err != nil {
+		return
+	}
+	defer func() {
+		err2 := resp.Body.Close()
+		if s.Debug && err2 != nil {
+			log.Println("error closing resp body")
+		}
+	}()
+
+	response, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+
+	if s.Debug {
+		log.Printf("API RESPONSE  STATUS :: %s\n", resp.Status)
+		for k, v := range resp.Header {
+			log.Printf("API RESPONSE  HEADER :: [%s] = %+v\n", k, v)
+		}
+		log.Printf("API RESPONSE    BODY :: [%s]\n\n\n", response)
+	}
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+	case http.StatusCreated:
+	case http.StatusNoContent:
+	case http.StatusBadGateway:
+		// Retry sending request if possible
+		if sequence < cfg.MaxRestRetries {
+
+			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
+			response, err = s.RequestWithoutBucket(method, urlStr, contentType, b, sequence+1, options...)
+		} else {
+			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
+		}
+	case 429: // TOO MANY REQUESTS - Rate limiting
+		rl := TooManyRequests{}
+		err = Unmarshal(response, &rl)
+		if err != nil {
+			s.log(LogError, "rate limit unmarshal error, %s", err)
+			return
+		}
+
+		if cfg.ShouldRetryOnRateLimit {
+			s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
+			s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
+
+			time.Sleep(rl.RetryAfter)
+			// we can make the above smarter
+			// this method can cause longer delays than required
+
+			response, err = s.RequestWithoutBucket(method, urlStr, contentType, b, sequence, options...)
 		} else {
 			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
 		}
@@ -3100,8 +3207,39 @@ func (s *Session) InteractionResponseDelete(interaction *Interaction, options ..
 // interaction : Interaction instance.
 // wait        : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
 // data        : Data of the message to send.
-func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams, options ...RequestOption) (*Message, error) {
-	return s.WebhookExecute(interaction.AppID, interaction.Token, wait, data, options...)
+func (s *Session) FollowupMessageCreate(interaction *Interaction, wait bool, data *WebhookParams, options ...RequestOption) (st *Message, err error) {
+	if data == nil {
+		return nil, errors.New("data is nil")
+	}
+
+	uri := EndpointWebhookToken(interaction.AppID, interaction.Token)
+
+	v := url.Values{}
+	// wait is always true for FollowupMessageCreate as mentioned in
+	// https://discord.com/developers/docs/interactions/receiving-and-responding#endpoints
+	v.Set("wait", "true")
+	uri += "?" + v.Encode()
+
+	var body []byte
+	contentType := "application/json"
+	if len(data.Files) > 0 {
+		if contentType, body, err = MultipartBodyWithJSON(data, data.Files); err != nil {
+			return st, err
+		}
+	} else {
+		if body, err = Marshal(data); err != nil {
+			return st, err
+		}
+	}
+
+	var response []byte
+	// FollowupMessageCreate not bound to global rate limit
+	if response, err = s.RequestWithoutBucket("POST", uri, contentType, body, 0, options...); err != nil {
+		return
+	}
+
+	err = unmarshal(response, &st)
+	return
 }
 
 // FollowupMessageEdit edits a followup message of an interaction.
