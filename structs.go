@@ -1101,6 +1101,16 @@ type GuildOnboarding struct {
 	Mode *GuildOnboardingMode `json:"mode,omitempty"`
 }
 
+// GuildOnboardingPromptType is the type of an onboarding prompt.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-types
+type GuildOnboardingPromptType int
+
+// Block containing known GuildOnboardingPromptType values.
+const (
+	GuildOnboardingPromptTypeMultipleChoice GuildOnboardingPromptType = 0
+	GuildOnboardingPromptTypeDropdown       GuildOnboardingPromptType = 1
+)
+
 // GuildOnboardingPrompt is a prompt shown during onboarding and in the customize community (Channels & Roles) tab.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-prompt-structure
 type GuildOnboardingPrompt struct {
@@ -1128,16 +1138,6 @@ type GuildOnboardingPrompt struct {
 	// If false, the prompt will only appear in the customize community (Channels & Roles) tab.
 	InOnboarding bool `json:"in_onboarding"`
 }
-
-// GuildOnboardingPromptType is the type of an onboarding prompt.
-// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-types
-type GuildOnboardingPromptType int
-
-// Block containing known GuildOnboardingPromptType values.
-const (
-	GuildOnboardingPromptTypeMultipleChoice GuildOnboardingPromptType = 0
-	GuildOnboardingPromptTypeDropdown       GuildOnboardingPromptType = 1
-)
 
 // GuildOnboardingPromptOption is an option available within an onboarding prompt.
 // https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-option-structure
