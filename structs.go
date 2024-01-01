@@ -1074,6 +1074,109 @@ type GuildScheduledEventUser struct {
 	Member                *Member `json:"member"`
 }
 
+// GuildOnboardingMode defines the criteria used to satisfy constraints that are required for enabling onboarding.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-mode
+type GuildOnboardingMode int
+
+// Block containing known GuildOnboardingMode values.
+const (
+	// GuildOnboardingModeDefault counts default channels towards constraints.
+	GuildOnboardingModeDefault GuildOnboardingMode = 0
+	// GuildOnboardingModeAdvanced counts default channels and questions towards constraints.
+	GuildOnboardingModeAdvanced GuildOnboardingMode = 1
+)
+
+// GuildOnboarding represents the onboarding flow for a guild.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object
+type GuildOnboarding struct {
+	// ID of the guild this onboarding flow is part of.
+	GuildID string `json:"guild_id,omitempty"`
+
+	// Prompts shown during onboarding and in the customize community (Channels & Roles) tab.
+	Prompts *[]GuildOnboardingPrompt `json:"prompts,omitempty"`
+
+	// Channel IDs that members get opted into automatically.
+	DefaultChannelIDs []string `json:"default_channel_ids,omitempty"`
+
+	// Whether onboarding is enabled in the guild.
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// Mode of onboarding.
+	Mode *GuildOnboardingMode `json:"mode,omitempty"`
+}
+
+// GuildOnboardingPromptType is the type of an onboarding prompt.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-types
+type GuildOnboardingPromptType int
+
+// Block containing known GuildOnboardingPromptType values.
+const (
+	GuildOnboardingPromptTypeMultipleChoice GuildOnboardingPromptType = 0
+	GuildOnboardingPromptTypeDropdown       GuildOnboardingPromptType = 1
+)
+
+// GuildOnboardingPrompt is a prompt shown during onboarding and in the customize community (Channels & Roles) tab.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-onboarding-prompt-structure
+type GuildOnboardingPrompt struct {
+	// ID of the prompt.
+	// NOTE: always requires to be a valid snowflake (e.g. "0"), see
+	// https://github.com/discord/discord-api-docs/issues/6320 for more information.
+	ID string `json:"id,omitempty"`
+
+	// Type of the prompt.
+	Type GuildOnboardingPromptType `json:"type"`
+
+	// Options available within the prompt.
+	Options []GuildOnboardingPromptOption `json:"options"`
+
+	// Title of the prompt.
+	Title string `json:"title"`
+
+	// Indicates whether users are limited to selecting one option for the prompt.
+	SingleSelect bool `json:"single_select"`
+
+	// Indicates whether the prompt is required before a user completes the onboarding flow.
+	Required bool `json:"required"`
+
+	// Indicates whether the prompt is present in the onboarding flow.
+	// If false, the prompt will only appear in the customize community (Channels & Roles) tab.
+	InOnboarding bool `json:"in_onboarding"`
+}
+
+// GuildOnboardingPromptOption is an option available within an onboarding prompt.
+// https://discord.com/developers/docs/resources/guild#guild-onboarding-object-prompt-option-structure
+type GuildOnboardingPromptOption struct {
+	// ID of the prompt option.
+	ID string `json:"id,omitempty"`
+
+	// IDs for channels a member is added to when the option is selected.
+	ChannelIDs []string `json:"channel_ids"`
+
+	// IDs for roles assigned to a member when the option is selected.
+	RoleIDs []string `json:"role_ids"`
+
+	// Emoji of the option.
+	// NOTE: when creating or updating a prompt option
+	// EmojiID, EmojiName and EmojiAnimated should be used instead.
+	Emoji *Emoji `json:"emoji,omitempty"`
+
+	// Title of the option.
+	Title string `json:"title"`
+
+	// Description of the option.
+	Description string `json:"description"`
+
+	// ID of the option's emoji.
+	// NOTE: only used when creating or updating a prompt option.
+	EmojiID string `json:"emoji_id,omitempty"`
+	// Name of the option's emoji.
+	// NOTE: only used when creating or updating a prompt option.
+	EmojiName string `json:"emoji_name,omitempty"`
+	// Whether the option's emoji is animated.
+	// NOTE: only used when creating or updating a prompt option.
+	EmojiAnimated *bool `json:"emoji_animated,omitempty"`
+}
+
 // A GuildTemplate represents a replicable template for guild creation
 type GuildTemplate struct {
 	// The unique code for the guild template
@@ -2371,6 +2474,9 @@ const (
 
 	ErrCodeCannotUpdateAFinishedEvent             = 180000
 	ErrCodeFailedToCreateStageNeededForStageEvent = 180002
+
+	ErrCodeCannotEnableOnboardingRequirementsAreNotMet  = 350000
+	ErrCodeCannotUpdateOnboardingWhileBelowRequirements = 350001
 )
 
 // Intent is the type of a Gateway Intent

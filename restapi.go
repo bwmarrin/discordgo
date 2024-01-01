@@ -3281,6 +3281,37 @@ func (s *Session) GuildScheduledEventUsers(guildID, eventID string, limit int, w
 	return
 }
 
+// GuildOnboarding returns onboarding configuration of a guild.
+// guildID   : The ID of the guild
+func (s *Session) GuildOnboarding(guildID string, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
+	endpoint := EndpointGuildOnboarding(guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &onboarding)
+	return
+}
+
+// GuildOnboardingEdit edits onboarding configuration of a guild.
+// guildID   : The ID of the guild
+// o         : New GuildOnboarding data
+func (s *Session) GuildOnboardingEdit(guildID string, o *GuildOnboarding, options ...RequestOption) (onboarding *GuildOnboarding, err error) {
+	endpoint := EndpointGuildOnboarding(guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("PUT", endpoint, o, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &onboarding)
+	return
+}
+
 // ----------------------------------------------------------------------
 // Functions specific to auto moderation
 // ----------------------------------------------------------------------
