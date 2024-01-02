@@ -115,8 +115,8 @@ var (
 		return EndpointCDNGuilds + gId + "/users/" + uID + "/avatars/" + aID + ".gif"
 	}
 
-	EndpointRoleIcon = func(rID, cID string) string {
-		return EndpointCDNRoleIcons + rID + "/" + cID + ".png"
+	EndpointRoleIcon = func(rID, hash string) string {
+		return EndpointCDNRoleIcons + rID + "/" + hash + ".png"
 	}
 
 	EndpointChannel                             = func(cID string) string { return EndpointChannels + cID }
