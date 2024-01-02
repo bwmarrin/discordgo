@@ -1252,7 +1252,7 @@ func (r *Role) Mention() string {
 	return fmt.Sprintf("<@&%s>", r.ID)
 }
 
-// IconURL returns the URL of the users's banner image.
+// IconURL returns the URL of the role's icon.
 //
 //	size:    The size of the desired role icon as a power of two
 //	         Image size can be any power of two between 16 and 4096.
