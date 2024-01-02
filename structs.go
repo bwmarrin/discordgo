@@ -1281,6 +1281,12 @@ type RoleParams struct {
 	Permissions *int64 `json:"permissions,omitempty,string"`
 	// Whether this role is mentionable
 	Mentionable *bool `json:"mentionable,omitempty"`
+	// The role's unicode emoji.
+	// NOTE: can only be set if the guild has the ROLE_ICONS feature.
+	UnicodeEmoji *string `json:"unicode_emoji,omitempty"`
+	// The role's icon image encoded in base64.
+	// NOTE: can only be set if the guild has the ROLE_ICONS feature.
+	Icon *string `json:"icon,omitempty"`
 }
 
 // Roles are a collection of Role
