@@ -45,7 +45,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "📜",
 									},
 									Label: "Documentation",
@@ -53,7 +53,7 @@ var (
 									URL:   "https://discord.com/developers/docs/interactions/message-components#buttons",
 								},
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🔧",
 									},
 									Label: "Discord developers",
@@ -61,7 +61,7 @@ var (
 									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🦫",
 									},
 									Label: "Discord Gophers",
@@ -88,7 +88,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🔧",
 									},
 									Label: "Discord developers",
@@ -96,7 +96,7 @@ var (
 									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🦫",
 									},
 									Label: "Discord Gophers",
@@ -182,7 +182,7 @@ var (
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "📜",
 									},
 									Label: "Documentation",
@@ -190,7 +190,7 @@ var (
 									URL:   "https://discord.com/developers/docs/interactions/message-components#select-menus",
 								},
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🔧",
 									},
 									Label: "Discord developers",
@@ -198,7 +198,7 @@ var (
 									URL:   "https://discord.gg/discord-developers",
 								},
 								discordgo.Button{
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🦫",
 									},
 									Label: "Discord Gophers",
@@ -251,7 +251,7 @@ var (
 									Disabled: false,
 									// Link buttons don't require CustomID and do not trigger the gateway/HTTP event
 									URL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "🤷",
 									},
 								},
