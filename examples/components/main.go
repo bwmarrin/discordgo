@@ -297,7 +297,7 @@ var (
 												// As with components, this things must have their own unique "id" to identify which is which.
 												// In this case such id is Value field.
 												Value: "go",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🦦",
 												},
 												// You can also make it a default option, but in this case we won't.
@@ -307,7 +307,7 @@ var (
 											{
 												Label: "JS",
 												Value: "js",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🟨",
 												},
 												Description: "JavaScript programming language",
@@ -315,7 +315,7 @@ var (
 											{
 												Label: "Python",
 												Value: "py",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🐍",
 												},
 												Description: "Python programming language",
@@ -352,7 +352,7 @@ var (
 												Value:       "go",
 												// Default works the same for multi-select menus.
 												Default: false,
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🦦",
 												},
 											},
@@ -360,7 +360,7 @@ var (
 												Label:       "JS",
 												Description: "Multiparadigm OOP language",
 												Value:       "javascript",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🟨",
 												},
 											},
@@ -368,7 +368,7 @@ var (
 												Label:       "Python",
 												Description: "OOP prototyping programming language",
 												Value:       "python",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🐍",
 												},
 											},
@@ -376,7 +376,7 @@ var (
 												Label:       "Web",
 												Description: "Web related technologies",
 												Value:       "web",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "🌐",
 												},
 											},
@@ -384,7 +384,7 @@ var (
 												Label:       "Desktop",
 												Description: "Desktop applications",
 												Value:       "desktop",
-												Emoji: discordgo.ComponentEmoji{
+												Emoji: &discordgo.ComponentEmoji{
 													Name: "💻",
 												},
 											},
