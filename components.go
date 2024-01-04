@@ -166,10 +166,10 @@ func (Button) Type() ComponentType {
 
 // SelectMenuOption represents an option for a select menu.
 type SelectMenuOption struct {
-	Label       string         `json:"label,omitempty"`
-	Value       string         `json:"value"`
-	Description string         `json:"description"`
-	Emoji       ComponentEmoji `json:"emoji"`
+	Label       string          `json:"label,omitempty"`
+	Value       string          `json:"value"`
+	Description string          `json:"description"`
+	Emoji       *ComponentEmoji `json:"emoji,omitempty"`
 	// Determines whenever option is selected by default or not.
 	Default bool `json:"default"`
 }
