@@ -145,12 +145,19 @@ func (b Button) MarshalJSON() ([]byte, error) {
 		b.Style = PrimaryButton
 	}
 
+	var emoji *ComponentEmoji
+	if b.Emoji.ID != "" || b.Emoji.Name != "" {
+		emoji = &b.Emoji
+	}
+
 	return json.Marshal(struct {
 		button
-		Type ComponentType `json:"type"`
+		Type  ComponentType   `json:"type"`
+		Emoji *ComponentEmoji `json:"emoji,omitempty"`
 	}{
 		button: button(b),
 		Type:   b.Type(),
+		Emoji:  emoji,
 	})
 }
 
