@@ -176,6 +176,24 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
+// MarshalJSON is a method for marshalling SelectMenuOption to a JSON object.
+func (o SelectMenuOption) MarshalJSON() ([]byte, error) {
+	type selectMenuOption SelectMenuOption
+
+	var emoji *ComponentEmoji
+	if o.Emoji.ID != "" || o.Emoji.Name != "" {
+		emoji = &o.Emoji
+	}
+
+	return Marshal(struct {
+		selectMenuOption
+		Emoji *ComponentEmoji `json:"emoji,omitempty"`
+	}{
+		selectMenuOption: selectMenuOption(o),
+		Emoji:            emoji,
+	})
+}
+
 // SelectMenu represents select menu component.
 type SelectMenu struct {
 	CustomID string `json:"custom_id,omitempty"`
