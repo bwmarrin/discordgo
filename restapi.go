@@ -1803,13 +1803,13 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit, options ...RequestOp
 			return
 		}
 	}
-
-	for _, embed := range *m.Embeds {
-		if embed.Type == "" {
-			embed.Type = "rich"
+	if m.Embeds != nil {
+		for _, embed := range *m.Embeds {
+			if embed.Type == "" {
+				embed.Type = "rich"
+			}
 		}
 	}
-
 	endpoint := EndpointChannelMessage(m.Channel, m.ID)
 
 	var response []byte
