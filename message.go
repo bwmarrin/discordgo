@@ -252,7 +252,7 @@ type MessageSend struct {
 type MessageEdit struct {
 	Content         *string                 `json:"content,omitempty"`
 	Components      *[]MessageComponent     `json:"components,omitempty"`
-	Embeds          []*MessageEmbed         `json:"embeds,omitempty"`
+	Embeds          *[]*MessageEmbed         `json:"embeds,omitempty"`
 	AllowedMentions *MessageAllowedMentions `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlags            `json:"flags,omitempty"`
 	// Files to append to the message
