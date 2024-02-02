@@ -1803,6 +1803,7 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit, options ...RequestOp
 			return
 		}
 	}
+
 	if m.Embeds != nil {
 		for _, embed := range *m.Embeds {
 			if embed.Type == "" {
@@ -1810,6 +1811,7 @@ func (s *Session) ChannelMessageEditComplex(m *MessageEdit, options ...RequestOp
 			}
 		}
 	}
+
 	endpoint := EndpointChannelMessage(m.Channel, m.ID)
 
 	var response []byte
