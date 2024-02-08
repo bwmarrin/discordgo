@@ -15,7 +15,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.21"
+          go-version: "1.22"
       - name: Check diff between gofmt and code
         run: diff <(gofmt -d .) <(echo -n)
   
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ["1.13", "1.14", "1.15", "1.16", "1.17", "1.18", "1.19", "1.20", "1.21"]
+        go-version: ["1.13", "1.14", "1.15", "1.16", "1.17", "1.18", "1.19", "1.20", "1.21", "1.22"]
     steps:
       - name: Code
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.21"
+          go-version: "1.22"
       - name: Go vet
         run: go vet -x ./...
 
