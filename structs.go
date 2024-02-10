@@ -656,6 +656,13 @@ type Sticker struct {
 	SortValue   int           `json:"sort_value"`
 }
 
+// StickerItem represents the smallest amount of data required to render a sticker. A partial sticker object.
+type StickerItem struct {
+	ID         string        `json:"id"`
+	Name       string        `json:"name"`
+	FormatType StickerFormat `json:"format_type"`
+}
+
 // StickerPack represents a pack of standard stickers.
 type StickerPack struct {
 	ID             string     `json:"id"`

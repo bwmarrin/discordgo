@@ -149,7 +149,7 @@ type Message struct {
 	Thread *Channel `json:"thread,omitempty"`
 
 	// An array of Sticker objects, if any were sent.
-	StickerItems []*Sticker `json:"sticker_items"`
+	StickerItems []*StickerItem `json:"sticker_items"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
