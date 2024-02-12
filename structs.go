@@ -2268,20 +2268,23 @@ const (
 	PermissionCreatePrivateThreads  = 0x0000001000000000
 	PermissionUseExternalStickers   = 0x0000002000000000
 	PermissionSendMessagesInThreads = 0x0000004000000000
+	PermissionSendVoiceMessages     = 0x0000400000000000
 )
 
 // Constants for the different bit offsets of voice permissions
 const (
-	PermissionVoicePrioritySpeaker = 0x0000000000000100
-	PermissionVoiceStreamVideo     = 0x0000000000000200
-	PermissionVoiceConnect         = 0x0000000000100000
-	PermissionVoiceSpeak           = 0x0000000000200000
-	PermissionVoiceMuteMembers     = 0x0000000000400000
-	PermissionVoiceDeafenMembers   = 0x0000000000800000
-	PermissionVoiceMoveMembers     = 0x0000000001000000
-	PermissionVoiceUseVAD          = 0x0000000002000000
-	PermissionVoiceRequestToSpeak  = 0x0000000100000000
-	PermissionUseActivities        = 0x0000008000000000
+	PermissionVoicePrioritySpeaker   = 0x0000000000000100
+	PermissionVoiceStreamVideo       = 0x0000000000000200
+	PermissionVoiceConnect           = 0x0000000000100000
+	PermissionVoiceSpeak             = 0x0000000000200000
+	PermissionVoiceMuteMembers       = 0x0000000000400000
+	PermissionVoiceDeafenMembers     = 0x0000000000800000
+	PermissionVoiceMoveMembers       = 0x0000000001000000
+	PermissionVoiceUseVAD            = 0x0000000002000000
+	PermissionVoiceRequestToSpeak    = 0x0000000100000000
+	PermissionUseActivities          = 0x0000008000000000
+	PermissionVoiceUseSoundboard     = 0x0000040000000000
+	PermissionVoiceUseExternalSounds = 0x0000200000000000
 )
 
 // Constants for general management.
@@ -2292,21 +2295,24 @@ const (
 	PermissionManageWebhooks  = 0x0000000020000000
 	PermissionManageEmojis    = 0x0000000040000000
 	PermissionManageEvents    = 0x0000000200000000
+	PermissionCreateEvents    = 0x0000100000000000
 )
 
 // Constants for the different bit offsets of general permissions
 const (
-	PermissionCreateInstantInvite = 0x0000000000000001
-	PermissionKickMembers         = 0x0000000000000002
-	PermissionBanMembers          = 0x0000000000000004
-	PermissionAdministrator       = 0x0000000000000008
-	PermissionManageChannels      = 0x0000000000000010
-	PermissionManageServer        = 0x0000000000000020
-	PermissionAddReactions        = 0x0000000000000040
-	PermissionViewAuditLogs       = 0x0000000000000080
-	PermissionViewChannel         = 0x0000000000000400
-	PermissionViewGuildInsights   = 0x0000000000080000
-	PermissionModerateMembers     = 0x0000010000000000
+	PermissionCreateInstantInvite       = 0x0000000000000001
+	PermissionKickMembers               = 0x0000000000000002
+	PermissionBanMembers                = 0x0000000000000004
+	PermissionAdministrator             = 0x0000000000000008
+	PermissionManageChannels            = 0x0000000000000010
+	PermissionManageServer              = 0x0000000000000020
+	PermissionAddReactions              = 0x0000000000000040
+	PermissionViewAuditLogs             = 0x0000000000000080
+	PermissionViewChannel               = 0x0000000000000400
+	PermissionViewGuildInsights         = 0x0000000000080000
+	PermissionModerateMembers           = 0x0000010000000000
+	PermissionViewMonetizationAnalytics = 0x0000020000000000
+	PermissionCreateGuildExpressions    = 0x0000080000000000
 
 	PermissionAllText = PermissionViewChannel |
 		PermissionSendMessages |
