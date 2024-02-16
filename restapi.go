@@ -2270,7 +2270,7 @@ func (s *Session) WebhookWithToken(webhookID, token string, options ...RequestOp
 // webhookID: The ID of a webhook.
 // name     : The name of the webhook.
 // avatar   : The avatar of the webhook.
-func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string, options ...RequestOption) (st *Role, err error) {
+func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string, options ...RequestOption) (st *Webhook, err error) {
 
 	data := struct {
 		Name      string `json:"name,omitempty"`
@@ -2293,7 +2293,7 @@ func (s *Session) WebhookEdit(webhookID, name, avatar, channelID string, options
 // token    : The auth token for the webhook.
 // name     : The name of the webhook.
 // avatar   : The avatar of the webhook.
-func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string, options ...RequestOption) (st *Role, err error) {
+func (s *Session) WebhookEditWithToken(webhookID, token, name, avatar string, options ...RequestOption) (st *Webhook, err error) {
 
 	data := struct {
 		Name   string `json:"name,omitempty"`
