@@ -1362,7 +1362,7 @@ type Role struct {
 	Flags RoleFlags `json:"flags"`
 }
 
-// RoleFlags is the flags of "role" (see RoleFlags* consts)
+// RoleFlags represent the flags of a Role.
 // https://discord.com/developers/docs/topics/permissions#role-object-role-flags
 type RoleFlags int
 
