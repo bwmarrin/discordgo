@@ -1368,7 +1368,7 @@ type RoleFlags int
 
 // Block containing known RoleFlags values.
 const (
-	// RoleFlagInPrompt indicates a Role to be selectable by members in an onboarding prompt.
+	// RoleFlagInPrompt indicates whether the Role is selectable by members in an onboarding prompt.
 	RoleFlagInPrompt RoleFlags = 1 << 0
 )
 
