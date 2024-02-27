@@ -1268,12 +1268,14 @@ func (g *Guild) BannerURL(size string) string {
 
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Icon        string         `json:"icon"`
-	Owner       bool           `json:"owner"`
-	Permissions int64          `json:"permissions,string"`
-	Features    []GuildFeature `json:"features"`
+	ID                       string         `json:"id"`
+	Name                     string         `json:"name"`
+	Icon                     string         `json:"icon"`
+	Owner                    bool           `json:"owner"`
+	Permissions              int64          `json:"permissions,string"`
+	Features                 []GuildFeature `json:"features"`
+	ApproximateMemberCount   int            `json:"approximate_member_count"`
+	ApproximatePresenceCount int            `json:"approximate_presence_count"`
 }
 
 // GuildFeature indicates the presence of a feature in a guild
