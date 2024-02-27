@@ -1475,13 +1475,13 @@ type MemberFlags int
 
 // Block containing known MemberFlags values.
 const (
-	// Member has left and rejoined the guild.
+	// MemberFlagDidRejoin indicates whether the Member has left and rejoined the guild.
 	MemberFlagDidRejoin MemberFlags = 1 << 0
-	// Member has completed onboarding.
+	// MemberFlagCompletedOnboarding indicates whether the Member has completed onboarding.
 	MemberFlagCompletedOnboarding MemberFlags = 1 << 1
-	// Member is exempt from guild verification requirements.
+	// MemberFlagBypassVerification indicates whether the Member is exempt from guild verification requirements.
 	MemberFlagBypassVerification MemberFlags = 1 << 2
-	// Member has started onboarding.
+	// MemberFlagStartedOnboarding indicates whether the Member has started onboarding.
 	MemberFlagStartedOnboarding MemberFlags = 1 << 3
 )
 
