@@ -1479,8 +1479,8 @@ const (
 	MemberFlagDidRejoin MemberFlags = 1 << 0
 	// MemberFlagCompletedOnboarding indicates whether the Member has completed onboarding.
 	MemberFlagCompletedOnboarding MemberFlags = 1 << 1
-	// MemberFlagBypassVerification indicates whether the Member is exempt from guild verification requirements.
-	MemberFlagBypassVerification MemberFlags = 1 << 2
+	// MemberFlagBypassesVerification indicates whether the Member is exempt from guild verification requirements.
+	MemberFlagBypassesVerification MemberFlags = 1 << 2
 	// MemberFlagStartedOnboarding indicates whether the Member has started onboarding.
 	MemberFlagStartedOnboarding MemberFlags = 1 << 3
 )
