@@ -50,3 +50,32 @@ func TestGettingEmojisFromMessage(t *testing.T) {
 	}
 
 }
+
+func TestMember_DisplayName(t *testing.T) {
+	user := &User{
+		GlobalName: "Global",
+	}
+	t.Run("no server nickname set", func(t *testing.T) {
+		m := &Message{
+			Member: &Member{
+				Nick: "",
+			},
+			Author: user,
+		}
+		if dn := m.DisplayName(); dn != user.GlobalName {
+			t.Errorf("Member.DisplayName() = %v, want %v", dn, user.GlobalName)
+		}
+	})
+
+	t.Run("server nickname set", func(t *testing.T) {
+		m := &Message{
+			Member: &Member{
+				Nick: "Server",
+			},
+			Author: user,
+		}
+		if dn := m.DisplayName(); dn != m.Member.Nick {
+			t.Errorf("Member.DisplayName() = %v, want %v", dn, m.Member.Nick)
+		}
+	})
+}

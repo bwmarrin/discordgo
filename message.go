@@ -567,3 +567,12 @@ type MessageInteraction struct {
 	// Member is only present when the interaction is from a guild.
 	Member *Member `json:"member"`
 }
+
+// DisplayName returns the member's guild nickname if they have one,
+// otherwise it returns their discord display name.
+func (m *Message) DisplayName() string {
+	if m.Member.Nick != "" {
+		return m.Member.Nick
+	}
+	return m.Author.GlobalName
+}
