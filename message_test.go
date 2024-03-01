@@ -51,7 +51,7 @@ func TestGettingEmojisFromMessage(t *testing.T) {
 
 }
 
-func TestMember_DisplayName(t *testing.T) {
+func TestMessage_DisplayName(t *testing.T) {
 	user := &User{
 		GlobalName: "Global",
 	}
