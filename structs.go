@@ -1562,6 +1562,8 @@ func (m *Member) AvatarURL(size string) string {
 func (m *Member) DisplayName() string {
 	if m.Nick != "" {
 		return m.Nick
+	} else if m.User.Bot {
+		return m.User.Username
 	}
 	return m.User.GlobalName
 }

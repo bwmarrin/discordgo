@@ -573,6 +573,8 @@ type MessageInteraction struct {
 func (m *Message) DisplayName() string {
 	if m.Member.Nick != "" {
 		return m.Member.Nick
+	} else if m.Author.Bot {
+		return m.Author.Username
 	}
 	return m.Author.GlobalName
 }

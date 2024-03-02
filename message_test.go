@@ -78,4 +78,33 @@ func TestMessage_DisplayName(t *testing.T) {
 			t.Errorf("Member.DisplayName() = %v, want %v", dn, m.Member.Nick)
 		}
 	})
+
+	bot := &User{
+		Username: "Bot",
+		Bot:      true,
+	}
+
+	t.Run("bot no server nickname set", func(t *testing.T) {
+		m := &Message{
+			Member: &Member{
+				Nick: "",
+			},
+			Author: bot,
+		}
+		if dn := m.DisplayName(); dn != m.Author.Username {
+			t.Errorf("Member.DisplayName() = %v, want %v", dn, m.Author.Username)
+		}
+	})
+
+	t.Run("bot server nickname set", func(t *testing.T) {
+		m := &Message{
+			Member: &Member{
+				Nick: "Server",
+			},
+			Author: bot,
+		}
+		if dn := m.DisplayName(); dn != m.Member.Nick {
+			t.Errorf("Member.DisplayName() = %v, want %v", dn, m.Member.Nick)
+		}
+	})
 }
