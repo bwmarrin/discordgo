@@ -1362,7 +1362,22 @@ type Role struct {
 
 	// The emoji assigned to this role.
 	UnicodeEmoji string `json:"unicode_emoji"`
+
+	// The flags of the role, which describe its extra features.
+	// This is a combination of bit masks; the presence of a certain flag can
+	// be checked by performing a bitwise AND between this int and the flag.
+	Flags RoleFlags `json:"flags"`
 }
+
+// RoleFlags represent the flags of a Role.
+// https://discord.com/developers/docs/topics/permissions#role-object-role-flags
+type RoleFlags int
+
+// Block containing known RoleFlags values.
+const (
+	// RoleFlagInPrompt indicates whether the Role is selectable by members in an onboarding prompt.
+	RoleFlagInPrompt RoleFlags = 1 << 0
+)
 
 // Mention returns a string which mentions the role
 func (r *Role) Mention() string {
