@@ -1356,7 +1356,7 @@ type Role struct {
 	// The emoji assigned to this role.
 	UnicodeEmoji string `json:"unicode_emoji"`
 
-	// The flags of the role, which describe extra features of a role.
+	// The flags of the role, which describe its extra features.
 	// This is a combination of bit masks; the presence of a certain permission can
 	// be checked by performing a bitwise AND between this int and the flag.
 	Flags RoleFlags `json:"flags"`
