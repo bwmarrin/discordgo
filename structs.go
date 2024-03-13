@@ -1275,12 +1275,12 @@ type UserGuild struct {
 	Permissions int64          `json:"permissions,string"`
 	Features    []GuildFeature `json:"features"`
 
-	// Approximate number of members in this guild
-	// NOTE: this field is only filled when withCounts is true
+	// Approximate number of members in this guild.
+	// NOTE: this field is only filled when withCounts is true.
 	ApproximateMemberCount int `json:"approximate_member_count"`
 
-	// Approximate number of members in this guild
-	// NOTE: this field is only filled when withCounts is true
+	// Approximate number of members in this guild.
+	// NOTE: this field is only filled when withCounts is true.
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 }
 
