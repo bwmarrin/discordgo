@@ -427,7 +427,7 @@ func (s *Session) UserGuildMember(guildID string, options ...RequestOption) (st 
 // limit       : The number guilds that can be returned. (max 200)
 // beforeID    : If provided all guilds returned will be before given ID.
 // afterID     : If provided all guilds returned will be after given ID.
-// withCounts  : Whether to include approximate member and presence counts or not
+// withCounts  : Whether to include approximate member and presence counts or not.
 func (s *Session) UserGuilds(limit int, beforeID, afterID string, withCounts bool, options ...RequestOption) (st []*UserGuild, err error) {
 
 	v := url.Values{}
