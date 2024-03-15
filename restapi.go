@@ -424,10 +424,11 @@ func (s *Session) UserGuildMember(guildID string, options ...RequestOption) (st 
 }
 
 // UserGuilds returns an array of UserGuild structures for all guilds.
-// limit     : The number guilds that can be returned. (max 100)
-// beforeID  : If provided all guilds returned will be before given ID.
-// afterID   : If provided all guilds returned will be after given ID.
-func (s *Session) UserGuilds(limit int, beforeID, afterID string, options ...RequestOption) (st []*UserGuild, err error) {
+// limit       : The number guilds that can be returned. (max 200)
+// beforeID    : If provided all guilds returned will be before given ID.
+// afterID     : If provided all guilds returned will be after given ID.
+// withCounts  : Whether to include approximate member and presence counts or not.
+func (s *Session) UserGuilds(limit int, beforeID, afterID string, withCounts bool, options ...RequestOption) (st []*UserGuild, err error) {
 
 	v := url.Values{}
 
@@ -439,6 +440,9 @@ func (s *Session) UserGuilds(limit int, beforeID, afterID string, options ...Req
 	}
 	if beforeID != "" {
 		v.Set("before", beforeID)
+	}
+	if withCounts {
+		v.Set("with_counts", "true")
 	}
 
 	uri := EndpointUserGuilds("@me")
