@@ -358,7 +358,7 @@ func (s *Session) UserAvatarDecode(u *User, options ...RequestOption) (img image
 }
 
 // UserUpdate updates current user settings.
-func (s *Session) UserUpdate(username, avatar string, options ...RequestOption) (st *User, err error) {
+func (s *Session) UserUpdate(username, avatar, banner string, options ...RequestOption) (st *User, err error) {
 
 	// NOTE: Avatar must be either the hash/id of existing Avatar or
 	// data:image/png;base64,BASE64_STRING_OF_NEW_AVATAR_PNG
@@ -368,7 +368,8 @@ func (s *Session) UserUpdate(username, avatar string, options ...RequestOption) 
 	data := struct {
 		Username string `json:"username,omitempty"`
 		Avatar   string `json:"avatar,omitempty"`
-	}{username, avatar}
+		Banner   string `json:"banner,omitempty"`
+	}{username, avatar, banner}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointUser("@me"), data, EndpointUsers, options...)
 	if err != nil {
