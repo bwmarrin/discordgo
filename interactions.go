@@ -29,6 +29,25 @@ const (
 	MessageApplicationCommand ApplicationCommandType = 3
 )
 
+// ContextType represents the type of a application command's context.
+type ContextType uint8
+
+// Context types
+const (
+	GuildContextType          ContextType = 0
+	BotDMContextType          ContextType = 1
+	PrivateChannelContextType ContextType = 3
+)
+
+// IntegrationType represents the type of an application's supported integration
+type IntegrationType uint8
+
+// Integration types
+const (
+	GuildInstallIntegrationType IntegrationType = 0
+	UserInstallIntegrationType  IntegrationType = 1
+)
+
 // ApplicationCommand represents an application's slash command.
 type ApplicationCommand struct {
 	ID                string                 `json:"id,omitempty"`
@@ -43,6 +62,9 @@ type ApplicationCommand struct {
 	DefaultMemberPermissions *int64 `json:"default_member_permissions,string,omitempty"`
 	DMPermission             *bool  `json:"dm_permission,omitempty"`
 	NSFW                     *bool  `json:"nsfw,omitempty"`
+
+	IntegrationTypes []IntegrationType `json:"integration_types,omitempty"`
+	Contexts         []ContextType     `json:"contexts,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 
