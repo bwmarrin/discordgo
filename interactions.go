@@ -44,6 +44,8 @@ type ApplicationCommand struct {
 	DMPermission             *bool  `json:"dm_permission,omitempty"`
 	NSFW                     *bool  `json:"nsfw,omitempty"`
 
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
+
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 
 	Description              string                      `json:"description,omitempty"`
