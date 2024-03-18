@@ -29,23 +29,23 @@ const (
 	MessageApplicationCommand ApplicationCommandType = 3
 )
 
-// ContextType represents the type of a application command's context.
-type ContextType uint8
-
-// Context types
-const (
-	GuildContextType          ContextType = 0
-	BotDMContextType          ContextType = 1
-	PrivateChannelContextType ContextType = 3
-)
-
 // IntegrationType represents the type of an application's supported integration
-type IntegrationType uint8
+type IntegrationType int
 
 // Integration types
 const (
 	GuildInstallIntegrationType IntegrationType = 0
 	UserInstallIntegrationType  IntegrationType = 1
+)
+
+// ContextType represents the type of a application command's context.
+type ContextType int
+
+// Context types
+const (
+	GuildContextType          ContextType = 0
+	BotDMContextType          ContextType = 1
+	PrivateChannelContextType ContextType = 2
 )
 
 // ApplicationCommand represents an application's slash command.
