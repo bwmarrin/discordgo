@@ -136,26 +136,33 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+type ApplicationIntegrationType uint
+
+const (
+	ApplicationIntegrationGuildInstall ApplicationIntegrationType = 0
+	ApplicationIntegrationUserInstall  ApplicationIntegrationType = 1
+)
+
 // Application stores values for a Discord Application
 type Application struct {
-	ID                  string   `json:"id,omitempty"`
-	Name                string   `json:"name"`
-	Icon                string   `json:"icon,omitempty"`
-	Description         string   `json:"description,omitempty"`
-	RPCOrigins          []string `json:"rpc_origins,omitempty"`
-	BotPublic           bool     `json:"bot_public,omitempty"`
-	BotRequireCodeGrant bool     `json:"bot_require_code_grant,omitempty"`
-	TermsOfServiceURL   string   `json:"terms_of_service_url"`
-	PrivacyProxyURL     string   `json:"privacy_policy_url"`
-	Owner               *User    `json:"owner"`
-	Summary             string   `json:"summary"`
-	VerifyKey           string   `json:"verify_key"`
-	Team                *Team    `json:"team"`
-	GuildID             string   `json:"guild_id"`
-	PrimarySKUID        string   `json:"primary_sku_id"`
-	Slug                string   `json:"slug"`
-	CoverImage          string   `json:"cover_image"`
-	Flags               int      `json:"flags,omitempty"`
+	ID                  string                       `json:"id,omitempty"`
+	Name                string                       `json:"name"`
+	Icon                string                       `json:"icon,omitempty"`
+	Description         string                       `json:"description,omitempty"`
+	RPCOrigins          []string                     `json:"rpc_origins,omitempty"`
+	BotPublic           bool                         `json:"bot_public,omitempty"`
+	BotRequireCodeGrant bool                         `json:"bot_require_code_grant,omitempty"`
+	TermsOfServiceURL   string                       `json:"terms_of_service_url"`
+	PrivacyProxyURL     string                       `json:"privacy_policy_url"`
+	Owner               *User                        `json:"owner"`
+	Summary             string                       `json:"summary"`
+	VerifyKey           string                       `json:"verify_key"`
+	Team                *Team                        `json:"team"`
+	GuildID             string                       `json:"guild_id"`
+	PrimarySKUID        string                       `json:"primary_sku_id"`
+	Slug                string                       `json:"slug"`
+	CoverImage          string                       `json:"cover_image"`
+	Flags               int                          `json:"flags,omitempty"`
 }
 
 // ApplicationRoleConnectionMetadataType represents the type of application role connection metadata.
