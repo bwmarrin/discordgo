@@ -245,6 +245,8 @@ type Interaction struct {
 	GuildLocale *Locale `json:"guild_locale"`
 
 	Context                      InteractionContextType                `json:"context"`
+	AuthorizingIntegrationOwners map[ApplicationIntegrationType]string `json:"authorizing_integration_owners"`
+
 	Token   string `json:"token"`
 	Version int    `json:"version"`
 }
