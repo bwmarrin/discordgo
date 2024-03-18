@@ -44,6 +44,7 @@ type ApplicationCommand struct {
 	DMPermission             *bool  `json:"dm_permission,omitempty"`
 	NSFW                     *bool  `json:"nsfw,omitempty"`
 
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
 	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
@@ -202,6 +203,14 @@ func (t InteractionType) String() string {
 	return fmt.Sprintf("InteractionType(%d)", t)
 }
 
+type InteractionContextType uint
+
+const (
+	InteractionContextGuild          InteractionContextType = 0
+	InteractionContextBotDM          InteractionContextType = 1
+	InteractionContextPrivateChannel InteractionContextType = 2
+)
+
 // Interaction represents data of an interaction.
 type Interaction struct {
 	ID        string          `json:"id"`
@@ -235,6 +244,7 @@ type Interaction struct {
 	// NOTE: this field is only filled when the interaction was invoked in a guild.
 	GuildLocale *Locale `json:"guild_locale"`
 
+	Context                      InteractionContextType                `json:"context"`
 	Token   string `json:"token"`
 	Version int    `json:"version"`
 }
