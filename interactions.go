@@ -38,12 +38,14 @@ type ApplicationCommand struct {
 	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
 	NameLocalizations *map[Locale]string     `json:"name_localizations,omitempty"`
-	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and DMPermission instead.
+
+	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and Contexts instead.
 	DefaultPermission        *bool  `json:"default_permission,omitempty"`
 	DefaultMemberPermissions *int64 `json:"default_member_permissions,string,omitempty"`
-	DMPermission             *bool  `json:"dm_permission,omitempty"`
 	NSFW                     *bool  `json:"nsfw,omitempty"`
 
+	// Deprecated: use Contexts instead.
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
 	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
 	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
 
