@@ -136,11 +136,14 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+// ApplicationIntegrationType dictates where application can be installed and its available interaction contexts.
 type ApplicationIntegrationType uint
 
 const (
+	// ApplicationIntegrationGuildInstall indicates that app is installable to guilds.
 	ApplicationIntegrationGuildInstall ApplicationIntegrationType = 0
-	ApplicationIntegrationUserInstall  ApplicationIntegrationType = 1
+	// ApplicationIntegrationUserInstall indicates that app is installable to users.
+	ApplicationIntegrationUserInstall ApplicationIntegrationType = 1
 )
 
 type ApplicationInstallParams struct {
