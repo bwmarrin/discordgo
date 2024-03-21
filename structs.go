@@ -146,11 +146,14 @@ const (
 	ApplicationIntegrationUserInstall ApplicationIntegrationType = 1
 )
 
+// ApplicationInstallParams represents application's installation parameters
+// for default in-app oauth2 authorization link.
 type ApplicationInstallParams struct {
 	Scopes      []string `json:"scopes"`
 	Permissions int64    `json:"permissions,string"`
 }
 
+// ApplicationIntegrationTypeConfiguration represents application's configuration for a particular integration type.
 type ApplicationIntegrationTypeConfiguration struct {
 	OAuth2InstallParams ApplicationInstallParams `json:"oauth2_install_params"`
 }
