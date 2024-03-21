@@ -205,11 +205,15 @@ func (t InteractionType) String() string {
 	return fmt.Sprintf("InteractionType(%d)", t)
 }
 
+// InteractionContextType represents the context in which interaction can be used or was triggered from.
 type InteractionContextType uint
 
 const (
-	InteractionContextGuild          InteractionContextType = 0
-	InteractionContextBotDM          InteractionContextType = 1
+	// InteractionContextGuild indicates that interaction can be used within guilds.
+	InteractionContextGuild InteractionContextType = 0
+	// InteractionContextBotDM indicates that interaction can be used within DMs with the bot.
+	InteractionContextBotDM InteractionContextType = 1
+	// InteractionContextPrivateChannel indicates that interaction can be used within group DMs and DMs with other users.
 	InteractionContextPrivateChannel InteractionContextType = 2
 )
 
