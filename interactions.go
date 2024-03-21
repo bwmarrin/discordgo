@@ -38,11 +38,16 @@ type ApplicationCommand struct {
 	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
 	NameLocalizations *map[Locale]string     `json:"name_localizations,omitempty"`
-	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and DMPermission instead.
+
+	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and Contexts instead.
 	DefaultPermission        *bool  `json:"default_permission,omitempty"`
 	DefaultMemberPermissions *int64 `json:"default_member_permissions,string,omitempty"`
-	DMPermission             *bool  `json:"dm_permission,omitempty"`
 	NSFW                     *bool  `json:"nsfw,omitempty"`
+
+	// Deprecated: use Contexts instead.
+	DMPermission     *bool                         `json:"dm_permission,omitempty"`
+	Contexts         *[]InteractionContextType     `json:"contexts,omitempty"`
+	IntegrationTypes *[]ApplicationIntegrationType `json:"integration_types,omitempty"`
 
 	// NOTE: Chat commands only. Otherwise it mustn't be set.
 
@@ -200,6 +205,18 @@ func (t InteractionType) String() string {
 	return fmt.Sprintf("InteractionType(%d)", t)
 }
 
+// InteractionContextType represents the context in which interaction can be used or was triggered from.
+type InteractionContextType uint
+
+const (
+	// InteractionContextGuild indicates that interaction can be used within guilds.
+	InteractionContextGuild InteractionContextType = 0
+	// InteractionContextBotDM indicates that interaction can be used within DMs with the bot.
+	InteractionContextBotDM InteractionContextType = 1
+	// InteractionContextPrivateChannel indicates that interaction can be used within group DMs and DMs with other users.
+	InteractionContextPrivateChannel InteractionContextType = 2
+)
+
 // Interaction represents data of an interaction.
 type Interaction struct {
 	ID        string          `json:"id"`
@@ -233,6 +250,9 @@ type Interaction struct {
 	// NOTE: this field is only filled when the interaction was invoked in a guild.
 	GuildLocale *Locale `json:"guild_locale"`
 
+	Context                      InteractionContextType                `json:"context"`
+	AuthorizingIntegrationOwners map[ApplicationIntegrationType]string `json:"authorizing_integration_owners"`
+
 	Token   string `json:"token"`
 	Version int    `json:"version"`
 }
@@ -241,7 +261,8 @@ type interaction Interaction
 
 type rawInteraction struct {
 	interaction
-	Data json.RawMessage `json:"data"`
+	Data                         json.RawMessage                            `json:"data"`
+	AuthorizingIntegrationOwners map[ApplicationIntegrationType]json.Number `json:"authorizing_integration_owners"`
 }
 
 // UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
@@ -253,6 +274,13 @@ func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	}
 
 	*i = Interaction(tmp.interaction)
+
+	// TODO: remove when https://github.com/discord/discord-api-docs/issues/6730 is fixed.
+	authIntegrationOwners := make(map[ApplicationIntegrationType]string)
+	for k, v := range tmp.AuthorizingIntegrationOwners {
+		authIntegrationOwners[k] = v.String()
+	}
+	i.AuthorizingIntegrationOwners = authIntegrationOwners
 
 	switch tmp.Type {
 	case InteractionApplicationCommand, InteractionApplicationCommandAutocomplete:
