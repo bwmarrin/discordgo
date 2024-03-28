@@ -2174,7 +2174,7 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 		Type          ActivityType `json:"type"`
 		URL           string       `json:"url,omitempty"`
 		CreatedAt     int64        `json:"created_at"`
-		ApplicationID string       `json:"application_id,omitempty"`
+		ApplicationID interface{}  `json:"application_id,omitempty"`
 		State         string       `json:"state,omitempty"`
 		Details       string       `json:"details,omitempty"`
 		Timestamps    TimeStamps   `json:"timestamps,omitempty"`
@@ -2190,7 +2190,6 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	activity.CreatedAt = time.Unix(0, temp.CreatedAt*1000000)
-	activity.ApplicationID = temp.ApplicationID
 	activity.Assets = temp.Assets
 	activity.Details = temp.Details
 	activity.Emoji = temp.Emoji
@@ -2203,6 +2202,18 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 	activity.Timestamps = temp.Timestamps
 	activity.Type = temp.Type
 	activity.URL = temp.URL
+
+	// Discord is sending an application_id of float(1) for some reason.
+	// This helps to work around that issue.
+	switch v := temp.ApplicationID.(type) {
+	case string:
+		activity.ApplicationID = v
+	case []byte:
+		activity.ApplicationID = string(v)
+	default:
+		activity.ApplicationID = fmt.Sprint(v)
+	}
+
 	return nil
 }
 
