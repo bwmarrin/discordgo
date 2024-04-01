@@ -288,7 +288,9 @@ const (
 	ChannelTypeGuildPublicThread  ChannelType = 11
 	ChannelTypeGuildPrivateThread ChannelType = 12
 	ChannelTypeGuildStageVoice    ChannelType = 13
+	ChannelTypeGuildDirectory     ChannelType = 14
 	ChannelTypeGuildForum         ChannelType = 15
+	ChannelTypeGuildMedia         ChannelType = 16
 )
 
 // ChannelFlags represent flags of a channel/thread.
