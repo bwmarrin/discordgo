@@ -2203,7 +2203,6 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 	activity.Timestamps = temp.Timestamps
 	activity.Type = temp.Type
 	activity.URL = temp.URL
-
 	return nil
 }
 
