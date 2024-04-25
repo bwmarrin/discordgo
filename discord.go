@@ -58,7 +58,7 @@ func New(token string) (s *Session, err error) {
 	s.Identify.Compress = true
 	s.Identify.LargeThreshold = 250
 	//s.Identify.Properties.OS = runtime.GOOS
-	s.Identify.Properties.OS = "darwin"
+	s.Identify.Properties.OS = "Mac OS X"
 	s.Identify.Properties.Browser = "Chrome"
 	s.Identify.Intents = IntentsAllWithoutPrivileged
 	s.Identify.Token = token
