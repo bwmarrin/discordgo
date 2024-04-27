@@ -45,6 +45,8 @@ const (
 	messageCreateEventType                       = "MESSAGE_CREATE"
 	messageDeleteEventType                       = "MESSAGE_DELETE"
 	messageDeleteBulkEventType                   = "MESSAGE_DELETE_BULK"
+	messagePollVoteAddEventType                  = "MESSAGE_POLL_VOTE_ADD"
+	messagePollVoteRemoveEventType               = "MESSAGE_POLL_VOTE_REMOVE"
 	messageReactionAddEventType                  = "MESSAGE_REACTION_ADD"
 	messageReactionRemoveEventType               = "MESSAGE_REACTION_REMOVE"
 	messageReactionRemoveAllEventType            = "MESSAGE_REACTION_REMOVE_ALL"
@@ -815,6 +817,46 @@ func (eh messageDeleteBulkEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// messagePollVoteAddEventHandler is an event handler for MessagePollVoteAdd events.
+type messagePollVoteAddEventHandler func(*Session, *MessagePollVoteAdd)
+
+// Type returns the event type for MessagePollVoteAdd events.
+func (eh messagePollVoteAddEventHandler) Type() string {
+	return messagePollVoteAddEventType
+}
+
+// New returns a new instance of MessagePollVoteAdd.
+func (eh messagePollVoteAddEventHandler) New() interface{} {
+	return &MessagePollVoteAdd{}
+}
+
+// Handle is the handler for MessagePollVoteAdd events.
+func (eh messagePollVoteAddEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*MessagePollVoteAdd); ok {
+		eh(s, t)
+	}
+}
+
+// messagePollVoteRemoveEventHandler is an event handler for MessagePollVoteRemove events.
+type messagePollVoteRemoveEventHandler func(*Session, *MessagePollVoteRemove)
+
+// Type returns the event type for MessagePollVoteRemove events.
+func (eh messagePollVoteRemoveEventHandler) Type() string {
+	return messagePollVoteRemoveEventType
+}
+
+// New returns a new instance of MessagePollVoteRemove.
+func (eh messagePollVoteRemoveEventHandler) New() interface{} {
+	return &MessagePollVoteRemove{}
+}
+
+// Handle is the handler for MessagePollVoteRemove events.
+func (eh messagePollVoteRemoveEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*MessagePollVoteRemove); ok {
+		eh(s, t)
+	}
+}
+
 // messageReactionAddEventHandler is an event handler for MessageReactionAdd events.
 type messageReactionAddEventHandler func(*Session, *MessageReactionAdd)
 
@@ -1350,6 +1392,10 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return messageDeleteEventHandler(v)
 	case func(*Session, *MessageDeleteBulk):
 		return messageDeleteBulkEventHandler(v)
+	case func(*Session, *MessagePollVoteAdd):
+		return messagePollVoteAddEventHandler(v)
+	case func(*Session, *MessagePollVoteRemove):
+		return messagePollVoteRemoveEventHandler(v)
 	case func(*Session, *MessageReactionAdd):
 		return messageReactionAddEventHandler(v)
 	case func(*Session, *MessageReactionRemove):
@@ -1437,6 +1483,8 @@ func init() {
 	registerInterfaceProvider(messageCreateEventHandler(nil))
 	registerInterfaceProvider(messageDeleteEventHandler(nil))
 	registerInterfaceProvider(messageDeleteBulkEventHandler(nil))
+	registerInterfaceProvider(messagePollVoteAddEventHandler(nil))
+	registerInterfaceProvider(messagePollVoteRemoveEventHandler(nil))
 	registerInterfaceProvider(messageReactionAddEventHandler(nil))
 	registerInterfaceProvider(messageReactionRemoveEventHandler(nil))
 	registerInterfaceProvider(messageReactionRemoveAllEventHandler(nil))

@@ -406,3 +406,19 @@ type AutoModerationActionExecution struct {
 type GuildAuditLogEntryCreate struct {
 	*AuditLogEntry
 }
+
+type MessagePollVoteAdd struct {
+	UserID    string `json:"user_id"`
+	ChannelID string `json:"channel_id"`
+	MessageID string `json:"message_id"`
+	GuildID   string `json:"guild_id,omitempty"`
+	AnswerID  int    `json:"answer_id"`
+}
+
+type MessagePollVoteRemove struct {
+	UserID    string `json:"user_id"`
+	ChannelID string `json:"channel_id"`
+	MessageID string `json:"message_id"`
+	GuildID   string `json:"guild_id,omitempty"`
+	AnswerID  int    `json:"answer_id"`
+}
