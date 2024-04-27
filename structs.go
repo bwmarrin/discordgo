@@ -2300,6 +2300,41 @@ const (
 	StageInstancePrivacyLevelGuildOnly StageInstancePrivacyLevel = 2
 )
 
+type PollLayoutType int
+
+const (
+	PollLayoutTypeDefault PollLayoutType = 1
+)
+
+type PollMedia struct {
+	Text  string          `json:"text,omitempty"`
+	Emoji *ComponentEmoji `json:"emoji,omitempty"` // TODO: rename the type
+}
+type PollAnswer struct {
+	AnswerID int        `json:"answer_id"`
+	Media    *PollMedia `json:"poll_media"`
+}
+
+type PollAnswerCount struct {
+	ID      int  `json:"id"`
+	Count   int  `json:"count"`
+	MeVoted bool `json:"me_voted"`
+}
+
+type PollResults struct {
+	Finalized    bool               `json:"is_finalized"`
+	AnswerCounts []*PollAnswerCount `json:"answer_count"`
+}
+
+type Poll struct {
+	Question         PollMedia      `json:"question"`
+	Answers          []PollAnswer   `json:"answers"`
+	Expiry           time.Time      `json:"expiry"`
+	AllowMultiselect bool           `json:"allow_multiselect"`
+	LayoutType       PollLayoutType `json:"layout_type"`
+	Results          *PollResults   `json:"results,omitempty"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
