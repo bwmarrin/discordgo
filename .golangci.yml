@@ -7,12 +7,12 @@ linters:
 
 linters-settings:
   staticcheck:
-    go: "1.13"
+    go: "1.18"
 
     checks: ["all"]
 
   unused:
-    go: "1.13"
+    go: "1.18"
 
 issues:
   include:
