@@ -2300,39 +2300,49 @@ const (
 	StageInstancePrivacyLevelGuildOnly StageInstancePrivacyLevel = 2
 )
 
+// PollLayoutType represents the layout of a poll.
 type PollLayoutType int
 
+// Valid PollLayoutType values.
 const (
 	PollLayoutTypeDefault PollLayoutType = 1
 )
 
+// PollMedia contains common data used by question and answers.
 type PollMedia struct {
 	Text  string          `json:"text,omitempty"`
 	Emoji *ComponentEmoji `json:"emoji,omitempty"` // TODO: rename the type
 }
+
+// PollAnswer represents a single answer in a poll.
 type PollAnswer struct {
 	AnswerID int        `json:"answer_id"`
 	Media    *PollMedia `json:"poll_media"`
 }
 
+// PollAnswerCount stores counted poll votes for a single answer.
 type PollAnswerCount struct {
 	ID      int  `json:"id"`
 	Count   int  `json:"count"`
 	MeVoted bool `json:"me_voted"`
 }
 
+// PollResults contains voting results on a poll.
 type PollResults struct {
 	Finalized    bool               `json:"is_finalized"`
 	AnswerCounts []*PollAnswerCount `json:"answer_count"`
 }
 
+// Poll contains all poll related data.
 type Poll struct {
 	Question         PollMedia      `json:"question"`
 	Answers          []PollAnswer   `json:"answers"`
 	Expiry           time.Time      `json:"expiry"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type"`
-	Results          *PollResults   `json:"results,omitempty"`
+
+	// NOTE: available only when fetching.
+	Results *PollResults `json:"results,omitempty"`
 }
 
 // Constants for the different bit offsets of text channel permissions

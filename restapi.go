@@ -3458,6 +3458,10 @@ func (s *Session) UserApplicationRoleConnectionUpdate(appID string, rconn *Appli
 // Functions specific to polls
 // ----------------------------------------------------------------------
 
+// PollAnswerVoters returns users who voted for a particular answer in a poll on the specified message.
+// channelID : ID of the channel.
+// messageID : ID of the message.
+// answerID  : ID of the answer.
 func (s *Session) PollAnswerVoters(channelID, messageID, answerID string) (voters []*User, err error) {
 	endpoint := EndpointPollAnswerVoters(channelID, messageID, answerID)
 
@@ -3480,6 +3484,9 @@ func (s *Session) PollAnswerVoters(channelID, messageID, answerID string) (voter
 	return
 }
 
+// PollExpire expires poll on the specified message.
+// channelID : ID of the channel.
+// messageID : ID of the message.
 func (s *Session) PollExpire(channelID, messageID string) (msg *Message, err error) {
 	endpoint := EndpointPollExpire(channelID, messageID)
 
