@@ -3491,7 +3491,7 @@ func (s *Session) PollExpire(channelID, messageID string) (msg *Message, err err
 	endpoint := EndpointPollExpire(channelID, messageID)
 
 	var body []byte
-	body, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	body, err = s.RequestWithBucketID("POST", endpoint, nil, endpoint)
 	if err != nil {
 		return
 	}
