@@ -3453,3 +3453,42 @@ func (s *Session) UserApplicationRoleConnectionUpdate(appID string, rconn *Appli
 	err = unmarshal(body, &st)
 	return
 }
+
+// ----------------------------------------------------------------------
+// Functions specific to polls
+// ----------------------------------------------------------------------
+
+func (s *Session) PollAnswerVoters(channelID, messageID, answerID string) (voters []*User, err error) {
+	endpoint := EndpointPollAnswerVoters(channelID, messageID, answerID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	var r struct {
+		Users []*User `json:"users"`
+	}
+
+	err = unmarshal(body, &r)
+	if err != nil {
+		return
+	}
+
+	voters = r.Users
+	return
+}
+
+func (s *Session) PollExpire(channelID, messageID string) (msg *Message, err error) {
+	endpoint := EndpointPollExpire(channelID, messageID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("PUT", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &msg)
+	return
+}
