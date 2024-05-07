@@ -3462,7 +3462,7 @@ func (s *Session) UserApplicationRoleConnectionUpdate(appID string, rconn *Appli
 // channelID : ID of the channel.
 // messageID : ID of the message.
 // answerID  : ID of the answer.
-func (s *Session) PollAnswerVoters(channelID, messageID, answerID string) (voters []*User, err error) {
+func (s *Session) PollAnswerVoters(channelID, messageID string, answerID int) (voters []*User, err error) {
 	endpoint := EndpointPollAnswerVoters(channelID, messageID, answerID)
 
 	var body []byte

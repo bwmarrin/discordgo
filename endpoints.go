@@ -165,8 +165,8 @@ var (
 	EndpointPoll = func(cID, mID string) string {
 		return EndpointChannel(cID) + "/polls/" + mID
 	}
-	EndpointPollAnswerVoters = func(cID, mID, aID string) string {
-		return EndpointPoll(cID, mID) + "/answers/" + aID
+	EndpointPollAnswerVoters = func(cID, mID string, aID int) string {
+		return EndpointPoll(cID, mID) + "/answers/" + strconv.Itoa(aID)
 	}
 	EndpointPollExpire = func(cID, mID string) string {
 		return EndpointPoll(cID, mID) + "/expire"
