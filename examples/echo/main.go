@@ -10,10 +10,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type optmap = map[string]*discordgo.ApplicationCommandInteractionDataOption
+type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
 
-func parseOpts(options []*discordgo.ApplicationCommandInteractionDataOption) (om optmap) {
-	om = make(optmap)
+func parseOptions(options []*discordgo.ApplicationCommandInteractionDataOption) (om optionMap) {
+	om = make(optionMap)
 	for _, opt := range options {
 		om[opt.Name] = opt
 	}
@@ -27,7 +27,7 @@ func interactionAuthor(i *discordgo.Interaction) *discordgo.User {
 	return i.User
 }
 
-func handleEcho(s *discordgo.Session, i *discordgo.InteractionCreate, opts optmap) {
+func handleEcho(s *discordgo.Session, i *discordgo.InteractionCreate, opts optionMap) {
 	builder := new(strings.Builder)
 	if v, ok := opts["author"]; ok && v.BoolValue() {
 		author := interactionAuthor(i.Interaction)
@@ -91,7 +91,7 @@ func main() {
 			return
 		}
 
-		handleEcho(s, i, parseOpts(data.Options))
+		handleEcho(s, i, parseOptions(data.Options))
 	})
 
 	session.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
