@@ -407,6 +407,7 @@ type GuildAuditLogEntryCreate struct {
 	*AuditLogEntry
 }
 
+// MessagePollVoteAdd is the data for a MessagePollVoteAdd event.
 type MessagePollVoteAdd struct {
 	UserID    string `json:"user_id"`
 	ChannelID string `json:"channel_id"`
@@ -415,6 +416,7 @@ type MessagePollVoteAdd struct {
 	AnswerID  int    `json:"answer_id"`
 }
 
+// MessagePollVoteRemove is the data for a MessagePollVoteRemove event.
 type MessagePollVoteRemove struct {
 	UserID    string `json:"user_id"`
 	ChannelID string `json:"channel_id"`
