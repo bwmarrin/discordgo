@@ -338,15 +338,19 @@ type MessageAllowedMentions struct {
 
 // A MessageAttachment stores data for message attachments.
 type MessageAttachment struct {
-	ID          string `json:"id"`
-	URL         string `json:"url"`
-	ProxyURL    string `json:"proxy_url"`
-	Filename    string `json:"filename"`
-	ContentType string `json:"content_type"`
-	Width       int    `json:"width"`
-	Height      int    `json:"height"`
-	Size        int    `json:"size"`
-	Ephemeral   bool   `json:"ephemeral"`
+	ID           string  `json:"id"`
+	URL          string  `json:"url"`
+	ProxyURL     string  `json:"proxy_url"`
+	Filename     string  `json:"filename"`
+	Description  string  `json:"description,omitempty"`
+	ContentType  string  `json:"content_type,omitempty"`
+	Width        *int    `json:"width,omitempty"`
+	Height       *int    `json:"height,omitempty"`
+	Size         int     `json:"size"`
+	Ephemeral    bool    `json:"ephemeral,omitempty"`
+	DurationSecs float64 `json:"duration_secs,omitempty"`
+	Waveform     string  `json:"waveform,omitempty"`
+	Flags        int     `json:"flags,omitempty"`
 }
 
 // MessageEmbedFooter is a part of a MessageEmbed struct.
