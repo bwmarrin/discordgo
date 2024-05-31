@@ -32,6 +32,9 @@ import (
 
 // All error constants
 var (
+	ErrNotBasicToken = errors.New( "token must be Basic token for oauth2 requests" ) 
+	ErrNotBearerToken = errors.New( "token must be Bearer token for this request" )
+	ErrNotBotToken = errors.New( "token must be Bot token for bot logins" )
 	ErrJSONUnmarshal           = errors.New("json unmarshal")
 	ErrStatusOffline           = errors.New("You can't set your Status to offline")
 	ErrVerificationLevelBounds = errors.New("VerificationLevel out of bounds, should be between 0 and 3")
@@ -170,15 +173,21 @@ func (s *Session) Request(method, urlStr string, data interface{}, options ...Re
 
 // RequestWithBucketID makes a (GET/POST/...) Requests to Discord REST API with JSON data.
 func (s *Session) RequestWithBucketID(method, urlStr string, data interface{}, bucketID string, options ...RequestOption) (response []byte, err error) {
-	var body []byte
-	if data != nil {
-		body, err = Marshal(data)
-		if err != nil {
-			return
-		}
+	var (body []byte; contentType string)
+	if data == nil {
+		return s.request(method, urlStr, contentType, body, bucketID, 0, options...)
 	}
 
-	return s.request(method, urlStr, "application/json", body, bucketID, 0, options...)
+	if values, is := data.(url.Values); is {
+		body = []byte(values.Encode())
+		contentType = "application/x-www-form-urlencoded"
+	} else if body, err = Marshal(data); err != nil {
+		return []byte{}, err
+	} else if len( body ) > 0 {
+		contentType = "application/json"
+	}
+
+	return s.request(method, urlStr, contentType, body, bucketID, 0, options...)
 }
 
 // request makes a (GET/POST/...) Requests to Discord REST API.
@@ -261,7 +270,6 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		}
 		log.Printf("API RESPONSE    BODY :: [%s]\n\n\n", response)
 	}
-
 	switch resp.StatusCode {
 	case http.StatusOK:
 	case http.StatusCreated:
@@ -634,7 +642,7 @@ func (s *Session) GuildCreate(name string, options ...RequestOption) (st *Guild,
 
 // GuildEdit edits a new Guild
 // guildID   : The ID of a Guild
-// g 		 : A GuildParams struct with the values Name, Region and VerificationLevel defined.
+// g   	 : A GuildParams struct with the values Name, Region and VerificationLevel defined.
 func (s *Session) GuildEdit(guildID string, g *GuildParams, options ...RequestOption) (st *Guild, err error) {
 
 	// Bounds checking for VerificationLevel, interval: [0, 4]
@@ -1121,7 +1129,7 @@ func (s *Session) GuildRoleCreate(guildID string, data *RoleParams, options ...R
 // GuildRoleEdit updates an existing Guild Role and returns updated Role data.
 // guildID   : The ID of a Guild.
 // roleID    : The ID of a Role.
-// data 		 : Updated Role data.
+// data   	 : Updated Role data.
 func (s *Session) GuildRoleEdit(guildID, roleID string, data *RoleParams, options ...RequestOption) (st *Role, err error) {
 
 	// Prevent sending a color int that is too big.
@@ -1166,8 +1174,8 @@ func (s *Session) GuildRoleDelete(guildID, roleID string, options ...RequestOpti
 
 // GuildPruneCount Returns the number of members that would be removed in a prune operation.
 // Requires 'KICK_MEMBER' permission.
-// guildID	: The ID of a Guild.
-// days		: The number of days to count prune for (1 or more).
+// guildID  : The ID of a Guild.
+// days  	: The number of days to count prune for (1 or more).
 func (s *Session) GuildPruneCount(guildID string, days uint32, options ...RequestOption) (count uint32, err error) {
 	count = 0
 
@@ -1198,8 +1206,8 @@ func (s *Session) GuildPruneCount(guildID string, days uint32, options ...Reques
 
 // GuildPrune Begin as prune operation. Requires the 'KICK_MEMBERS' permission.
 // Returns an object with one 'pruned' key indicating the number of members that were removed in the prune operation.
-// guildID	: The ID of a Guild.
-// days		: The number of days to count prune for (1 or more).
+// guildID  : The ID of a Guild.
+// days  	: The number of days to count prune for (1 or more).
 func (s *Session) GuildPrune(guildID string, days uint32, options ...RequestOption) (count uint32, err error) {
 
 	count = 0
@@ -1265,9 +1273,9 @@ func (s *Session) GuildIntegrationCreate(guildID, integrationType, integrationID
 // guildID              : The ID of a Guild.
 // integrationType      : The Integration type.
 // integrationID        : The ID of an integration.
-// expireBehavior	      : The behavior when an integration subscription lapses (see the integration object documentation).
+// expireBehavior        : The behavior when an integration subscription lapses (see the integration object documentation).
 // expireGracePeriod    : Period (in seconds) where the integration will ignore lapsed subscriptions.
-// enableEmoticons	    : Whether emoticons should be synced for this integration (twitch only currently).
+// enableEmoticons      : Whether emoticons should be synced for this integration (twitch only currently).
 func (s *Session) GuildIntegrationEdit(guildID, integrationID string, expireBehavior, expireGracePeriod int, enableEmoticons bool, options ...RequestOption) (err error) {
 
 	data := struct {
@@ -2385,7 +2393,7 @@ func (s *Session) WebhookExecute(webhookID, token string, wait bool, data *Webho
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook
 // wait     : Waits for server confirmation of message send and ensures that the return struct is populated (it is nil otherwise)
-// threadID :	Sends a message to the specified thread within a webhook's channel. The thread will automatically be unarchived.
+// threadID :  Sends a message to the specified thread within a webhook's channel. The thread will automatically be unarchived.
 func (s *Session) WebhookThreadExecute(webhookID, token string, wait bool, threadID string, data *WebhookParams, options ...RequestOption) (st *Message, err error) {
 	return s.webhookExecute(webhookID, token, wait, threadID, data, options...)
 }
@@ -2465,7 +2473,7 @@ func (s *Session) MessageReactionAdd(channelID, messageID, emojiID string, optio
 // channelID : The channel ID.
 // messageID : The message ID.
 // emojiID   : Either the unicode emoji for the reaction, or a guild emoji identifier.
-// userID	 : @me or ID of the user to delete the reaction for.
+// userID   : @me or ID of the user to delete the reaction for.
 func (s *Session) MessageReactionRemove(channelID, messageID, emojiID, userID string, options ...RequestOption) error {
 
 	// emoji such as  #⃣ need to have # escaped
