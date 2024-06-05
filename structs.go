@@ -2038,6 +2038,15 @@ const (
 
 	AuditLogActionCreatorMonetizationRequestCreated AuditLogAction = 150
 	AuditLogActionCreatorMonetizationTermsAccepted  AuditLogAction = 151
+
+	AuditLogActionOnboardingPromptCreate AuditLogAction = 163
+	AuditLogActionOnboardingPromptUpdate AuditLogAction = 164
+	AuditLogActionOnboardingPromptDelete AuditLogAction = 165
+	AuditLogActionOnboardingCreate       AuditLogAction = 166
+	AuditLogActionOnboardingUpdate       AuditLogAction = 167
+
+	AuditLogActionHomeSettingsCreate = 190
+	AuditLogActionHomeSettingsUpdate = 191
 )
 
 // GuildMemberParams stores data needed to update a member
