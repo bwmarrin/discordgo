@@ -209,6 +209,10 @@ var (
 	EndpointApplicationRoleConnectionMetadata = func(aID string) string { return EndpointApplication(aID) + "/role-connections/metadata" }
 
 	EndpointOAuth2                  = EndpointAPI + "oauth2/"
+	EndpointOAuth2Token             = EndpointOAuth2 + "token"
+	EndpointOAuth2TokenRevoke       = EndpointOAuth2Token + "/revoke"
+  EndpointOAuth2AuthorizationInfo = EndpointOAuth2 + "@me"
+	EndpointOAuth2Authorize         = EndpointDiscord + "oauth2/authorize"
 	EndpointOAuth2Applications      = EndpointOAuth2 + "applications"
 	EndpointOAuth2Application       = func(aID string) string { return EndpointOAuth2Applications + "/" + aID }
 	EndpointOAuth2ApplicationsBot   = func(aID string) string { return EndpointOAuth2Applications + "/" + aID + "/bot" }

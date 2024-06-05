@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/textproto"
+	"encoding/base64"
 	"strconv"
 	"strings"
 	"time"
@@ -74,6 +75,18 @@ func MultipartBodyWithJSON(data interface{}, files []*File) (requestContentType 
 	}
 
 	return bodywriter.FormDataContentType(), body.Bytes(), nil
+}
+
+func BasicToken( clientId string, clientSecret string ) ( token string ) {
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte( clientId + ":" + clientSecret ))
+}
+
+func BearerToken( token string ) ( bearerToken string ) {
+	return "Bearer " + token
+}
+
+func BotToken( token string ) ( botToken string ) {
+	return "Bot " + token
 }
 
 func avatarURL(avatarHash, defaultAvatarURL, staticAvatarURL, animatedAvatarURL, size string) string {

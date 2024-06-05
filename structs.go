@@ -136,6 +136,22 @@ type Session struct {
 	wsMutex sync.Mutex
 }
 
+func ( s *Session ) checkBasicSession( ) ( err error ) {
+	if s.Identify.Token[:6] != "Basic " { return ErrNotBasicToken }
+	return
+}
+
+
+func ( s *Session ) checkBearerSession( ) ( err error ) {
+	if s.Identify.Token[:7] != "Bearer " { return ErrNotBearerToken }
+	return
+}
+
+func ( s *Session ) checkBotSession( ) ( err error ) {
+	if s.Identify.Token[:4] != "Bot " { return ErrNotBotToken }
+	return
+}
+
 // Application stores values for a Discord Application
 type Application struct {
 	ID                  string   `json:"id,omitempty"`
@@ -1286,6 +1302,9 @@ type UserGuild struct {
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
 }
 
+func (g *UserGuild) IconURL(size string) string {
+	return iconURL(g.Icon, EndpointGuildIcon(g.ID, g.Icon), EndpointGuildIconAnimated(g.ID, g.Icon), size)
+}
 // GuildFeature indicates the presence of a feature in a guild
 type GuildFeature string
 
@@ -2256,7 +2275,7 @@ type Identify struct {
 	Shard          *[2]int             `json:"shard,omitempty"`
 	Presence       GatewayStatusUpdate `json:"presence,omitempty"`
 	Intents        Intent              `json:"intents"`
-}
+} 
 
 // IdentifyProperties contains the "properties" portion of an Identify packet
 // https://discord.com/developers/docs/topics/gateway#identify-identify-connection-properties
