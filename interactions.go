@@ -326,6 +326,18 @@ type ApplicationCommandInteractionData struct {
 	TargetID string `json:"target_id"`
 }
 
+// Get the interaction data option by name
+func (d ApplicationCommandInteractionData) GetOption(name string) (option *ApplicationCommandInteractionDataOption) {
+	for _, opt := range d.Options {
+		if opt.Name == name {
+			option = opt
+			break
+		}
+	}
+
+	return
+}
+
 // ApplicationCommandInteractionDataResolved contains resolved data of command execution.
 // Partial Member objects are missing user, deaf and mute fields.
 // Partial Channel objects only have id, name, type and permissions fields.
@@ -406,6 +418,18 @@ type ApplicationCommandInteractionDataOption struct {
 
 	// NOTE: autocomplete interaction only.
 	Focused bool `json:"focused,omitempty"`
+}
+
+// Get the interaction data option by name
+func (o ApplicationCommandInteractionDataOption) GetOption(name string) (option *ApplicationCommandInteractionDataOption) {
+	for _, opt := range o.Options {
+		if opt.Name == name {
+			option = opt
+			break
+		}
+	}
+
+	return
 }
 
 // IntValue is a utility function for casting option value to integer
