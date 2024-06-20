@@ -573,11 +573,21 @@ type MessageInteraction struct {
 
 // MessageInteractionMetadata contains metadata of an interaction, including relevant user info.
 type MessageInteractionMetadata struct {
-	ID                            string                                `json:"id"`
-	Type                          InteractionType                       `json:"type"`
-	User                          *User                                 `json:"user"`
-	AuthorizingIntegrationOwners  map[ApplicationIntegrationType]string `json:"authorizing_integration_owners"`
-	OriginalResponseMessageID     string                                `json:"original_response_message_id,omitempty"`
-	InteractedMessageID           string                                `json:"interacted_message_id,omitempty"`
-	TriggeringInteractionMetadata *MessageInteractionMetadata           `json:"triggering_interaction_metadata,omitempty"`
+	// ID of the interaction.
+	ID string `json:"id"`
+	// Type of the interaction.
+	Type InteractionType `json:"type"`
+	// User who triggered the interaction.
+	User *User `json:"user"`
+	// IDs for installation context(s) related to an interaction.
+	AuthorizingIntegrationOwners map[ApplicationIntegrationType]string `json:"authorizing_integration_owners"`
+	// ID of the original response message.
+	// NOTE: present only on followup messages.
+	OriginalResponseMessageID string `json:"original_response_message_id,omitempty"`
+	// ID of the message that contained interactive component.
+	// NOTE: present only on message component interactions.
+	InteractedMessageID string `json:"interacted_message_id,omitempty"`
+	// Metadata for interaction that was used to open a modal.
+	// NOTE: present only on modal submit interactions.
+	TriggeringInteractionMetadata *MessageInteractionMetadata `json:"triggering_interaction_metadata,omitempty"`
 }
