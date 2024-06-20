@@ -261,8 +261,7 @@ type interaction Interaction
 
 type rawInteraction struct {
 	interaction
-	Data                         json.RawMessage                            `json:"data"`
-	AuthorizingIntegrationOwners map[ApplicationIntegrationType]json.Number `json:"authorizing_integration_owners"`
+	Data json.RawMessage `json:"data"`
 }
 
 // UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
@@ -274,13 +273,6 @@ func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	}
 
 	*i = Interaction(tmp.interaction)
-
-	// TODO: remove when https://github.com/discord/discord-api-docs/issues/6730 is fixed.
-	authIntegrationOwners := make(map[ApplicationIntegrationType]string)
-	for k, v := range tmp.AuthorizingIntegrationOwners {
-		authIntegrationOwners[k] = v.String()
-	}
-	i.AuthorizingIntegrationOwners = authIntegrationOwners
 
 	switch tmp.Type {
 	case InteractionApplicationCommand, InteractionApplicationCommandAutocomplete:
