@@ -155,7 +155,7 @@ type ApplicationInstallParams struct {
 
 // ApplicationIntegrationTypeConfig represents application's configuration for a particular integration type.
 type ApplicationIntegrationTypeConfig struct {
-	OAuth2InstallParams ApplicationInstallParams `json:"oauth2_install_params"`
+	OAuth2InstallParams *ApplicationInstallParams `json:"oauth2_install_params,omitempty"`
 }
 
 // Application stores values for a Discord Application
