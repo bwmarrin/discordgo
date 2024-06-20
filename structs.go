@@ -178,7 +178,7 @@ type Application struct {
 	Slug                   string                                                           `json:"slug"`
 	CoverImage             string                                                           `json:"cover_image"`
 	Flags                  int                                                              `json:"flags,omitempty"`
-	IntegrationTypesConfig map[ApplicationIntegrationType]*ApplicationIntegrationTypeConfig `json:"integration_types"`
+	IntegrationTypesConfig map[ApplicationIntegrationType]*ApplicationIntegrationTypeConfig `json:"integration_types,omitempty"`
 }
 
 // ApplicationRoleConnectionMetadataType represents the type of application role connection metadata.
