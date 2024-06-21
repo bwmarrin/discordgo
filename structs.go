@@ -2337,12 +2337,16 @@ type PollResults struct {
 type Poll struct {
 	Question         PollMedia      `json:"question"`
 	Answers          []PollAnswer   `json:"answers"`
-	Expiry           time.Time      `json:"expiry"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type"`
 
+	// NOTE: should be set only on creation, when fetching use Expiry.
+	Duration int `json:"duration"`
+
 	// NOTE: available only when fetching.
+
 	Results *PollResults `json:"results,omitempty"`
+	Expiry  *time.Time   `json:"expiry,omitempty"`
 }
 
 // Constants for the different bit offsets of text channel permissions
