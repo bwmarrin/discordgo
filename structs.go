@@ -2338,7 +2338,7 @@ type Poll struct {
 	Question         PollMedia      `json:"question"`
 	Answers          []PollAnswer   `json:"answers"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
-	LayoutType       PollLayoutType `json:"layout_type"`
+	LayoutType       PollLayoutType `json:"layout_type,omitempty"`
 
 	// NOTE: should be set only on creation, when fetching use Expiry.
 	Duration int `json:"duration,omitempty"`
