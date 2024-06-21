@@ -2341,7 +2341,7 @@ type Poll struct {
 	LayoutType       PollLayoutType `json:"layout_type"`
 
 	// NOTE: should be set only on creation, when fetching use Expiry.
-	Duration int `json:"duration"`
+	Duration int `json:"duration,omitempty"`
 
 	// NOTE: available only when fetching.
 
