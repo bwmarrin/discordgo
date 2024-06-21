@@ -2346,7 +2346,8 @@ type Poll struct {
 	// NOTE: available only when fetching.
 
 	Results *PollResults `json:"results,omitempty"`
-	Expiry  *time.Time   `json:"expiry,omitempty"`
+	// NOTE: as Discord documentation notes, this field might be null even when fetching.
+	Expiry *time.Time `json:"expiry,omitempty"`
 }
 
 // Constants for the different bit offsets of text channel permissions
