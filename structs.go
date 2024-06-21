@@ -2316,7 +2316,8 @@ type PollMedia struct {
 
 // PollAnswer represents a single answer in a poll.
 type PollAnswer struct {
-	AnswerID int        `json:"answer_id"`
+	// NOTE: should not be set on creation.
+	AnswerID int        `json:"answer_id,omitempty"`
 	Media    *PollMedia `json:"poll_media"`
 }
 
