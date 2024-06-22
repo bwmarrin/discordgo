@@ -35,7 +35,7 @@ func init() {
 var (
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
-	defaultMemberPermissions int64 = discordgo.PermissionManageServer
+	defaultMemberPermissions int64 = discordgo.PermissionManageGuild
 
 	commands = []*discordgo.ApplicationCommand{
 		{
