@@ -1766,6 +1766,10 @@ type AutoModerationActionMetadata struct {
 	// Timeout duration in seconds (maximum of 2419200 - 4 weeks).
 	// NOTE: should be only used with timeout action type.
 	Duration int `json:"duration_seconds,omitempty"`
+
+	// Additional explanation that will be shown to members whenever their message is blocked (maximum of 150 characters).
+	// NOTE: should be only used with block message action type.
+	CustomMessage string `json:"custom_message,omitempty"`
 }
 
 // AutoModerationAction stores data for an auto moderation action.
