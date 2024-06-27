@@ -53,6 +53,7 @@ type ChannelCreate struct {
 // ChannelUpdate is the data for a ChannelUpdate event.
 type ChannelUpdate struct {
 	*Channel
+	BeforeUpdate *Channel `json:"-"`
 }
 
 // ChannelDelete is the data for a ChannelDelete event.
