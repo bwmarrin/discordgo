@@ -153,6 +153,8 @@ type Message struct {
 
 	// An array of StickerItem objects, representing sent stickers, if there were any.
 	StickerItems []*StickerItem `json:"sticker_items"`
+
+	Nonce string `json:"nonce"`
 }
 
 // UnmarshalJSON is a helper function to unmarshal the Message.
