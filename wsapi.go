@@ -515,6 +515,21 @@ func (s *Session) RequestGuildMembersBatchList(guildIDs []string, userIDs []stri
 	return
 }
 
+// GatewayWriteStruct allows for sending raw gateway structs over the gateway.
+func (s *Session) GatewayWriteStruct(data interface{}) (err error) {
+	s.RLock()
+	defer s.RUnlock()
+	if s.wsConn == nil {
+		return ErrWSNotFound
+	}
+
+	s.wsMutex.Lock()
+	err = s.wsConn.WriteJSON(data)
+	s.wsMutex.Unlock()
+
+	return err
+}
+
 func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) {
 	s.log(LogInformational, "called")
 
