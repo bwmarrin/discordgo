@@ -495,8 +495,8 @@ func (s *Session) RequestGuildMembersBatchList(guildIDs []string, userIDs []stri
 	return
 }
 
-// SendRawGatewayMessage allows for sending raw gateway messages untouched by discordgo.
-func (s *Session) SendRawGatewayMessage(data interface{}) (err error) {
+// GatewayWriteStruct allows for sending raw gateway structs over the gateway.
+func (s *Session) GatewayWriteStruct(data interface{}) (err error) {
 	s.RLock()
 	defer s.RUnlock()
 	if s.wsConn == nil {
