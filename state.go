@@ -1056,6 +1056,11 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 		}
 	case *ChannelUpdate:
 		if s.TrackChannels {
+			old, err := s.Channel(t.ID)
+			if err == nil {
+				oldCopy := *old
+				t.BeforeUpdate = &oldCopy
+			}
 			err = s.ChannelAdd(t.Channel)
 		}
 	case *ChannelDelete:
