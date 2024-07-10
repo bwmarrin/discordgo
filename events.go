@@ -274,6 +274,7 @@ func (m *MessageDelete) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &m.Message)
 }
 
+// MessageReactionType is the type of reaction. Burst-type reactions are Super Reactions.
 type MessageReactionType int
 
 const (
