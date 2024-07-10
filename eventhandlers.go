@@ -49,6 +49,7 @@ const (
 	messagePollVoteRemoveEventType               = "MESSAGE_POLL_VOTE_REMOVE"
 	messageReactionAddEventType                  = "MESSAGE_REACTION_ADD"
 	messageReactionRemoveEventType               = "MESSAGE_REACTION_REMOVE"
+	messageReactionRemoveEmojiEventType          = "MESSAGE_REACTION_REMOVE_EMOJI"
 	messageReactionRemoveAllEventType            = "MESSAGE_REACTION_REMOVE_ALL"
 	messageUpdateEventType                       = "MESSAGE_UPDATE"
 	presenceUpdateEventType                      = "PRESENCE_UPDATE"
@@ -897,6 +898,26 @@ func (eh messageReactionRemoveEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// messageReactionRemoveEmojiEventHandler is an event handler for MessageReactionRemoveAll events.
+type messageReactionRemoveEmojiEventHandler func(*Session, *MessageReactionRemoveEmoji)
+
+// Type returns the event type for MessageReactionRemoveEmoji events.
+func (eh messageReactionRemoveEmojiEventHandler) Type() string {
+	return messageReactionRemoveEmojiEventType
+}
+
+// New returns a new instance of MessageReactionRemoveEmoji.
+func (eh messageReactionRemoveEmojiEventHandler) New() interface{} {
+	return &MessageReactionRemoveEmoji{}
+}
+
+// Handle is the handler for MessageReactionRemoveEmoji events.
+func (eh messageReactionRemoveEmojiEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*MessageReactionRemoveEmoji); ok {
+		eh(s, t)
+	}
+}
+
 // messageReactionRemoveAllEventHandler is an event handler for MessageReactionRemoveAll events.
 type messageReactionRemoveAllEventHandler func(*Session, *MessageReactionRemoveAll)
 
@@ -1400,6 +1421,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return messageReactionAddEventHandler(v)
 	case func(*Session, *MessageReactionRemove):
 		return messageReactionRemoveEventHandler(v)
+	case func(*Session, *MessageReactionRemoveEmoji):
+		return messageReactionRemoveEmojiEventHandler(v)
 	case func(*Session, *MessageReactionRemoveAll):
 		return messageReactionRemoveAllEventHandler(v)
 	case func(*Session, *MessageUpdate):
@@ -1487,6 +1510,7 @@ func init() {
 	registerInterfaceProvider(messagePollVoteRemoveEventHandler(nil))
 	registerInterfaceProvider(messageReactionAddEventHandler(nil))
 	registerInterfaceProvider(messageReactionRemoveEventHandler(nil))
+	registerInterfaceProvider(messageReactionRemoveEmojiEventHandler(nil))
 	registerInterfaceProvider(messageReactionRemoveAllEventHandler(nil))
 	registerInterfaceProvider(messageUpdateEventHandler(nil))
 	registerInterfaceProvider(presenceUpdateEventHandler(nil))

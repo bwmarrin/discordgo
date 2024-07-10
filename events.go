@@ -274,15 +274,38 @@ func (m *MessageDelete) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &m.Message)
 }
 
+type MessageReactionType int
+
+const (
+	MessageReactionTypeNormal MessageReactionType = 0
+	MessageReactionTypeBurst  MessageReactionType = 1
+)
+
 // MessageReactionAdd is the data for a MessageReactionAdd event.
 type MessageReactionAdd struct {
 	*MessageReaction
-	Member *Member `json:"member,omitempty"`
+	UserID          string              `json:"user_id"`
+	Member          *Member             `json:"member,omitempty"`
+	Emoji           Emoji               `json:"emoji"`
+	MessageAuthorID string              `json:"message_author_id,omitempty"`
+	Burst           bool                `json:"burst"`
+	BurstColors     []string            `json:"burst_colors,omitempty"`
+	Type            MessageReactionType `json:"type"`
 }
 
 // MessageReactionRemove is the data for a MessageReactionRemove event.
 type MessageReactionRemove struct {
 	*MessageReaction
+	UserID string              `json:"user_id"`
+	Emoji  Emoji               `json:"emoji"`
+	Burst  bool                `json:"burst"`
+	Type   MessageReactionType `json:"type"`
+}
+
+// MessageReactionRemoveEmoji is the data for a MessageReactionRemoveEmoji event.
+type MessageReactionRemoveEmoji struct {
+	*MessageReaction
+	Emoji Emoji `json:"emoji"`
 }
 
 // MessageReactionRemoveAll is the data for a MessageReactionRemoveAll event.
