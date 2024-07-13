@@ -241,6 +241,21 @@ type GuildScheduledEventUserRemove struct {
 	GuildID               string `json:"guild_id"`
 }
 
+// IntegrationCreate is the data for a IntegrationCreate event.
+type IntegrationCreate struct {
+	*Integration
+}
+
+// IntegrationUpdate is the data for a IntegrationUpdate event.
+type IntegrationUpdate struct {
+	*Integration
+}
+
+// IntegrationDelete is the data for a IntegrationDelete event.
+type IntegrationDelete struct {
+	*Integration
+}
+
 // MessageCreate is the data for a MessageCreate event.
 type MessageCreate struct {
 	*Message
