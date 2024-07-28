@@ -253,7 +253,9 @@ type IntegrationUpdate struct {
 
 // IntegrationDelete is the data for a IntegrationDelete event.
 type IntegrationDelete struct {
-	*Integration
+    ID                   string `json:"id"`
+    GuildID           string `json:"guild_id"`
+    ApplicationID string `json:"application_id,omitempty"`
 }
 
 // MessageCreate is the data for a MessageCreate event.
