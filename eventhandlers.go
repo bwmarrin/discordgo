@@ -40,8 +40,8 @@ const (
 	guildScheduledEventUserRemoveEventType       = "GUILD_SCHEDULED_EVENT_USER_REMOVE"
 	guildUpdateEventType                         = "GUILD_UPDATE"
 	integrationCreateEventType                   = "INTEGRATION_CREATE"
-	integrationUpdateEventType 				 	 = "INTEGRATION_UPDATE"
-	integrationDeleteEventType 				 	 = "INTEGRATION_DELETE"
+	integrationDeleteEventType                   = "INTEGRATION_DELETE"
+	integrationUpdateEventType                   = "INTEGRATION_UPDATE"
 	interactionCreateEventType                   = "INTERACTION_CREATE"
 	inviteCreateEventType                        = "INVITE_CREATE"
 	inviteDeleteEventType                        = "INVITE_DELETE"
@@ -700,6 +700,66 @@ func (eh guildUpdateEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// integrationCreateEventHandler is an event handler for IntegrationCreate events.
+type integrationCreateEventHandler func(*Session, *IntegrationCreate)
+
+// Type returns the event type for IntegrationCreate events.
+func (eh integrationCreateEventHandler) Type() string {
+	return integrationCreateEventType
+}
+
+// New returns a new instance of IntegrationCreate.
+func (eh integrationCreateEventHandler) New() interface{} {
+	return &IntegrationCreate{}
+}
+
+// Handle is the handler for IntegrationCreate events.
+func (eh integrationCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*IntegrationCreate); ok {
+		eh(s, t)
+	}
+}
+
+// integrationDeleteEventHandler is an event handler for IntegrationDelete events.
+type integrationDeleteEventHandler func(*Session, *IntegrationDelete)
+
+// Type returns the event type for IntegrationDelete events.
+func (eh integrationDeleteEventHandler) Type() string {
+	return integrationDeleteEventType
+}
+
+// New returns a new instance of IntegrationDelete.
+func (eh integrationDeleteEventHandler) New() interface{} {
+	return &IntegrationDelete{}
+}
+
+// Handle is the handler for IntegrationDelete events.
+func (eh integrationDeleteEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*IntegrationDelete); ok {
+		eh(s, t)
+	}
+}
+
+// integrationUpdateEventHandler is an event handler for IntegrationUpdate events.
+type integrationUpdateEventHandler func(*Session, *IntegrationUpdate)
+
+// Type returns the event type for IntegrationUpdate events.
+func (eh integrationUpdateEventHandler) Type() string {
+	return integrationUpdateEventType
+}
+
+// New returns a new instance of IntegrationUpdate.
+func (eh integrationUpdateEventHandler) New() interface{} {
+	return &IntegrationUpdate{}
+}
+
+// Handle is the handler for IntegrationUpdate events.
+func (eh integrationUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*IntegrationUpdate); ok {
+		eh(s, t)
+	}
+}
+
 // interactionCreateEventHandler is an event handler for InteractionCreate events.
 type interactionCreateEventHandler func(*Session, *InteractionCreate)
 
@@ -716,66 +776,6 @@ func (eh interactionCreateEventHandler) New() interface{} {
 // Handle is the handler for InteractionCreate events.
 func (eh interactionCreateEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*InteractionCreate); ok {
-		eh(s, t)
-	}
-}
-
-// IntegrationCreateEventHandler is an event handler for IntegrationCreate events.
-type IntegrationCreateEventHandler func(*Session, *IntegrationCreate)
-
-// Type returns the event type for IntegrationCreate events.
-func (eh IntegrationCreateEventHandler) Type() string {
-	return integrationCreateEventType
-}
-
-// New returns a new instance of IntegrationCreate.
-func (eh IntegrationCreateEventHandler) New() interface{} {
-	return &IntegrationCreate{}
-}
-
-// Handle is the handler for IntegrationCreate events.
-func (eh IntegrationCreateEventHandler) Handle(s *Session, i interface{}) {
-	if t, ok := i.(*IntegrationCreate); ok {
-		eh(s, t)
-	}
-}
-
-// IntegrationUpdateEventHandler is an event handler for IntegrationUpdate events.
-type IntegrationUpdateEventHandler func(*Session, *IntegrationUpdate)
-
-// Type returns the event type for IntegrationUpdate events.
-func (eh IntegrationUpdateEventHandler) Type() string {
-	return integrationUpdateEventType
-}
-
-// New returns a new instance of IntegrationUpdate.
-func (eh IntegrationUpdateEventHandler) New() interface{} {
-	return &IntegrationUpdate{}
-}
-
-// Handle is the handler for IntegrationUpdate events.
-func (eh IntegrationUpdateEventHandler) Handle(s *Session, i interface{}) {
-	if t, ok := i.(*IntegrationUpdate); ok {
-		eh(s, t)
-	}
-}
-
-// IntegrationDeleteEventHandler is an event handler for IntegrationDelete events.
-type IntegrationDeleteEventHandler func(*Session, *IntegrationDelete)
-
-// Type returns the event type for IntegrationDelete events.
-func (eh IntegrationDeleteEventHandler) Type() string {
-	return integrationDeleteEventType
-}
-
-// New returns a new instance of IntegrationDelete.
-func (eh IntegrationDeleteEventHandler) New() interface{} {
-	return &IntegrationDelete{}
-}
-
-// Handle is the handler for IntegrationDelete events.
-func (eh IntegrationDeleteEventHandler) Handle(s *Session, i interface{}) {
-	if t, ok := i.(*IntegrationDelete); ok {
 		eh(s, t)
 	}
 }
@@ -1443,6 +1443,12 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return guildScheduledEventUserRemoveEventHandler(v)
 	case func(*Session, *GuildUpdate):
 		return guildUpdateEventHandler(v)
+	case func(*Session, *IntegrationCreate):
+		return integrationCreateEventHandler(v)
+	case func(*Session, *IntegrationDelete):
+		return integrationDeleteEventHandler(v)
+	case func(*Session, *IntegrationUpdate):
+		return integrationUpdateEventHandler(v)
 	case func(*Session, *InteractionCreate):
 		return interactionCreateEventHandler(v)
 	case func(*Session, *InviteCreate):
@@ -1540,10 +1546,10 @@ func init() {
 	registerInterfaceProvider(guildScheduledEventUserAddEventHandler(nil))
 	registerInterfaceProvider(guildScheduledEventUserRemoveEventHandler(nil))
 	registerInterfaceProvider(guildUpdateEventHandler(nil))
+	registerInterfaceProvider(integrationCreateEventHandler(nil))
+	registerInterfaceProvider(integrationDeleteEventHandler(nil))
+	registerInterfaceProvider(integrationUpdateEventHandler(nil))
 	registerInterfaceProvider(interactionCreateEventHandler(nil))
-	registerInterfaceProvider(IntegrationCreateEventHandler(nil))
-	registerInterfaceProvider(IntegrationUpdateEventHandler(nil))
-	registerInterfaceProvider(IntegrationDeleteEventHandler(nil))
 	registerInterfaceProvider(inviteCreateEventHandler(nil))
 	registerInterfaceProvider(inviteDeleteEventHandler(nil))
 	registerInterfaceProvider(messageCreateEventHandler(nil))
