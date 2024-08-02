@@ -172,6 +172,10 @@ var (
 		return EndpointPoll(cID, mID) + "/expire"
 	}
 
+	EndpointSKUs = func(aID string) string {
+		return EndpointApplication(aID) + "/skus"
+	}
+
 	EndpointEntitlements = func(aID string) string {
 		return EndpointApplication(aID) + "/entitlements"
 	}

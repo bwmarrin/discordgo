@@ -3502,6 +3502,24 @@ func (s *Session) PollExpire(channelID, messageID string) (msg *Message, err err
 }
 
 // ----------------------------------------------------------------------
+// Functions specific to SKUs
+// ----------------------------------------------------------------------
+
+// SKUs returns all SKUs for a given application.
+// appID : The ID of the application.
+func (s *Session) SKUs(appID string) (skus []*SKU, err error) {
+	endpoint := EndpointSKUs(appID)
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &skus)
+	return
+}
+
+// ----------------------------------------------------------------------
 // Functions specific to entitlements
 // ----------------------------------------------------------------------
 

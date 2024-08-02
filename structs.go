@@ -2395,21 +2395,21 @@ type SKUType int
 
 // Valid SKUType values
 const (
-	SKUTypeDurable SKUType 		= 2
-	SKUTypeConsumable SKUType 	= 3
+	SKUTypeDurable      SKUType = 2
+	SKUTypeConsumable   SKUType = 3
 	SKUTypeSubscription SKUType = 5
 	// SKUTypeSubscriptionGroup is a system-generated group for each subscription SKU.
 	SKUTypeSubscriptionGroup SKUType = 6
 )
 
-// SKUFlag is a bitfield of flags used to differentiate user and server subscriptions.
-type SKUFlag int
+// SKUFlags is a bitfield of flags used to differentiate user and server subscriptions.
+type SKUFlags int
 
 const (
 	// SKUFlageAvailable indicates that the SKU is available for purchase.
-	SKUFlagAvailable SKUFlag = 1 << 2
-	SKUFlagGuildSubscription SKUFlag = 1 << 7
-	SKUFlageUserSubscription SKUFlag = 1 << 8
+	SKUFlagAvailable         SKUFlags = 1 << 2
+	SKUFlagGuildSubscription SKUFlags = 1 << 7
+	SKUFlageUserSubscription SKUFlags = 1 << 8
 )
 
 // SKU (stock-keeping units) represent premium offerings.
@@ -2429,8 +2429,9 @@ type SKU struct {
 	// System-generated URL slub based on the SKU's name.
 	Slug string `json:"slug"`
 
-	// SKUFlags combined as a bitfield
-	Flags int `json:"flags"`
+	// SKUFlags combined as a bitfield. The presence of a certain falg can be checked 
+	// by performing a bitwise AND operation between this int and the flag.
+	Flags SKUFlags `json:"flags"`
 }
 
 // EntitlementType is the type of entitlement (see EntitlementType* consts)
