@@ -1,10 +1,10 @@
 package discordgo
 
-// The type of entitlement
+// EntitlementType is the type of entitlement (see EntitlementType* consts)
+// https://discord.com/developers/docs/monetization/entitlements#entitlement-object-entitlement-types
 type EntitlementType int
 
 // Valid EntitlementType values
-// https://discord.com/developers/docs/monetization/entitlements#entitlement-object-entitlement-types
 const (
 	EntitlementTypePurchase = 1
 	EntitlementTypePremiumSubscription = 2
@@ -16,6 +16,8 @@ const (
 	EntitlementTypeApplicationSubscription = 8
 )
 
+// Entitlements represent that a user or guild has access to a premium offering
+// in your application.
 type Entitlement struct {
 	// The ID of the entitlement
 	ID string `json:"id"`
