@@ -6,14 +6,14 @@ type EntitlementType int
 
 // Valid EntitlementType values
 const (
-	EntitlementTypePurchase = 1
-	EntitlementTypePremiumSubscription = 2
-	EntitlementTypeDeveloperGift = 3
-	EntitlementTypeTestModePurchase = 4
-	EntitlementTypeFreePurchase = 5
-	EntitlementTypeUserGift = 6
-	EntitlementTypePremiumPurchase = 7
+	EntitlementTypePurchase                = 1
+	EntitlementTypePremiumSubscription     = 2
+	EntitlementTypeDeveloperGift           = 3
+	EntitlementTypeTestModePurchase        = 4
+	EntitlementTypeFreePurchase            = 5
+	EntitlementTypeUserGift                = 6
 	EntitlementTypeApplicationSubscription = 8
+	EntitlementTypePremiumPurchase         = 7
 )
 
 // Entitlement represents that a user or guild has access to a premium offering
@@ -37,11 +37,11 @@ type Entitlement struct {
 	// The entitlement was deleted
 	Deleted bool `json:"deleted"`
 
-	// The start date at which the entitlement is valid. 
+	// The start date at which the entitlement is valid.
 	// Not present when using test entitlements.
 	StartsAt string `json:"starts_at"`
 
-	// The date at which the entitlement is no longer valid. 
+	// The date at which the entitlement is no longer valid.
 	// Not present when using test entitlements.
 	EndsAt string `json:"ends_at"`
 
