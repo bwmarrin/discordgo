@@ -2406,10 +2406,10 @@ const (
 type SKUFlags int
 
 const (
-	// SKUFlageAvailable indicates that the SKU is available for purchase.
+	// SKUFlagAvailable indicates that the SKU is available for purchase.
 	SKUFlagAvailable         SKUFlags = 1 << 2
 	SKUFlagGuildSubscription SKUFlags = 1 << 7
-	SKUFlageUserSubscription SKUFlags = 1 << 8
+	SKUFlagUserSubscription SKUFlags = 1 << 8
 )
 
 // SKU (stock-keeping units) represent premium offerings.
@@ -2426,10 +2426,10 @@ type SKU struct {
 	// Customer-facing name of the SKU.
 	Name string `json:"name"`
 
-	// System-generated URL slub based on the SKU's name.
+	// System-generated URL slug based on the SKU's name.
 	Slug string `json:"slug"`
 
-	// SKUFlags combined as a bitfield. The presence of a certain falg can be checked 
+	// SKUFlags combined as a bitfield. The presence of a certain flag can be checked
 	// by performing a bitwise AND operation between this int and the flag.
 	Flags SKUFlags `json:"flags"`
 }
