@@ -2446,6 +2446,25 @@ type Entitlement struct {
 	SubscriptionID string `json:"subscription_id,omitempty"`
 }
 
+// EntitlementOwnerType is the type of entitlement
+type EntitlementOwnerType int
+
+const (
+	EntitlementOwnerTypeGuildSubscription EntitlementOwnerType = 1
+	EntitlementOwnerTypeUserSubscription  EntitlementOwnerType = 2
+)
+
+type EntitlementTest struct {
+	// The ID of the SKU to grant the entitlement to
+	SkuID string `json:"sku_id"`
+
+	// The ID of the guild or user to grant the entitlement to
+	OwnerID string `json:"owner_id"`
+
+	// OwnerType is the type of which the entitlement should be created
+	OwnerType EntitlementOwnerType `json:"owner_type"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels

@@ -172,6 +172,16 @@ var (
 		return EndpointPoll(cID, mID) + "/expire"
 	}
 
+	EndpointEntitlements = func(aID string) string {
+		return EndpointApplication(aID) + "/entitlements"
+	}
+	EndpointEntitlement = func(aID, eID string) string {
+		return EndpointEntitlements(aID) + "/" + eID
+	}
+	EndpointEntitlementConsume = func(aID, eID string) string {
+		return EndpointEntitlement(aID, eID) + "/consume"
+	}
+
 	EndpointApplicationGlobalCommands = func(aID string) string {
 		return EndpointApplication(aID) + "/commands"
 	}
