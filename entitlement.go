@@ -16,14 +16,14 @@ const (
 	EntitlementTypeApplicationSubscription = 8
 )
 
-// Entitlements represent that a user or guild has access to a premium offering
+// Entitlement represents that a user or guild has access to a premium offering
 // in your application.
 type Entitlement struct {
 	// The ID of the entitlement
 	ID string `json:"id"`
 
 	// The ID of the SKU
-	SKUID string `json:"sku_id"`
+	SkuID string `json:"sku_id"`
 
 	// The ID of the parent application
 	ApplicationID string `json:"application_id"`
