@@ -2457,7 +2457,7 @@ type Entitlement struct {
 	ID string `json:"id"`
 
 	// The ID of the SKU
-	SkuID string `json:"sku_id"`
+	SKUID string `json:"sku_id"`
 
 	// The ID of the parent application
 	ApplicationID string `json:"application_id"`
