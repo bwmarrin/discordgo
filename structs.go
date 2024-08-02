@@ -2475,11 +2475,11 @@ type Entitlement struct {
 
 	// The start date at which the entitlement is valid.
 	// Not present when using test entitlements.
-	StartsAt string `json:"starts_at,omitempty"`
+	StartsAt *time.Time `json:"starts_at,omitempty"`
 
 	// The date at which the entitlement is no longer valid.
 	// Not present when using test entitlements.
-	EndsAt string `json:"ends_at,omitempty"`
+	EndsAt *time.Time `json:"ends_at,omitempty"`
 
 	// The ID of the guild that is granted access to the entitlement's sku.
 	GuildID string `json:"guild_id,omitempty"`
