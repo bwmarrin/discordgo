@@ -2407,8 +2407,10 @@ type SKUFlags int
 
 const (
 	// SKUFlagAvailable indicates that the SKU is available for purchase.
-	SKUFlagAvailable         SKUFlags = 1 << 2
+	SKUFlagAvailable SKUFlags = 1 << 2
+	// SKUFlagGuildSubscription indicates that the SKU is a guild subscription.
 	SKUFlagGuildSubscription SKUFlags = 1 << 7
+	// SKUFlagUserSubscription indicates that the SKU is a user subscription.
 	SKUFlagUserSubscription SKUFlags = 1 << 8
 )
 
