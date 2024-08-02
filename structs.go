@@ -2418,9 +2418,9 @@ type Entitlement struct {
 	ApplicationID string `json:"application_id"`
 
 	// The ID of the user that is granted access to the entitlement's sku
-	UserID string `json:"user_id"`
+	UserID string `json:"user_id,omitempty"`
 
-	// The type of entitlement
+	// The type of the entitlement
 	Type EntitlementType `json:"type"`
 
 	// The entitlement was deleted
@@ -2428,18 +2428,22 @@ type Entitlement struct {
 
 	// The start date at which the entitlement is valid.
 	// Not present when using test entitlements.
-	StartsAt string `json:"starts_at"`
+	StartsAt string `json:"starts_at,omitempty"`
 
 	// The date at which the entitlement is no longer valid.
 	// Not present when using test entitlements.
-	EndsAt string `json:"ends_at"`
+	EndsAt string `json:"ends_at,omitempty"`
 
 	// The ID of the guild that is granted access to the entitlement's sku.
-	GuildID string `json:"guild_id"`
+	GuildID string `json:"guild_id,omitempty"`
 
 	// Whether or not the entitlement has been consumed.
 	// Only available for consumable items.
-	Consumed bool `json:"consumed"`
+	Consumed bool `json:"consumed,omitempty"`
+
+	// The SubscriptionID of the entitlement.
+	// Not present when using test entitlements.
+	SubscriptionID string `json:"subscription_id,omitempty"`
 }
 
 // Constants for the different bit offsets of text channel permissions
