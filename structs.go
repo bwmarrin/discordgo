@@ -2389,6 +2389,50 @@ type Poll struct {
 	Expiry *time.Time `json:"expiry,omitempty"`
 }
 
+// SKUType is the type of SKU (see SKUType* consts)
+// https://discord.com/developers/docs/monetization/skus
+type SKUType int
+
+// Valid SKUType values
+const (
+	SKUTypeDurable SKUType 		= 2
+	SKUTypeConsumable SKUType 	= 3
+	SKUTypeSubscription SKUType = 5
+	// SKUTypeSubscriptionGroup is a system-generated group for each subscription SKU.
+	SKUTypeSubscriptionGroup SKUType = 6
+)
+
+// SKUFlag is a bitfield of flags used to differentiate user and server subscriptions.
+type SKUFlag int
+
+const (
+	// SKUFlageAvailable indicates that the SKU is available for purchase.
+	SKUFlagAvailable SKUFlag = 1 << 2
+	SKUFlagGuildSubscription SKUFlag = 1 << 7
+	SKUFlageUserSubscription SKUFlag = 1 << 8
+)
+
+// SKU (stock-keeping units) represent premium offerings.
+type SKU struct {
+	// The ID of the SKU
+	ID string `json:"id"`
+
+	// The Type of the SKU
+	Type SKUType `json:"type"`
+
+	// The ID of the parent application
+	ApplicationID string `json:"application_id"`
+
+	// Customer-facing name of the SKU.
+	Name string `json:"name"`
+
+	// System-generated URL slub based on the SKU's name.
+	Slug string `json:"slug"`
+
+	// SKUFlags combined as a bitfield
+	Flags int `json:"flags"`
+}
+
 // EntitlementType is the type of entitlement (see EntitlementType* consts)
 // https://discord.com/developers/docs/monetization/entitlements#entitlement-object-entitlement-types
 type EntitlementType int
