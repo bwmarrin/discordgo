@@ -2449,11 +2449,13 @@ type Entitlement struct {
 // EntitlementOwnerType is the type of entitlement
 type EntitlementOwnerType int
 
+// Valid EntitlementOwnerType values
 const (
 	EntitlementOwnerTypeGuildSubscription EntitlementOwnerType = 1
 	EntitlementOwnerTypeUserSubscription  EntitlementOwnerType = 2
 )
 
+// EntitlementTest is used to test granting an entitlement to a user or guild
 type EntitlementTest struct {
 	// The ID of the SKU to grant the entitlement to
 	SkuID string `json:"sku_id"`
