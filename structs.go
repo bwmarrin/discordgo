@@ -2466,6 +2466,7 @@ type Entitlement struct {
 	ApplicationID string `json:"application_id"`
 
 	// The ID of the user that is granted access to the entitlement's sku
+	// Only available for user subscriptions.
 	UserID string `json:"user_id,omitempty"`
 
 	// The type of the entitlement
@@ -2483,6 +2484,7 @@ type Entitlement struct {
 	EndsAt *time.Time `json:"ends_at,omitempty"`
 
 	// The ID of the guild that is granted access to the entitlement's sku.
+	// Only available for guild subscriptions.
 	GuildID string `json:"guild_id,omitempty"`
 
 	// Whether or not the entitlement has been consumed.
