@@ -2505,7 +2505,7 @@ const (
 // EntitlementTest is used to test granting an entitlement to a user or guild
 type EntitlementTest struct {
 	// The ID of the SKU to grant the entitlement to
-	SkuID string `json:"sku_id"`
+	SKUID string `json:"sku_id"`
 
 	// The ID of the guild or user to grant the entitlement to
 	OwnerID string `json:"owner_id"`
