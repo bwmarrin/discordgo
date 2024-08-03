@@ -2389,6 +2389,130 @@ type Poll struct {
 	Expiry *time.Time `json:"expiry,omitempty"`
 }
 
+// SKUType is the type of SKU (see SKUType* consts)
+// https://discord.com/developers/docs/monetization/skus
+type SKUType int
+
+// Valid SKUType values
+const (
+	SKUTypeDurable      SKUType = 2
+	SKUTypeConsumable   SKUType = 3
+	SKUTypeSubscription SKUType = 5
+	// SKUTypeSubscriptionGroup is a system-generated group for each subscription SKU.
+	SKUTypeSubscriptionGroup SKUType = 6
+)
+
+// SKUFlags is a bitfield of flags used to differentiate user and server subscriptions (see SKUFlag* consts)
+// https://discord.com/developers/docs/monetization/skus#sku-object-sku-flags
+type SKUFlags int
+
+const (
+	// SKUFlagAvailable indicates that the SKU is available for purchase.
+	SKUFlagAvailable SKUFlags = 1 << 2
+	// SKUFlagGuildSubscription indicates that the SKU is a guild subscription.
+	SKUFlagGuildSubscription SKUFlags = 1 << 7
+	// SKUFlagUserSubscription indicates that the SKU is a user subscription.
+	SKUFlagUserSubscription SKUFlags = 1 << 8
+)
+
+// SKU (stock-keeping units) represent premium offerings
+type SKU struct {
+	// The ID of the SKU
+	ID string `json:"id"`
+
+	// The Type of the SKU
+	Type SKUType `json:"type"`
+
+	// The ID of the parent application
+	ApplicationID string `json:"application_id"`
+
+	// Customer-facing name of the SKU.
+	Name string `json:"name"`
+
+	// System-generated URL slug based on the SKU's name.
+	Slug string `json:"slug"`
+
+	// SKUFlags combined as a bitfield. The presence of a certain flag can be checked
+	// by performing a bitwise AND operation between this int and the flag.
+	Flags SKUFlags `json:"flags"`
+}
+
+// EntitlementType is the type of entitlement (see EntitlementType* consts)
+// https://discord.com/developers/docs/monetization/entitlements#entitlement-object-entitlement-types
+type EntitlementType int
+
+// Valid EntitlementType values
+const (
+	EntitlementTypePurchase                = 1
+	EntitlementTypePremiumSubscription     = 2
+	EntitlementTypeDeveloperGift           = 3
+	EntitlementTypeTestModePurchase        = 4
+	EntitlementTypeFreePurchase            = 5
+	EntitlementTypeUserGift                = 6
+	EntitlementTypeApplicationSubscription = 8
+	EntitlementTypePremiumPurchase         = 7
+)
+
+// Entitlement represents that a user or guild has access to a premium offering
+// in your application.
+type Entitlement struct {
+	// The ID of the entitlement
+	ID string `json:"id"`
+
+	// The ID of the SKU
+	SKUID string `json:"sku_id"`
+
+	// The ID of the parent application
+	ApplicationID string `json:"application_id"`
+
+	// The ID of the user that is granted access to the entitlement's sku
+	// Only available for user subscriptions.
+	UserID string `json:"user_id,omitempty"`
+
+	// The type of the entitlement
+	Type EntitlementType `json:"type"`
+
+	// The entitlement was deleted
+	Deleted bool `json:"deleted"`
+
+	// The start date at which the entitlement is valid.
+	// Not present when using test entitlements.
+	StartsAt *time.Time `json:"starts_at,omitempty"`
+
+	// The date at which the entitlement is no longer valid.
+	// Not present when using test entitlements.
+	EndsAt *time.Time `json:"ends_at,omitempty"`
+
+	// The ID of the guild that is granted access to the entitlement's sku.
+	// Only available for guild subscriptions.
+	GuildID string `json:"guild_id,omitempty"`
+
+	// Whether or not the entitlement has been consumed.
+	// Only available for consumable items.
+	Consumed bool `json:"consumed,omitempty"`
+}
+
+// EntitlementOwnerType is the type of entitlement (see EntitlementOwnerType* consts)
+type EntitlementOwnerType int
+
+// Valid EntitlementOwnerType values
+const (
+	EntitlementOwnerTypeGuildSubscription EntitlementOwnerType = 1
+	EntitlementOwnerTypeUserSubscription  EntitlementOwnerType = 2
+)
+
+// EntitlementTest is used to test granting an entitlement to a user or guild
+type EntitlementTest struct {
+	// The ID of the SKU to grant the entitlement to
+	SKUID string `json:"sku_id"`
+
+	// The ID of the guild or user to grant the entitlement to
+	OwnerID string `json:"owner_id"`
+
+	// OwnerType is the type of which the entitlement should be created
+	OwnerType EntitlementOwnerType `json:"owner_type"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
