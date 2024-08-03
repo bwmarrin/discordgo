@@ -2488,10 +2488,6 @@ type Entitlement struct {
 	// Whether or not the entitlement has been consumed.
 	// Only available for consumable items.
 	Consumed bool `json:"consumed,omitempty"`
-
-	// The SubscriptionID of the entitlement.
-	// Not present when using test entitlements.
-	SubscriptionID string `json:"subscription_id,omitempty"`
 }
 
 // EntitlementOwnerType is the type of entitlement (see EntitlementOwnerType* consts)
