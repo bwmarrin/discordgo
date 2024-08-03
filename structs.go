@@ -2402,7 +2402,8 @@ const (
 	SKUTypeSubscriptionGroup SKUType = 6
 )
 
-// SKUFlags is a bitfield of flags used to differentiate user and server subscriptions.
+// SKUFlags is a bitfield of flags used to differentiate user and server subscriptions (see SKUFlag* consts)
+// https://discord.com/developers/docs/monetization/skus#sku-object-sku-flags
 type SKUFlags int
 
 const (
@@ -2414,7 +2415,7 @@ const (
 	SKUFlagUserSubscription SKUFlags = 1 << 8
 )
 
-// SKU (stock-keeping units) represent premium offerings.
+// SKU (stock-keeping units) represent premium offerings
 type SKU struct {
 	// The ID of the SKU
 	ID string `json:"id"`
@@ -2493,7 +2494,7 @@ type Entitlement struct {
 	SubscriptionID string `json:"subscription_id,omitempty"`
 }
 
-// EntitlementOwnerType is the type of entitlement
+// EntitlementOwnerType is the type of entitlement (see EntitlementOwnerType* consts)
 type EntitlementOwnerType int
 
 // Valid EntitlementOwnerType values
