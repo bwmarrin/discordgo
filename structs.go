@@ -2449,8 +2449,8 @@ const (
 	EntitlementTypeTestModePurchase        = 4
 	EntitlementTypeFreePurchase            = 5
 	EntitlementTypeUserGift                = 6
-	EntitlementTypeApplicationSubscription = 8
 	EntitlementTypePremiumPurchase         = 7
+	EntitlementTypeApplicationSubscription = 8
 )
 
 // Entitlement represents that a user or guild has access to a premium offering
