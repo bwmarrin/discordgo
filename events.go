@@ -446,17 +446,17 @@ type MessagePollVoteRemove struct {
 	AnswerID  int    `json:"answer_id"`
 }
 
-// EntitlementCreate is the data for a EntitlementCreate event.
+// EntitlementCreate is the data for an EntitlementCreate event.
 type EntitlementCreate struct {
 	*Entitlement
 }
 
-// EntitlementUpdate is the data for a EntitlementUpdate event.
+// EntitlementUpdate is the data for an EntitlementUpdate event.
 type EntitlementUpdate struct {
 	*Entitlement
 }
 
-// EntitlementDelete is the data for a EntitlementDelete event.
+// EntitlementDelete is the data for an EntitlementDelete event.
 // NOTE: Entitlements are not deleted when they expire.
 type EntitlementDelete struct {
 	*Entitlement
