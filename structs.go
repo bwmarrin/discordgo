@@ -2513,6 +2513,30 @@ type EntitlementTest struct {
 	OwnerType EntitlementOwnerType `json:"owner_type"`
 }
 
+// EntitlementFilterOptions are the options for filtering Entitlements
+type EntitlementFilterOptions struct {
+	// Optional user ID to look up for.
+	UserID string
+
+	// Optional array of SKU IDs to check for.
+	SkuIDs []string
+
+	// Optional timestamp (snowflake) to retrieve Entitlements before this time.
+	BeforeID string
+
+	// Optional timestamp (snowflake) to retrieve Entitlements after this time.
+	AfterID string
+
+	// Optional maximum number of entitlements to return (1-100, default 100).
+	Limit int
+
+	// Optional guild ID to look up for.
+	GuildID string
+
+	// Optional whether or not ended entitlements should be omitted.
+	ExcludeEnded bool
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels

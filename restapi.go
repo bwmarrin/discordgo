@@ -3525,37 +3525,33 @@ func (s *Session) SKUs(appID string) (skus []*SKU, err error) {
 
 // Entitlements returns all antitlements for a given app, active and expired.
 // appID			: The ID of the application.
-// userID			: Optional user ID to look up for.
-// skuIDs			: Optional array of SKU IDs to check for.
-// before			: Optional timestamp to retrieve Entitlements before this time.
-// after			: Optional timestamp to retrieve Entitlements after this time.
-// limit			: Optional maximum number of entitlements to return (1-100, default 100).
-// guildID			: Optional guild ID to look up for.
-// exclude_ended	: Optional whether or not ended entitlements should be omitted.
-func (s *Session) Entitlements(appID, userID string, skuIDs *[]string, beforeID, afterID string, limit int, guildID string, excludeEnded bool, options ...RequestOption) (entitlements []*Entitlement, err error) {
+// filterOptions	: Optional filter options; otherwise set it to nil.
+func (s *Session) Entitlements(appID string, filterOptions *EntitlementFilterOptions, options ...RequestOption) (entitlements []*Entitlement, err error) {
 	endpoint := EndpointEntitlements(appID)
 
 	queryParams := url.Values{}
-	if userID != "" {
-		queryParams.Set("user_id", userID)
-	}
-	if skuIDs != nil && len(*skuIDs) > 0 {
-		queryParams.Set("sku_ids", strings.Join(*skuIDs, ","))
-	}
-	if beforeID != "" {
-		queryParams.Set("before", beforeID)
-	}
-	if afterID != "" {
-		queryParams.Set("after", afterID)
-	}
-	if limit > 0 {
-		queryParams.Set("limit", strconv.Itoa(limit))
-	}
-	if guildID != "" {
-		queryParams.Set("guild_id", guildID)
-	}
-	if excludeEnded {
-		queryParams.Set("exclude_ended", "true")
+	if filterOptions != nil {
+		if filterOptions.UserID != "" {
+			queryParams.Set("user_id", filterOptions.UserID)
+		}
+		if filterOptions.SkuIDs != nil && len(filterOptions.SkuIDs) > 0 {
+			queryParams.Set("sku_ids", strings.Join(filterOptions.SkuIDs, ","))
+		}
+		if filterOptions.BeforeID != "" {
+			queryParams.Set("before", filterOptions.BeforeID)
+		}
+		if filterOptions.AfterID != "" {
+			queryParams.Set("after", filterOptions.AfterID)
+		}
+		if filterOptions.Limit > 0 {
+			queryParams.Set("limit", strconv.Itoa(filterOptions.Limit))
+		}
+		if filterOptions.GuildID != "" {
+			queryParams.Set("guild_id", filterOptions.GuildID)
+		}
+		if filterOptions.ExcludeEnded {
+			queryParams.Set("exclude_ended", "true")
+		}
 	}
 
 	body, err := s.RequestWithBucketID("GET", endpoint+"?"+queryParams.Encode(), nil, endpoint, options...)
