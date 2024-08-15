@@ -2374,7 +2374,7 @@ type PollResults struct {
 
 // Poll contains all poll related data.
 type Poll struct {
-	Question         PollMedia      `json:"question"`
+	Question         string         `json:"question"`
 	Answers          []PollAnswer   `json:"answers"`
 	AllowMultiselect bool           `json:"allow_multiselect"`
 	LayoutType       PollLayoutType `json:"layout_type,omitempty"`
