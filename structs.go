@@ -2369,7 +2369,7 @@ type PollAnswerCount struct {
 // PollResults contains voting results on a poll.
 type PollResults struct {
 	Finalized    bool               `json:"is_finalized"`
-	AnswerCounts []*PollAnswerCount `json:"answer_count"`
+	AnswerCounts []*PollAnswerCount `json:"answer_counts"`
 }
 
 // Poll contains all poll related data.
