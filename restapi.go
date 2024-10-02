@@ -1462,7 +1462,16 @@ func (s *Session) ApplicationEmojis(appID string, options ...RequestOption) (emo
 		return
 	}
 
-	err = unmarshal(body, &emoji)
+	var temp struct {
+		Items []*Emoji `json:"items"`
+	}
+
+	err = unmarshal(body, &temp)
+	if err != nil {
+		return
+	}
+
+	emoji = temp.Items
 	return
 }
 

@@ -643,6 +643,7 @@ type EmojiParams struct {
 	// NOTE: can be only set on creation.
 	Image string `json:"image,omitempty"`
 	// Roles for which this emoji will be available.
+	// NOTE: can not be used with application emoji endpoints.
 	Roles []string `json:"roles,omitempty"`
 }
 
