@@ -471,12 +471,23 @@ type MessageApplication struct {
 	Name        string `json:"name"`
 }
 
+// MessageReferenceType is a type of MessageReference
+type MessageReferenceType int
+
+// Known valid MessageReferenceType values
+// https://discord.com/developers/docs/resources/message#message-reference-types
+const (
+	MessageReferenceTypeDefault MessageReferenceType = 0
+	MessageReferenceTypeForward MessageReferenceType = 1
+)
+
 // MessageReference contains reference data sent with crossposted messages
 type MessageReference struct {
-	MessageID       string `json:"message_id"`
-	ChannelID       string `json:"channel_id,omitempty"`
-	GuildID         string `json:"guild_id,omitempty"`
-	FailIfNotExists *bool  `json:"fail_if_not_exists,omitempty"`
+	Type            *MessageReferenceType `json:"type,omitempty"`
+	MessageID       string                `json:"message_id"`
+	ChannelID       string                `json:"channel_id,omitempty"`
+	GuildID         string                `json:"guild_id,omitempty"`
+	FailIfNotExists *bool                 `json:"fail_if_not_exists,omitempty"`
 }
 
 func (m *Message) reference(failIfNotExists bool) *MessageReference {
