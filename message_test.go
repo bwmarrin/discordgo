@@ -53,12 +53,11 @@ func TestGettingEmojisFromMessage(t *testing.T) {
 
 func TestMessage_URL(t *testing.T) {
 	m := &Message{
-		GuildID:   "foo",
 		ChannelID: "bar",
 		ID:        "baz",
 	}
 
-	if m.URL() != "https://discord.com/channels/foo/bar/baz" {
-		t.Error("Unexpected url: " + m.URL())
+	if m.URL("foo") != "https://discord.com/channels/foo/bar/baz" {
+		t.Error("Unexpected url: " + m.URL(""))
 	}
 }

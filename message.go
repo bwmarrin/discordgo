@@ -597,6 +597,7 @@ type MessageInteractionMetadata struct {
 }
 
 // URL returns the canonical Discord message URL
-func (m *Message) URL() string {
-	return EndpointMessageURL(m.GuildID, m.ChannelID, m.ID)
+// guildID is required explicitly as it is not guaranteed to be present in some contexts (e.g. interaction creations)
+func (m *Message) URL(guildID string) string {
+	return EndpointMessageURL(guildID, m.ChannelID, m.ID)
 }
