@@ -3581,7 +3581,7 @@ func (s *Session) EntitlementTestDelete(appID, entitlementID string, options ...
 	return
 }
 
-// Returns all subscriptions containing the SKU.
+// Subscriptions returns all subscriptions containing the SKU.
 // skuID : The ID of the SKU.
 // userID : User ID for which to return subscriptions. Required except for OAuth queries.
 // before : Optional timestamp to retrieve subscriptions before this time.

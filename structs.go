@@ -2437,6 +2437,7 @@ type SKU struct {
 	Flags SKUFlags `json:"flags"`
 }
 
+// Subscriptions represent a user making recurring payments for at least one SKU over an ongoing period.
 // https://discord.com/developers/docs/resources/subscription#subscription-object
 type Subscription struct {
 	// ID of the subscription
@@ -2468,8 +2469,10 @@ type Subscription struct {
 }
 
 // SubscriptionStatus is the current status of a Subscription Object
+// https://discord.com/developers/docs/resources/subscription#subscription-statuses
 type SubscriptionStatus int
 
+// Valid SubscriptionStatus values
 const (
 	SubscriptionStatusActive   = 0
 	SubscriptionStatusEnding   = 1
