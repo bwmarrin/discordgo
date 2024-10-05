@@ -2437,6 +2437,45 @@ type SKU struct {
 	Flags SKUFlags `json:"flags"`
 }
 
+// https://discord.com/developers/docs/resources/subscription#subscription-object
+type Subscription struct {
+	// ID of the subscription
+	ID string `json:"id"`
+
+	// ID of the user who is subscribed
+	UserID string `json:"user_id"`
+
+	// List of SKUs subscribed to
+	SKUIDs []string `json:"sku_ids"`
+
+	// List of entitlements granted for this subscription
+	EntitlementIDs []string `json:"entitlement_ids"`
+
+	// Start of the current subscription period
+	CurrentPeriodStart time.Time `json:"current_period_start"`
+
+	// End of the current subscription period
+	CurrentPeriodEnd time.Time `json:"current_period_end"`
+
+	// Current status of the subscription
+	Status SubscriptionStatus `json:"status"`
+
+	// When the subscription was canceled. Only present if the subscription has been canceled.
+	CanceledAt *time.Time `json:"canceled_at,omitempty"`
+
+	// ISO3166-1 alpha-2 country code of the payment source used to purchase the subscription. Missing unless queried with a private OAuth scope.
+	Country *string `json:"country,omitempty"`
+}
+
+// SubscriptionStatus is the current status of a Subscription Object
+type SubscriptionStatus int
+
+const (
+	SubscriptionStatusActive   = 0
+	SubscriptionStatusEnding   = 1
+	SubscriptionStatusInactive = 2
+)
+
 // EntitlementType is the type of entitlement (see EntitlementType* consts)
 // https://discord.com/developers/docs/monetization/entitlements#entitlement-object-entitlement-types
 type EntitlementType int
@@ -2480,7 +2519,7 @@ type Entitlement struct {
 	StartsAt *time.Time `json:"starts_at,omitempty"`
 
 	// The date at which the entitlement is no longer valid.
-	// Not present when using test entitlements.
+	// Not present when using test entitlements or when receiving an ENTITLEMENT_CREATE event.
 	EndsAt *time.Time `json:"ends_at,omitempty"`
 
 	// The ID of the guild that is granted access to the entitlement's sku.
@@ -2490,6 +2529,10 @@ type Entitlement struct {
 	// Whether or not the entitlement has been consumed.
 	// Only available for consumable items.
 	Consumed bool `json:"consumed,omitempty"`
+
+	// The SubscriptionID of the entitlement.
+	// Not present when using test entitlements.
+	SubscriptionID *string `json:"subscription_id,omitempty"`
 }
 
 // EntitlementOwnerType is the type of entitlement (see EntitlementOwnerType* consts)

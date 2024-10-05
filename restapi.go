@@ -3502,13 +3502,13 @@ func (s *Session) PollExpire(channelID, messageID string) (msg *Message, err err
 }
 
 // ----------------------------------------------------------------------
-// Functions specific to SKUs
+// Functions specific to monetization
 // ----------------------------------------------------------------------
 
 // SKUs returns all SKUs for a given application.
 // appID : The ID of the application.
 func (s *Session) SKUs(appID string) (skus []*SKU, err error) {
-	endpoint := EndpointSKUs(appID)
+	endpoint := EndpointApplicationSKUs(appID)
 
 	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint)
 	if err != nil {
@@ -3519,11 +3519,7 @@ func (s *Session) SKUs(appID string) (skus []*SKU, err error) {
 	return
 }
 
-// ----------------------------------------------------------------------
-// Functions specific to entitlements
-// ----------------------------------------------------------------------
-
-// Entitlements returns all antitlements for a given app, active and expired.
+// Entitlements returns all Entitlements for a given app, active and expired.
 // appID			: The ID of the application.
 // filterOptions	: Optional filter options; otherwise set it to nil.
 func (s *Session) Entitlements(appID string, filterOptions *EntitlementFilterOptions, options ...RequestOption) (entitlements []*Entitlement, err error) {
@@ -3582,5 +3578,59 @@ func (s *Session) EntitlementTestCreate(appID string, data *EntitlementTest, opt
 // that user or guild no longer has entitlement to your premium offering.
 func (s *Session) EntitlementTestDelete(appID, entitlementID string, options ...RequestOption) (err error) {
 	_, err = s.RequestWithBucketID("DELETE", EndpointEntitlement(appID, entitlementID), nil, EndpointEntitlement(appID, ""), options...)
+	return
+}
+
+// Returns all subscriptions containing the SKU.
+// skuID : The ID of the SKU.
+// userID : User ID for which to return subscriptions. Required except for OAuth queries.
+// before : Optional timestamp to retrieve subscriptions before this time.
+// after : Optional timestamp to retrieve subscriptions after this time.
+// limit : Optional maximum number of subscriptions to return (1-100, default 50).
+func (s *Session) Subscriptions(skuID string, userID string, before, after *time.Time, limit int, options ...RequestOption) (subscriptions []*Subscription, err error) {
+	endpoint := EndpointSubscriptions(skuID)
+
+	queryParams := url.Values{}
+	if before != nil {
+		queryParams.Set("before", before.Format(time.RFC3339))
+	}
+	if after != nil {
+		queryParams.Set("after", after.Format(time.RFC3339))
+	}
+	if userID != "" {
+		queryParams.Set("user_id", userID)
+	}
+	if limit > 0 {
+		queryParams.Set("limit", strconv.Itoa(limit))
+	}
+
+	body, err := s.RequestWithBucketID("GET", endpoint+"?"+queryParams.Encode(), nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &subscriptions)
+	return
+}
+
+// Subscription returns a subscription by its SKU and subscription ID.
+// skuID : The ID of the SKU.
+// subscriptionID : The ID of the subscription.
+// userID : User ID for which to return the subscription. Required except for OAuth queries.
+func (s *Session) Subscription(skuID, subscriptionID, userID string, options ...RequestOption) (subscription *Subscription, err error) {
+	endpoint := EndpointSubscription(skuID, subscriptionID)
+
+	queryParams := url.Values{}
+	if userID != "" {
+		// Unlike stated in the documentation, the user_id parameter is required here.
+		queryParams.Set("user_id", userID)
+	}
+
+	body, err := s.RequestWithBucketID("GET", endpoint+"?"+queryParams.Encode(), nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &subscription)
 	return
 }
