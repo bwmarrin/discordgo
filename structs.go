@@ -2437,7 +2437,7 @@ type SKU struct {
 	Flags SKUFlags `json:"flags"`
 }
 
-// Subscriptions represent a user making recurring payments for at least one SKU over an ongoing period.
+// Subscription represents a user making recurring payments for at least one SKU over an ongoing period.
 // https://discord.com/developers/docs/resources/subscription#subscription-object
 type Subscription struct {
 	// ID of the subscription
