@@ -3533,11 +3533,11 @@ func (s *Session) Entitlements(appID string, filterOptions *EntitlementFilterOpt
 		if filterOptions.SkuIDs != nil && len(filterOptions.SkuIDs) > 0 {
 			queryParams.Set("sku_ids", strings.Join(filterOptions.SkuIDs, ","))
 		}
-		if filterOptions.BeforeID != "" {
-			queryParams.Set("before", filterOptions.BeforeID)
+		if filterOptions.Before != nil {
+			queryParams.Set("before", filterOptions.Before.Format(time.RFC3339))
 		}
-		if filterOptions.AfterID != "" {
-			queryParams.Set("after", filterOptions.AfterID)
+		if filterOptions.After != nil {
+			queryParams.Set("after", filterOptions.After.Format(time.RFC3339))
 		}
 		if filterOptions.Limit > 0 {
 			queryParams.Set("limit", strconv.Itoa(filterOptions.Limit))

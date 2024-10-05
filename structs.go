@@ -2506,7 +2506,7 @@ type Entitlement struct {
 
 	// The ID of the user that is granted access to the entitlement's sku
 	// Only available for user subscriptions.
-	UserID string `json:"user_id,omitempty"`
+	UserID *string `json:"user_id,omitempty"`
 
 	// The type of the entitlement
 	Type EntitlementType `json:"type"`
@@ -2524,11 +2524,11 @@ type Entitlement struct {
 
 	// The ID of the guild that is granted access to the entitlement's sku.
 	// Only available for guild subscriptions.
-	GuildID string `json:"guild_id,omitempty"`
+	GuildID *string `json:"guild_id,omitempty"`
 
 	// Whether or not the entitlement has been consumed.
 	// Only available for consumable items.
-	Consumed bool `json:"consumed,omitempty"`
+	Consumed *bool `json:"consumed,omitempty"`
 
 	// The SubscriptionID of the entitlement.
 	// Not present when using test entitlements.
@@ -2564,11 +2564,11 @@ type EntitlementFilterOptions struct {
 	// Optional array of SKU IDs to check for.
 	SkuIDs []string
 
-	// Optional timestamp (snowflake) to retrieve Entitlements before this time.
-	BeforeID string
+	// Optional timestamp to retrieve Entitlements before this time.
+	Before *time.Time
 
-	// Optional timestamp (snowflake) to retrieve Entitlements after this time.
-	AfterID string
+	// Optional timestamp to retrieve Entitlements after this time.
+	After *time.Time
 
 	// Optional maximum number of entitlements to return (1-100, default 100).
 	Limit int
