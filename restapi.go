@@ -1454,6 +1454,76 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string, options ...RequestOp
 	return
 }
 
+// ApplicationEmojis returns all emojis for the given application
+// appID : ID of the application
+func (s *Session) ApplicationEmojis(appID string, options ...RequestOption) (emojis []*Emoji, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointApplicationEmojis(appID), nil, EndpointApplicationEmojis(appID), options...)
+	if err != nil {
+		return
+	}
+
+	var temp struct {
+		Items []*Emoji `json:"items"`
+	}
+
+	err = unmarshal(body, &temp)
+	if err != nil {
+		return
+	}
+
+	emojis = temp.Items
+	return
+}
+
+// ApplicationEmoji returns the emoji for the given application.
+// appID   : ID of the application
+// emojiID : ID of an Emoji to retrieve
+func (s *Session) ApplicationEmoji(appID, emojiID string, options ...RequestOption) (emoji *Emoji, err error) {
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", EndpointApplicationEmoji(appID, emojiID), nil, EndpointApplicationEmoji(appID, emojiID), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emoji)
+	return
+}
+
+// ApplicationEmojiCreate creates a new Emoji for the given application.
+// appID : ID of the application
+// data  : New Emoji data
+func (s *Session) ApplicationEmojiCreate(appID string, data *EmojiParams, options ...RequestOption) (emoji *Emoji, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointApplicationEmojis(appID), data, EndpointApplicationEmojis(appID), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emoji)
+	return
+}
+
+// ApplicationEmojiEdit modifies and returns updated Emoji for the given application.
+// appID   : ID of the application
+// emojiID : ID of an Emoji
+// data    : Updated Emoji data
+func (s *Session) ApplicationEmojiEdit(appID string, emojiID string, data *EmojiParams, options ...RequestOption) (emoji *Emoji, err error) {
+	body, err := s.RequestWithBucketID("PATCH", EndpointApplicationEmoji(appID, emojiID), data, EndpointApplicationEmojis(appID), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &emoji)
+	return
+}
+
+// ApplicationEmojiDelete deletes an Emoji for the given application.
+// appID   : ID of the application
+// emojiID : ID of an Emoji
+func (s *Session) ApplicationEmojiDelete(appID, emojiID string, options ...RequestOption) (err error) {
+	_, err = s.RequestWithBucketID("DELETE", EndpointApplicationEmoji(appID, emojiID), nil, EndpointApplicationEmojis(appID), options...)
+	return
+}
+
 // GuildTemplate returns a GuildTemplate for the given code
 // templateCode: The Code of a GuildTemplate
 func (s *Session) GuildTemplate(templateCode string, options ...RequestOption) (st *GuildTemplate, err error) {
