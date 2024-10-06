@@ -1456,7 +1456,7 @@ func (s *Session) GuildEmojiDelete(guildID, emojiID string, options ...RequestOp
 
 // ApplicationEmojis returns all emojis for the given application
 // appID : ID of the application
-func (s *Session) ApplicationEmojis(appID string, options ...RequestOption) (emoji []*Emoji, err error) {
+func (s *Session) ApplicationEmojis(appID string, options ...RequestOption) (emojis []*Emoji, err error) {
 	body, err := s.RequestWithBucketID("GET", EndpointApplicationEmojis(appID), nil, EndpointApplicationEmojis(appID), options...)
 	if err != nil {
 		return
@@ -1471,7 +1471,7 @@ func (s *Session) ApplicationEmojis(appID string, options ...RequestOption) (emo
 		return
 	}
 
-	emoji = temp.Items
+	emojis = temp.Items
 	return
 }
 
