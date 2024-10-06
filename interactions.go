@@ -255,6 +255,10 @@ type Interaction struct {
 
 	Token   string `json:"token"`
 	Version int    `json:"version"`
+
+	// Any entitlements for the invoking user, representing access to premium SKUs.
+	// NOTE: this field is only filled in monetized apps
+	Entitlements []*Entitlement `json:"entitlements"`
 }
 
 type interaction Interaction

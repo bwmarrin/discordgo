@@ -121,6 +121,8 @@ const (
 	DangerButton ButtonStyle = 4
 	// LinkButton is a special type of button which navigates to a URL. Has grey color.
 	LinkButton ButtonStyle = 5
+	// PremiumButton is a special type of button with a blurple color that links to a SKU.
+	PremiumButton ButtonStyle = 6
 )
 
 // ComponentEmoji represents button emoji, if it does have one.
@@ -140,6 +142,8 @@ type Button struct {
 	// NOTE: Only button with LinkButton style can have link. Also, URL is mutually exclusive with CustomID.
 	URL      string `json:"url,omitempty"`
 	CustomID string `json:"custom_id,omitempty"`
+	// Identifier for a purchasable SKU. Only available when using premium-style buttons.
+	SKUID string `json:"sku_id,omitempty"`
 }
 
 // MarshalJSON is a method for marshaling Button to a JSON object.
