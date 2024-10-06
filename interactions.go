@@ -326,7 +326,7 @@ type ApplicationCommandInteractionData struct {
 	TargetID string `json:"target_id"`
 }
 
-// Get the interaction data option by name
+// GetOption finds and returns an application command option by its name.
 func (d ApplicationCommandInteractionData) GetOption(name string) (option *ApplicationCommandInteractionDataOption) {
 	for _, opt := range d.Options {
 		if opt.Name == name {
@@ -420,7 +420,7 @@ type ApplicationCommandInteractionDataOption struct {
 	Focused bool `json:"focused,omitempty"`
 }
 
-// Get the interaction data option by name
+// GetOption finds and returns an application command option by its name.
 func (o ApplicationCommandInteractionDataOption) GetOption(name string) (option *ApplicationCommandInteractionDataOption) {
 	for _, opt := range o.Options {
 		if opt.Name == name {
