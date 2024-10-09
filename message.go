@@ -595,3 +595,9 @@ type MessageInteractionMetadata struct {
 	// NOTE: present only on modal submit interactions.
 	TriggeringInteractionMetadata *MessageInteractionMetadata `json:"triggering_interaction_metadata,omitempty"`
 }
+
+// URL returns the canonical Discord message URL
+// guildID is required explicitly as it is not guaranteed to be present in some contexts (e.g. interaction creations)
+func (m *Message) URL(guildID string) string {
+	return EndpointMessageURL(guildID, m.ChannelID, m.ID)
+}
