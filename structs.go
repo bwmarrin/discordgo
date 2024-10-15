@@ -2465,7 +2465,7 @@ type Subscription struct {
 	CanceledAt *time.Time `json:"canceled_at,omitempty"`
 
 	// ISO3166-1 alpha-2 country code of the payment source used to purchase the subscription. Missing unless queried with a private OAuth scope.
-	Country *string `json:"country,omitempty"`
+	Country string `json:"country,omitempty"`
 }
 
 // SubscriptionStatus is the current status of a Subscription Object
@@ -2509,7 +2509,7 @@ type Entitlement struct {
 
 	// The ID of the user that is granted access to the entitlement's sku
 	// Only available for user subscriptions.
-	UserID *string `json:"user_id,omitempty"`
+	UserID string `json:"user_id,omitempty"`
 
 	// The type of the entitlement
 	Type EntitlementType `json:"type"`
@@ -2527,7 +2527,7 @@ type Entitlement struct {
 
 	// The ID of the guild that is granted access to the entitlement's sku.
 	// Only available for guild subscriptions.
-	GuildID *string `json:"guild_id,omitempty"`
+	GuildID string `json:"guild_id,omitempty"`
 
 	// Whether or not the entitlement has been consumed.
 	// Only available for consumable items.
@@ -2535,7 +2535,7 @@ type Entitlement struct {
 
 	// The SubscriptionID of the entitlement.
 	// Not present when using test entitlements.
-	SubscriptionID *string `json:"subscription_id,omitempty"`
+	SubscriptionID string `json:"subscription_id,omitempty"`
 }
 
 // EntitlementOwnerType is the type of entitlement (see EntitlementOwnerType* consts)
