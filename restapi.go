@@ -3133,6 +3133,7 @@ func (s *Session) ApplicationCommandPermissionsBatchEdit(appID, guildID string, 
 // InteractionRespond creates the response to an interaction.
 // interaction : Interaction instance.
 // resp        : Response message data.
+// If the interaction type returns a body, then interactionCallbackResponse will be returned
 func (s *Session) InteractionRespond(interaction *Interaction, resp *InteractionResponse, options ...RequestOption) (interactionCallbackResponse *InteractionCallbackResponse, err error) {
 	endpoint := EndpointInteractionResponse(interaction.ID, interaction.Token)
 
@@ -3148,7 +3149,7 @@ func (s *Session) InteractionRespond(interaction *Interaction, resp *Interaction
 
 	body, err := s.RequestWithBucketID("POST", endpoint, *resp, endpoint, options...)
 
-	if err != nil {
+	if err != nil || len(body) == 0 {
 		return
 	}
 
