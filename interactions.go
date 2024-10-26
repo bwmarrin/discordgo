@@ -647,6 +647,9 @@ type InteractionCallbackResource struct {
 	Message *Message `json:"message"`
 }
 
+// InteractionCallbackActivityInstance represents the Activity launched by this interaction
+// Only present if InteractionCallbackResource.Type is InteractionResponseLaunchActivity
+// https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback-interaction-callback-activity-instance-resource
 type InteractionCallbackActivityInstance struct {
 	ID string `json:"id"`
 }
