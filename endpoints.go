@@ -163,6 +163,11 @@ var (
 		return EndpointMessageReactions(cID, mID, eID) + "/" + uID
 	}
 
+	// EndpointMessageURL builds a canonical discord URL in the format https://discord.com/channels/:gID/:cID/:mID
+	EndpointMessageURL = func(gID, cID, mID string) string {
+		return EndpointDiscord + "channels/" + gID + "/" + cID + "/" + mID
+	}
+
 	EndpointPoll = func(cID, mID string) string {
 		return EndpointChannel(cID) + "/polls/" + mID
 	}

@@ -50,3 +50,14 @@ func TestGettingEmojisFromMessage(t *testing.T) {
 	}
 
 }
+
+func TestMessage_URL(t *testing.T) {
+	m := &Message{
+		ChannelID: "bar",
+		ID:        "baz",
+	}
+
+	if m.URL("foo") != "https://discord.com/channels/foo/bar/baz" {
+		t.Error("Unexpected url: " + m.URL(""))
+	}
+}
