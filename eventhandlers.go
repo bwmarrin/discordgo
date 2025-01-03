@@ -18,6 +18,9 @@ const (
 	channelUpdateEventType                       = "CHANNEL_UPDATE"
 	connectEventType                             = "__CONNECT__"
 	disconnectEventType                          = "__DISCONNECT__"
+	entitlementCreateEventType                   = "ENTITLEMENT_CREATE"
+	entitlementDeleteEventType                   = "ENTITLEMENT_DELETE"
+	entitlementUpdateEventType                   = "ENTITLEMENT_UPDATE"
 	eventEventType                               = "__EVENT__"
 	guildAuditLogEntryCreateEventType            = "GUILD_AUDIT_LOG_ENTRY_CREATE"
 	guildBanAddEventType                         = "GUILD_BAN_ADD"
@@ -282,6 +285,66 @@ func (eh disconnectEventHandler) Type() string {
 // Handle is the handler for Disconnect events.
 func (eh disconnectEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*Disconnect); ok {
+		eh(s, t)
+	}
+}
+
+// entitlementCreateEventHandler is an event handler for EntitlementCreate events.
+type entitlementCreateEventHandler func(*Session, *EntitlementCreate)
+
+// Type returns the event type for EntitlementCreate events.
+func (eh entitlementCreateEventHandler) Type() string {
+	return entitlementCreateEventType
+}
+
+// New returns a new instance of EntitlementCreate.
+func (eh entitlementCreateEventHandler) New() interface{} {
+	return &EntitlementCreate{}
+}
+
+// Handle is the handler for EntitlementCreate events.
+func (eh entitlementCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*EntitlementCreate); ok {
+		eh(s, t)
+	}
+}
+
+// entitlementDeleteEventHandler is an event handler for EntitlementDelete events.
+type entitlementDeleteEventHandler func(*Session, *EntitlementDelete)
+
+// Type returns the event type for EntitlementDelete events.
+func (eh entitlementDeleteEventHandler) Type() string {
+	return entitlementDeleteEventType
+}
+
+// New returns a new instance of EntitlementDelete.
+func (eh entitlementDeleteEventHandler) New() interface{} {
+	return &EntitlementDelete{}
+}
+
+// Handle is the handler for EntitlementDelete events.
+func (eh entitlementDeleteEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*EntitlementDelete); ok {
+		eh(s, t)
+	}
+}
+
+// entitlementUpdateEventHandler is an event handler for EntitlementUpdate events.
+type entitlementUpdateEventHandler func(*Session, *EntitlementUpdate)
+
+// Type returns the event type for EntitlementUpdate events.
+func (eh entitlementUpdateEventHandler) Type() string {
+	return entitlementUpdateEventType
+}
+
+// New returns a new instance of EntitlementUpdate.
+func (eh entitlementUpdateEventHandler) New() interface{} {
+	return &EntitlementUpdate{}
+}
+
+// Handle is the handler for EntitlementUpdate events.
+func (eh entitlementUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*EntitlementUpdate); ok {
 		eh(s, t)
 	}
 }
@@ -1422,6 +1485,12 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return connectEventHandler(v)
 	case func(*Session, *Disconnect):
 		return disconnectEventHandler(v)
+	case func(*Session, *EntitlementCreate):
+		return entitlementCreateEventHandler(v)
+	case func(*Session, *EntitlementDelete):
+		return entitlementDeleteEventHandler(v)
+	case func(*Session, *EntitlementUpdate):
+		return entitlementUpdateEventHandler(v)
 	case func(*Session, *Event):
 		return eventEventHandler(v)
 	case func(*Session, *GuildAuditLogEntryCreate):
@@ -1549,6 +1618,9 @@ func init() {
 	registerInterfaceProvider(channelDeleteEventHandler(nil))
 	registerInterfaceProvider(channelPinsUpdateEventHandler(nil))
 	registerInterfaceProvider(channelUpdateEventHandler(nil))
+	registerInterfaceProvider(entitlementCreateEventHandler(nil))
+	registerInterfaceProvider(entitlementDeleteEventHandler(nil))
+	registerInterfaceProvider(entitlementUpdateEventHandler(nil))
 	registerInterfaceProvider(guildAuditLogEntryCreateEventHandler(nil))
 	registerInterfaceProvider(guildBanAddEventHandler(nil))
 	registerInterfaceProvider(guildBanRemoveEventHandler(nil))
