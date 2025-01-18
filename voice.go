@@ -30,14 +30,22 @@ import (
 // Code related to both VoiceConnection Websocket and UDP connections.
 // ------------------------------------------------------------------------------------------------
 
+// VoiceConnectionStatus is status of VoiceConnection
+// New -> Connecting <-> Ready
+// any -> Dead
 type VoiceConnectionStatus int
 
 const (
-	VoiceConnectionStatusInvalid    VoiceConnectionStatus = iota // status not specified, bug?
-	VoiceConnectionStatusNew                                     // initiating connection
-	VoiceConnectionStatusConnecting                              // connecting websocket and udp
-	VoiceConnectionStatusReady                                   // ready to send/receive audio
-	VoiceConnectionStatusDead                                    // already dead(error or disconnected normally)
+	// VoiceConnectionStatusInvalid means status not specified, maybe bug?
+	VoiceConnectionStatusInvalid VoiceConnectionStatus = iota
+	// VoiceConnectionStatusNew means initiating connection
+	VoiceConnectionStatusNew
+	// VoiceConnectionStatusConnecting means connecting websocket and udp (includes reconnecting)
+	VoiceConnectionStatusConnecting
+	// VoiceConnectionStatusReady means ready to send/receive audio
+	VoiceConnectionStatusReady
+	// VoiceConnectionStatusDead means already dead(error or disconnected normally)
+	VoiceConnectionStatusDead
 )
 
 // A VoiceConnection struct holds all the data and functions related to a Discord Voice Connection.
@@ -45,8 +53,6 @@ type VoiceConnection struct {
 	Cond *sync.Cond
 
 	// Status of this connection. Please don't change.
-	// New -> Connecting <-> Ready
-	// any -> Dead
 	Status VoiceConnectionStatus
 
 	// Closed if this VoiceConection status become Dead
@@ -145,7 +151,7 @@ func (v *VoiceConnection) Disconnect(ctx context.Context) error {
 	return v.waitUntilStatus(ctx, VoiceConnectionStatusDead)
 }
 
-// Stop all goroutines related to this voice conection, remove self from Session, and set status to dead.
+// Kill stop all goroutines related to this voice conection, remove self from Session, and set status to dead.
 // NOTE: unlock before calling this
 func (v *VoiceConnection) Kill() {
 
@@ -295,8 +301,13 @@ func (v *VoiceConnection) onVoiceServerUpdate(ev *VoiceServerUpdate) (err error)
 	return
 }
 
+// ErrVoiceNoSessionID means timed out to receive voice Session ID
 var ErrVoiceNoSessionID = errors.New("did not receive voice Session ID in time")
+
+// ErrVoiceReconnectionLimit means reached a hard limit to reconnect
 var ErrVoiceReconnectionLimit = errors.New("reconnection limit reached")
+
+// ErrVoiceUnknownEncryptionMode means Discord requested encryption mode which is not supported
 var ErrVoiceUnknownEncryptionMode = errors.New("unknown encryption mode")
 
 // websocket open the voice websocket, handle reconnect, and listens on it for messages and passes them to the voice event handler.
@@ -316,19 +327,19 @@ func (v *VoiceConnection) websocket(ctx context.Context, endpoint string, token 
 	v.wsCancel = cancel
 	v.Cond.L.Unlock()
 
-	sessionIdDone := make(chan struct{})
+	sessionIDDone := make(chan struct{})
 	go func() {
 		v.Cond.L.Lock()
 		defer v.Cond.L.Unlock()
 		for v.sessionID == "" {
 			v.Cond.Wait()
 		}
-		close(sessionIdDone)
+		close(sessionIDDone)
 	}()
 	timeout := time.NewTimer(1 * time.Second)
 
 	select {
-	case <-sessionIdDone:
+	case <-sessionIDDone:
 	case <-timeout.C:
 		v.failure(ErrVoiceNoSessionID)
 		return
