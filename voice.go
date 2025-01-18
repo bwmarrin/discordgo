@@ -20,7 +20,6 @@ import (
 	"net"
 	"strconv"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -88,7 +87,7 @@ type VoiceConnection struct {
 
 	voiceSpeakingUpdateHandlers []VoiceSpeakingUpdateHandler
 
-	seqAck atomic.Int32 // for heartbeat and resume
+	seqAck int // for heartbeat and resume
 }
 
 // VoiceSpeakingUpdateHandler type provides a function definition for the
@@ -217,7 +216,7 @@ func (v *VoiceConnection) failure(err error) {
 type voiceWebsocketMessage struct {
 	Operation int             `json:"op"`
 	RawData   json.RawMessage `json:"d"`
-	Sequence  *int32          `json:"seq"`
+	Sequence  *int            `json:"seq"`
 }
 
 // A voiceOP2 stores the data for the voice operation 2 websocket event
@@ -340,7 +339,9 @@ func (v *VoiceConnection) websocket(ctx context.Context, endpoint string, token 
 		<-timeout.C
 	}
 
-	v.seqAck.Store(-1)
+	v.Cond.L.Lock()
+	v.seqAck = -1
+	v.Cond.L.Unlock()
 
 	for i := 0; i < 100; i++ {
 		select {
@@ -407,18 +408,21 @@ func (v *VoiceConnection) websocket(ctx context.Context, endpoint string, token 
 				ServerID  string `json:"server_id"`
 				SessionID string `json:"session_id"`
 				Token     string `json:"token"`
-				SeqAck    int32  `json:"seq_ack"`
+				SeqAck    int    `json:"seq_ack"`
 			}
 			type voiceResumeOp struct {
 				Op   int             `json:"op"` // Always 7
 				Data voiceResumeData `json:"d"`
 			}
+
+			v.Cond.L.Lock()
 			data := voiceResumeOp{7, voiceResumeData{
 				ServerID:  v.GuildID,
 				SessionID: v.sessionID,
 				Token:     token,
-				SeqAck:    v.seqAck.Load(),
+				SeqAck:    v.seqAck,
 			}}
+			v.Cond.L.Unlock()
 
 			v.log(LogInformational, "resuming voice websocket")
 			v.log(LogDebug, "resume packet, %#v", data)
@@ -516,7 +520,10 @@ func (v *VoiceConnection) onEvent(ctx context.Context, binary bool, message []by
 		}
 
 		if e.Sequence != nil {
-			v.seqAck.Store(*e.Sequence)
+
+			v.Cond.L.Lock()
+			v.seqAck = *e.Sequence
+			v.Cond.L.Unlock()
 		}
 
 		switch e.Operation {
@@ -655,7 +662,7 @@ type voiceHeartbeatOp struct {
 
 type voiceHeartbeatData struct {
 	T      int64 `json:"t"`
-	SeqAck int32 `json:"seq_ack"`
+	SeqAck int   `json:"seq_ack"`
 }
 
 // wsHeartbeat sends regular heartbeats to voice Discord so it knows the client
@@ -672,7 +679,10 @@ func (v *VoiceConnection) wsHeartbeat(ctx context.Context, wsConn *websocket.Con
 	defer ticker.Stop()
 	for {
 		v.log(LogDebug, "sending heartbeat packet")
-		err = wsConn.WriteJSON(voiceHeartbeatOp{3, voiceHeartbeatData{time.Now().Unix(), v.seqAck.Load()}})
+		v.Cond.L.Lock()
+		seqAck := v.seqAck
+		v.Cond.L.Unlock()
+		err = wsConn.WriteJSON(voiceHeartbeatOp{3, voiceHeartbeatData{time.Now().Unix(), seqAck}})
 		if err != nil {
 			v.log(LogError, "error sending heartbeat to voice endpoint, %s", err)
 			return
