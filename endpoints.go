@@ -33,6 +33,7 @@ var (
 	EndpointWebhooks       = EndpointAPI + "webhooks/"
 	EndpointStickers       = EndpointAPI + "stickers/"
 	EndpointStageInstances = EndpointAPI + "stage-instances"
+	EndpointSKUs           = EndpointAPI + "skus"
 
 	EndpointCDN             = "https://cdn.discordapp.com/"
 	EndpointCDNAttachments  = EndpointCDN + "attachments/"
@@ -172,6 +173,27 @@ var (
 		return EndpointPoll(cID, mID) + "/expire"
 	}
 
+	EndpointApplicationSKUs = func(aID string) string {
+		return EndpointApplication(aID) + "/skus"
+	}
+
+	EndpointEntitlements = func(aID string) string {
+		return EndpointApplication(aID) + "/entitlements"
+	}
+	EndpointEntitlement = func(aID, eID string) string {
+		return EndpointEntitlements(aID) + "/" + eID
+	}
+	EndpointEntitlementConsume = func(aID, eID string) string {
+		return EndpointEntitlement(aID, eID) + "/consume"
+	}
+
+	EndpointSubscriptions = func(skuID string) string {
+		return EndpointSKUs + "/" + skuID + "/subscriptions"
+	}
+	EndpointSubscription = func(skuID, subID string) string {
+		return EndpointSubscriptions(skuID) + "/" + subID
+	}
+
 	EndpointApplicationGlobalCommands = func(aID string) string {
 		return EndpointApplication(aID) + "/commands"
 	}
@@ -217,6 +239,9 @@ var (
 	EndpointApplications                      = EndpointAPI + "applications"
 	EndpointApplication                       = func(aID string) string { return EndpointApplications + "/" + aID }
 	EndpointApplicationRoleConnectionMetadata = func(aID string) string { return EndpointApplication(aID) + "/role-connections/metadata" }
+
+	EndpointApplicationEmojis = func(aID string) string { return EndpointApplication(aID) + "/emojis" }
+	EndpointApplicationEmoji  = func(aID, eID string) string { return EndpointApplication(aID) + "/emojis/" + eID }
 
 	EndpointOAuth2                  = EndpointAPI + "oauth2/"
 	EndpointOAuth2Applications      = EndpointOAuth2 + "applications"

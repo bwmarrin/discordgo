@@ -255,6 +255,10 @@ type Interaction struct {
 
 	Token   string `json:"token"`
 	Version int    `json:"version"`
+
+	// Any entitlements for the invoking user, representing access to premium SKUs.
+	// NOTE: this field is only filled in monetized apps
+	Entitlements []*Entitlement `json:"entitlements"`
 }
 
 type interaction Interaction
@@ -346,6 +350,18 @@ type ApplicationCommandInteractionData struct {
 	TargetID string `json:"target_id"`
 }
 
+// GetOption finds and returns an application command option by its name.
+func (d ApplicationCommandInteractionData) GetOption(name string) (option *ApplicationCommandInteractionDataOption) {
+	for _, opt := range d.Options {
+		if opt.Name == name {
+			option = opt
+			break
+		}
+	}
+
+	return
+}
+
 // ApplicationCommandInteractionDataResolved contains resolved data of command execution.
 // Partial Member objects are missing user, deaf and mute fields.
 // Partial Channel objects only have id, name, type and permissions fields.
@@ -426,6 +442,18 @@ type ApplicationCommandInteractionDataOption struct {
 
 	// NOTE: autocomplete interaction only.
 	Focused bool `json:"focused,omitempty"`
+}
+
+// GetOption finds and returns an application command option by its name.
+func (o ApplicationCommandInteractionDataOption) GetOption(name string) (option *ApplicationCommandInteractionDataOption) {
+	for _, opt := range o.Options {
+		if opt.Name == name {
+			option = opt
+			break
+		}
+	}
+
+	return
 }
 
 // IntValue is a utility function for casting option value to integer
