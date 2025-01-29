@@ -102,3 +102,10 @@ func TestMessage_Forward(t *testing.T) {
 		t.Error("Channel ID should be the same")
 	}
 }
+
+func TestMessageReference_DefaultTypeIsDefault(t *testing.T) {
+	r := MessageReference{}
+	if r.Type != MessageReferenceTypeDefault {
+		t.Error("Default message type should be MessageReferenceTypeDefault")
+	}
+}
