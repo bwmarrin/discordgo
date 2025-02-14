@@ -102,6 +102,8 @@ type User struct {
 	Flags int `json:"flags"`
 }
 
+// Parses the `ID` field to a uint64 and returns it.
+// This function is not cached
 func (u *User) IdLong() uint64 {
 	// We can ignore the error because discord
 	// identifiers are always valid as uint64
