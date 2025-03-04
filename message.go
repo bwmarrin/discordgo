@@ -135,6 +135,11 @@ type Message struct {
 	// If the field exists but is null, the referenced message was deleted.
 	ReferencedMessage *Message `json:"referenced_message"`
 
+	// The message associated with the message_reference.
+	// This is a minimal subset of fields in a message (e.g. Author is excluded)
+	// NOTE: This field is only returned when referenced when MessageReference.Type is MessageReferenceTypeForward.
+	MessageSnapshots []MessageSnapshot `json:"message_snapshots"`
+
 	// Deprecated, use InteractionMetadata.
 	// Is sent when the message is a response to an Interaction, without an existing message.
 	// This means responses to message component interactions do not include this property,
@@ -469,6 +474,12 @@ type MessageApplication struct {
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
 	Name        string `json:"name"`
+}
+
+// MessageSnapshot represents a snapshot of forwarded messages.
+// https://discord.com/developers/docs/resources/message#message-snapshot-object
+type MessageSnapshot struct {
+	Message *Message `json:"message"`
 }
 
 // MessageReferenceType is a type of MessageReference
