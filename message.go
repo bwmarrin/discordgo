@@ -476,7 +476,7 @@ type MessageApplication struct {
 	Name        string `json:"name"`
 }
 
-// MessageSnapshot represents a snapshot of forwarded messages.
+// MessageSnapshot represents a snapshot of a forwarded message.
 // https://discord.com/developers/docs/resources/message#message-snapshot-object
 type MessageSnapshot struct {
 	Message *Message `json:"message"`
