@@ -80,7 +80,7 @@ type ActionsRow struct {
 	// NOTE: maximum of 5.
 	Components []MessageComponent `json:"components"`
 	// Unique identifier for the component; auto populated through increment if not provided.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 }
 
 // MarshalJSON is a method for marshaling ActionsRow to a JSON object.
@@ -157,7 +157,7 @@ type Button struct {
 	// Identifier for a purchasable SKU. Only available when using premium-style buttons.
 	SKUID string `json:"sku_id,omitempty"`
 	// Unique identifier for the component; auto populated through increment if not provided.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 }
 
 // MarshalJSON is a method for marshaling Button to a JSON object.
@@ -246,7 +246,7 @@ type SelectMenu struct {
 	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
 
 	// Unique identifier for the component; auto populated through increment if not provided.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 }
 
 // Type is a method to get the type of a component.
@@ -282,7 +282,7 @@ type TextInput struct {
 	MaxLength   int            `json:"max_length,omitempty"`
 
 	// Unique identifier for the component; auto populated through increment if not provided.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 }
 
 // Type is a method to get the type of a component.
