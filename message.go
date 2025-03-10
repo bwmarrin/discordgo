@@ -135,6 +135,11 @@ type Message struct {
 	// If the field exists but is null, the referenced message was deleted.
 	ReferencedMessage *Message `json:"referenced_message"`
 
+	// The message associated with the message_reference.
+	// This is a minimal subset of fields in a message (e.g. Author is excluded)
+	// NOTE: This field is only returned when referenced when MessageReference.Type is MessageReferenceTypeForward.
+	MessageSnapshots []MessageSnapshot `json:"message_snapshots"`
+
 	// Deprecated, use InteractionMetadata.
 	// Is sent when the message is a response to an Interaction, without an existing message.
 	// This means responses to message component interactions do not include this property,
@@ -471,16 +476,34 @@ type MessageApplication struct {
 	Name        string `json:"name"`
 }
 
-// MessageReference contains reference data sent with crossposted messages
-type MessageReference struct {
-	MessageID       string `json:"message_id"`
-	ChannelID       string `json:"channel_id,omitempty"`
-	GuildID         string `json:"guild_id,omitempty"`
-	FailIfNotExists *bool  `json:"fail_if_not_exists,omitempty"`
+// MessageSnapshot represents a snapshot of a forwarded message.
+// https://discord.com/developers/docs/resources/message#message-snapshot-object
+type MessageSnapshot struct {
+	Message *Message `json:"message"`
 }
 
-func (m *Message) reference(failIfNotExists bool) *MessageReference {
+// MessageReferenceType is a type of MessageReference
+type MessageReferenceType int
+
+// Known valid MessageReferenceType values
+// https://discord.com/developers/docs/resources/message#message-reference-types
+const (
+	MessageReferenceTypeDefault MessageReferenceType = 0
+	MessageReferenceTypeForward MessageReferenceType = 1
+)
+
+// MessageReference contains reference data sent with crossposted messages
+type MessageReference struct {
+	Type            MessageReferenceType `json:"type,omitempty"`
+	MessageID       string               `json:"message_id"`
+	ChannelID       string               `json:"channel_id,omitempty"`
+	GuildID         string               `json:"guild_id,omitempty"`
+	FailIfNotExists *bool                `json:"fail_if_not_exists,omitempty"`
+}
+
+func (m *Message) reference(refType MessageReferenceType, failIfNotExists bool) *MessageReference {
 	return &MessageReference{
+		Type:            refType,
 		GuildID:         m.GuildID,
 		ChannelID:       m.ChannelID,
 		MessageID:       m.ID,
@@ -490,13 +513,18 @@ func (m *Message) reference(failIfNotExists bool) *MessageReference {
 
 // Reference returns a MessageReference of the given message.
 func (m *Message) Reference() *MessageReference {
-	return m.reference(true)
+	return m.reference(MessageReferenceTypeDefault, true)
 }
 
 // SoftReference returns a MessageReference of the given message.
 // If the message doesn't exist it will instead be sent as a non-reply message.
 func (m *Message) SoftReference() *MessageReference {
-	return m.reference(false)
+	return m.reference(MessageReferenceTypeDefault, false)
+}
+
+// Forward returns a MessageReference for a forwarded message.
+func (m *Message) Forward() *MessageReference {
+	return m.reference(MessageReferenceTypeForward, true)
 }
 
 // ContentWithMentionsReplaced will replace all @<id> mentions with the
