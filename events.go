@@ -473,3 +473,9 @@ type SubscriptionCreate struct {
 type SubscriptionUpdate struct {
 	*Subscription
 }
+
+// SubscriptionDelete is the data for an SubscriptionDelete event.
+// https://discord.com/developers/docs/monetization/implementing-app-subscriptions#using-subscription-events-for-the-subscription-lifecycle
+type SubscriptionDelete struct {
+	*Subscription
+}
