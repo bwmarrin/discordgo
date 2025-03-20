@@ -35,3 +35,24 @@ func TestUser_String(t *testing.T) {
 		})
 	}
 }
+
+func TestUser_DisplayName(t *testing.T) {
+	t.Run("no global name set", func(t *testing.T) {
+		u := &User{
+			GlobalName: "",
+			Username:   "username",
+		}
+		if dn := u.DisplayName(); dn != u.Username {
+			t.Errorf("User.DisplayName() = %v, want %v", dn, u.Username)
+		}
+	})
+	t.Run("global name set", func(t *testing.T) {
+		u := &User{
+			GlobalName: "global",
+			Username:   "username",
+		}
+		if dn := u.DisplayName(); dn != u.GlobalName {
+			t.Errorf("User.DisplayName() = %v, want %v", dn, u.GlobalName)
+		}
+	})
+}

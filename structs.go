@@ -1635,7 +1635,7 @@ func (m *Member) DisplayName() string {
 	if m.Nick != "" {
 		return m.Nick
 	}
-	return m.User.GlobalName
+	return m.User.DisplayName()
 }
 
 // ClientStatus stores the online, offline, idle, or dnd status of each device of a Guild member.
