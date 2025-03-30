@@ -3008,6 +3008,8 @@ const (
 	IntentGuildScheduledEvents        Intent = 1 << 16
 	IntentAutoModerationConfiguration Intent = 1 << 20
 	IntentAutoModerationExecution     Intent = 1 << 21
+	IntentGuildMessagePolls           Intent = 1 << 24
+	IntentDirectMessagePolls          Intent = 1 << 25
 
 	// TODO: remove when compatibility is not needed
 
