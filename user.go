@@ -152,3 +152,11 @@ func (u *User) DefaultAvatarIndex() int {
 	id, _ := strconv.Atoi(u.Discriminator)
 	return id % 5
 }
+
+// DisplayName returns the user's global name if they have one, otherwise it returns their username.
+func (u *User) DisplayName() string {
+	if u.GlobalName != "" {
+		return u.GlobalName
+	}
+	return u.Username
+}
