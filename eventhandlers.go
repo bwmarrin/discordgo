@@ -41,6 +41,7 @@ const (
 	guildScheduledEventUpdateEventType           = "GUILD_SCHEDULED_EVENT_UPDATE"
 	guildScheduledEventUserAddEventType          = "GUILD_SCHEDULED_EVENT_USER_ADD"
 	guildScheduledEventUserRemoveEventType       = "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+	guildStickersUpdateEventType                 = "GUILD_STICKERS_UPDATE"
 	guildUpdateEventType                         = "GUILD_UPDATE"
 	integrationCreateEventType                   = "INTEGRATION_CREATE"
 	integrationDeleteEventType                   = "INTEGRATION_DELETE"
@@ -742,6 +743,26 @@ func (eh guildScheduledEventUserRemoveEventHandler) New() interface{} {
 // Handle is the handler for GuildScheduledEventUserRemove events.
 func (eh guildScheduledEventUserRemoveEventHandler) Handle(s *Session, i interface{}) {
 	if t, ok := i.(*GuildScheduledEventUserRemove); ok {
+		eh(s, t)
+	}
+}
+
+// guildStickersUpdateEventHandler is an event handler for GuildStickersUpdate events.
+type guildStickersUpdateEventHandler func(*Session, *GuildStickersUpdate)
+
+// Type returns the event type for GuildStickersUpdate events.
+func (eh guildStickersUpdateEventHandler) Type() string {
+	return guildStickersUpdateEventType
+}
+
+// New returns a new instance of GuildStickersUpdate.
+func (eh guildStickersUpdateEventHandler) New() interface{} {
+	return &GuildStickersUpdate{}
+}
+
+// Handle is the handler for GuildStickersUpdate events.
+func (eh guildStickersUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*GuildStickersUpdate); ok {
 		eh(s, t)
 	}
 }
@@ -1573,6 +1594,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return guildScheduledEventUserAddEventHandler(v)
 	case func(*Session, *GuildScheduledEventUserRemove):
 		return guildScheduledEventUserRemoveEventHandler(v)
+	case func(*Session, *GuildStickersUpdate):
+		return guildStickersUpdateEventHandler(v)
 	case func(*Session, *GuildUpdate):
 		return guildUpdateEventHandler(v)
 	case func(*Session, *IntegrationCreate):
@@ -1686,6 +1709,7 @@ func init() {
 	registerInterfaceProvider(guildScheduledEventUpdateEventHandler(nil))
 	registerInterfaceProvider(guildScheduledEventUserAddEventHandler(nil))
 	registerInterfaceProvider(guildScheduledEventUserRemoveEventHandler(nil))
+	registerInterfaceProvider(guildStickersUpdateEventHandler(nil))
 	registerInterfaceProvider(guildUpdateEventHandler(nil))
 	registerInterfaceProvider(integrationCreateEventHandler(nil))
 	registerInterfaceProvider(integrationDeleteEventHandler(nil))
