@@ -364,7 +364,7 @@ func (MediaGallery) Type() ComponentType {
 	return MediaGalleryComponent
 }
 
-// MediaGalleryItem represents an item used in MediaGallery. 
+// MediaGalleryItem represents an item used in MediaGallery.
 type MediaGalleryItem struct {
 	Media       UnfurledMediaItem `json:"media"`
 	Description *string           `json:"description,omitempty"`
@@ -411,9 +411,11 @@ type Container struct {
 	Components  []MessageComponent `json:"components"`
 }
 
+// UnfurledMediaItem represents an unfurled media item.
 type UnfurledMediaItem struct {
 	URL string `json:"url"`
 }
+
 // UnfurledMediaItemLoadingState is the loading state of the unfurled media item.
 type UnfurledMediaItemLoadingState uint
 
@@ -425,6 +427,7 @@ const (
 	UnfurledMediaItemLoadingStateLoadedNotFound UnfurledMediaItemLoadingState = 3
 )
 
+// ResolvedUnfurledMediaItem represents a resolved unfurled media item.
 type ResolvedUnfurledMediaItem struct {
 	URL         string `json:"url"`
 	ProxyURL    string `json:"proxy_url"`
