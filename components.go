@@ -312,6 +312,7 @@ const (
 	TextInputParagraph TextInputStyle = 2
 )
 
+// Section is a layout component that allows you to join text contextually with an accessory.
 type Section struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID int `json:"id,omitempty"`
@@ -363,12 +364,14 @@ func (MediaGallery) Type() ComponentType {
 	return MediaGalleryComponent
 }
 
+// MediaGalleryItem represents an item used in MediaGallery. 
 type MediaGalleryItem struct {
 	Media       UnfurledMediaItem `json:"media"`
 	Description *string           `json:"description,omitempty"`
 	Spoiler     bool              `json:"spoiler"`
 }
 
+// FileComponent allows you to display an uploaded file as an attachment to the message and reference it in the component.
 type FileComponent struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID      int               `json:"id,omitempty"`
@@ -381,8 +384,10 @@ func (FileComponent) Type() ComponentType {
 	return FileComponentType
 }
 
+// SeparatorSpacingSize represents spacing size around the separator.
 type SeparatorSpacingSize uint
 
+// Separator spacing sizes.
 const (
 	SeparatorSpacingSizeSmall SeparatorSpacingSize = 1
 	SeparatorSpacingSizeLarge SeparatorSpacingSize = 2
@@ -397,6 +402,7 @@ type Separator struct {
 	Spacing *SeparatorSpacingSize `json:"spacing,omitempty"`
 }
 
+// A Container is component that holds up to 10 components. Optionally has accent color (similar to embeds).
 type Container struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID          int                `json:"id,omitempty"`
@@ -408,9 +414,10 @@ type Container struct {
 type UnfurledMediaItem struct {
 	URL string `json:"url"`
 }
-
+// UnfurledMediaItemLoadingState is the loading state of the unfurled media item.
 type UnfurledMediaItemLoadingState uint
 
+// Unfurled media item loading states.
 const (
 	UnfurledMediaItemLoadingStateUnknown        UnfurledMediaItemLoadingState = 0
 	UnfurledMediaItemLoadingStateLoading        UnfurledMediaItemLoadingState = 1
