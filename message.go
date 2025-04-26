@@ -230,8 +230,8 @@ const (
 	MessageFlagsSuppressNotifications MessageFlags = 1 << 12
 	// MessageFlagsIsVoiceMessage this message is a voice message.
 	MessageFlagsIsVoiceMessage MessageFlags = 1 << 13
-	// MessageFlagsComponentsV2 this message uses the new components system. Disables the ability of sending `content` & `embeds`
-	MessageFlagsComponentsV2 MessageFlags = 1 << 15
+	// MessageFlagsIsComponentsV2 this message uses the new components system. Disables the ability of sending `content` & `embeds`
+	MessageFlagsIsComponentsV2 MessageFlags = 1 << 15
 )
 
 // File stores info about files you e.g. send in messages.
