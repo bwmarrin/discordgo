@@ -327,6 +327,19 @@ func (Section) Type() ComponentType {
 	return SectionComponent
 }
 
+// MarshalJSON is a method for marshaling Section to a JSON object.
+func (s Section) MarshalJSON() ([]byte, error) {
+	type section Section
+
+	return Marshal(struct {
+		section
+		Type ComponentType `json:"type"`
+	}{
+		section: section(s),
+		Type:    s.Type(),
+	})
+}
+
 // TextDisplay is a top-level component that allows you to add markdown-formatted text to the message.
 type TextDisplay struct {
 	Content string `json:"content"`
@@ -335,6 +348,19 @@ type TextDisplay struct {
 // Type is a method to get the type of a component.
 func (TextDisplay) Type() ComponentType {
 	return TextDisplayComponent
+}
+
+// MarshalJSON is a method for marshaling TextDisplay to a JSON object.
+func (t TextDisplay) MarshalJSON() ([]byte, error) {
+	type textDisplay TextDisplay
+
+	return Marshal(struct {
+		textDisplay
+		Type ComponentType `json:"type"`
+	}{
+		textDisplay: textDisplay(t),
+		Type:        t.Type(),
+	})
 }
 
 // Thumbnail component can be used as an accessory for a section component.
@@ -351,6 +377,19 @@ func (Thumbnail) Type() ComponentType {
 	return ThumbnailComponent
 }
 
+// MarshalJSON is a method for marshaling Thumbnail to a JSON object.
+func (t Thumbnail) MarshalJSON() ([]byte, error) {
+	type thumbnail Thumbnail
+
+	return Marshal(struct {
+		thumbnail
+		Type ComponentType `json:"type"`
+	}{
+		thumbnail: thumbnail(t),
+		Type:      t.Type(),
+	})
+}
+
 // MediaGallery is a top-level component allows you to group images, videos or gifs into a gallery grid.
 type MediaGallery struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
@@ -362,6 +401,19 @@ type MediaGallery struct {
 // Type is a method to get the type of a component.
 func (MediaGallery) Type() ComponentType {
 	return MediaGalleryComponent
+}
+
+// MarshalJSON is a method for marshaling MediaGallery to a JSON object.
+func (m MediaGallery) MarshalJSON() ([]byte, error) {
+	type mediaGallery MediaGallery
+
+	return Marshal(struct {
+		mediaGallery
+		Type ComponentType `json:"type"`
+	}{
+		mediaGallery: mediaGallery(m),
+		Type:         m.Type(),
+	})
 }
 
 // MediaGalleryItem represents an item used in MediaGallery.
@@ -384,6 +436,19 @@ func (FileComponent) Type() ComponentType {
 	return FileComponentType
 }
 
+// MarshalJSON is a method for marshaling FileComponent to a JSON object.
+func (f FileComponent) MarshalJSON() ([]byte, error) {
+	type fileComponent FileComponent
+
+	return Marshal(struct {
+		fileComponent
+		Type ComponentType `json:"type"`
+	}{
+		fileComponent: fileComponent(f),
+		Type:          f.Type(),
+	})
+}
+
 // SeparatorSpacingSize represents spacing size around the separator.
 type SeparatorSpacingSize uint
 
@@ -402,6 +467,24 @@ type Separator struct {
 	Spacing *SeparatorSpacingSize `json:"spacing,omitempty"`
 }
 
+// Type is a method to get the type of a component.
+func (Separator) Type() ComponentType {
+	return SeparatorComponent
+}
+
+// MarshalJSON is a method for marshaling Separator to a JSON object.
+func (s Separator) MarshalJSON() ([]byte, error) {
+	type separator Separator
+
+	return Marshal(struct {
+		separator
+		Type ComponentType `json:"type"`
+	}{
+		separator: separator(s),
+		Type:      s.Type(),
+	})
+}
+
 // Container is a top-level layout component.
 // Containers are visually distinct from surrounding components and have an optional customizable color bar (similar to embeds).
 type Container struct {
@@ -410,6 +493,24 @@ type Container struct {
 	AccentColor *int               `json:"accent_color,omitempty"`
 	Spoiler     bool               `json:"spoiler"`
 	Components  []MessageComponent `json:"components"`
+}
+
+// Type is a method to get the type of a component.
+func (Container) Type() ComponentType {
+	return ContainerComponent
+}
+
+// MarshalJSON is a method for marshaling Container to a JSON object.
+func (c Container) MarshalJSON() ([]byte, error) {
+	type container Container
+
+	return Marshal(struct {
+		container
+		Type ComponentType `json:"type"`
+	}{
+		container: container(c),
+		Type:      c.Type(),
+	})
 }
 
 // UnfurledMediaItem represents an unfurled media item.
