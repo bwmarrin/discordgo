@@ -74,7 +74,7 @@ func MessageComponentFromJSON(b []byte) (MessageComponent, error) {
 	return u.MessageComponent, nil
 }
 
-// ActionsRow is a container for components within one row.
+// ActionsRow is a top-level container component for displaying a row of interactive components.
 type ActionsRow struct {
 	// Can contain Button, SelectMenu and TextInput.
 	// NOTE: maximum of 5.
@@ -312,7 +312,7 @@ const (
 	TextInputParagraph TextInputStyle = 2
 )
 
-// Section is a layout component that allows you to join text contextually with an accessory.
+// Section is a top-level layout component that allows you to join text contextually with an accessory.
 type Section struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID int `json:"id,omitempty"`
@@ -327,7 +327,7 @@ func (Section) Type() ComponentType {
 	return SectionComponent
 }
 
-// TextDisplay component allows you to send text.
+// TextDisplay is a top-level component that allows you to add markdown-formatted text to the message.
 type TextDisplay struct {
 	Content string `json:"content"`
 }
@@ -351,7 +351,7 @@ func (Thumbnail) Type() ComponentType {
 	return ThumbnailComponent
 }
 
-// MediaGallery component allows you to group images, videos or gifs into a gallery grid.
+// MediaGallery is a top-level component allows you to group images, videos or gifs into a gallery grid.
 type MediaGallery struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID int `json:"id,omitempty"`
@@ -371,7 +371,7 @@ type MediaGalleryItem struct {
 	Spoiler     bool              `json:"spoiler"`
 }
 
-// FileComponent allows you to display an uploaded file as an attachment to the message and reference it in the component.
+// FileComponent is a top-level component that allows you to display an uploaded file as an attachment to the message and reference it in the component.
 type FileComponent struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID      int               `json:"id,omitempty"`
@@ -393,7 +393,7 @@ const (
 	SeparatorSpacingSizeLarge SeparatorSpacingSize = 2
 )
 
-// Separator components allow you to divide components with a divider. You can make the divider big or small, and make it invisible if needed.
+// Separator is a top-level layout component that adds vertical padding and visual division between other components.
 type Separator struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID int `json:"id,omitempty"`
@@ -402,7 +402,8 @@ type Separator struct {
 	Spacing *SeparatorSpacingSize `json:"spacing,omitempty"`
 }
 
-// A Container is component that holds up to 10 components. Optionally has accent color (similar to embeds).
+// Container is a top-level layout component.
+// Containers are visually distinct from surrounding components and have an optional customizable color bar (similar to embeds).
 type Container struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
 	ID          int                `json:"id,omitempty"`
