@@ -58,6 +58,20 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 		umc.MessageComponent = &SelectMenu{}
 	case TextInputComponent:
 		umc.MessageComponent = &TextInput{}
+	case SectionComponent:
+		umc.MessageComponent = &Section{}
+	case TextDisplayComponent:
+		umc.MessageComponent = &TextDisplay{}
+	case ThumbnailComponent:
+		umc.MessageComponent = &Thumbnail{}
+	case MediaGalleryComponent:
+		umc.MessageComponent = &MediaGallery{}
+	case FileComponentType:
+		umc.MessageComponent = &FileComponent{}
+	case SeparatorComponent:
+		umc.MessageComponent = &Separator{}
+	case ContainerComponent:
+		umc.MessageComponent = &Container{}
 	default:
 		return fmt.Errorf("unknown component type: %d", v.Type)
 	}
