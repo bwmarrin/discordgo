@@ -42,6 +42,7 @@ type State struct {
 	TrackChannels      bool
 	TrackThreads       bool
 	TrackEmojis        bool
+	TrackStickers      bool
 	TrackMembers       bool
 	TrackThreadMembers bool
 	TrackRoles         bool
@@ -63,6 +64,7 @@ func NewState() *State {
 		TrackChannels:      true,
 		TrackThreads:       true,
 		TrackEmojis:        true,
+		TrackStickers:      true,
 		TrackMembers:       true,
 		TrackThreadMembers: true,
 		TrackRoles:         true,
@@ -175,8 +177,8 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 // Guild gets a guild by ID.
 // Useful for querying if @me is in a guild:
-//     _, err := discordgo.Session.State.Guild(guildID)
-//     isInGuild := err == nil
+//    _, err := discordgo.Session.State.Guild(guildID)
+//	  isInGuild := err == nil
 func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {
 		return nil, ErrNilState
@@ -1049,6 +1051,17 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 			s.Lock()
 			defer s.Unlock()
 			guild.Emojis = t.Emojis
+		}
+	case *GuildStickersUpdate:
+		if s.TrackStickers {
+			var guild *Guild
+			guild, err = s.Guild(t.GuildID)
+			if err != nil {
+				return err
+			}
+			s.Lock()
+			defer s.Unlock()
+			guild.Stickers = t.Stickers
 		}
 	case *ChannelCreate:
 		if s.TrackChannels {
