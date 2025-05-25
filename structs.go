@@ -2718,6 +2718,9 @@ const (
 
 	// Allows the usage of custom soundboard sounds from other servers.
 	PermissionUseExternalSounds = 1 << 45
+
+	// Allows setting voice channel status
+	PermissionManageVoiceStatus = 1 << 48
 )
 
 // Constants for general management.
