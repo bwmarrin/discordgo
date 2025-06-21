@@ -1329,6 +1329,7 @@ const (
 	GuildFeatureCreatorStorePage                      GuildFeature = "CREATOR_STORE_PAGE"
 	GuildFeatureDeveloperSupportServer                GuildFeature = "DEVELOPER_SUPPORT_SERVER"
 	GuildFeatureDiscoverable                          GuildFeature = "DISCOVERABLE"
+	GuildFeatureEnhancedRoleColors                    GuildFeature = "ENHANCED_ROLE_COLORS"
 	GuildFeatureFeaturable                            GuildFeature = "FEATURABLE"
 	GuildFeatureInvitesDisabled                       GuildFeature = "INVITES_DISABLED"
 	GuildFeatureInviteSplash                          GuildFeature = "INVITE_SPLASH"
@@ -1344,6 +1345,7 @@ const (
 	GuildFeatureRoleSubscriptionsEnabled              GuildFeature = "ROLE_SUBSCRIPTIONS_ENABLED"
 	GuildFeatureSoundboard                            GuildFeature = "SOUNDBOARD"
 	GuildFeatureTicketedEventsEnabled                 GuildFeature = "TICKETED_EVENTS_ENABLED"
+	GuildFeatureTierlessBoosting                      GuildFeature = "TIERLESS_BOOSTING"
 	GuildFeatureVanityURL                             GuildFeature = "VANITY_URL"
 	GuildFeatureVerified                              GuildFeature = "VERIFIED"
 	GuildFeatureVipRegions                            GuildFeature = "VIP_REGIONS"
@@ -1394,6 +1396,9 @@ type Role struct {
 
 	// The hex color of this role.
 	Color int `json:"color"`
+
+	// The enhanced colors of this role
+	Colors RoleColors `json:"colors"`
 
 	// The position of this role in the guild's role hierarchy.
 	Position int `json:"position"`
@@ -1453,6 +1458,9 @@ type RoleParams struct {
 	Name string `json:"name,omitempty"`
 	// The color the role should have (as a decimal, not hex)
 	Color *int `json:"color,omitempty"`
+	// The colors the role should be when using enhanced colors
+	// NOTE: can only be set if the guild has the TIERLESS_BOOSTING and ENHANCED_ROLE_COLORS features.
+	Colors *RoleColors `json:"colors,omitempty"`
 	// Whether to display the role's users separately
 	Hoist *bool `json:"hoist,omitempty"`
 	// The overall permissions number of the role
@@ -1465,6 +1473,18 @@ type RoleParams struct {
 	// The role's icon image encoded in base64.
 	// NOTE: can only be set if the guild has the ROLE_ICONS feature.
 	Icon *string `json:"icon,omitempty"`
+}
+
+type RoleColors struct {
+	// Primary color for role color gradient
+	// NOTE: For setting holographic color, needs to be set to 11127295
+	PrimaryColor *int `json:"primary_color,omitempty"`
+	// Secondary color for role color gradient
+	// NOTE: For setting holographic color, needs to be set to 16759788
+	SecondaryColor *int `json:"secondary_color,omitempty"`
+	// Tertiary color, only used for holographic role color, otherwise nil
+	// NOTE: For setting holographic color, needs to be set to 16761760
+	TertiaryColor *int `json:"tertiary_color,omitempty"`
 }
 
 // Roles are a collection of Role
