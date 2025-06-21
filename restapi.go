@@ -1127,8 +1127,21 @@ func (s *Session) GuildRoleCreate(guildID string, data *RoleParams, options ...R
 func (s *Session) GuildRoleEdit(guildID, roleID string, data *RoleParams, options ...RequestOption) (st *Role, err error) {
 
 	// Prevent sending a color int that is too big.
-	if data.Color != nil && *data.Color > 0xFFFFFF {
+	if (data.Color != nil && *data.Color > 0xFFFFFF) || (data.Colors != nil && data.Colors.PrimaryColor != nil && *data.Colors.PrimaryColor > 0xFFFFFF) || (data.Colors != nil && data.Colors.SecondaryColor != nil && *data.Colors.SecondaryColor > 0xFFFFFF) {
 		return nil, fmt.Errorf("color value cannot be larger than 0xFFFFFF")
+	}
+
+	// Prevent sending invalid color data for holographic color
+	if data.Colors != nil && data.Colors.TertiaryColor != nil {
+		if *data.Colors.TertiaryColor != 16761760 {
+			return nil, fmt.Errorf("tertiary color value must be 16761760")
+		}
+		if data.Colors.PrimaryColor == nil || *data.Colors.PrimaryColor != 11127295 {
+			return nil, fmt.Errorf("primary color must be 11127295 when tertiary color is set")
+		}
+		if data.Colors.SecondaryColor == nil || *data.Colors.SecondaryColor != 16759788 {
+			return nil, fmt.Errorf("secondary color must be 16759788 when tertiary color is set")
+		}
 	}
 
 	body, err := s.RequestWithBucketID("PATCH", EndpointGuildRole(guildID, roleID), data, EndpointGuildRole(guildID, ""), options...)
