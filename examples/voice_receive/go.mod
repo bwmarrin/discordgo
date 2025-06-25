@@ -1,9 +1,9 @@
-module github.com/bwmarrin/discordgo/examples/voice_receive
+module github.com/nitrix4ly/discordgo-exts/examples/voice_receive
 
 go 1.22.4
 
 require (
-	github.com/bwmarrin/discordgo v0.28.1
+	github.com/nitrix4ly/discordgo-exts v0.28.1
 	github.com/pion/rtp v1.6.0
 	github.com/pion/webrtc/v3 v3.0.0-20200721060053-ca3cc9d940bc
 )
