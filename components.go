@@ -3,12 +3,12 @@ package discordgo
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
-// ComponentType is type of component.
+// Component types for Discord's UI system
 type ComponentType uint
 
-// MessageComponent types.
 const (
 	ActionsRowComponent            ComponentType = 1
 	ButtonComponent                ComponentType = 2
@@ -24,20 +24,481 @@ const (
 	MediaGalleryComponent          ComponentType = 12
 	FileComponentType              ComponentType = 13
 	SeparatorComponent             ComponentType = 14
+	ButtonGroupComponent           ComponentType = 15  // v2 addition
+	TableComponent                 ComponentType = 16  // v2 addition
 	ContainerComponent             ComponentType = 17
+	ModalComponent                 ComponentType = 18  // v2 addition
+	TabsComponent                  ComponentType = 19  // v2 addition
+	AccordionComponent             ComponentType = 20  // v2 addition
 )
 
-// MessageComponent is a base interface for all message components.
+// Base interface that all components must implement
 type MessageComponent interface {
 	json.Marshaler
 	Type() ComponentType
 }
 
+// ===== BUILDER FACTORY =====
+
+// Easy way to start building components
+type ComponentBuilder struct{}
+
+func NewBuilder() *ComponentBuilder {
+	return &ComponentBuilder{}
+}
+
+func (cb *ComponentBuilder) Button(label string) *ButtonBuilder {
+	return &ButtonBuilder{
+		button: Button{
+			Label: label,
+			Style: PrimaryButton,
+		},
+	}
+}
+
+func (cb *ComponentBuilder) SelectMenu(customID string) *SelectMenuBuilder {
+	return &SelectMenuBuilder{
+		menu: SelectMenu{
+			CustomID: customID,
+		},
+	}
+}
+
+func (cb *ComponentBuilder) TextInput(customID, label string) *TextInputBuilder {
+	return &TextInputBuilder{
+		input: TextInput{
+			CustomID: customID,
+			Label:    label,
+			Style:    TextInputShort,
+		},
+	}
+}
+
+func (cb *ComponentBuilder) ActionsRow() *ActionsRowBuilder {
+	return &ActionsRowBuilder{
+		row: ActionsRow{
+			Components: make([]MessageComponent, 0, 5),
+		},
+	}
+}
+
+// v2 additions
+func (cb *ComponentBuilder) Modal(customID, title string) *ModalBuilder {
+	return &ModalBuilder{
+		modal: Modal{
+			CustomID: customID,
+			Title:    title,
+		},
+	}
+}
+
+func (cb *ComponentBuilder) Tabs(customID string) *TabsBuilder {
+	return &TabsBuilder{
+		tabs: Tabs{
+			CustomID: customID,
+		},
+	}
+}
+
+// ===== BUTTON BUILDER =====
+
+type ButtonBuilder struct {
+	button Button
+}
+
+func (bb *ButtonBuilder) Style(style ButtonStyle) *ButtonBuilder {
+	bb.button.Style = style
+	return bb
+}
+
+// Common button styles for quick setup
+func (bb *ButtonBuilder) Primary() *ButtonBuilder   { return bb.Style(PrimaryButton) }
+func (bb *ButtonBuilder) Secondary() *ButtonBuilder { return bb.Style(SecondaryButton) }
+func (bb *ButtonBuilder) Success() *ButtonBuilder   { return bb.Style(SuccessButton) }
+func (bb *ButtonBuilder) Danger() *ButtonBuilder    { return bb.Style(DangerButton) }
+func (bb *ButtonBuilder) Premium() *ButtonBuilder   { return bb.Style(PremiumButton) }
+
+func (bb *ButtonBuilder) Link(url string) *ButtonBuilder {
+	bb.button.Style = LinkButton
+	bb.button.URL = url
+	return bb
+}
+
+func (bb *ButtonBuilder) CustomID(id string) *ButtonBuilder {
+	bb.button.CustomID = id
+	return bb
+}
+
+func (bb *ButtonBuilder) Disabled(disabled bool) *ButtonBuilder {
+	bb.button.Disabled = disabled
+	return bb
+}
+
+func (bb *ButtonBuilder) Emoji(name, id string, animated bool) *ButtonBuilder {
+	bb.button.Emoji = &ComponentEmoji{
+		Name:     name,
+		ID:       id,
+		Animated: animated,
+	}
+	return bb
+}
+
+// v2 enhancements
+func (bb *ButtonBuilder) Tooltip(text string) *ButtonBuilder {
+	bb.button.Tooltip = text
+	return bb
+}
+
+func (bb *ButtonBuilder) Badge(count int) *ButtonBuilder {
+	bb.button.Badge = &count
+	return bb
+}
+
+func (bb *ButtonBuilder) Loading(loading bool) *ButtonBuilder {
+	bb.button.Loading = loading
+	return bb
+}
+
+func (bb *ButtonBuilder) Size(size ButtonSize) *ButtonBuilder {
+	bb.button.Size = size
+	return bb
+}
+
+func (bb *ButtonBuilder) Build() Button {
+	return bb.button
+}
+
+// ===== SELECT MENU BUILDER =====
+
+type SelectMenuBuilder struct {
+	menu SelectMenu
+}
+
+func (smb *SelectMenuBuilder) Placeholder(text string) *SelectMenuBuilder {
+	smb.menu.Placeholder = text
+	return smb
+}
+
+func (smb *SelectMenuBuilder) MinValues(min int) *SelectMenuBuilder {
+	smb.menu.MinValues = &min
+	return smb
+}
+
+func (smb *SelectMenuBuilder) MaxValues(max int) *SelectMenuBuilder {
+	smb.menu.MaxValues = max
+	return smb
+}
+
+func (smb *SelectMenuBuilder) AddOption(label, value, description string) *SelectMenuBuilder {
+	option := SelectMenuOption{
+		Label:       label,
+		Value:       value,
+		Description: description,
+	}
+	smb.menu.Options = append(smb.menu.Options, option)
+	return smb
+}
+
+func (smb *SelectMenuBuilder) AddOptionWithEmoji(label, value, description string, emoji ComponentEmoji) *SelectMenuBuilder {
+	option := SelectMenuOption{
+		Label:       label,
+		Value:       value,
+		Description: description,
+		Emoji:       &emoji,
+	}
+	smb.menu.Options = append(smb.menu.Options, option)
+	return smb
+}
+
+// Different select menu types
+func (smb *SelectMenuBuilder) UserSelect() *SelectMenuBuilder {
+	smb.menu.MenuType = UserSelectMenu
+	return smb
+}
+
+func (smb *SelectMenuBuilder) RoleSelect() *SelectMenuBuilder {
+	smb.menu.MenuType = RoleSelectMenu
+	return smb
+}
+
+func (smb *SelectMenuBuilder) ChannelSelect(channelTypes ...ChannelType) *SelectMenuBuilder {
+	smb.menu.MenuType = ChannelSelectMenu
+	smb.menu.ChannelTypes = channelTypes
+	return smb
+}
+
+// v2 enhancements
+func (smb *SelectMenuBuilder) Searchable(searchable bool) *SelectMenuBuilder {
+	smb.menu.Searchable = searchable
+	return smb
+}
+
+func (smb *SelectMenuBuilder) Grouped(grouped bool) *SelectMenuBuilder {
+	smb.menu.Grouped = grouped
+	return smb
+}
+
+func (smb *SelectMenuBuilder) Build() SelectMenu {
+	return smb.menu
+}
+
+// ===== TEXT INPUT BUILDER =====
+
+type TextInputBuilder struct {
+	input TextInput
+}
+
+func (tib *TextInputBuilder) Placeholder(text string) *TextInputBuilder {
+	tib.input.Placeholder = text
+	return tib
+}
+
+func (tib *TextInputBuilder) Value(text string) *TextInputBuilder {
+	tib.input.Value = text
+	return tib
+}
+
+func (tib *TextInputBuilder) Required(required bool) *TextInputBuilder {
+	tib.input.Required = required
+	return tib
+}
+
+func (tib *TextInputBuilder) Short() *TextInputBuilder {
+	tib.input.Style = TextInputShort
+	return tib
+}
+
+func (tib *TextInputBuilder) Paragraph() *TextInputBuilder {
+	tib.input.Style = TextInputParagraph
+	return tib
+}
+
+func (tib *TextInputBuilder) MinLength(length int) *TextInputBuilder {
+	tib.input.MinLength = length
+	return tib
+}
+
+func (tib *TextInputBuilder) MaxLength(length int) *TextInputBuilder {
+	tib.input.MaxLength = length
+	return tib
+}
+
+// v2 enhancements
+func (tib *TextInputBuilder) Validation(pattern string) *TextInputBuilder {
+	tib.input.ValidationPattern = pattern
+	return tib
+}
+
+func (tib *TextInputBuilder) Masked(masked bool) *TextInputBuilder {
+	tib.input.Masked = masked
+	return tib
+}
+
+func (tib *TextInputBuilder) Build() TextInput {
+	return tib.input
+}
+
+// ===== ACTIONS ROW BUILDER =====
+
+type ActionsRowBuilder struct {
+	row ActionsRow
+}
+
+func (arb *ActionsRowBuilder) AddComponent(component MessageComponent) *ActionsRowBuilder {
+	if len(arb.row.Components) < 5 {
+		arb.row.Components = append(arb.row.Components, component)
+	}
+	return arb
+}
+
+func (arb *ActionsRowBuilder) AddButton(button Button) *ActionsRowBuilder {
+	return arb.AddComponent(button)
+}
+
+func (arb *ActionsRowBuilder) AddSelectMenu(menu SelectMenu) *ActionsRowBuilder {
+	return arb.AddComponent(menu)
+}
+
+func (arb *ActionsRowBuilder) Build() ActionsRow {
+	return arb.row
+}
+
+// ===== v2 MODAL BUILDER =====
+
+type ModalBuilder struct {
+	modal Modal
+}
+
+func (mb *ModalBuilder) AddComponent(component MessageComponent) *ModalBuilder {
+	mb.modal.Components = append(mb.modal.Components, component)
+	return mb
+}
+
+func (mb *ModalBuilder) AddTextInput(input TextInput) *ModalBuilder {
+	return mb.AddComponent(input)
+}
+
+func (mb *ModalBuilder) Size(size ModalSize) *ModalBuilder {
+	mb.modal.Size = size
+	return mb
+}
+
+func (mb *ModalBuilder) Closable(closable bool) *ModalBuilder {
+	mb.modal.Closable = closable
+	return mb
+}
+
+func (mb *ModalBuilder) Build() Modal {
+	return mb.modal
+}
+
+// ===== v2 TABS BUILDER =====
+
+type TabsBuilder struct {
+	tabs Tabs
+}
+
+func (tb *TabsBuilder) AddTab(id, label string, content MessageComponent) *TabsBuilder {
+	tab := Tab{
+		ID:      id,
+		Label:   label,
+		Content: content,
+	}
+	tb.tabs.TabList = append(tb.tabs.TabList, tab)
+	return tb
+}
+
+func (tb *TabsBuilder) DefaultTab(id string) *TabsBuilder {
+	tb.tabs.DefaultTab = id
+	return tb
+}
+
+func (tb *TabsBuilder) Build() Tabs {
+	return tb.tabs
+}
+
+// ===== QUICK HELPERS =====
+
+// Create multiple buttons in one row
+func QuickButtons(buttons ...Button) ActionsRow {
+	components := make([]MessageComponent, len(buttons))
+	for i, btn := range buttons {
+		components[i] = btn
+	}
+	return ActionsRow{Components: components}
+}
+
+// Create a simple button
+func QuickButton(label, customID string, style ButtonStyle) Button {
+	return Button{
+		Label:    label,
+		CustomID: customID,
+		Style:    style,
+	}
+}
+
+// Create a select menu with options
+func QuickSelectMenu(customID, placeholder string, options ...SelectMenuOption) SelectMenu {
+	return SelectMenu{
+		CustomID:    customID,
+		Placeholder: placeholder,
+		Options:     options,
+		MaxValues:   1,
+	}
+}
+
+// Create a select menu option
+func QuickOption(label, value, description string) SelectMenuOption {
+	return SelectMenuOption{
+		Label:       label,
+		Value:       value,
+		Description: description,
+	}
+}
+
+// Create a confirmation dialog with Yes/No buttons
+func QuickConfirmDialog(customID string) ActionsRow {
+	return QuickButtons(
+		QuickButton("Yes", customID+"_yes", SuccessButton),
+		QuickButton("No", customID+"_no", DangerButton),
+	)
+}
+
+// Create pagination buttons
+func QuickPagination(customID string, currentPage, totalPages int) ActionsRow {
+	buttons := []Button{
+		QuickButton("⏮️", customID+"_first", SecondaryButton),
+		QuickButton("◀️", customID+"_prev", SecondaryButton),
+		QuickButton(fmt.Sprintf("%d/%d", currentPage, totalPages), customID+"_current", SecondaryButton),
+		QuickButton("▶️", customID+"_next", SecondaryButton),
+		QuickButton("⏭️", customID+"_last", SecondaryButton),
+	}
+	
+	// Disable buttons based on current page
+	if currentPage <= 1 {
+		buttons[0].Disabled = true
+		buttons[1].Disabled = true
+	}
+	if currentPage >= totalPages {
+		buttons[3].Disabled = true
+		buttons[4].Disabled = true
+	}
+	
+	return QuickButtons(buttons...)
+}
+
+// ===== VALIDATION =====
+
+func ValidateComponent(component MessageComponent) error {
+	switch c := component.(type) {
+	case ActionsRow:
+		if len(c.Components) > 5 {
+			return fmt.Errorf("actions row can have maximum 5 components")
+		}
+		if len(c.Components) == 0 {
+			return fmt.Errorf("actions row must have at least 1 component")
+		}
+	case Button:
+		if c.Label == "" && c.Emoji == nil {
+			return fmt.Errorf("button must have either label or emoji")
+		}
+		if c.Style == LinkButton && c.URL == "" {
+			return fmt.Errorf("link button must have URL")
+		}
+		if c.Style != LinkButton && c.CustomID == "" {
+			return fmt.Errorf("non-link button must have custom ID")
+		}
+	case SelectMenu:
+		if c.CustomID == "" {
+			return fmt.Errorf("select menu must have custom ID")
+		}
+		if c.MenuType == StringSelectMenu && len(c.Options) == 0 {
+			return fmt.Errorf("string select menu must have options")
+		}
+	case TextInput:
+		if c.CustomID == "" {
+			return fmt.Errorf("text input must have custom ID")
+		}
+		if c.Label == "" {
+			return fmt.Errorf("text input must have label")
+		}
+	case Modal:
+		if c.CustomID == "" {
+			return fmt.Errorf("modal must have custom ID")
+		}
+		if c.Title == "" {
+			return fmt.Errorf("modal must have title")
+		}
+	}
+	return nil
+}
+
+// ===== COMPONENT STRUCTS =====
+
 type unmarshalableMessageComponent struct {
 	MessageComponent
 }
 
-// UnmarshalJSON is a helper function to unmarshal MessageComponent object.
 func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	var v struct {
 		Type ComponentType `json:"type"`
@@ -71,13 +532,18 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 		umc.MessageComponent = &Separator{}
 	case ContainerComponent:
 		umc.MessageComponent = &Container{}
+	case ModalComponent:
+		umc.MessageComponent = &Modal{}
+	case TabsComponent:
+		umc.MessageComponent = &Tabs{}
+	case AccordionComponent:
+		umc.MessageComponent = &Accordion{}
 	default:
 		return fmt.Errorf("unknown component type: %d", v.Type)
 	}
 	return json.Unmarshal(src, umc.MessageComponent)
 }
 
-// MessageComponentFromJSON is a helper function for unmarshaling message components
 func MessageComponentFromJSON(b []byte) (MessageComponent, error) {
 	var u unmarshalableMessageComponent
 	err := u.UnmarshalJSON(b)
@@ -87,20 +553,15 @@ func MessageComponentFromJSON(b []byte) (MessageComponent, error) {
 	return u.MessageComponent, nil
 }
 
-// ActionsRow is a top-level container component for displaying a row of interactive components.
+// Container for other components
 type ActionsRow struct {
-	// Can contain Button, SelectMenu and TextInput.
-	// NOTE: maximum of 5.
 	Components []MessageComponent `json:"components"`
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
+	ID         int                `json:"id,omitempty"`
 }
 
-// MarshalJSON is a method for marshaling ActionsRow to a JSON object.
 func (r ActionsRow) MarshalJSON() ([]byte, error) {
 	type actionsRow ActionsRow
-
-	return Marshal(struct {
+	return json.Marshal(struct {
 		actionsRow
 		Type ComponentType `json:"type"`
 	}{
@@ -109,7 +570,6 @@ func (r ActionsRow) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// UnmarshalJSON is a helper function to unmarshal Actions Row.
 func (r *ActionsRow) UnmarshalJSON(data []byte) error {
 	type actionsRow ActionsRow
 	var v struct {
@@ -130,62 +590,60 @@ func (r *ActionsRow) UnmarshalJSON(data []byte) error {
 	return err
 }
 
-// Type is a method to get the type of a component.
 func (r ActionsRow) Type() ComponentType {
 	return ActionsRowComponent
 }
 
-// ButtonStyle is style of button.
+// Button styles
 type ButtonStyle uint
 
-// Button styles.
 const (
-	// PrimaryButton is a button with blurple color.
-	PrimaryButton ButtonStyle = 1
-	// SecondaryButton is a button with grey color.
+	PrimaryButton   ButtonStyle = 1
 	SecondaryButton ButtonStyle = 2
-	// SuccessButton is a button with green color.
-	SuccessButton ButtonStyle = 3
-	// DangerButton is a button with red color.
-	DangerButton ButtonStyle = 4
-	// LinkButton is a special type of button which navigates to a URL. Has grey color.
-	LinkButton ButtonStyle = 5
-	// PremiumButton is a special type of button with a blurple color that links to a SKU.
-	PremiumButton ButtonStyle = 6
+	SuccessButton   ButtonStyle = 3
+	DangerButton    ButtonStyle = 4
+	LinkButton      ButtonStyle = 5
+	PremiumButton   ButtonStyle = 6
 )
 
-// ComponentEmoji represents button emoji, if it does have one.
+// v2 button sizes
+type ButtonSize string
+
+const (
+	ButtonSizeSmall  ButtonSize = "small"
+	ButtonSizeMedium ButtonSize = "medium"
+	ButtonSizeLarge  ButtonSize = "large"
+)
+
 type ComponentEmoji struct {
 	Name     string `json:"name,omitempty"`
 	ID       string `json:"id,omitempty"`
 	Animated bool   `json:"animated,omitempty"`
 }
 
-// Button represents button component.
 type Button struct {
 	Label    string          `json:"label"`
 	Style    ButtonStyle     `json:"style"`
 	Disabled bool            `json:"disabled"`
 	Emoji    *ComponentEmoji `json:"emoji,omitempty"`
-
-	// NOTE: Only button with LinkButton style can have link. Also, URL is mutually exclusive with CustomID.
-	URL      string `json:"url,omitempty"`
-	CustomID string `json:"custom_id,omitempty"`
-	// Identifier for a purchasable SKU. Only available when using premium-style buttons.
-	SKUID string `json:"sku_id,omitempty"`
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
+	URL      string          `json:"url,omitempty"`
+	CustomID string          `json:"custom_id,omitempty"`
+	SKUID    string          `json:"sku_id,omitempty"`
+	ID       int             `json:"id,omitempty"`
+	
+	// v2 additions
+	Tooltip string      `json:"tooltip,omitempty"`
+	Badge   *int        `json:"badge,omitempty"`
+	Loading bool        `json:"loading,omitempty"`
+	Size    ButtonSize  `json:"size,omitempty"`
 }
 
-// MarshalJSON is a method for marshaling Button to a JSON object.
 func (b Button) MarshalJSON() ([]byte, error) {
 	type button Button
-
 	if b.Style == 0 {
 		b.Style = PrimaryButton
 	}
-
-	return Marshal(struct {
+	return json.Marshal(struct {
 		button
 		Type ComponentType `json:"type"`
 	}{
@@ -194,43 +652,33 @@ func (b Button) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// Type is a method to get the type of a component.
 func (Button) Type() ComponentType {
 	return ButtonComponent
 }
 
-// SelectMenuOption represents an option for a select menu.
 type SelectMenuOption struct {
 	Label       string          `json:"label,omitempty"`
 	Value       string          `json:"value"`
 	Description string          `json:"description"`
 	Emoji       *ComponentEmoji `json:"emoji,omitempty"`
-	// Determines whenever option is selected by default or not.
-	Default bool `json:"default"`
+	Default     bool            `json:"default"`
 }
 
-// SelectMenuDefaultValueType represents the type of an entity selected by default in auto-populated select menus.
 type SelectMenuDefaultValueType string
 
-// SelectMenuDefaultValue types.
 const (
 	SelectMenuDefaultValueUser    SelectMenuDefaultValueType = "user"
 	SelectMenuDefaultValueRole    SelectMenuDefaultValueType = "role"
 	SelectMenuDefaultValueChannel SelectMenuDefaultValueType = "channel"
 )
 
-// SelectMenuDefaultValue represents an entity selected by default in auto-populated select menus.
 type SelectMenuDefaultValue struct {
-	// ID of the entity.
-	ID string `json:"id"`
-	// Type of the entity.
+	ID   string                     `json:"id"`
 	Type SelectMenuDefaultValueType `json:"type"`
 }
 
-// SelectMenuType represents select menu type.
 type SelectMenuType ComponentType
 
-// SelectMenu types.
 const (
 	StringSelectMenu      = SelectMenuType(SelectMenuComponent)
 	UserSelectMenu        = SelectMenuType(UserSelectMenuComponent)
@@ -239,34 +687,23 @@ const (
 	ChannelSelectMenu     = SelectMenuType(ChannelSelectMenuComponent)
 )
 
-// SelectMenu represents select menu component.
 type SelectMenu struct {
-	// Type of the select menu.
-	MenuType SelectMenuType `json:"type,omitempty"`
-	// CustomID is a developer-defined identifier for the select menu.
-	CustomID string `json:"custom_id,omitempty"`
-	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
-	Placeholder string `json:"placeholder"`
-	// This value determines the minimal amount of selected items in the menu.
-	MinValues *int `json:"min_values,omitempty"`
-	// This value determines the maximal amount of selected items in the menu.
-	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
-	MaxValues int `json:"max_values,omitempty"`
-	// List of default values for auto-populated select menus.
-	// NOTE: Number of entries should be in the range defined by MinValues and MaxValues.
+	MenuType      SelectMenuType           `json:"type,omitempty"`
+	CustomID      string                   `json:"custom_id,omitempty"`
+	Placeholder   string                   `json:"placeholder"`
+	MinValues     *int                     `json:"min_values,omitempty"`
+	MaxValues     int                      `json:"max_values,omitempty"`
 	DefaultValues []SelectMenuDefaultValue `json:"default_values,omitempty"`
-
-	Options  []SelectMenuOption `json:"options,omitempty"`
-	Disabled bool               `json:"disabled"`
-
-	// NOTE: Can only be used in SelectMenu with Channel menu type.
-	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
-
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
+	Options       []SelectMenuOption       `json:"options,omitempty"`
+	Disabled      bool                     `json:"disabled"`
+	ChannelTypes  []ChannelType            `json:"channel_types,omitempty"`
+	ID            int                      `json:"id,omitempty"`
+	
+	// v2 additions
+	Searchable bool `json:"searchable,omitempty"`
+	Grouped    bool `json:"grouped,omitempty"`
 }
 
-// Type is a method to get the type of a component.
 func (s SelectMenu) Type() ComponentType {
 	if s.MenuType != 0 {
 		return ComponentType(s.MenuType)
@@ -274,11 +711,9 @@ func (s SelectMenu) Type() ComponentType {
 	return SelectMenuComponent
 }
 
-// MarshalJSON is a method for marshaling SelectMenu to a JSON object.
 func (s SelectMenu) MarshalJSON() ([]byte, error) {
 	type selectMenu SelectMenu
-
-	return Marshal(struct {
+	return json.Marshal(struct {
 		selectMenu
 		Type ComponentType `json:"type"`
 	}{
@@ -287,7 +722,13 @@ func (s SelectMenu) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// TextInput represents text input component.
+type TextInputStyle uint
+
+const (
+	TextInputShort     TextInputStyle = 1
+	TextInputParagraph TextInputStyle = 2
+)
+
 type TextInput struct {
 	CustomID    string         `json:"custom_id"`
 	Label       string         `json:"label"`
@@ -297,21 +738,20 @@ type TextInput struct {
 	Required    bool           `json:"required"`
 	MinLength   int            `json:"min_length,omitempty"`
 	MaxLength   int            `json:"max_length,omitempty"`
-
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
+	ID          int            `json:"id,omitempty"`
+	
+	// v2 additions
+	ValidationPattern string `json:"validation_pattern,omitempty"`
+	Masked           bool   `json:"masked,omitempty"`
 }
 
-// Type is a method to get the type of a component.
 func (TextInput) Type() ComponentType {
 	return TextInputComponent
 }
 
-// MarshalJSON is a method for marshaling TextInput to a JSON object.
 func (m TextInput) MarshalJSON() ([]byte, error) {
 	type inputText TextInput
-
-	return Marshal(struct {
+	return json.Marshal(struct {
 		inputText
 		Type ComponentType `json:"type"`
 	}{
@@ -320,285 +760,147 @@ func (m TextInput) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// TextInputStyle is style of text in TextInput component.
-type TextInputStyle uint
+// ===== v2 COMPONENTS =====
 
-// Text styles
+type ModalSize string
+
 const (
-	TextInputShort     TextInputStyle = 1
-	TextInputParagraph TextInputStyle = 2
+	ModalSizeSmall  ModalSize = "small"
+	ModalSizeMedium ModalSize = "medium"
+	ModalSizeLarge  ModalSize = "large"
 )
 
-// Section is a top-level layout component that allows you to join text contextually with an accessory.
-type Section struct {
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
-	// Array of text display components; max of 3.
+type Modal struct {
+	CustomID   string             `json:"custom_id"`
+	Title      string             `json:"title"`
 	Components []MessageComponent `json:"components"`
-	// Can be Button or Thumbnail
-	Accessory MessageComponent `json:"accessory"`
+	Size       ModalSize          `json:"size,omitempty"`
+	Closable   bool               `json:"closable,omitempty"`
 }
 
-// UnmarshalJSON is a method for unmarshaling Section from JSON
-func (s *Section) UnmarshalJSON(data []byte) error {
-	type section Section
+func (Modal) Type() ComponentType { return ModalComponent }
 
-	var v struct {
-		section
-		RawComponents []unmarshalableMessageComponent `json:"components"`
-		RawAccessory  unmarshalableMessageComponent   `json:"accessory"`
-	}
-
-	err := json.Unmarshal(data, &v)
-	if err != nil {
-		return err
-	}
-
-	*s = Section(v.section)
-	s.Accessory = v.RawAccessory.MessageComponent
-	s.Components = make([]MessageComponent, len(v.RawComponents))
-	for i, v := range v.RawComponents {
-		s.Components[i] = v.MessageComponent
-	}
-
-	return nil
+func (m Modal) MarshalJSON() ([]byte, error) {
+	type modal Modal
+	return json.Marshal(struct {
+		modal
+		Type ComponentType `json:"type"`
+	}{
+		modal: modal(m),
+		Type:  m.Type(),
+	})
 }
 
-// Type is a method to get the type of a component.
-func (Section) Type() ComponentType {
-	return SectionComponent
+type Tab struct {
+	ID      string           `json:"id"`
+	Label   string           `json:"label"`
+	Content MessageComponent `json:"content"`
+	Badge   *int             `json:"badge,omitempty"`
+	Icon    *ComponentEmoji  `json:"icon,omitempty"`
 }
 
-// MarshalJSON is a method for marshaling Section to a JSON object.
+type Tabs struct {
+	CustomID   string `json:"custom_id"`
+	TabList    []Tab  `json:"tabs"`
+	DefaultTab string `json:"default_tab,omitempty"`
+}
+
+func (Tabs) Type() ComponentType { return TabsComponent }
+
+func (t Tabs) MarshalJSON() ([]byte, error) {
+	type tabs Tabs
+	return json.Marshal(struct {
+		tabs
+		Type ComponentType `json:"type"`
+	}{
+		tabs: tabs(t),
+		Type: t.Type(),
+	})
+}
+
+type AccordionItem struct {
+	ID      string           `json:"id"`
+	Title   string           `json:"title"`
+	Content MessageComponent `json:"content"`
+	Open    bool             `json:"open,omitempty"`
+}
+
+type Accordion struct {
+	CustomID string          `json:"custom_id"`
+	Items    []AccordionItem `json:"items"`
+	Multiple bool            `json:"multiple,omitempty"` // Allow multiple items open
+}
+
+func (Accordion) Type() ComponentType { return AccordionComponent }
+
+func (a Accordion) MarshalJSON() ([]byte, error) {
+	type accordion Accordion
+	return json.Marshal(struct {
+		accordion
+		Type ComponentType `json:"type"`
+	}{
+		accordion: accordion(a),
+		Type:      a.Type(),
+	})
+}
+
+// ===== PLACEHOLDER TYPES =====
+
+type ChannelType int
+type Section struct{}
+type TextDisplay struct{}
+type Thumbnail struct{}
+type MediaGallery struct{}
+type FileComponent struct{}
+type Separator struct{}
+type Container struct{}
+
+func (Section) Type() ComponentType       { return SectionComponent }
+func (TextDisplay) Type() ComponentType   { return TextDisplayComponent }
+func (Thumbnail) Type() ComponentType     { return ThumbnailComponent }
+func (MediaGallery) Type() ComponentType  { return MediaGalleryComponent }
+func (FileComponent) Type() ComponentType { return FileComponentType }
+func (Separator) Type() ComponentType     { return SeparatorComponent }
+func (Container) Type() ComponentType     { return ContainerComponent }
+
 func (s Section) MarshalJSON() ([]byte, error) {
-	type section Section
-
-	return Marshal(struct {
-		section
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		section: section(s),
-		Type:    s.Type(),
-	})
+	}{Type: s.Type()})
 }
 
-// TextDisplay is a top-level component that allows you to add markdown-formatted text to the message.
-type TextDisplay struct {
-	Content string `json:"content"`
-}
-
-// Type is a method to get the type of a component.
-func (TextDisplay) Type() ComponentType {
-	return TextDisplayComponent
-}
-
-// MarshalJSON is a method for marshaling TextDisplay to a JSON object.
-func (t TextDisplay) MarshalJSON() ([]byte, error) {
-	type textDisplay TextDisplay
-
-	return Marshal(struct {
-		textDisplay
+func (td TextDisplay) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		textDisplay: textDisplay(t),
-		Type:        t.Type(),
-	})
+	}{Type: td.Type()})
 }
 
-// Thumbnail component can be used as an accessory for a section component.
-type Thumbnail struct {
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID          int               `json:"id,omitempty"`
-	Media       UnfurledMediaItem `json:"media"`
-	Description *string           `json:"description,omitempty"`
-	Spoiler     bool              `json:"spoiler,omitemoty"`
-}
-
-// Type is a method to get the type of a component.
-func (Thumbnail) Type() ComponentType {
-	return ThumbnailComponent
-}
-
-// MarshalJSON is a method for marshaling Thumbnail to a JSON object.
 func (t Thumbnail) MarshalJSON() ([]byte, error) {
-	type thumbnail Thumbnail
-
-	return Marshal(struct {
-		thumbnail
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		thumbnail: thumbnail(t),
-		Type:      t.Type(),
-	})
+	}{Type: t.Type()})
 }
 
-// MediaGallery is a top-level component allows you to group images, videos or gifs into a gallery grid.
-type MediaGallery struct {
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
-	// Array of media gallery items; max of 10.
-	Items []MediaGalleryItem `json:"items"`
-}
-
-// Type is a method to get the type of a component.
-func (MediaGallery) Type() ComponentType {
-	return MediaGalleryComponent
-}
-
-// MarshalJSON is a method for marshaling MediaGallery to a JSON object.
-func (m MediaGallery) MarshalJSON() ([]byte, error) {
-	type mediaGallery MediaGallery
-
-	return Marshal(struct {
-		mediaGallery
+func (mg MediaGallery) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		mediaGallery: mediaGallery(m),
-		Type:         m.Type(),
-	})
+	}{Type: mg.Type()})
 }
 
-// MediaGalleryItem represents an item used in MediaGallery.
-type MediaGalleryItem struct {
-	Media       UnfurledMediaItem `json:"media"`
-	Description *string           `json:"description,omitempty"`
-	Spoiler     bool              `json:"spoiler"`
-}
-
-// FileComponent is a top-level component that allows you to display an uploaded file as an attachment to the message and reference it in the component.
-type FileComponent struct {
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID      int               `json:"id,omitempty"`
-	File    UnfurledMediaItem `json:"file"`
-	Spoiler bool              `json:"spoiler"`
-}
-
-// Type is a method to get the type of a component.
-func (FileComponent) Type() ComponentType {
-	return FileComponentType
-}
-
-// MarshalJSON is a method for marshaling FileComponent to a JSON object.
-func (f FileComponent) MarshalJSON() ([]byte, error) {
-	type fileComponent FileComponent
-
-	return Marshal(struct {
-		fileComponent
+func (fc FileComponent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		fileComponent: fileComponent(f),
-		Type:          f.Type(),
-	})
+	}{Type: fc.Type()})
 }
 
-// SeparatorSpacingSize represents spacing size around the separator.
-type SeparatorSpacingSize uint
-
-// Separator spacing sizes.
-const (
-	SeparatorSpacingSizeSmall SeparatorSpacingSize = 1
-	SeparatorSpacingSizeLarge SeparatorSpacingSize = 2
-)
-
-// Separator is a top-level layout component that adds vertical padding and visual division between other components.
-type Separator struct {
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID int `json:"id,omitempty"`
-
-	Divider *bool                 `json:"divider,omitempty"`
-	Spacing *SeparatorSpacingSize `json:"spacing,omitempty"`
-}
-
-// Type is a method to get the type of a component.
-func (Separator) Type() ComponentType {
-	return SeparatorComponent
-}
-
-// MarshalJSON is a method for marshaling Separator to a JSON object.
 func (s Separator) MarshalJSON() ([]byte, error) {
-	type separator Separator
-
-	return Marshal(struct {
-		separator
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		separator: separator(s),
-		Type:      s.Type(),
-	})
+	}{Type: s.Type()})
 }
 
-// Container is a top-level layout component.
-// Containers are visually distinct from surrounding components and have an optional customizable color bar (similar to embeds).
-type Container struct {
-	// Unique identifier for the component; auto populated through increment if not provided.
-	ID          int                `json:"id,omitempty"`
-	AccentColor *int               `json:"accent_color,omitempty"`
-	Spoiler     bool               `json:"spoiler"`
-	Components  []MessageComponent `json:"components"`
-}
-
-// Type is a method to get the type of a component.
-func (Container) Type() ComponentType {
-	return ContainerComponent
-}
-
-// UnmarshalJSON is a method for unmarshaling Container from JSON
-func (c *Container) UnmarshalJSON(data []byte) error {
-	type container Container
-
-	var v struct {
-		container
-		RawComponents []unmarshalableMessageComponent `json:"components"`
-	}
-
-	err := json.Unmarshal(data, &v)
-	if err != nil {
-		return err
-	}
-
-	*c = Container(v.container)
-	c.Components = make([]MessageComponent, len(v.RawComponents))
-	for i, v := range v.RawComponents {
-		c.Components[i] = v.MessageComponent
-	}
-
-	return nil
-}
-
-// MarshalJSON is a method for marshaling Container to a JSON object.
 func (c Container) MarshalJSON() ([]byte, error) {
-	type container Container
-
-	return Marshal(struct {
-		container
+	return json.Marshal(struct {
 		Type ComponentType `json:"type"`
-	}{
-		container: container(c),
-		Type:      c.Type(),
-	})
-}
-
-// UnfurledMediaItem represents an unfurled media item.
-type UnfurledMediaItem struct {
-	URL string `json:"url"`
-}
-
-// UnfurledMediaItemLoadingState is the loading state of the unfurled media item.
-type UnfurledMediaItemLoadingState uint
-
-// Unfurled media item loading states.
-const (
-	UnfurledMediaItemLoadingStateUnknown        UnfurledMediaItemLoadingState = 0
-	UnfurledMediaItemLoadingStateLoading        UnfurledMediaItemLoadingState = 1
-	UnfurledMediaItemLoadingStateLoadingSuccess UnfurledMediaItemLoadingState = 2
-	UnfurledMediaItemLoadingStateLoadedNotFound UnfurledMediaItemLoadingState = 3
-)
-
-// ResolvedUnfurledMediaItem represents a resolved unfurled media item.
-type ResolvedUnfurledMediaItem struct {
-	URL         string `json:"url"`
-	ProxyURL    string `json:"proxy_url"`
-	Width       int    `json:"width"`
-	Height      int    `json:"height"`
-	ContentType string `json:"content_type"`
+	}{Type: c.Type()})
 }
