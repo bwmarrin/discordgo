@@ -411,7 +411,7 @@ type Thumbnail struct {
 	ID          int               `json:"id,omitempty"`
 	Media       UnfurledMediaItem `json:"media"`
 	Description *string           `json:"description,omitempty"`
-	Spoiler     bool              `json:"spoiler,omitemoty"`
+	Spoiler     bool              `json:"spoiler,omitempty"`
 }
 
 // Type is a method to get the type of a component.
