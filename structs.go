@@ -1475,6 +1475,7 @@ type RoleParams struct {
 	Icon *string `json:"icon,omitempty"`
 }
 
+// RoleColors represents the parameters needed to update a gradient or holographic role color
 type RoleColors struct {
 	// Primary color for role color gradient
 	// NOTE: For setting holographic color, needs to be set to 11127295
