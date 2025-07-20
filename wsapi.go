@@ -208,6 +208,7 @@ func (s *Session) Open() error {
 
 	// Start sending heartbeats and reading messages from Discord.
 	go s.heartbeat(s.wsConn, s.listening, h.HeartbeatInterval)
+	s.closeWg.Add(1)
 	go s.listen(s.wsConn, s.listening)
 
 	s.log(LogInformational, "exiting")
@@ -217,6 +218,7 @@ func (s *Session) Open() error {
 // listen polls the websocket connection for events, it will stop when the
 // listening channel is closed, or an error occurs.
 func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
+	defer s.closeWg.Done()
 
 	s.log(LogInformational, "called")
 
@@ -229,7 +231,11 @@ func (s *Session) listen(wsConn *websocket.Conn, listening <-chan interface{}) {
 			// Detect if we have been closed manually. If a Close() has already
 			// happened, the websocket we are listening on will be different to
 			// the current session.
-			s.RLock()
+			if !s.TryRLock() && websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+				// Session is still locked as we manually requested a close of our websocket connection
+				// and Discord confirmed our close request. Job done.
+				return
+			}
 			sameConnection := s.wsConn == wsConn
 			s.RUnlock()
 
@@ -714,10 +720,10 @@ type voiceChannelJoinOp struct {
 
 // ChannelVoiceJoin joins the session user to a voice channel.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
 	s.log(LogInformational, "called")
@@ -761,10 +767,10 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 //
 // This should only be used when the VoiceServerUpdate will be intercepted and used elsewhere.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join, leave empty to disconnect.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join, leave empty to disconnect.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
 
 	s.log(LogInformational, "called")
@@ -985,8 +991,8 @@ func (s *Session) CloseWithCode(closeCode int) (err error) {
 			s.log(LogInformational, "error closing websocket, %s", err)
 		}
 
-		// TODO: Wait for Discord to actually close the connection.
-		time.Sleep(1 * time.Second)
+		// Wait for Discord to actually close the connection.
+		s.closeWg.Wait()
 
 		s.log(LogInformational, "closing gateway websocket")
 		err = s.wsConn.Close()
