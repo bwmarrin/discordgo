@@ -60,7 +60,7 @@ type ChannelUpdate struct {
 // ChannelDelete is the data for a ChannelDelete event.
 type ChannelDelete struct {
 	*Channel
-	BeforeDelete *Channel
+	BeforeDelete *Channel `json:"-"`
 }
 
 // ChannelPinsUpdate stores data for a ChannelPinsUpdate event.
