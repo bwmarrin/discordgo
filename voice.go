@@ -357,9 +357,10 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			e, ok := err.(*websocket.CloseError)
 
 			// 4014 indicates a manual disconnection by someone in the guild;
-			// 4022 indicates a manual disconnection by someone in the guild and outside the voice channel;
+			// 4021 indicates that the voice connection was dropped due to rate limiting;
+			// 4022 indicates that the call was terminated (e.g., channel deleted, voice server changed, call ended).
 			// we shouldn't reconnect.
-			if ok && (e.Code == 4014 || e.Code == 4022) {
+			if ok && (e.Code == 4014 || e.Code == 4021 || e.Code == 4022) {
 				v.log(LogInformational, "received %d manual disconnection", e.Code)
 
 				// Abandon the voice WS connection
@@ -367,20 +368,22 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 				v.wsConn = nil
 				v.Unlock()
 
-				// Wait for VOICE_SERVER_UPDATE.
-				// When the bot is moved by the user to another voice channel,
-				// VOICE_SERVER_UPDATE is received after the code.
-				for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
-					<-time.After(1 * time.Second)
-
-					v.RLock()
-					reconnected := v.wsConn != nil
-					v.RUnlock()
-					if !reconnected {
-						continue
+				if e.Code == 4014 {
+					// Wait for VOICE_SERVER_UPDATE.
+					// When the bot is moved by the user to another voice channel,
+					// VOICE_SERVER_UPDATE is received after the code.
+					for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
+						<-time.After(1 * time.Second)
+	
+						v.RLock()
+						reconnected := v.wsConn != nil
+						v.RUnlock()
+						if !reconnected {
+							continue
+						}
+						v.log(LogInformational, "successfully reconnected after %d manual disconnection", e.Code)
+						return
 					}
-					v.log(LogInformational, "successfully reconnected after %d manual disconnection", e.Code)
-					return
 				}
 
 				// When VOICE_SERVER_UPDATE is not received, disconnect as usual.
