@@ -625,7 +625,7 @@ func (Label) Type() ComponentType {
 	return LabelComponent
 }
 
-// UnmarshalJSON is a method for unmarshaling Container from JSON
+// UnmarshalJSON is a method for unmarshaling Label from JSON
 func (l *Label) UnmarshalJSON(data []byte) error {
 	type label Label
 
@@ -645,7 +645,7 @@ func (l *Label) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON is a method for marshaling Container to a JSON object.
+// MarshalJSON is a method for marshaling Label to a JSON object.
 func (l Label) MarshalJSON() ([]byte, error) {
 	type label Label
 
