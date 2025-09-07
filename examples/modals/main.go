@@ -48,29 +48,32 @@ var (
 				Data: &discordgo.InteractionResponseData{
 					CustomID: "modals_survey_" + i.Interaction.Member.User.ID,
 					Title:    "Modals survey",
+					Flags:    discordgo.MessageFlagsIsComponentsV2,
 					Components: []discordgo.MessageComponent{
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.TextInput{
-									CustomID:    "opinion",
-									Label:       "What is your opinion on them?",
-									Style:       discordgo.TextInputShort,
-									Placeholder: "Don't be shy, share your opinion with us",
-									Required:    true,
-									MaxLength:   300,
-									MinLength:   10,
+						discordgo.Label{
+							Label:       "How would you rate them?",
+							Description: "On a scale from terrible to awesome",
+							Component: discordgo.SelectMenu{
+								MenuType:    discordgo.StringSelectMenu,
+								CustomID:    "rating",
+								Placeholder: "Your rating...",
+								Options: []discordgo.SelectMenuOption{
+									{Label: "Terrible", Value: "terrible"},
+									{Label: "Bad", Value: "bad"},
+									{Label: "Neutral", Value: "neutral", Default: true},
+									{Label: "Good", Value: "good"},
+									{Label: "Awesome", Value: "awesome"},
 								},
 							},
 						},
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.TextInput{
-									CustomID:  "suggestions",
-									Label:     "What would you suggest to improve them?",
-									Style:     discordgo.TextInputParagraph,
-									Required:  false,
-									MaxLength: 2000,
-								},
+						discordgo.Label{
+							Label:       "What would you suggest to improve them?",
+							Description: "Please provide as much info as possible!",
+							Component: discordgo.TextInput{
+								CustomID:  "suggestions",
+								Style:     discordgo.TextInputParagraph,
+								Required:  false,
+								MaxLength: 2000,
 							},
 						},
 					},
@@ -113,10 +116,10 @@ func main() {
 
 			userid := strings.Split(data.CustomID, "_")[2]
 			_, err = s.ChannelMessageSend(*ResultsChannel, fmt.Sprintf(
-				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s",
+				"Feedback received. From <@%s>\n\n**Rating**:\n%s\n\n**Suggestions**:\n%s",
 				userid,
-				data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
-				data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
+				data.Components[0].(*discordgo.Label).Component.(*discordgo.SelectMenu).Values[0],
+				data.Components[1].(*discordgo.Label).Component.(*discordgo.TextInput).Value,
 			))
 			if err != nil {
 				panic(err)
