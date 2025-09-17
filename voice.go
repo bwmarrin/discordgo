@@ -52,7 +52,7 @@ const (
 type VoiceConnection struct {
 	Cond *sync.Cond
 
-	// Status of this connection. Please don't change.
+	// Status of this connection. Read only
 	Status VoiceConnectionStatus
 
 	// Closed if this VoiceConection status become Dead
@@ -246,8 +246,8 @@ type voiceOP8 struct {
 	HeartbeatInterval int `json:"heartbeat_interval"`
 }
 
-// WaitUntilConnected waits for the Voice Connection to
-// become ready, if it does not become ready it returns an err
+// waitUntilStatus waits for connection to be in given VoiceConnectionStatus
+// returns error if context timeout or VoiceConnection.Err
 func (v *VoiceConnection) waitUntilStatus(ctx context.Context, status VoiceConnectionStatus) error {
 	v.log(LogInformational, "called")
 
