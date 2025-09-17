@@ -27,6 +27,18 @@ const (
 	UserApplicationCommand ApplicationCommandType = 2
 	// MessageApplicationCommand adds command to message context menu.
 	MessageApplicationCommand ApplicationCommandType = 3
+	// ActivityPrimaryEntryPoint sets the command as the application's entry point. Only one command of this type can exist.
+	ActivityPrimaryEntryPoint ApplicationCommandType = 4
+)
+
+// EntryPointHandler is for the type of activity launch handler.
+type EntryPointHandler uint8
+
+const (
+	// AppLaunchActivity lets the application handle the activity launch process.
+	AppLaunchActivity EntryPointHandler = 1
+	// DiscordLaunchActivity lets Discord launch the activity automatically.
+	DiscordLaunchActivity EntryPointHandler = 2
 )
 
 // ApplicationCommand represents an application's slash command.
@@ -38,6 +50,7 @@ type ApplicationCommand struct {
 	Type              ApplicationCommandType `json:"type,omitempty"`
 	Name              string                 `json:"name"`
 	NameLocalizations *map[Locale]string     `json:"name_localizations,omitempty"`
+	Handler 		  EntryPointHandler  	 `json:"handler,omitempty"`
 
 	// NOTE: DefaultPermission will be soon deprecated. Use DefaultMemberPermissions and Contexts instead.
 	DefaultPermission        *bool  `json:"default_permission,omitempty"`
