@@ -945,7 +945,7 @@ func (v *VoiceConnection) opusSender(ctx context.Context, rate, size int) {
 			return
 		}
 
-		// don't care overflow because it is already defined in Go spec
+		// don't care if it overflows because it is already defined in Go spec
 		// https://go.dev/ref/spec#Integer_overflow
 		sequence++
 		timestamp += uint32(size)
