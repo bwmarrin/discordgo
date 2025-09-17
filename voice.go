@@ -543,7 +543,7 @@ func (v *VoiceConnection) onEvent(ctx context.Context, binary bool, message []by
 			op2 := voiceOP2{}
 
 			if err := json.Unmarshal(e.RawData, &op2); err != nil {
-				err := fmt.Errorf("OP2 unmarshal error, %s, %s", err, string(e.RawData))
+				err := fmt.Errorf("OP2 unmarshal error, %w, %s", err, string(e.RawData))
 				v.failure(err)
 				return
 			}
@@ -556,7 +556,7 @@ func (v *VoiceConnection) onEvent(ctx context.Context, binary bool, message []by
 			// Start the UDP connection
 			err := v.udpOpen(ctx)
 			if err != nil {
-				err := fmt.Errorf("error opening udp connection, %s", err)
+				err := fmt.Errorf("error opening udp connection, %w", err)
 				v.failure(err)
 				return
 			}
@@ -566,7 +566,7 @@ func (v *VoiceConnection) onEvent(ctx context.Context, binary bool, message []by
 		case 4: // udp encryption secret key
 			op4 := voiceOP4{}
 			if err := json.Unmarshal(e.RawData, &op4); err != nil {
-				err := fmt.Errorf("OP4 unmarshal error, %s, %s", err, string(e.RawData))
+				err := fmt.Errorf("OP4 unmarshal error, %w, %s", err, string(e.RawData))
 				v.failure(err)
 				return
 			}
