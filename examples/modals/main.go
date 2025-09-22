@@ -49,27 +49,45 @@ var (
 					CustomID: "modals_survey_" + i.Interaction.Member.User.ID,
 					Title:    "Modals survey",
 					Components: []discordgo.MessageComponent{
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.TextInput{
-									CustomID:    "opinion",
-									Label:       "What is your opinion on them?",
-									Style:       discordgo.TextInputShort,
-									Placeholder: "Don't be shy, share your opinion with us",
-									Required:    true,
-									MaxLength:   300,
-									MinLength:   10,
-								},
+						discordgo.Label{
+							Label: "What is your opinion on them?",
+							Component: discordgo.TextInput{
+								CustomID:    "opinion",
+								Style:       discordgo.TextInputShort,
+								Placeholder: "Don't be shy, share your opinion with us",
+								Required:    true,
+								MaxLength:   300,
+								MinLength:   10,
 							},
 						},
-						discordgo.ActionsRow{
-							Components: []discordgo.MessageComponent{
-								discordgo.TextInput{
-									CustomID:  "suggestions",
-									Label:     "What would you suggest to improve them?",
-									Style:     discordgo.TextInputParagraph,
-									Required:  false,
-									MaxLength: 2000,
+						discordgo.Label{
+							Label: "What would you suggest to improve them?",
+							Component: discordgo.TextInput{
+								CustomID:  "suggestions",
+								Style:     discordgo.TextInputParagraph,
+								Required:  false,
+								MaxLength: 2000,
+							},
+						},
+						discordgo.Label{
+							Label:       "Which option best reflects your experience?",
+							Description: "Choose one that fits best",
+							Component: discordgo.SelectMenu{
+								MenuType: discordgo.StringSelectMenu,
+								CustomID: "select",
+								Options: []discordgo.SelectMenuOption{
+									{
+										Label: "Option 1: It was great",
+										Value: "1",
+									},
+									{
+										Label: "Option 2: It was okay",
+										Value: "2",
+									},
+									{
+										Label: "Option 3: Needs improvement",
+										Value: "3",
+									},
 								},
 							},
 						},
@@ -112,11 +130,13 @@ func main() {
 			}
 
 			userid := strings.Split(data.CustomID, "_")[2]
+
 			_, err = s.ChannelMessageSend(*ResultsChannel, fmt.Sprintf(
-				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s",
+				"Feedback received. From <@%s>\n\n**Opinion**:\n%s\n\n**Suggestions**:\n%s\n\n**Experience:**\n%s",
 				userid,
-				data.Components[0].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
-				data.Components[1].(*discordgo.ActionsRow).Components[0].(*discordgo.TextInput).Value,
+				data.Components[0].(*discordgo.Label).Component.(*discordgo.TextInput).Value,
+				data.Components[1].(*discordgo.Label).Component.(*discordgo.TextInput).Value,
+				data.Components[2].(*discordgo.Label).Component.(*discordgo.SelectMenu).Values[0],
 			))
 			if err != nil {
 				panic(err)
