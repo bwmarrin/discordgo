@@ -72,7 +72,7 @@ type Session struct {
 	// Exposed but should not be modified by User.
 
 	// Whether the Data Websocket is ready
-	DataReady bool // NOTE: Maye be deprecated soon
+	DataReady bool // NOTE: Maybe deprecated soon
 
 	// Max number of REST API retries
 	MaxRestRetries int
