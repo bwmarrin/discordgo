@@ -40,6 +40,21 @@ const (
 	UserPremiumTypeNitroBasic   UserPremiumType = 3
 )
 
+type UserPrimaryGuild struct {
+	// The ID of the user's primary guild.
+	IdentityGuildID string `json:"identity_guild_id"`
+
+	// Whether the user is displaying the primary guild's server tag.
+	IdentityEnabled bool `json:"identity_enabled"`
+
+	// The server tag of the user's primary guild. Limited to 4 characters
+	Tag string `json:"tag"`
+
+	// The server tag badge hash
+	// https://discord.com/developers/docs/reference#image-formatting
+	Badge string `json:"badge"`
+}
+
 // A User stores all data for an individual Discord user.
 type User struct {
 	// The ID of the user.
@@ -100,6 +115,9 @@ type User struct {
 	// The flags on a user's account.
 	// Only available when the request is authorized via a Bearer token.
 	Flags int `json:"flags"`
+
+	// The user's primary guild.
+	PrimaryGuild UserPrimaryGuild `json:"primary_guild"`
 }
 
 // String returns a unique identifier of the form username#discriminator
