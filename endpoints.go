@@ -124,6 +124,8 @@ var (
 	EndpointGuildMemberVoiceState = func(gID, uID string) string {
 		return EndpointGuild(gID) + "/voice-states/" + uID
 	}
+	EndpointGuildSoundboardSounds = func(gId string) string { return EndpointGuild(gId) + "/soundboard-sounds" }
+	EndpointGuildSoundboardSound  = func(gId, sId string) string { return EndpointGuildSoundboardSounds(gId) + "/" + sId }
 
 	EndpointRoleIcon = func(rID, hash string) string {
 		return EndpointCDNRoleIcons + rID + "/" + hash + ".png"
@@ -147,6 +149,7 @@ var (
 	EndpointChannelMessagePin                   = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/pins/" + mID }
 	EndpointChannelMessageCrosspost             = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
 	EndpointChannelFollow                       = func(cID string) string { return EndpointChannel(cID) + "/followers" }
+	EndpointChannelSoundboardSoundSend          = func(cID string) string { return EndpointChannel(cID) + "/send-soundboard-sound" }
 	EndpointThreadMembers                       = func(tID string) string { return EndpointChannel(tID) + "/thread-members" }
 	EndpointThreadMember                        = func(tID, mID string) string { return EndpointThreadMembers(tID) + "/" + mID }
 
@@ -237,6 +240,8 @@ var (
 	EndpointFollowupMessageActions = func(aID, iToken, mID string) string {
 		return EndpointWebhookMessage(aID, iToken, mID)
 	}
+
+	EndpointSoundboardSounds = EndpointAPI + "soundboard-default-sounds"
 
 	EndpointGuildCreate = EndpointAPI + "guilds"
 

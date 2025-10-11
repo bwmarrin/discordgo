@@ -2639,6 +2639,77 @@ type ChannelMessagePinsList struct {
 	HasMore bool `json:"has_more"`
 }
 
+type SoundboardSoundSend struct {
+	// The ID of the sound to send
+	SoundID string `json:"sound_id"`
+
+	// Guild ID of the sound to send, if it is a guild sound
+	// Required to send a sound from another guild
+	GuildID string `json:"guild_id,omitempty"`
+}
+
+type SoundboardSound struct {
+	// The name of the sound
+	Name string `json:"name"`
+
+	// The ID of the sound
+	SoundID string `json:"sound_id"`
+
+	// Volume of the sound (0-1)
+	Volume float64 `json:"volume"`
+
+	// ID of the emoji for this sound
+	EmojiID string `json:"emoji_id"`
+
+	// The unicode character of this sound's standard emoji
+	EmojiName string `json:"emoji_name"`
+
+	// The ID of the guild that owns this sound, if it is a guild sound
+	GuildID string `json:"guild_id"`
+
+	// Whether this sound is available for use, may be false due to loss of server boosts
+	Available bool `json:"available"`
+
+	// The user that created this sound, if not default sound
+	User *User `json:"user"`
+}
+
+// SoundboardSoundAdd is used to add a new sound to the soundboard
+type SoundboardSoundAdd struct {
+	// The name of the sound
+	Name string `json:"name"`
+
+	// The sound file to play, base64 encoded .mp3 or .ogg file, data URI format.
+	// e.g. "data:audio/ogg;base64,SUQzBAAAAAAAI1RTU..."
+	//
+	// Soundboard sounds have a max file size of 512kb and a max duration of 5.2 seconds.
+	Sound string `json:"sound"`
+
+	// Volume of the sound (0-1)
+	Volume float64 `json:"volume,omitempty"`
+
+	// ID of the custom emoji for this sound
+	EmojiID string `json:"emoji_id,omitempty"`
+
+	// The unicode character of this sound's standard emoji
+	EmojiName string `json:"emoji_name,omitempty"`
+}
+
+// SoundboardSoundEdit is used to edit an existing sound on the soundboard
+type SoundboardSoundEdit struct {
+	// The name of the sound
+	Name string `json:"name,omitempty"`
+
+	// Volume of the sound (0-1)
+	Volume float64 `json:"volume,omitempty"`
+
+	// ID of the custom emoji for this sound
+	EmojiID string `json:"emoji_id,omitempty"`
+
+	// The unicode character of this sound's standard emoji
+	EmojiName string `json:"emoji_name,omitempty"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
@@ -2890,6 +2961,7 @@ const (
 	ErrCodeUnknownGuildScheduledEvent            = 10070
 	ErrCodeUnknownGuildScheduledEventUser        = 10071
 	ErrUnknownTag                                = 10087
+	ErrUnknownSound                              = 10097
 
 	ErrCodeBotsCannotUseEndpoint                                            = 20001
 	ErrCodeOnlyBotsCanUseEndpoint                                           = 20002
@@ -2983,6 +3055,7 @@ const (
 	ErrCodeThisServerNeedsMonetizationEnabledInOrderToPerformThisAction = 50097
 	ErrCodeThisServerNeedsMoreBoostsToPerformThisAction                 = 50101
 	ErrCodeTheRequestBodyContainsInvalidJSON                            = 50109
+	ErrCodeUserMustBeInVoiceChannelToSendVoiceChannelEffect             = 50168
 
 	ErrCodeNoUsersWithDiscordTagExist = 80004
 
