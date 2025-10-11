@@ -1980,15 +1980,31 @@ func (s *Session) ChannelMessageUnpin(channelID, messageID string, options ...Re
 // ChannelMessagesPinned returns an array of Message structures for pinned messages
 // within a given channel
 // channelID : The ID of a Channel.
-func (s *Session) ChannelMessagesPinned(channelID string, options ...RequestOption) (st []*Message, err error) {
+// before : If specified returns only pinned messages before the timestamp
+// limit  : Optional maximum amount of pinned messages to return.
+func (s *Session) ChannelMessagesPinned(channelID string, before *time.Time, limit int, options ...RequestOption) (pinnedMessages *ChannelMessagePinsList, err error) {
+	uri := EndpointChannelMessagesPins(channelID)
 
-	body, err := s.RequestWithBucketID("GET", EndpointChannelMessagesPins(channelID), nil, EndpointChannelMessagesPins(channelID), options...)
+	v := url.Values{}
 
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri += "?" + v.Encode()
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, uri, options...)
 	if err != nil {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = unmarshal(body, &pinnedMessages)
 	return
 }
 
