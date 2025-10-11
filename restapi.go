@@ -1106,6 +1106,20 @@ func (s *Session) GuildRoles(guildID string, options ...RequestOption) (st []*Ro
 	return // TODO return pointer
 }
 
+// GuildRole returns a specific role for a given guild.
+// guildID   : The ID of a Guild.
+// roleID    : The ID of a Role.
+func (s *Session) GuildRole(guildID, roleID string, options ...RequestOption) (st *Role, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildRole(guildID, roleID), nil, EndpointGuildRole(guildID, ""), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
+}
+
 // GuildRoleCreate creates a new Guild Role and returns it.
 // guildID : The ID of a Guild.
 // data    : New Role parameters.
