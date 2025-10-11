@@ -235,8 +235,6 @@ var (
 		return EndpointWebhookMessage(aID, iToken, mID)
 	}
 
-	EndpointGuildCreate = EndpointAPI + "guilds"
-
 	EndpointInvite = func(iID string) string { return EndpointAPI + "invites/" + iID }
 
 	EndpointEmoji         = func(eID string) string { return EndpointCDN + "emojis/" + eID + ".png" }
