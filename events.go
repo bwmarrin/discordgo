@@ -60,6 +60,7 @@ type ChannelUpdate struct {
 // ChannelDelete is the data for a ChannelDelete event.
 type ChannelDelete struct {
 	*Channel
+	BeforeDelete *Channel `json:"-"`
 }
 
 // ChannelPinsUpdate stores data for a ChannelPinsUpdate event.
@@ -84,6 +85,7 @@ type ThreadUpdate struct {
 // ThreadDelete is the data for a ThreadDelete event.
 type ThreadDelete struct {
 	*Channel
+	BeforeDelete *Channel `json:"-"`
 }
 
 // ThreadListSync is the data for a ThreadListSync event.
@@ -158,6 +160,7 @@ type GuildMemberUpdate struct {
 // GuildMemberRemove is the data for a GuildMemberRemove event.
 type GuildMemberRemove struct {
 	*Member
+	BeforeDelete *Member `json:"-"`
 }
 
 // GuildRoleCreate is the data for a GuildRoleCreate event.
@@ -168,12 +171,14 @@ type GuildRoleCreate struct {
 // GuildRoleUpdate is the data for a GuildRoleUpdate event.
 type GuildRoleUpdate struct {
 	*GuildRole
+	BeforeUpdate *Role `json:"-"`
 }
 
 // A GuildRoleDelete is the data for a GuildRoleDelete event.
 type GuildRoleDelete struct {
-	RoleID  string `json:"role_id"`
-	GuildID string `json:"guild_id"`
+	RoleID       string `json:"role_id"`
+	GuildID      string `json:"guild_id"`
+	BeforeDelete *Role  `json:"-"`
 }
 
 // A GuildEmojisUpdate is the data for a guild emoji update event.
