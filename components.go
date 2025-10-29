@@ -297,7 +297,7 @@ func (s SelectMenu) MarshalJSON() ([]byte, error) {
 // TextInput represents text input component.
 type TextInput struct {
 	CustomID    string         `json:"custom_id"`
-	Label       string         `json:"label"`
+	Label       string         `json:"label,omitempty"`
 	Style       TextInputStyle `json:"style"`
 	Placeholder string         `json:"placeholder,omitempty"`
 	Value       string         `json:"value,omitempty"`
