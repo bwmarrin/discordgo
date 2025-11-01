@@ -20,8 +20,9 @@ func TestMember_DisplayName(t *testing.T) {
 			Nick: "",
 			User: user,
 		}
-		if dn := m.DisplayName(); dn != user.GlobalName {
-			t.Errorf("Member.DisplayName() = %v, want %v", dn, user.GlobalName)
+		want := user.DisplayName()
+		if dn := m.DisplayName(); dn != want {
+			t.Errorf("Member.DisplayName() = %v, want %v", dn, want)
 		}
 	})
 	t.Run("server nickname set", func(t *testing.T) {

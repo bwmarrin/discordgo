@@ -41,6 +41,7 @@ const (
 	guildScheduledEventUpdateEventType           = "GUILD_SCHEDULED_EVENT_UPDATE"
 	guildScheduledEventUserAddEventType          = "GUILD_SCHEDULED_EVENT_USER_ADD"
 	guildScheduledEventUserRemoveEventType       = "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+	guildStickersUpdateEventType                 = "GUILD_STICKERS_UPDATE"
 	guildUpdateEventType                         = "GUILD_UPDATE"
 	integrationCreateEventType                   = "INTEGRATION_CREATE"
 	integrationDeleteEventType                   = "INTEGRATION_DELETE"
@@ -65,6 +66,9 @@ const (
 	stageInstanceEventCreateEventType            = "STAGE_INSTANCE_EVENT_CREATE"
 	stageInstanceEventDeleteEventType            = "STAGE_INSTANCE_EVENT_DELETE"
 	stageInstanceEventUpdateEventType            = "STAGE_INSTANCE_EVENT_UPDATE"
+	subscriptionCreateEventType                  = "SUBSCRIPTION_CREATE"
+	subscriptionDeleteEventType                  = "SUBSCRIPTION_DELETE"
+	subscriptionUpdateEventType                  = "SUBSCRIPTION_UPDATE"
 	threadCreateEventType                        = "THREAD_CREATE"
 	threadDeleteEventType                        = "THREAD_DELETE"
 	threadListSyncEventType                      = "THREAD_LIST_SYNC"
@@ -743,6 +747,26 @@ func (eh guildScheduledEventUserRemoveEventHandler) Handle(s *Session, i interfa
 	}
 }
 
+// guildStickersUpdateEventHandler is an event handler for GuildStickersUpdate events.
+type guildStickersUpdateEventHandler func(*Session, *GuildStickersUpdate)
+
+// Type returns the event type for GuildStickersUpdate events.
+func (eh guildStickersUpdateEventHandler) Type() string {
+	return guildStickersUpdateEventType
+}
+
+// New returns a new instance of GuildStickersUpdate.
+func (eh guildStickersUpdateEventHandler) New() interface{} {
+	return &GuildStickersUpdate{}
+}
+
+// Handle is the handler for GuildStickersUpdate events.
+func (eh guildStickersUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*GuildStickersUpdate); ok {
+		eh(s, t)
+	}
+}
+
 // guildUpdateEventHandler is an event handler for GuildUpdate events.
 type guildUpdateEventHandler func(*Session, *GuildUpdate)
 
@@ -1218,6 +1242,66 @@ func (eh stageInstanceEventUpdateEventHandler) Handle(s *Session, i interface{})
 	}
 }
 
+// subscriptionCreateEventHandler is an event handler for SubscriptionCreate events.
+type subscriptionCreateEventHandler func(*Session, *SubscriptionCreate)
+
+// Type returns the event type for SubscriptionCreate events.
+func (eh subscriptionCreateEventHandler) Type() string {
+	return subscriptionCreateEventType
+}
+
+// New returns a new instance of SubscriptionCreate.
+func (eh subscriptionCreateEventHandler) New() interface{} {
+	return &SubscriptionCreate{}
+}
+
+// Handle is the handler for SubscriptionCreate events.
+func (eh subscriptionCreateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*SubscriptionCreate); ok {
+		eh(s, t)
+	}
+}
+
+// subscriptionDeleteEventHandler is an event handler for SubscriptionDelete events.
+type subscriptionDeleteEventHandler func(*Session, *SubscriptionDelete)
+
+// Type returns the event type for SubscriptionDelete events.
+func (eh subscriptionDeleteEventHandler) Type() string {
+	return subscriptionDeleteEventType
+}
+
+// New returns a new instance of SubscriptionDelete.
+func (eh subscriptionDeleteEventHandler) New() interface{} {
+	return &SubscriptionDelete{}
+}
+
+// Handle is the handler for SubscriptionDelete events.
+func (eh subscriptionDeleteEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*SubscriptionDelete); ok {
+		eh(s, t)
+	}
+}
+
+// subscriptionUpdateEventHandler is an event handler for SubscriptionUpdate events.
+type subscriptionUpdateEventHandler func(*Session, *SubscriptionUpdate)
+
+// Type returns the event type for SubscriptionUpdate events.
+func (eh subscriptionUpdateEventHandler) Type() string {
+	return subscriptionUpdateEventType
+}
+
+// New returns a new instance of SubscriptionUpdate.
+func (eh subscriptionUpdateEventHandler) New() interface{} {
+	return &SubscriptionUpdate{}
+}
+
+// Handle is the handler for SubscriptionUpdate events.
+func (eh subscriptionUpdateEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*SubscriptionUpdate); ok {
+		eh(s, t)
+	}
+}
+
 // threadCreateEventHandler is an event handler for ThreadCreate events.
 type threadCreateEventHandler func(*Session, *ThreadCreate)
 
@@ -1510,6 +1594,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return guildScheduledEventUserAddEventHandler(v)
 	case func(*Session, *GuildScheduledEventUserRemove):
 		return guildScheduledEventUserRemoveEventHandler(v)
+	case func(*Session, *GuildStickersUpdate):
+		return guildStickersUpdateEventHandler(v)
 	case func(*Session, *GuildUpdate):
 		return guildUpdateEventHandler(v)
 	case func(*Session, *IntegrationCreate):
@@ -1558,6 +1644,12 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return stageInstanceEventDeleteEventHandler(v)
 	case func(*Session, *StageInstanceEventUpdate):
 		return stageInstanceEventUpdateEventHandler(v)
+	case func(*Session, *SubscriptionCreate):
+		return subscriptionCreateEventHandler(v)
+	case func(*Session, *SubscriptionDelete):
+		return subscriptionDeleteEventHandler(v)
+	case func(*Session, *SubscriptionUpdate):
+		return subscriptionUpdateEventHandler(v)
 	case func(*Session, *ThreadCreate):
 		return threadCreateEventHandler(v)
 	case func(*Session, *ThreadDelete):
@@ -1617,6 +1709,7 @@ func init() {
 	registerInterfaceProvider(guildScheduledEventUpdateEventHandler(nil))
 	registerInterfaceProvider(guildScheduledEventUserAddEventHandler(nil))
 	registerInterfaceProvider(guildScheduledEventUserRemoveEventHandler(nil))
+	registerInterfaceProvider(guildStickersUpdateEventHandler(nil))
 	registerInterfaceProvider(guildUpdateEventHandler(nil))
 	registerInterfaceProvider(integrationCreateEventHandler(nil))
 	registerInterfaceProvider(integrationDeleteEventHandler(nil))
@@ -1640,6 +1733,9 @@ func init() {
 	registerInterfaceProvider(stageInstanceEventCreateEventHandler(nil))
 	registerInterfaceProvider(stageInstanceEventDeleteEventHandler(nil))
 	registerInterfaceProvider(stageInstanceEventUpdateEventHandler(nil))
+	registerInterfaceProvider(subscriptionCreateEventHandler(nil))
+	registerInterfaceProvider(subscriptionDeleteEventHandler(nil))
+	registerInterfaceProvider(subscriptionUpdateEventHandler(nil))
 	registerInterfaceProvider(threadCreateEventHandler(nil))
 	registerInterfaceProvider(threadDeleteEventHandler(nil))
 	registerInterfaceProvider(threadListSyncEventHandler(nil))
