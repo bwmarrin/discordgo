@@ -478,9 +478,11 @@ func (v *VoiceConnection) websocket(ctx context.Context, endpoint string, token 
 				}
 
 				// 4014 indicates a manual disconnection by someone in the guild;
+				// 4021 indicates that the voice connection was dropped due to rate limiting;
+				// 4022 indicates that the call was terminated (e.g., channel deleted, voice server changed, call ended).
 				// we shouldn't reconnect.
-				if websocket.IsCloseError(err, 4014) {
-					v.log(LogInformational, "received 4014 manual disconnection")
+				if websocket.IsCloseError(err, 4014, 4021, 4022) {
+					v.log(LogInformational, "received close code disconnected")
 
 					return
 				}
