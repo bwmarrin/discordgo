@@ -124,10 +124,6 @@ var (
 	EndpointGuildMemberVoiceState = func(gID, uID string) string {
 		return EndpointGuild(gID) + "/voice-states/" + uID
 	}
-	// Returns the bot user's voice state in a given guild
-	EndpointUserGuildVoiceState = func(gID string) string {
-		return EndpointGuild(gID) + "/voice-states/@me"
-	}
 
 	EndpointRoleIcon = func(rID, hash string) string {
 		return EndpointCDNRoleIcons + rID + "/" + hash + ".png"
