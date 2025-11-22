@@ -491,3 +491,41 @@ type SubscriptionUpdate struct {
 type SubscriptionDelete struct {
 	*Subscription
 }
+
+// GuildSoundboardSoundCreate is the data for a GuildSoundboardSoundCreate event
+type GuildSoundboardSoundCreate struct {
+	*SoundboardSound
+}
+
+// GuildSoundboardSoundUpdate is the data for a GuildSoundboardSoundUpdate event
+type GuildSoundboardSoundUpdate struct {
+	*SoundboardSound
+}
+
+// GuildSoundboardSoundDelete is the data for a GuildSoundboardSoundDelete event
+type GuildSoundboardSoundDelete struct {
+	// The ID of the sound that was deleted
+	SoundID string `json:"sound_id"`
+
+	// The ID of the guild the sound was deleted from
+	GuildID string `json:"guild_id"`
+}
+
+// GuildSoundboardSoundsUpdate is the data for a GuildSoundboardSoundsUpdate event
+type GuildSoundboardSoundsUpdate struct {
+	// The guild soundboard sounds that was updated
+	SoundboardSounds []*SoundboardSound `json:"soundboard_sounds"`
+
+	// The ID of the guild the sound was updated in
+	GuildID string `json:"guild_id"`
+}
+
+// SoundboardSoundsRequest is the data for a SoundboardSoundsRequest event
+// https://discord.com/developers/docs/events/gateway-events#request-soundboard-sounds
+type SoundboardSoundsRequest struct {
+	// The guild soundboard sounds
+	SoundboardSounds []*SoundboardSound `json:"soundboard_sounds"`
+
+	// The ID of the guild the sounds belong to
+	GuildID string `json:"guild_id"`
+}
