@@ -601,6 +601,30 @@ type ForumTag struct {
 	EmojiName string `json:"emoji_name,omitempty"`
 }
 
+// Sometimes ID is a number instead of a string, so we need to unmarshal it manually
+func (t *ForumTag) UnmarshalJSON(data []byte) error {
+	temp := struct {
+		ID        json.Number `json:"id,omitempty"`
+		Name      string      `json:"name"`
+		Moderated bool        `json:"moderated"`
+		EmojiID   string      `json:"emoji_id,omitempty"`
+		EmojiName string      `json:"emoji_name,omitempty"`
+	}{}
+
+	err := json.Unmarshal(data, &temp)
+	if err != nil {
+		return err
+	}
+
+	t.ID = temp.ID.String()
+	t.Name = temp.Name
+	t.Moderated = temp.Moderated
+	t.EmojiID = temp.EmojiID
+	t.EmojiName = temp.EmojiName
+
+	return nil
+}
+
 // Emoji struct holds data related to Emoji's
 type Emoji struct {
 	ID            string   `json:"id"`
