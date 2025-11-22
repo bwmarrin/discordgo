@@ -3756,6 +3756,9 @@ func (s *Session) UserVoiceState(guildID string, options ...RequestOption) (stat
 	return
 }
 
+// GuildMemberVoiceState returns the voice state of a guild member in a guild.
+// guildID : The ID of the guild.
+// userID  : The ID of the user.
 func (s *Session) GuildMemberVoiceState(guildID, userID string, options ...RequestOption) (state *VoiceState, err error) {
 	endpoint := EndpointGuildMemberVoiceState(guildID, userID)
 
