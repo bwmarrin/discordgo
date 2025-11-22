@@ -2639,6 +2639,7 @@ type ChannelMessagePinsList struct {
 	HasMore bool `json:"has_more"`
 }
 
+// SoundboardSoundSend is used to send a sound from the soundboard in a given guild
 type SoundboardSoundSend struct {
 	// The ID of the sound to send
 	SoundID string `json:"sound_id"`
@@ -2648,6 +2649,7 @@ type SoundboardSoundSend struct {
 	GuildID string `json:"guild_id,omitempty"`
 }
 
+// SoundboardSound represents a sound on the soundboard
 type SoundboardSound struct {
 	// The name of the sound
 	Name string `json:"name"`
