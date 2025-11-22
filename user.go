@@ -40,6 +40,7 @@ const (
 	UserPremiumTypeNitroBasic   UserPremiumType = 3
 )
 
+// UserPrimaryGuild represents a user's primary guild information.
 type UserPrimaryGuild struct {
 	// The ID of the user's primary guild.
 	IdentityGuildID string `json:"identity_guild_id"`
