@@ -261,6 +261,7 @@ type SelectMenu struct {
 
 	Options  []SelectMenuOption `json:"options,omitempty"`
 	Disabled bool               `json:"disabled"`
+	Required bool               `json:"required"`
 
 	// NOTE: Can only be used in SelectMenu with Channel menu type.
 	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
@@ -296,7 +297,7 @@ func (s SelectMenu) MarshalJSON() ([]byte, error) {
 // TextInput represents text input component.
 type TextInput struct {
 	CustomID    string         `json:"custom_id"`
-	Label       string         `json:"label"`
+	Label       string         `json:"label,omitempty"`
 	Style       TextInputStyle `json:"style"`
 	Placeholder string         `json:"placeholder,omitempty"`
 	Value       string         `json:"value,omitempty"`
