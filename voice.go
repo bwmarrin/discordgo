@@ -456,11 +456,9 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			return
 		}
 
-		// TODO: if we dont want opusSender to have the wait for aead setup, then move this to op4
-		// opusSender now depends on op4 being received...
 		// Start the opusSender.
 		// TODO: Should we allow 48000/960 values to be user defined?
-		// answer: no, 48k is required as per discord documentaiton and 960 is the most optimal frame size
+		// answer: no, 48k is required as per discord documentaiton and 960 is the most optimal frame size (based on testing)
 		if v.OpusSend == nil {
 			v.OpusSend = make(chan []byte, 2)
 		}
@@ -723,19 +721,6 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	if udpConn == nil || close == nil {
 		return
 	}
-
-	// wait for aead to be ready after op4 received
-	// now im not sure how to feel about this, but it works
-	// we could just move opusSender start inside of op4 instead of op2..
-	//for {
-	//	v.RLock()
-	//	ready := v.aead != nil //&& v.nonceSize > 0
-	//	v.RUnlock()
-	//
-	//	if ready {
-	//		break
-	//	}
-	//}
 
 	// VoiceConnection is now ready to receive audio packets
 	// TODO: this needs reviewing as I think there must be a better way.
