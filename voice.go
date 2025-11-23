@@ -10,6 +10,8 @@
 package discordgo
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -62,6 +64,10 @@ type VoiceConnection struct {
 
 	// Used to pass the sessionid from onVoiceStateUpdate
 	// sessionRecv chan string UNUSED ATM
+
+	aead cipher.AEAD // TODO: temporary for now
+	//nonceSize    int
+	nonceCounter uint32
 
 	op4 voiceOP4
 	op2 voiceOP2
@@ -470,6 +476,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 	case 3: // HEARTBEAT response
 		// add code to use this to track latency?
+		// TODO: maybe actually implement this, seems cool
 		return
 
 	case 4: // udp encryption secret key
@@ -482,6 +489,22 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			return
 		}
 		fmt.Println(v.op4.Mode)
+
+		// TODO: error handling? meh
+		// aead aes 256 gcm rtpsize THIS IMPLEMENTATION
+		// very much breaking...
+		switch v.op4.Mode {
+		case "aead_aes256_gcm_rtpsize":
+			block, _ := aes.NewCipher(v.op4.SecretKey[:])
+			v.aead, _ = cipher.NewGCM(block)
+			//v.nonceSize = v.aead.NonceSize()
+
+			//case "aead_xchacha20_poly1305_rtpsize":
+			//	// TODO: do please
+			//	fmt.Println("UNIMPLEMENTED")
+			//	v.nonceSize = 24 // ?
+		}
+
 		return
 
 	case 5:
@@ -654,7 +677,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	// AEAD XChaCha20 Poly1305 (RTP Size)	aead_xchacha20_poly1305_rtpsize	32-bit incremental integer value, appended to payload	Available (Required)
 	// current:
 	// XSalsa20 Poly1305	xsalsa20_poly1305	Copy of RTP header	Deprecated
-	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "xsalsa20_poly1305"}}}
+	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "aead_aes256_gcm_rtpsize"}}}
 
 	v.wsMutex.Lock()
 	err = v.wsConn.WriteJSON(data)
@@ -714,8 +737,20 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		return
 	}
 
+	for {
+		v.RLock()
+		ready := v.aead != nil //&& v.nonceSize > 0
+		v.RUnlock()
+
+		if ready {
+			break
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+
 	// VoiceConnection is now ready to receive audio packets
-	// TODO: this needs reviewed as I think there must be a better way.
+	// TODO: this needs reviewing as I think there must be a better way.
 	v.Lock()
 	v.Ready = true
 	v.Unlock()
@@ -730,7 +765,8 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	var recvbuf []byte
 	var ok bool
 	udpHeader := make([]byte, 12)
-	var nonce [24]byte
+	//nonce := make([]byte, v.nonceSize)
+	nonce := make([]byte, 12)
 
 	// build the parts that don't change in the udpHeader
 	udpHeader[0] = 0x80
@@ -769,11 +805,17 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 		// TODO: fix the encryption here with sodium
 
-		// encrypt the opus data
-		copy(nonce[:], udpHeader) // TODO: as we can see, the nonce is a copy of the udp header
+		//nonce = make([]byte, v.nonceSize) // moved this back to the var scroll up
+		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
+
 		v.RLock()
-		sendbuf := secretbox.Seal(udpHeader, recvbuf, &nonce, &v.op4.SecretKey)
+		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
 		v.RUnlock()
+
+		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to cipehrtext appended
+		sendbuf = append(udpHeader, sendbuf...) // final
+
+		v.nonceCounter++
 
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
