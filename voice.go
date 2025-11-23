@@ -489,7 +489,6 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		}
 
 		// TODO: error handling? meh
-		// yes only aead_aes_256_gcm_rtpsize works
 		block, _ := aes.NewCipher(v.op4.SecretKey[:])
 		v.aead, _ = cipher.NewGCM(block)
 
@@ -773,14 +772,12 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
+		// encrypt the opus data
 		// add incrementing nonce counter as per discord's requirements
 		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
 		v.nonceCounter++
 
-		v.RLock()
 		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
-		v.RUnlock()
-
 		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
 		sendbuf = append(udpHeader, sendbuf...) // final
 
@@ -884,13 +881,11 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		cipherText := ciphertext[:len(ciphertext)-4]
 		binary.LittleEndian.PutUint32(nonce[:4], binary.LittleEndian.Uint32(nonceCounter))
 
-		v.RLock()
-		opus, err := v.aead.Open(nil, nonce[:], cipherText, recvbuf[0:12])
-		v.RUnlock()
-		if err != nil {
+		if opus, err := v.aead.Open(nil, nonce[:], cipherText, recvbuf[0:12]); err == nil {
+			p.Opus = opus
+		} else {
 			continue
 		}
-		p.Opus = opus
 
 		// extension bit set, and not a RTCP packet
 		if ((recvbuf[0] & 0x10) == 0x10) && ((recvbuf[1] & 0x80) == 0) {
