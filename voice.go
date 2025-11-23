@@ -10,6 +10,8 @@
 package discordgo
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -20,7 +22,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"golang.org/x/crypto/nacl/secretbox"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -62,6 +63,9 @@ type VoiceConnection struct {
 
 	// Used to pass the sessionid from onVoiceStateUpdate
 	// sessionRecv chan string UNUSED ATM
+
+	aead         cipher.AEAD
+	nonceCounter uint32
 
 	op4 voiceOP4
 	op2 voiceOP2
@@ -400,7 +404,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			v.RUnlock()
 			if sameConnection {
 
-				v.log(LogError, "voice endpoint %s websocket closed unexpectantly, %s", v.endpoint, err)
+				v.log(LogError, "voice endpoint %s websocket closed unexpectedly, %s", v.endpoint, err)
 
 				// Start reconnect goroutine then exit.
 				go v.reconnect()
@@ -452,6 +456,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 		// Start the opusSender.
 		// TODO: Should we allow 48000/960 values to be user defined?
+		// answer: no, 48k is required as per discord documentaiton and 960 is the most optimal frame size (based on testing)
 		if v.OpusSend == nil {
 			v.OpusSend = make(chan []byte, 2)
 		}
@@ -470,6 +475,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 	case 3: // HEARTBEAT response
 		// add code to use this to track latency?
+		// TODO: maybe actually implement this, seems cool
 		return
 
 	case 4: // udp encryption secret key
@@ -481,6 +487,11 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			v.log(LogError, "OP4 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
+
+		// TODO: error handling? meh
+		block, _ := aes.NewCipher(v.op4.SecretKey[:])
+		v.aead, _ = cipher.NewGCM(block)
+
 		return
 
 	case 5:
@@ -616,7 +627,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return
 	}
 
-	// Create a 74 byte array and listen for the initial handshake response
+	// Create a 74-byte array and listen for the initial handshake response
 	// from Discord.  Once we get it parse the IP and PORT information out
 	// of the response.  This should be our public IP and PORT as Discord
 	// saw us.
@@ -646,7 +657,9 @@ func (v *VoiceConnection) udpOpen() (err error) {
 
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
-	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "xsalsa20_poly1305"}}}
+
+	// AEAD AES256-GCM (RTP Size)	aead_aes256_gcm_rtpsize	32-bit incremental integer value, appended to payload	Available (Preferred)
+	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "aead_aes256_gcm_rtpsize"}}}
 
 	v.wsMutex.Lock()
 	err = v.wsConn.WriteJSON(data)
@@ -707,7 +720,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	}
 
 	// VoiceConnection is now ready to receive audio packets
-	// TODO: this needs reviewed as I think there must be a better way.
+	// TODO: this needs reviewing as I think there must be a better way.
 	v.Lock()
 	v.Ready = true
 	v.Unlock()
@@ -722,7 +735,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	var recvbuf []byte
 	var ok bool
 	udpHeader := make([]byte, 12)
-	var nonce [24]byte
+	nonce := make([]byte, 12)
 
 	// build the parts that don't change in the udpHeader
 	udpHeader[0] = 0x80
@@ -760,10 +773,13 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
 		// encrypt the opus data
-		copy(nonce[:], udpHeader)
-		v.RLock()
-		sendbuf := secretbox.Seal(udpHeader, recvbuf, &nonce, &v.op4.SecretKey)
-		v.RUnlock()
+		// add incrementing nonce counter as per discord's requirements
+		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
+		v.nonceCounter++
+
+		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
+		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
+		sendbuf = append(udpHeader, sendbuf...) // final
 
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
@@ -815,7 +831,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 	}
 
 	recvbuf := make([]byte, 1024)
-	var nonce [24]byte
+	var nonce [12]byte
 
 	for {
 		rlen, err := udpConn.Read(recvbuf)
@@ -854,10 +870,18 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		p.Sequence = binary.BigEndian.Uint16(recvbuf[2:4])
 		p.Timestamp = binary.BigEndian.Uint32(recvbuf[4:8])
 		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
-		// decrypt opus data
-		copy(nonce[:], recvbuf[0:12])
 
-		if opus, ok := secretbox.Open(nil, recvbuf[12:rlen], &nonce, &v.op4.SecretKey); ok {
+		// decrypt opus data
+		ciphertext := recvbuf[12:rlen]
+		if len(ciphertext) < 4 {
+			continue
+		}
+
+		nonceCounter := ciphertext[len(ciphertext)-4:]
+		cipherText := ciphertext[:len(ciphertext)-4]
+		binary.LittleEndian.PutUint32(nonce[:4], binary.LittleEndian.Uint32(nonceCounter))
+
+		if opus, err := v.aead.Open(nil, nonce[:], cipherText, recvbuf[0:12]); err == nil {
 			p.Opus = opus
 		} else {
 			continue
