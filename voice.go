@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"golang.org/x/crypto/nacl/secretbox"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -835,7 +834,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 	}
 
 	recvbuf := make([]byte, 1024)
-	var nonce [24]byte // TODO: when we change to aead_aes256_gcm_rtpsize this will change to 12 bytes
+	var nonce [12]byte
 
 	for {
 		rlen, err := udpConn.Read(recvbuf)
@@ -874,17 +873,24 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		p.Sequence = binary.BigEndian.Uint16(recvbuf[2:4])
 		p.Timestamp = binary.BigEndian.Uint32(recvbuf[4:8])
 		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
+
 		// decrypt opus data
-		copy(nonce[:], recvbuf[0:12])
-
-		// TODO: switch to new transport encryption here, looks like a project for another day
-		// since I dont really use the receiver
-
-		if opus, ok := secretbox.Open(nil, recvbuf[12:rlen], &nonce, &v.op4.SecretKey); ok {
-			p.Opus = opus
-		} else {
+		ciphertext := recvbuf[12:rlen]
+		if len(ciphertext) < 4 {
 			continue
 		}
+
+		nonceCounter := ciphertext[len(ciphertext)-4:]
+		cipherText := ciphertext[:len(ciphertext)-4]
+		binary.LittleEndian.PutUint32(nonce[:4], binary.LittleEndian.Uint32(nonceCounter))
+
+		v.RLock()
+		opus, err := v.aead.Open(nil, nonce[:], cipherText, recvbuf[0:12])
+		v.RUnlock()
+		if err != nil {
+			continue
+		}
+		p.Opus = opus
 
 		// extension bit set, and not a RTCP packet
 		if ((recvbuf[0] & 0x10) == 0x10) && ((recvbuf[1] & 0x80) == 0) {
