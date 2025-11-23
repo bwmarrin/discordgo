@@ -776,6 +776,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 		// add incrementing nonce counter as per discord's requirements
 		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
+		v.nonceCounter++
 
 		v.RLock()
 		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
@@ -783,8 +784,6 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
 		sendbuf = append(udpHeader, sendbuf...) // final
-
-		v.nonceCounter++
 
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
