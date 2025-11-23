@@ -835,7 +835,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 	}
 
 	recvbuf := make([]byte, 1024)
-	var nonce [24]byte
+	var nonce [24]byte // TODO: when we change to aead_aes256_gcm_rtpsize this will change to 12 bytes
 
 	for {
 		rlen, err := udpConn.Read(recvbuf)
