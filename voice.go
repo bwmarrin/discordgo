@@ -400,7 +400,7 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			v.RUnlock()
 			if sameConnection {
 
-				v.log(LogError, "voice endpoint %s websocket closed unexpectantly, %s", v.endpoint, err)
+				v.log(LogError, "voice endpoint %s websocket closed unexpectedly, %s", v.endpoint, err)
 
 				// Start reconnect goroutine then exit.
 				go v.reconnect()
@@ -481,6 +481,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			v.log(LogError, "OP4 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
+		fmt.Println(v.op4.Mode)
 		return
 
 	case 5:
@@ -646,6 +647,13 @@ func (v *VoiceConnection) udpOpen() (err error) {
 
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
+	// TODO: this encryption mode is deprecated
+	// TODO: change to `aead_aes256_gcm_rtpsize` or `aead_xchacha20_poly1305_rtpsize`
+	// dioscord documentation:
+	// AEAD AES256-GCM (RTP Size)	aead_aes256_gcm_rtpsize	32-bit incremental integer value, appended to payload	Available (Preferred)
+	// AEAD XChaCha20 Poly1305 (RTP Size)	aead_xchacha20_poly1305_rtpsize	32-bit incremental integer value, appended to payload	Available (Required)
+	// current:
+	// XSalsa20 Poly1305	xsalsa20_poly1305	Copy of RTP header	Deprecated
 	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "xsalsa20_poly1305"}}}
 
 	v.wsMutex.Lock()
@@ -759,8 +767,10 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
+		// TODO: fix the encryption here with sodium
+
 		// encrypt the opus data
-		copy(nonce[:], udpHeader)
+		copy(nonce[:], udpHeader) // TODO: as we can see, the nonce is a copy of the udp header
 		v.RLock()
 		sendbuf := secretbox.Seal(udpHeader, recvbuf, &nonce, &v.op4.SecretKey)
 		v.RUnlock()
