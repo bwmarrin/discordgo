@@ -456,8 +456,11 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			return
 		}
 
+		// TODO: if we dont want opusSender to have the wait for aead setup, then move this to op4
+		// opusSender now depends on op4 being received...
 		// Start the opusSender.
 		// TODO: Should we allow 48000/960 values to be user defined?
+		// answer: no, 48k is required as per discord documentaiton and 960 is the most optimal frame size
 		if v.OpusSend == nil {
 			v.OpusSend = make(chan []byte, 2)
 		}
@@ -488,22 +491,11 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			v.log(LogError, "OP4 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
-		fmt.Println(v.op4.Mode)
 
 		// TODO: error handling? meh
-		// aead aes 256 gcm rtpsize THIS IMPLEMENTATION
-		// very much breaking...
-		switch v.op4.Mode {
-		case "aead_aes256_gcm_rtpsize":
-			block, _ := aes.NewCipher(v.op4.SecretKey[:])
-			v.aead, _ = cipher.NewGCM(block)
-			//v.nonceSize = v.aead.NonceSize()
-
-			//case "aead_xchacha20_poly1305_rtpsize":
-			//	// TODO: do please
-			//	fmt.Println("UNIMPLEMENTED")
-			//	v.nonceSize = 24 // ?
-		}
+		// yes only aead_aes_256_gcm_rtpsize works
+		block, _ := aes.NewCipher(v.op4.SecretKey[:])
+		v.aead, _ = cipher.NewGCM(block)
 
 		return
 
@@ -640,7 +632,7 @@ func (v *VoiceConnection) udpOpen() (err error) {
 		return
 	}
 
-	// Create a 74 byte array and listen for the initial handshake response
+	// Create a 74-byte array and listen for the initial handshake response
 	// from Discord.  Once we get it parse the IP and PORT information out
 	// of the response.  This should be our public IP and PORT as Discord
 	// saw us.
@@ -670,13 +662,8 @@ func (v *VoiceConnection) udpOpen() (err error) {
 
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
-	// TODO: this encryption mode is deprecated
-	// TODO: change to `aead_aes256_gcm_rtpsize` or `aead_xchacha20_poly1305_rtpsize`
-	// dioscord documentation:
+
 	// AEAD AES256-GCM (RTP Size)	aead_aes256_gcm_rtpsize	32-bit incremental integer value, appended to payload	Available (Preferred)
-	// AEAD XChaCha20 Poly1305 (RTP Size)	aead_xchacha20_poly1305_rtpsize	32-bit incremental integer value, appended to payload	Available (Required)
-	// current:
-	// XSalsa20 Poly1305	xsalsa20_poly1305	Copy of RTP header	Deprecated
 	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "aead_aes256_gcm_rtpsize"}}}
 
 	v.wsMutex.Lock()
@@ -737,17 +724,18 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		return
 	}
 
-	for {
-		v.RLock()
-		ready := v.aead != nil //&& v.nonceSize > 0
-		v.RUnlock()
-
-		if ready {
-			break
-		}
-
-		time.Sleep(10 * time.Millisecond)
-	}
+	// wait for aead to be ready after op4 received
+	// now im not sure how to feel about this, but it works
+	// we could just move opusSender start inside of op4 instead of op2..
+	//for {
+	//	v.RLock()
+	//	ready := v.aead != nil //&& v.nonceSize > 0
+	//	v.RUnlock()
+	//
+	//	if ready {
+	//		break
+	//	}
+	//}
 
 	// VoiceConnection is now ready to receive audio packets
 	// TODO: this needs reviewing as I think there must be a better way.
@@ -812,7 +800,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
 		v.RUnlock()
 
-		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to cipehrtext appended
+		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
 		sendbuf = append(udpHeader, sendbuf...) // final
 
 		v.nonceCounter++
@@ -908,6 +896,9 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
 		// decrypt opus data
 		copy(nonce[:], recvbuf[0:12])
+
+		// TODO: switch to new transport encryption here, looks like a project for another day
+		// since I dont really use the receiver
 
 		if opus, ok := secretbox.Open(nil, recvbuf[12:rlen], &nonce, &v.op4.SecretKey); ok {
 			p.Opus = opus
