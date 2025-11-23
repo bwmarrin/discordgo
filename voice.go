@@ -65,8 +65,7 @@ type VoiceConnection struct {
 	// Used to pass the sessionid from onVoiceStateUpdate
 	// sessionRecv chan string UNUSED ATM
 
-	aead cipher.AEAD // TODO: temporary for now
-	//nonceSize    int
+	aead         cipher.AEAD
 	nonceCounter uint32
 
 	op4 voiceOP4
@@ -738,7 +737,6 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	var recvbuf []byte
 	var ok bool
 	udpHeader := make([]byte, 12)
-	//nonce := make([]byte, v.nonceSize)
 	nonce := make([]byte, 12)
 
 	// build the parts that don't change in the udpHeader
@@ -776,9 +774,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
-		// TODO: fix the encryption here with sodium
-
-		//nonce = make([]byte, v.nonceSize) // moved this back to the var scroll up
+		// add incrementing nonce counter as per discord's requirements
 		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
 
 		v.RLock()
