@@ -3761,3 +3761,101 @@ func (s *Session) UserVoiceState(guildID string, userID string, options ...Reque
 	err = unmarshal(body, &state)
 	return
 }
+
+// ChannelSoundboardSoundSend sends a soundboard sound in a specific voice channel.
+// channelID : The ID of the voice channel.
+// data      : Soundboard sound data to send.
+func (s *Session) ChannelSoundboardSoundSend(channelID string, data SoundboardSoundSend, options ...RequestOption) (err error) {
+	endpoint := EndpointChannelSoundboardSoundSend(channelID)
+
+	_, err = s.RequestWithBucketID("POST", endpoint, data, endpoint, options...)
+	return
+}
+
+// DefaultSoundboardSounds returns a list of default soundboard sounds.
+func (s *Session) DefaultSoundboardSounds(options ...RequestOption) (sounds []*SoundboardSound, err error) {
+	endpoint := EndpointSoundboardSounds
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &sounds)
+	return
+}
+
+// GuildSoundboardSounds returns a list of soundboard sounds for a guild.
+// guildID : The ID of the guild.
+func (s *Session) GuildSoundboardSounds(guildID string, options ...RequestOption) (sounds []*SoundboardSound, err error) {
+	endpoint := EndpointGuildSoundboardSounds(guildID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &sounds)
+	return
+}
+
+// GuildSoundboardSound returns a specific soundboard sound for a guild.
+// guildID : The ID of the guild.
+// soundID : The ID of the soundboard sound.
+func (s *Session) GuildSoundboardSound(guildID, soundID string, options ...RequestOption) (sound *SoundboardSound, err error) {
+	endpoint := EndpointGuildSoundboardSound(guildID, soundID)
+
+	var body []byte
+	body, err = s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &sound)
+	return
+}
+
+// GuildSoundboardSoundCreate creates a new soundboard sound for a guild and returns it.
+// guildID : The ID of the guild.
+// data    : Soundboard sound data to create.
+func (s *Session) GuildSoundboardSoundCreate(guildID string, data SoundboardSoundAdd, options ...RequestOption) (sound *SoundboardSound, err error) {
+	endpoint := EndpointGuildSoundboardSounds(guildID)
+
+	var response []byte
+	response, err = s.RequestWithBucketID("POST", endpoint, data, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &sound)
+	return
+}
+
+// GuildSoundboardSoundEdit edits a soundboard sound for a guild and returns the updated sound.
+// guildID : The ID of the guild.
+// soundID : The ID of the soundboard sound.
+// data    : New soundboard sound data.
+func (s *Session) GuildSoundboardSoundEdit(guildID, soundID string, data SoundboardSoundEdit, options ...RequestOption) (sound *SoundboardSound, err error) {
+	endpoint := EndpointGuildSoundboardSound(guildID, soundID)
+
+	var response []byte
+	response, err = s.RequestWithBucketID("PATCH", endpoint, data, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(response, &sound)
+	return
+}
+
+// GuildSoundboardSoundDelete deletes a soundboard sound for a guild.
+// guildID : The ID of the guild.
+// soundID : The ID of the soundboard sound.
+func (s *Session) GuildSoundboardSoundDelete(guildID, soundID string, options ...RequestOption) (err error) {
+	endpoint := EndpointGuildSoundboardSound(guildID, soundID)
+
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint, options...)
+	return
+}
