@@ -18,11 +18,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
 
 // ErrWSAlreadyOpen is thrown when you attempt to open
 // a websocket that already is open.
@@ -566,32 +573,35 @@ func (s *Session) requestGuildMembers(data requestGuildMembersData) (err error) 
 func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 
 	var err error
-	var reader io.Reader
-	reader = bytes.NewBuffer(message)
+	var data []byte
 
-	// If this is a compressed message, uncompress it.
 	if messageType == websocket.BinaryMessage {
+		buf := bufferPool.Get().(*bytes.Buffer)
+		buf.Reset()
 
-		z, err2 := zlib.NewReader(reader)
-		if err2 != nil {
+		z, err := zlib.NewReader(bytes.NewReader(message))
+		if err != nil {
 			s.log(LogError, "error uncompressing websocket message, %s", err)
-			return nil, err2
+			bufferPool.Put(buf)
+			return nil, err
 		}
 
-		defer func() {
-			err3 := z.Close()
-			if err3 != nil {
-				s.log(LogWarning, "error closing zlib, %s", err)
-			}
-		}()
+		_, err = io.Copy(buf, z)
+		z.Close()
+		if err != nil {
+			s.log(LogError, "error reading decompressed websocket message, %s", err)
+			bufferPool.Put(buf)
+			return nil, err
+		}
 
-		reader = z
+		data = buf.Bytes()
+		defer bufferPool.Put(buf)
+	} else {
+		data = message
 	}
 
-	// Decode the event into an Event struct.
 	var e *Event
-	decoder := json.NewDecoder(reader)
-	if err = decoder.Decode(&e); err != nil {
+	if err = json.Unmarshal(data, &e); err != nil {
 		s.log(LogError, "error decoding websocket message, %s", err)
 		return e, err
 	}
