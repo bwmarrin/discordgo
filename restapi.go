@@ -267,6 +267,12 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	case http.StatusOK:
 	case http.StatusCreated:
 	case http.StatusNoContent:
+	case http.StatusInternalServerError:
+		fallthrough
+	case http.StatusServiceUnavailable:
+		fallthrough
+	case http.StatusGatewayTimeout:
+		fallthrough
 	case http.StatusBadGateway:
 		// Retry sending request if possible
 		if sequence < cfg.MaxRestRetries {
@@ -276,7 +282,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
-	case 429: // TOO MANY REQUESTS - Rate limiting
+	case http.StatusTooManyRequests:
 		rl := TooManyRequests{}
 		err = Unmarshal(response, &rl)
 		if err != nil {
@@ -808,6 +814,10 @@ func (s *Session) GuildMembers(guildID string, after string, limit int, options 
 	}
 
 	err = unmarshal(body, &st)
+	// The returned objects don't have the GuildID attribute so we will set it here.
+	for _, member := range st {
+		member.GuildID = guildID
+	}
 	return
 }
 
@@ -1104,6 +1114,20 @@ func (s *Session) GuildRoles(guildID string, options ...RequestOption) (st []*Ro
 	err = unmarshal(body, &st)
 
 	return // TODO return pointer
+}
+
+// GuildRole returns a specific role for a given guild.
+// guildID   : The ID of a Guild.
+// roleID    : The ID of a Role.
+func (s *Session) GuildRole(guildID, roleID string, options ...RequestOption) (st *Role, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildRole(guildID, roleID), nil, EndpointGuildRole(guildID, ""), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+
+	return
 }
 
 // GuildRoleCreate creates a new Guild Role and returns it.
@@ -1980,15 +2004,31 @@ func (s *Session) ChannelMessageUnpin(channelID, messageID string, options ...Re
 // ChannelMessagesPinned returns an array of Message structures for pinned messages
 // within a given channel
 // channelID : The ID of a Channel.
-func (s *Session) ChannelMessagesPinned(channelID string, options ...RequestOption) (st []*Message, err error) {
+// before : If specified returns only pinned messages before the timestamp
+// limit  : Optional maximum amount of pinned messages to return.
+func (s *Session) ChannelMessagesPinned(channelID string, before *time.Time, limit int, options ...RequestOption) (pinnedMessages *ChannelMessagePinsList, err error) {
+	uri := EndpointChannelMessagesPins(channelID)
 
-	body, err := s.RequestWithBucketID("GET", EndpointChannelMessagesPins(channelID), nil, EndpointChannelMessagesPins(channelID), options...)
+	v := url.Values{}
 
+	if before != nil {
+		v.Set("before", before.Format(time.RFC3339))
+	}
+
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+
+	if len(v) > 0 {
+		uri += "?" + v.Encode()
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, uri, options...)
 	if err != nil {
 		return
 	}
 
-	err = unmarshal(body, &st)
+	err = unmarshal(body, &pinnedMessages)
 	return
 }
 
@@ -3703,5 +3743,21 @@ func (s *Session) Subscription(skuID, subscriptionID, userID string, options ...
 	}
 
 	err = unmarshal(body, &subscription)
+	return
+}
+
+// UserVoiceState returns the voice state of the current user (the bot) in a guild.
+// guildID : The ID of the guild.
+// userID  : The ID of the user.
+// Note: Using @me will return the bot's voice state for the given guild.
+func (s *Session) UserVoiceState(guildID string, userID string, options ...RequestOption) (state *VoiceState, err error) {
+	endpoint := EndpointGuildMemberVoiceState(guildID, userID)
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &state)
 	return
 }

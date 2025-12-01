@@ -72,7 +72,7 @@ type Session struct {
 	// Exposed but should not be modified by User.
 
 	// Whether the Data Websocket is ready
-	DataReady bool // NOTE: Maye be deprecated soon
+	DataReady bool // NOTE: Maybe deprecated soon
 
 	// Max number of REST API retries
 	MaxRestRetries int
@@ -2645,6 +2645,24 @@ type EntitlementFilterOptions struct {
 	ExcludeEnded bool
 }
 
+// MessagePin contains information about a pinned message, and the message itself
+type MessagePin struct {
+	// The time the message was pinned
+	PinnedAt time.Time `json:"pinned_at"`
+
+	// The message object which was pinned
+	Message *Message `json:"message"`
+}
+
+// ChannelMessagePinsList contains a list of pinned messages in a channel
+type ChannelMessagePinsList struct {
+	// The list of pinned messages
+	Items []*MessagePin `json:"items"`
+
+	// Whether there are more items available to fetch
+	HasMore bool `json:"has_more"`
+}
+
 // Constants for the different bit offsets of text channel permissions
 const (
 	// Deprecated: PermissionReadMessages has been replaced with PermissionViewChannel for text and voice channels
@@ -2888,6 +2906,7 @@ const (
 	ErrCodeUnknownSticker                        = 10060
 	ErrCodeUnknownInteraction                    = 10062
 	ErrCodeUnknownApplicationCommand             = 10063
+	ErrCodeUnknownVoiceState                     = 10065
 	ErrCodeUnknownApplicationCommandPermissions  = 10066
 	ErrCodeUnknownStageInstance                  = 10067
 	ErrCodeUnknownGuildMemberVerificationForm    = 10068

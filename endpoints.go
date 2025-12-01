@@ -121,6 +121,9 @@ var (
 	EndpointGuildMemberBannerAnimated = func(gId, uID, hash string) string {
 		return EndpointCDNGuilds + gId + "/users/" + uID + "/banners/" + hash + ".gif"
 	}
+	EndpointGuildMemberVoiceState = func(gID, uID string) string {
+		return EndpointGuild(gID) + "/voice-states/" + uID
+	}
 
 	EndpointRoleIcon = func(rID, hash string) string {
 		return EndpointCDNRoleIcons + rID + "/" + hash + ".png"
@@ -140,8 +143,8 @@ var (
 	EndpointChannelMessage                      = func(cID, mID string) string { return EndpointChannels + cID + "/messages/" + mID }
 	EndpointChannelMessageThread                = func(cID, mID string) string { return EndpointChannelMessage(cID, mID) + "/threads" }
 	EndpointChannelMessagesBulkDelete           = func(cID string) string { return EndpointChannel(cID) + "/messages/bulk-delete" }
-	EndpointChannelMessagesPins                 = func(cID string) string { return EndpointChannel(cID) + "/pins" }
-	EndpointChannelMessagePin                   = func(cID, mID string) string { return EndpointChannel(cID) + "/pins/" + mID }
+	EndpointChannelMessagesPins                 = func(cID string) string { return EndpointChannel(cID) + "/messages/pins" }
+	EndpointChannelMessagePin                   = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/pins/" + mID }
 	EndpointChannelMessageCrosspost             = func(cID, mID string) string { return EndpointChannel(cID) + "/messages/" + mID + "/crosspost" }
 	EndpointChannelFollow                       = func(cID string) string { return EndpointChannel(cID) + "/followers" }
 	EndpointThreadMembers                       = func(tID string) string { return EndpointChannel(tID) + "/thread-members" }
