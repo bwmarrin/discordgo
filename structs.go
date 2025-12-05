@@ -1261,6 +1261,14 @@ type GuildTemplateParams struct {
 	Description string `json:"description,omitempty"`
 }
 
+// GuildVanityURL stores the vanity URL code and its usage count.
+type GuildVanityURL struct {
+	// The vanity url code for the guild
+	Code string `json:"code"`
+	// The number of times the vanity url has been used
+	Uses int `json:"uses"`
+}
+
 // MessageNotifications is the notification level for a guild
 // https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
 type MessageNotifications int

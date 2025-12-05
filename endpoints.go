@@ -109,6 +109,7 @@ var (
 	EndpointGuildTemplate            = func(tID string) string { return EndpointGuilds + "templates/" + tID }
 	EndpointGuildTemplates           = func(gID string) string { return EndpointGuilds + gID + "/templates" }
 	EndpointGuildTemplateSync        = func(gID, tID string) string { return EndpointGuilds + gID + "/templates/" + tID }
+	EndpointGuildVanityURL           = func(gID string) string { return EndpointGuilds + gID + "/vanity-url" }
 	EndpointGuildMemberAvatar        = func(gId, uID, aID string) string {
 		return EndpointCDNGuilds + gId + "/users/" + uID + "/avatars/" + aID + ".png"
 	}
