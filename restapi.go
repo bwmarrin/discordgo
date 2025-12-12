@@ -1190,13 +1190,13 @@ func (s *Session) GuildRoleDelete(guildID, roleID string, options ...RequestOpti
 	return
 }
 
-// GuildRoleMemberCount returns a map of role ID to the number of members that have that role.
+// GuildRoleMemberCounts returns a map of role ID to the number of members that have that role.
 //
 // guildID	: The ID of a Guild.
 //
 // Does not include the @everyone role.
-func (s *Session) GuildRoleMemberCount(guildID string, options ...RequestOption) (memberCounts map[string]uint64, err error) {
-	body, err := s.RequestWithBucketID("GET", EndpointGuildRoleMemberCount(guildID), nil, EndpointGuildRoleMemberCount(guildID), options...)
+func (s *Session) GuildRoleMemberCounts(guildID string, options ...RequestOption) (memberCounts map[string]uint64, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildRoleMemberCounts(guildID), nil, EndpointGuildRoleMemberCounts(guildID), options...)
 	if err != nil {
 		return
 	}
