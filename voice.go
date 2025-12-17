@@ -830,7 +830,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		return
 	}
 
-	recvbuf := make([]byte, 1024)
+	recvbuf := make([]byte, 2048)
 	var nonce [12]byte
 
 	for {
@@ -859,8 +859,9 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 			// continue loop
 		}
 
-		// For now, skip anything except audio.
-		if rlen < 12 || (recvbuf[0] != 0x80 && recvbuf[0] != 0x90) {
+		// For now, skip anything except RTP v2 packets (audio).
+		// RTP v2 => top two bits are 10 (0x80).
+		if rlen < 12 || (recvbuf[0]&0xC0) != 0x80 {
 			continue
 		}
 
@@ -871,31 +872,59 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 		p.Timestamp = binary.BigEndian.Uint32(recvbuf[4:8])
 		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
 
-		// decrypt opus data
-		ciphertext := recvbuf[12:rlen]
-		if len(ciphertext) < 4 {
+		// RTP header parsing for *_rtpsize AEAD modes:
+		// - base RTP header is 12 bytes + 4 bytes per CSRC (CC).
+		// - if extension bit (X) is set, ONLY the 4-byte extension preamble is unencrypted/AAD;
+		//   the extension payload is encrypted and must be stripped after decryption.
+		cc := int(recvbuf[0] & 0x0F)
+		hasExt := (recvbuf[0] & 0x10) != 0
+
+		baseHeaderLen := 12 + (4 * cc)
+		if rlen < baseHeaderLen {
 			continue
 		}
 
-		nonceCounter := ciphertext[len(ciphertext)-4:]
-		cipherText := ciphertext[:len(ciphertext)-4]
+		aadLen := baseHeaderLen
+		extPayloadBytes := 0
+		if hasExt {
+			if rlen < baseHeaderLen+4 {
+				continue
+			}
+			// Extension length is in 32-bit words at the end of the extension preamble.
+			extLenWords := int(binary.BigEndian.Uint16(recvbuf[baseHeaderLen+2 : baseHeaderLen+4]))
+			extPayloadBytes = extLenWords * 4
+			aadLen = baseHeaderLen + 4
+		}
+
+		if rlen < aadLen+4 {
+			continue
+		}
+
+		// decrypt opus data
+		payload := recvbuf[aadLen:rlen]
+		if len(payload) < 4 {
+			continue
+		}
+		nonceCounter := payload[len(payload)-4:]
+		cipherTextPayload := payload[:len(payload)-4]
+
 		binary.LittleEndian.PutUint32(nonce[:4], binary.LittleEndian.Uint32(nonceCounter))
 
-		if opus, err := v.aead.Open(nil, nonce[:], cipherText, recvbuf[0:12]); err == nil {
-			p.Opus = opus
-		} else {
+		if v.aead == nil {
 			continue
 		}
-
-		// extension bit set, and not a RTCP packet
-		if ((recvbuf[0] & 0x10) == 0x10) && ((recvbuf[1] & 0x80) == 0) {
-			// get extended header length
-			extlen := binary.BigEndian.Uint16(p.Opus[2:4])
-			// 4 bytes (ext header header) + 4*extlen (ext header data)
-			shift := int(4 + 4*extlen)
-			if len(p.Opus) > shift {
-				p.Opus = p.Opus[shift:]
+		// AAD must cover the unencrypted header portion.
+		if plain, err := v.aead.Open(nil, nonce[:], cipherTextPayload, recvbuf[:aadLen]); err == nil {
+			// If header extensions are present, strip decrypted extension payload to get to Opus.
+			if extPayloadBytes > 0 {
+				if len(plain) < extPayloadBytes {
+					continue
+				}
+				plain = plain[extPayloadBytes:]
 			}
+			p.Opus = plain
+		} else {
+			continue
 		}
 
 		if c != nil {
