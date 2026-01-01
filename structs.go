@@ -1299,6 +1299,21 @@ func (g *Guild) BannerURL(size string) string {
 	return bannerURL(g.Banner, EndpointGuildBanner(g.ID, g.Banner), EndpointGuildBannerAnimated(g.ID, g.Banner), size)
 }
 
+// EmojiLimit is a helper function that returns the emoji limit for the guild based on its premium tier.
+// https://support.discord.com/hc/en-us/articles/360028038352-Server-Boosting-FAQ#h_01HGX7DJ33Z5HGWCXJ6NKR2FTZ
+func (g *Guild) EmojiLimit() int {
+	switch g.PremiumTier {
+	case PremiumTier3:
+		return 250
+	case PremiumTier2:
+		return 150
+	case PremiumTier1:
+		return 100
+	default:
+		return 50
+	}
+}
+
 // A UserGuild holds a brief version of a Guild
 type UserGuild struct {
 	ID          string         `json:"id"`
