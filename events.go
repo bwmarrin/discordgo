@@ -529,3 +529,31 @@ type SoundboardSoundsRequest struct {
 	// The ID of the guild the sounds belong to
 	GuildID string `json:"guild_id"`
 }
+
+// VoiceChannelEffectSend is the data for a VoiceChannelEffectSend event
+// https://discord.com/developers/docs/events/gateway-events#voice-channel-effect-send
+type VoiceChannelEffectSend struct {
+	// The ID of the channel the sound is being sent to
+	ChannelID string `json:"channel_id"`
+
+	// The ID of the guild that owns this sound, if it is a guild sound
+	GuildID string `json:"guild_id"`
+
+	// The ID of the user who sent the sound
+	UserID string `json:"user_id"`
+
+	// The emoji sent, for emoji reactions and soundboard effects
+	EmojiEffect Emoji `json:"emoji"`
+
+	// The type of animation for this sound
+	AnimationType AnimationType `json:"animation_type"`
+
+	// The ID of the emoji animation
+	AnimationID int `json:"animation_id"`
+
+	// The ID of the sound
+	SoundID string `json:"sound_id"`
+
+	// Volume of the sound (0-1)
+	Volume float64 `json:"sound_volume"`
+}

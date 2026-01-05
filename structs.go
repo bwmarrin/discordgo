@@ -760,6 +760,15 @@ const (
 	PremiumTier3    PremiumTier = 3
 )
 
+// AnimationType is an int indicating the type of animation
+// https://discord.com/developers/docs/events/gateway-events#voice-channel-effect-send-animation-types
+type AnimationType int
+
+const (
+	AnimationTypePremium AnimationType = 0
+	AnimationTypeBasic   AnimationType = 1
+)
+
 // A Guild holds all data related to a specific Discord Guild.  Guilds are also
 // sometimes referred to as Servers in the Discord client.
 type Guild struct {

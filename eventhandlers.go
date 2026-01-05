@@ -82,6 +82,7 @@ const (
 	threadUpdateEventType                        = "THREAD_UPDATE"
 	typingStartEventType                         = "TYPING_START"
 	userUpdateEventType                          = "USER_UPDATE"
+	voiceChannelEffectSendEventType              = "VOICE_CHANNEL_EFFECT_SEND"
 	voiceServerUpdateEventType                   = "VOICE_SERVER_UPDATE"
 	voiceStateUpdateEventType                    = "VOICE_STATE_UPDATE"
 	webhooksUpdateEventType                      = "WEBHOOKS_UPDATE"
@@ -1567,6 +1568,26 @@ func (eh userUpdateEventHandler) Handle(s *Session, i interface{}) {
 	}
 }
 
+// voiceChannelEffectSendEventHandler is an event handler for VoiceChannelEffectSend events.
+type voiceChannelEffectSendEventHandler func(*Session, *VoiceChannelEffectSend)
+
+// Type returns the event type for VoiceChannelEffectSend events.
+func (eh voiceChannelEffectSendEventHandler) Type() string {
+	return voiceChannelEffectSendEventType
+}
+
+// New returns a new instance of VoiceChannelEffectSend.
+func (eh voiceChannelEffectSendEventHandler) New() interface{} {
+	return &VoiceChannelEffectSend{}
+}
+
+// Handle is the handler for VoiceChannelEffectSend events.
+func (eh voiceChannelEffectSendEventHandler) Handle(s *Session, i interface{}) {
+	if t, ok := i.(*VoiceChannelEffectSend); ok {
+		eh(s, t)
+	}
+}
+
 // voiceServerUpdateEventHandler is an event handler for VoiceServerUpdate events.
 type voiceServerUpdateEventHandler func(*Session, *VoiceServerUpdate)
 
@@ -1781,6 +1802,8 @@ func handlerForInterface(handler interface{}) EventHandler {
 		return typingStartEventHandler(v)
 	case func(*Session, *UserUpdate):
 		return userUpdateEventHandler(v)
+	case func(*Session, *VoiceChannelEffectSend):
+		return voiceChannelEffectSendEventHandler(v)
 	case func(*Session, *VoiceServerUpdate):
 		return voiceServerUpdateEventHandler(v)
 	case func(*Session, *VoiceStateUpdate):
@@ -1864,6 +1887,7 @@ func init() {
 	registerInterfaceProvider(threadUpdateEventHandler(nil))
 	registerInterfaceProvider(typingStartEventHandler(nil))
 	registerInterfaceProvider(userUpdateEventHandler(nil))
+	registerInterfaceProvider(voiceChannelEffectSendEventHandler(nil))
 	registerInterfaceProvider(voiceServerUpdateEventHandler(nil))
 	registerInterfaceProvider(voiceStateUpdateEventHandler(nil))
 	registerInterfaceProvider(webhooksUpdateEventHandler(nil))
