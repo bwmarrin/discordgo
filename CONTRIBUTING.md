@@ -28,12 +28,30 @@ Here are some tips on how to make a good first PR:
 - Don’t forget to mark PR comments resolved when you’re done applying the changes.
 - Be patient and don’t close and reopen your PR when no one responds, sometimes it might be held for a while. There might be a lot of reasons: release preparation, the feature is not significant, maintainers are busy, etc.
 
-
-When your changes are still incomplete (i.e. in Work In Progress state), you can still create a PR, but consider making it a draft. 
+When your changes are still incomplete (i.e. in Work In Progress state), you can still create a PR, but consider making it a draft.
 To make a draft PR, you can change the type of PR by clicking to a triangle next to the “Create Pull Request” button.
 
 Once you’re done, you can mark it as “Ready for review”, and we’ll get right on it.
 
+## Testing code changes locally
+
+Before making a pull request, you should always test the code locally.
+
+To test the code changes locally, you will have to:
+
+1. Create a local Go module
+
+   `go mod init example.com/discordgo-tester`
+
+2. Add DiscordGo as a dependency
+
+   `go get github.com/bwmarrin/discordgo`
+
+3. Add a [replace directive](https://go.dev/ref/mod#go-mod-file-replace) to your `go.mod` file.
+
+   `replace github.com/bwmarrin/discordgo => ./path-to-local-discord-go`
+
+You should now be able to interact with your new changes, verifying it works as expected.
 
 # Code style
 
@@ -58,19 +76,16 @@ When naming a REST method, while it might seem counterintuitive, we specify the 
 When making a complex REST endpoint, sometimes you might need to implement a `Param` structure. This structure contains parameters for certain endpoint/set of endpoints.
 
 - If an endpoint/set of endpoints have mostly same parameters, it’s a good idea to use a single `Param` structure for them. Here’s an example:
-    
-    > Endpoint: `GuildMemberEdit`
-    >
-    > `Param` structure: `GuildMemberParams` 
+  > Endpoint: `GuildMemberEdit`
+  >
+  > `Param` structure: `GuildMemberParams`
 - If an endpoint/set of endpoints have differentiating parameters, `Param` structure can be named after the endpoint’s verb. Here’s an example:
-    
-    > Endpoint: `ChannelMessageSendComplex`
-    >
-    > `Param` structure: `MessageSend`
-    
-    > Endpoint: `ChannelMessageEditComplex`
-    >
-    > `Param` structure: `MessageEdit` 
+  > Endpoint: `ChannelMessageSendComplex`
+  >
+  > `Param` structure: `MessageSend`
+  > Endpoint: `ChannelMessageEditComplex`
+  >
+  > `Param` structure: `MessageEdit`
 
 ### Events
 
