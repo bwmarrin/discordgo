@@ -137,6 +137,9 @@ type Session struct {
 
 	// used to make sure gateway websocket writes do not happen concurrently
 	wsMutex sync.Mutex
+
+	// used to set the global default allowed mentions
+	AllowedMentions *MessageAllowedMentions
 }
 
 // ApplicationIntegrationType dictates where application can be installed and its available interaction contexts.

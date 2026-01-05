@@ -1792,6 +1792,10 @@ func (s *Session) ChannelMessageSendComplex(channelID string, data *MessageSend,
 		}
 	}
 
+	if data.AllowedMentions == nil && s.AllowedMentions != nil {
+		data.AllowedMentions = s.AllowedMentions
+	}
+
 	for _, embed := range data.Embeds {
 		if embed.Type == "" {
 			embed.Type = "rich"
