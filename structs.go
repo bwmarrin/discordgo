@@ -764,6 +764,7 @@ const (
 // https://discord.com/developers/docs/events/gateway-events#voice-channel-effect-send-animation-types
 type AnimationType int
 
+// Constants for AnimationType
 const (
 	AnimationTypePremium AnimationType = 0
 	AnimationTypeBasic   AnimationType = 1
