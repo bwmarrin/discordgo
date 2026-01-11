@@ -2688,7 +2688,7 @@ func (s *Session) MessageThreadStartComplex(channelID, messageID string, data *T
 // messageID       : Message to start thread from
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
-func (s *Session) MessageThreadStart(channelID, messageID string, name string, archiveDuration int, options ...RequestOption) (ch *Channel, err error) {
+func (s *Session) MessageThreadStart(channelID, messageID string, name string, archiveDuration ThreadArchiveDuration, options ...RequestOption) (ch *Channel, err error) {
 	return s.MessageThreadStartComplex(channelID, messageID, &ThreadStart{
 		Name:                name,
 		AutoArchiveDuration: archiveDuration,
@@ -2714,7 +2714,7 @@ func (s *Session) ThreadStartComplex(channelID string, data *ThreadStart, option
 // channelID       : Channel to create thread in
 // name            : Name of the thread
 // archiveDuration : Auto archive duration (in minutes)
-func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDuration int, options ...RequestOption) (ch *Channel, err error) {
+func (s *Session) ThreadStart(channelID, name string, typ ChannelType, archiveDuration ThreadArchiveDuration, options ...RequestOption) (ch *Channel, err error) {
 	return s.ThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,
 		Type:                typ,
@@ -2785,7 +2785,7 @@ func (s *Session) ForumThreadStartComplex(channelID string, threadData *ThreadSt
 // name            : Name of the thread.
 // archiveDuration : Auto archive duration.
 // content         : Content of the starting message.
-func (s *Session) ForumThreadStart(channelID, name string, archiveDuration int, content string, options ...RequestOption) (th *Channel, err error) {
+func (s *Session) ForumThreadStart(channelID, name string, archiveDuration ThreadArchiveDuration, content string, options ...RequestOption) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,
 		AutoArchiveDuration: archiveDuration,
@@ -2797,7 +2797,7 @@ func (s *Session) ForumThreadStart(channelID, name string, archiveDuration int, 
 // name            : Name of the thread.
 // archiveDuration : Auto archive duration.
 // embed           : Embed data of the starting message.
-func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration int, embed *MessageEmbed, options ...RequestOption) (th *Channel, err error) {
+func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration ThreadArchiveDuration, embed *MessageEmbed, options ...RequestOption) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,
 		AutoArchiveDuration: archiveDuration,
@@ -2809,7 +2809,7 @@ func (s *Session) ForumThreadStartEmbed(channelID, name string, archiveDuration 
 // name            : Name of the thread.
 // archiveDuration : Auto archive duration.
 // embeds          : Embeds data of the starting message.
-func (s *Session) ForumThreadStartEmbeds(channelID, name string, archiveDuration int, embeds []*MessageEmbed, options ...RequestOption) (th *Channel, err error) {
+func (s *Session) ForumThreadStartEmbeds(channelID, name string, archiveDuration ThreadArchiveDuration, embeds []*MessageEmbed, options ...RequestOption) (th *Channel, err error) {
 	return s.ForumThreadStartComplex(channelID, &ThreadStart{
 		Name:                name,
 		AutoArchiveDuration: archiveDuration,
