@@ -693,7 +693,7 @@ func (RadioGroup) Type() ComponentType {
 	return RadioGroupComponent
 }
 
-// MarshalJSON is a method for marshaling FileUpload to a JSON object.
+// MarshalJSON is a method for marshaling RadioGroup to a JSON object.
 func (r RadioGroup) MarshalJSON() ([]byte, error) {
 	type radioGroup RadioGroup
 
@@ -733,7 +733,7 @@ func (CheckboxGroup) Type() ComponentType {
 	return CheckboxGroupComponent
 }
 
-// MarshalJSON is a method for marshaling FileUpload to a JSON object.
+// MarshalJSON is a method for marshaling CheckboxGroup to a JSON object.
 func (c CheckboxGroup) MarshalJSON() ([]byte, error) {
 	type checkboxGroup CheckboxGroup
 
@@ -761,7 +761,7 @@ func (Checkbox) Type() ComponentType {
 	return CheckboxComponent
 }
 
-// MarshalJSON is a method for marshaling FileUpload to a JSON object.
+// MarshalJSON is a method for marshaling Checkbox to a JSON object.
 func (c Checkbox) MarshalJSON() ([]byte, error) {
 	type checkbox Checkbox
 
