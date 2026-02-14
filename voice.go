@@ -457,18 +457,23 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		// Start the opusSender.
 		// TODO: Should we allow 48000/960 values to be user defined?
 		// answer: no, 48k is required as per discord documentaiton and 960 is the most optimal frame size (based on testing)
+		v.Lock()
 		if v.OpusSend == nil {
 			v.OpusSend = make(chan []byte, 2)
 		}
-		go v.opusSender(v.udpConn, v.close, v.OpusSend, 48000, 960)
+		opusSend := v.OpusSend
+		deaf := v.deaf
+		if !deaf && v.OpusRecv == nil {
+			v.OpusRecv = make(chan *Packet, 2)
+		}
+		opusRecv := v.OpusRecv
+		v.Unlock()
+
+		go v.opusSender(v.udpConn, v.close, opusSend, 48000, 960)
 
 		// Start the opusReceiver
-		if !v.deaf {
-			if v.OpusRecv == nil {
-				v.OpusRecv = make(chan *Packet, 2)
-			}
-
-			go v.opusReceiver(v.udpConn, v.close, v.OpusRecv)
+		if !deaf {
+			go v.opusReceiver(v.udpConn, v.close, opusRecv)
 		}
 
 		return
@@ -973,7 +978,11 @@ func (v *VoiceConnection) reconnect() {
 			wait = 600
 		}
 
-		if v.session.DataReady == false || v.session.wsConn == nil {
+		v.session.RLock()
+		dataReady := v.session.DataReady
+		wsConn := v.session.wsConn
+		v.session.RUnlock()
+		if !dataReady || wsConn == nil {
 			v.log(LogInformational, "cannot reconnect to channel %s with unready session", v.ChannelID)
 			continue
 		}

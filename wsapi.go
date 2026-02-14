@@ -181,6 +181,29 @@ func (s *Session) Open() error {
 	if err != nil {
 		return err
 	}
+
+	// Check if the gateway sent Op 7 (Reconnect) or Op 9 (Invalid Session)
+	// instead of READY/RESUMED. These cannot be processed through onEvent()
+	// because onEvent() calls CloseWithCode() which needs Lock(), but Open()
+	// already holds Lock() — causing a deadlock (Go's RWMutex is not reentrant).
+	var peekOp struct {
+		Operation int `json:"op"`
+	}
+	if json.Unmarshal(m, &peekOp) == nil && (peekOp.Operation == 7 || peekOp.Operation == 9) {
+		s.log(LogWarning, "received Op %d instead of READY/RESUMED, closing and retrying", peekOp.Operation)
+		// Clean up directly — we already hold the Lock via defer
+		if s.wsConn != nil {
+			s.wsConn.Close()
+			s.wsConn = nil
+		}
+		if peekOp.Operation == 9 {
+			s.sessionID = ""
+			s.resumeGatewayURL = ""
+			atomic.StoreInt64(s.sequence, 0)
+		}
+		return fmt.Errorf("received gateway Op %d, reconnect required", peekOp.Operation)
+	}
+
 	e, err = s.onEvent(mt, m)
 	if err != nil {
 		return err
