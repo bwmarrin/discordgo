@@ -34,6 +34,8 @@ func init() {
 	}
 }
 
+var required = true
+
 var (
 	commands = []discordgo.ApplicationCommand{
 		{
@@ -72,7 +74,7 @@ var (
 							Component: discordgo.TextInput{
 								CustomID:  "suggestions",
 								Style:     discordgo.TextInputParagraph,
-								Required:  false,
+								Required:  &required,
 								MaxLength: 2000,
 							},
 						},
