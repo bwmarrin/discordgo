@@ -301,7 +301,7 @@ type TextInput struct {
 	Style       TextInputStyle `json:"style"`
 	Placeholder string         `json:"placeholder,omitempty"`
 	Value       string         `json:"value,omitempty"`
-	Required    bool           `json:"required"`
+	Required    *bool          `json:"required,omitempty"`
 	MinLength   int            `json:"min_length,omitempty"`
 	MaxLength   int            `json:"max_length,omitempty"`
 
