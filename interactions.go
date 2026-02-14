@@ -259,6 +259,8 @@ type Interaction struct {
 	// Any entitlements for the invoking user, representing access to premium SKUs.
 	// NOTE: this field is only filled in monetized apps
 	Entitlements []*Entitlement `json:"entitlements"`
+
+	AttachmentSizeLimit int `json:"attachment_size_limit"`
 }
 
 type interaction Interaction
