@@ -268,6 +268,23 @@ type rawInteraction struct {
 	Data json.RawMessage `json:"data"`
 }
 
+type ErrUserNotFound struct{}
+
+func (e *ErrUserNotFound) Error() string {
+	return "User not found"
+}
+
+// Gets the user from the interaction
+func (i *interaction) GetUser() (*User, error) {
+	if i.Member != nil {
+		return i.Member.User, nil
+	}
+	if i.User != nil {
+		return i.User, nil
+	}
+	return nil, &ErrUserNotFound{}
+}
+
 // UnmarshalJSON is a method for unmarshalling JSON object to Interaction.
 func (i *Interaction) UnmarshalJSON(raw []byte) error {
 	var tmp rawInteraction
