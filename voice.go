@@ -358,34 +358,40 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 	for {
 		_, message, err := v.wsConn.ReadMessage()
 		if err != nil {
+			e, ok := err.(*websocket.CloseError)
+
 			// 4014 indicates a manual disconnection by someone in the guild;
+			// 4021 indicates that the voice connection was dropped due to rate limiting;
+			// 4022 indicates that the call was terminated (e.g., channel deleted, voice server changed, call ended).
 			// we shouldn't reconnect.
-			if websocket.IsCloseError(err, 4014) {
-				v.log(LogInformational, "received 4014 manual disconnection")
+			if ok && (e.Code == 4014 || e.Code == 4021 || e.Code == 4022) {
+				v.log(LogInformational, "received %d manual disconnection", e.Code)
 
 				// Abandon the voice WS connection
 				v.Lock()
 				v.wsConn = nil
 				v.Unlock()
 
-				// Wait for VOICE_SERVER_UPDATE.
-				// When the bot is moved by the user to another voice channel,
-				// VOICE_SERVER_UPDATE is received after the code 4014.
-				for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
-					<-time.After(1 * time.Second)
-
-					v.RLock()
-					reconnected := v.wsConn != nil
-					v.RUnlock()
-					if !reconnected {
-						continue
+				if e.Code == 4014 {
+					// Wait for VOICE_SERVER_UPDATE.
+					// When the bot is moved by the user to another voice channel,
+					// VOICE_SERVER_UPDATE is received after the code.
+					for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
+						<-time.After(1 * time.Second)
+	
+						v.RLock()
+						reconnected := v.wsConn != nil
+						v.RUnlock()
+						if !reconnected {
+							continue
+						}
+						v.log(LogInformational, "successfully reconnected after %d manual disconnection", e.Code)
+						return
 					}
-					v.log(LogInformational, "successfully reconnected after 4014 manual disconnection")
-					return
 				}
 
 				// When VOICE_SERVER_UPDATE is not received, disconnect as usual.
-				v.log(LogInformational, "disconnect due to 4014 manual disconnection")
+				v.log(LogInformational, "disconnect due to %d manual disconnection", e.Code)
 
 				v.session.Lock()
 				delete(v.session.VoiceConnections, v.GuildID)
