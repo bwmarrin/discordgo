@@ -662,3 +662,48 @@ func VerifyInteraction(r *http.Request, key ed25519.PublicKey) bool {
 
 	return ed25519.Verify(key, msg.Bytes(), sig)
 }
+
+// VerifyUnmarshalInteraction() combines VerifyInteraction() and UnmarshalJSON()
+// to avoid extra data copies
+func VerifyUnmarshalInteraction(r *http.Request, key ed25519.PublicKey, i *Interaction) error {
+	var msg bytes.Buffer
+
+	signature := r.Header.Get("X-Signature-Ed25519")
+	if signature == "" {
+		return fmt.Errorf("Missing X-Signature-Ed25519 header")
+	}
+
+	sig, err := hex.DecodeString(signature)
+	if err != nil {
+		return fmt.Errorf("Failed to decode Ed25519 signature")
+	}
+
+	if len(sig) != ed25519.SignatureSize {
+		return fmt.Errorf("Incorrect Ed25519 signature size expected %v got %v",
+			ed25519.SignatureSize, len(sig))
+	}
+
+	timestamp := r.Header.Get("X-Signature-Timestamp")
+	if timestamp == "" {
+		return fmt.Errorf("Missing X-Signature-Timestamp header")
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return fmt.Errorf("Failed to read request body: %w", err)
+	}
+
+	msg.WriteString(timestamp)
+	msg.Write(body)
+
+	if !ed25519.Verify(key, msg.Bytes(), sig) {
+		return fmt.Errorf("Ed25519 signature verification failed")
+	}
+
+	err = i.UnmarshalJSON(body)
+	if err != nil {
+		return fmt.Errorf("Failed to unmarshal interaction: %w", err)
+	}
+
+	return nil
+}
