@@ -774,10 +774,17 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 
 		// encrypt the opus data
 		// add incrementing nonce counter as per discord's requirements
+		v.RLock()
+		aead := v.aead
+		v.RUnlock()
+		if aead == nil {
+			continue
+		}
+
 		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
 		v.nonceCounter++
 
-		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
+		sendbuf := aead.Seal(nil, nonce, recvbuf, udpHeader)
 		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
 		sendbuf = append(udpHeader, sendbuf...) // final
 
@@ -910,11 +917,14 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 
 		binary.LittleEndian.PutUint32(nonce[:4], binary.LittleEndian.Uint32(nonceCounter))
 
-		if v.aead == nil {
+		v.RLock()
+		aead := v.aead
+		v.RUnlock()
+		if aead == nil {
 			continue
 		}
 		// AAD must cover the unencrypted header portion.
-		if plain, err := v.aead.Open(nil, nonce[:], cipherTextPayload, recvbuf[:aadLen]); err == nil {
+		if plain, err := aead.Open(nil, nonce[:], cipherTextPayload, recvbuf[:aadLen]); err == nil {
 			// If header extensions are present, strip decrypted extension payload to get to Opus.
 			if extPayloadBytes > 0 {
 				if len(plain) < extPayloadBytes {
