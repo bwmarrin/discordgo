@@ -737,15 +737,26 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	udpHeader := make([]byte, 12)
 	nonce := make([]byte, 12)
 
+	// RTP header constants
+	const rtpPayloadType = 0x78
+	const rtpMarkerBit = 0x80
+	// If we wait longer than this for opus data, treat it as a silence gap:
+	// advance the RTP timestamp and set the marker bit (RFC 3551) to signal
+	// a new talk-spurt. Without this, the timestamp freezes during silence,
+	// causing receivers to accumulate jitter buffer delay over time.
+	const silenceThreshold = 40 * time.Millisecond
+
 	// build the parts that don't change in the udpHeader
 	udpHeader[0] = 0x80
-	udpHeader[1] = 0x78
+	udpHeader[1] = rtpPayloadType
 	binary.BigEndian.PutUint32(udpHeader[8:], v.op2.SSRC)
 
 	// start a send loop that loops until buf chan is closed
 	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
 	defer ticker.Stop()
 	for {
+
+		preWait := time.Now()
 
 		// Get data from chan.  If chan is closed, return.
 		select {
@@ -756,6 +767,22 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 				return
 			}
 			// else, continue loop
+		}
+
+		// Detect silence gap and compensate RTP timestamp.
+		// During silence the loop blocks above waiting for opus data while the
+		// ticker keeps firing (and dropping ticks). The RTP timestamp only
+		// advances when we send a packet, so after a gap the receiver sees a
+		// packet whose timestamp implies it is from the distant past. By
+		// advancing the timestamp here we keep it aligned with wall-clock time.
+		waitDuration := time.Since(preWait)
+		if waitDuration > silenceThreshold {
+			silenceSamples := uint32(waitDuration.Seconds() * float64(rate))
+			silenceSamples = (silenceSamples / uint32(size)) * uint32(size) // round to frame boundary
+			timestamp += silenceSamples
+			udpHeader[1] = rtpPayloadType | rtpMarkerBit // signal new talk-spurt
+		} else {
+			udpHeader[1] = rtpPayloadType // normal packet
 		}
 
 		v.RLock()
