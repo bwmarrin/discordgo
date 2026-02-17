@@ -2238,6 +2238,7 @@ type Activity struct {
 	Secrets       Secrets      `json:"secrets,omitempty"`
 	Instance      bool         `json:"instance,omitempty"`
 	Flags         int          `json:"flags,omitempty"`
+	SyncID        string       `json:"sync_id,omitempty"`
 }
 
 // UnmarshalJSON is a custom unmarshaljson to make CreatedAt a time.Time instead of an int
@@ -2257,6 +2258,7 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 		Secrets       Secrets      `json:"secrets,omitempty"`
 		Instance      bool         `json:"instance,omitempty"`
 		Flags         int          `json:"flags,omitempty"`
+		SyncID        string       `json:"sync_id,omitempty"`
 	}{}
 	err := Unmarshal(b, &temp)
 	if err != nil {
@@ -2276,6 +2278,7 @@ func (activity *Activity) UnmarshalJSON(b []byte) error {
 	activity.Timestamps = temp.Timestamps
 	activity.Type = temp.Type
 	activity.URL = temp.URL
+	activity.SyncID = temp.SyncID
 	return nil
 }
 
