@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
 // ------------------------------------------------------------------------------------------------
@@ -58,17 +59,15 @@ type VoiceConnection struct {
 	// Used to send a close signal to goroutines
 	close chan struct{}
 
-	// Used to allow blocking until connected
-	connected chan bool
+	aead cipher.AEAD
 
-	// Used to pass the sessionid from onVoiceStateUpdate
-	// sessionRecv chan string UNUSED ATM
+	dave *DAVESession
 
-	aead         cipher.AEAD
-	nonceCounter uint32
+	seqAck int
 
 	op4 voiceOP4
 	op2 voiceOP2
+	op8 voiceOP8
 
 	voiceSpeakingUpdateHandlers []VoiceSpeakingUpdateHandler
 }
@@ -175,6 +174,7 @@ func (v *VoiceConnection) Close() {
 
 	v.Ready = false
 	v.speaking = false
+	v.dave = nil
 
 	if v.close != nil {
 		v.log(LogInformational, "closing v.close")
@@ -235,21 +235,32 @@ type VoiceSpeakingUpdate struct {
 // Unexported Internal Functions Below.
 // ------------------------------------------------------------------------------------------------
 
+type voiceWebsocketMessage struct {
+	Operation int             `json:"op"`
+	RawData   json.RawMessage `json:"d"`
+	Sequence  *int            `json:"seq"`
+}
+
 // A voiceOP4 stores the data for the voice operation 4 websocket event
 // which provides us with the NaCl SecretBox encryption key
 type voiceOP4 struct {
-	SecretKey [32]byte `json:"secret_key"`
-	Mode      string   `json:"mode"`
+	SecretKey           []byte `json:"secret_key"`
+	Mode                string `json:"mode"`
+	DAVEProtocolVersion int    `json:"dave_protocol_version"`
 }
 
 // A voiceOP2 stores the data for the voice operation 2 websocket event
 // which is sort of like the voice READY packet
 type voiceOP2 struct {
-	SSRC              uint32        `json:"ssrc"`
-	Port              int           `json:"port"`
-	Modes             []string      `json:"modes"`
-	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
-	IP                string        `json:"ip"`
+	SSRC  uint32   `json:"ssrc"`
+	Port  int      `json:"port"`
+	Modes []string `json:"modes"`
+	IP    string   `json:"ip"`
+}
+
+// A voiceOP8 stores the data for the voice operation 8 websocket event HELLO
+type voiceOP8 struct {
+	HeartbeatInterval int `json:"heartbeat_interval"`
 }
 
 // WaitUntilConnected waits for the Voice Connection to
@@ -310,7 +321,7 @@ func (v *VoiceConnection) open() (err error) {
 	}
 
 	// Connect to VoiceConnection Websocket
-	vg := "wss://" + strings.TrimSuffix(v.endpoint, ":80")
+	vg := "wss://" + strings.TrimSuffix(v.endpoint, ":80") + "?v=8"
 	v.log(LogInformational, "connecting to voice endpoint %s", vg)
 	v.wsConn, _, err = v.session.Dialer.Dial(vg, nil)
 	if err != nil {
@@ -320,16 +331,17 @@ func (v *VoiceConnection) open() (err error) {
 	}
 
 	type voiceHandshakeData struct {
-		ServerID  string `json:"server_id"`
-		UserID    string `json:"user_id"`
-		SessionID string `json:"session_id"`
-		Token     string `json:"token"`
+		ServerID               string `json:"server_id"`
+		UserID                 string `json:"user_id"`
+		SessionID              string `json:"session_id"`
+		Token                  string `json:"token"`
+		MaxDAVEProtocolVersion int    `json:"max_dave_protocol_version"`
 	}
 	type voiceHandshakeOp struct {
 		Op   int                `json:"op"` // Always 0
 		Data voiceHandshakeData `json:"d"`
 	}
-	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token}}
+	data := voiceHandshakeOp{0, voiceHandshakeData{v.GuildID, v.UserID, v.sessionID, v.token, 1}}
 
 	v.wsMutex.Lock()
 	err = v.wsConn.WriteJSON(data)
@@ -356,11 +368,12 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 	v.log(LogInformational, "called")
 
 	for {
-		_, message, err := v.wsConn.ReadMessage()
+		messageType, message, err := v.wsConn.ReadMessage()
 		if err != nil {
 			// 4014 indicates a manual disconnection by someone in the guild;
+			// 4017 indicates DAVE protocol required but not supported;
 			// we shouldn't reconnect.
-			if websocket.IsCloseError(err, 4014) {
+			if websocket.IsCloseError(err, 4014, 4017) {
 				v.log(LogInformational, "received 4014 manual disconnection")
 
 				// Abandon the voice WS connection
@@ -417,21 +430,37 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 		case <-close:
 			return
 		default:
-			go v.onEvent(message)
+			go v.onEvent(messageType == websocket.BinaryMessage, message)
 		}
 	}
 }
 
 // wsEvent handles any voice websocket events. This is only called by the
 // wsListen() function.
-func (v *VoiceConnection) onEvent(message []byte) {
+func (v *VoiceConnection) onEvent(isBinary bool, message []byte) {
+
+	if isBinary {
+		if len(message) >= 4 {
+			v.log(LogError, "received binary: len=%d first_bytes=[%02x %02x %02x %02x]", len(message), message[0], message[1], message[2], message[3])
+		} else {
+			v.log(LogError, "received binary: len=%d bytes=%x", len(message), message)
+		}
+		v.handleDAVEBinary(message)
+		return
+	}
 
 	v.log(LogDebug, "received: %s", string(message))
 
-	var e Event
+	var e voiceWebsocketMessage
 	if err := json.Unmarshal(message, &e); err != nil {
 		v.log(LogError, "unmarshall error, %s", err)
 		return
+	}
+
+	if e.Sequence != nil {
+		v.Lock()
+		v.seqAck = *e.Sequence
+		v.Unlock()
 	}
 
 	switch e.Operation {
@@ -444,7 +473,7 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		}
 
 		// Start the voice websocket heartbeat to keep the connection alive
-		go v.wsHeartbeat(v.wsConn, v.close, v.op2.HeartbeatInterval)
+		go v.wsHeartbeat(v.wsConn, v.close, time.Duration(v.op8.HeartbeatInterval))
 		// TODO monitor a chan/bool to verify this was successful
 
 		// Start the UDP connection
@@ -452,23 +481,6 @@ func (v *VoiceConnection) onEvent(message []byte) {
 		if err != nil {
 			v.log(LogError, "error opening udp connection, %s", err)
 			return
-		}
-
-		// Start the opusSender.
-		// TODO: Should we allow 48000/960 values to be user defined?
-		// answer: no, 48k is required as per discord documentaiton and 960 is the most optimal frame size (based on testing)
-		if v.OpusSend == nil {
-			v.OpusSend = make(chan []byte, 2)
-		}
-		go v.opusSender(v.udpConn, v.close, v.OpusSend, 48000, 960)
-
-		// Start the opusReceiver
-		if !v.deaf {
-			if v.OpusRecv == nil {
-				v.OpusRecv = make(chan *Packet, 2)
-			}
-
-			go v.opusReceiver(v.udpConn, v.close, v.OpusRecv)
 		}
 
 		return
@@ -480,17 +492,75 @@ func (v *VoiceConnection) onEvent(message []byte) {
 
 	case 4: // udp encryption secret key
 		v.Lock()
-		defer v.Unlock()
 
 		v.op4 = voiceOP4{}
 		if err := json.Unmarshal(e.RawData, &v.op4); err != nil {
+			v.Unlock()
 			v.log(LogError, "OP4 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
 
-		// TODO: error handling? meh
-		block, _ := aes.NewCipher(v.op4.SecretKey[:])
-		v.aead, _ = cipher.NewGCM(block)
+		v.log(LogInformational, "OP4 received: mode=%s, dave_version=%d",
+			v.op4.Mode, v.op4.DAVEProtocolVersion)
+
+		switch v.op4.Mode {
+		case "aead_aes256_gcm_rtpsize":
+			block, err := aes.NewCipher(v.op4.SecretKey)
+			if err != nil {
+				v.Unlock()
+				v.log(LogError, "error creating AES cipher, %s", err)
+				return
+			}
+			v.aead, err = cipher.NewGCM(block)
+			if err != nil {
+				v.Unlock()
+				v.log(LogError, "error creating GCM, %s", err)
+				return
+			}
+		case "aead_xchacha20_poly1305_rtpsize":
+			var err error
+			v.aead, err = chacha20poly1305.NewX(v.op4.SecretKey)
+			if err != nil {
+				v.Unlock()
+				v.log(LogError, "error creating XChaCha20 cipher, %s", err)
+				return
+			}
+		default:
+			v.Unlock()
+			v.log(LogError, "unknown encryption mode: %s", v.op4.Mode)
+			return
+		}
+
+		var daveKPData []byte
+		v.log(LogInformational, "DAVE protocol version %d", v.op4.DAVEProtocolVersion)
+		if v.op4.DAVEProtocolVersion > 0 {
+			v.dave = NewDAVESession(v.UserID)
+
+			var err error
+			daveKPData, err = v.dave.GenerateKeyPackage()
+			if err != nil {
+				v.log(LogError, "DAVE key package generation failed: %s", err)
+			}
+		}
+
+		if v.OpusSend == nil {
+			v.OpusSend = make(chan []byte, 16)
+		}
+		go v.opusSender(v.udpConn, v.close, v.OpusSend, 48000, 960)
+
+		if !v.deaf {
+			if v.OpusRecv == nil {
+				v.OpusRecv = make(chan *Packet, 2)
+			}
+			go v.opusReceiver(v.udpConn, v.close, v.OpusRecv)
+		}
+
+		v.Ready = true
+		v.Unlock()
+
+		if daveKPData != nil {
+			v.sendDAVEKeyPackageBinary(daveKPData)
+		}
 
 		return
 
@@ -509,6 +579,25 @@ func (v *VoiceConnection) onEvent(message []byte) {
 			h(v, voiceSpeakingUpdate)
 		}
 
+	case 21: // DAVE prepare_transition
+		v.handleDAVEPrepareTransition(e.RawData)
+		return
+
+	case 22: // DAVE execute_transition
+		v.handleDAVEExecuteTransition(e.RawData)
+		return
+
+	case 24: // DAVE prepare_epoch
+		v.handleDAVEPrepareEpoch(e.RawData)
+		return
+
+	case 8: // HELLO
+		if err := json.Unmarshal(e.RawData, &v.op8); err != nil {
+			v.log(LogError, "OP8 unmarshall error, %s, %s", err, string(e.RawData))
+			return
+		}
+		return
+
 	default:
 		v.log(LogDebug, "unknown voice operation, %d, %s", e.Operation, string(e.RawData))
 	}
@@ -517,8 +606,13 @@ func (v *VoiceConnection) onEvent(message []byte) {
 }
 
 type voiceHeartbeatOp struct {
-	Op   int `json:"op"` // Always 3
-	Data int `json:"d"`
+	Op   int                `json:"op"` // Always 3
+	Data voiceHeartbeatData `json:"d"`
+}
+
+type voiceHeartbeatData struct {
+	T      int64 `json:"t"`
+	SeqAck int   `json:"seq_ack"`
 }
 
 // NOTE :: When a guild voice server changes how do we shut this down
@@ -538,8 +632,11 @@ func (v *VoiceConnection) wsHeartbeat(wsConn *websocket.Conn, close <-chan struc
 	defer ticker.Stop()
 	for {
 		v.log(LogDebug, "sending heartbeat packet")
+		v.RLock()
+		seqAck := v.seqAck
+		v.RUnlock()
 		v.wsMutex.Lock()
-		err = wsConn.WriteJSON(voiceHeartbeatOp{3, int(time.Now().Unix())})
+		err = wsConn.WriteJSON(voiceHeartbeatOp{3, voiceHeartbeatData{time.Now().Unix(), seqAck}})
 		v.wsMutex.Unlock()
 		if err != nil {
 			v.log(LogError, "error sending heartbeat to voice endpoint %s, %s", v.endpoint, err)
@@ -658,8 +755,18 @@ func (v *VoiceConnection) udpOpen() (err error) {
 	// Take the data from above and send it back to Discord to finalize
 	// the UDP connection handshake.
 
-	// AEAD AES256-GCM (RTP Size)	aead_aes256_gcm_rtpsize	32-bit incremental integer value, appended to payload	Available (Preferred)
-	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, "aead_aes256_gcm_rtpsize"}}}
+	encryptionMode := ""
+	for _, mode := range v.op2.Modes {
+		switch mode {
+		case "aead_aes256_gcm_rtpsize":
+			encryptionMode = mode
+		case "aead_xchacha20_poly1305_rtpsize":
+			if encryptionMode == "" {
+				encryptionMode = mode
+			}
+		}
+	}
+	data := voiceUDPOp{1, voiceUDPD{"udp", voiceUDPData{ip, port, encryptionMode}}}
 
 	v.wsMutex.Lock()
 	err = v.wsConn.WriteJSON(data)
@@ -719,23 +826,12 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		return
 	}
 
-	// VoiceConnection is now ready to receive audio packets
-	// TODO: this needs reviewing as I think there must be a better way.
-	v.Lock()
-	v.Ready = true
-	v.Unlock()
-	defer func() {
-		v.Lock()
-		v.Ready = false
-		v.Unlock()
-	}()
-
 	var sequence uint16
 	var timestamp uint32
 	var recvbuf []byte
 	var ok bool
 	udpHeader := make([]byte, 12)
-	nonce := make([]byte, 12)
+	nonce := make([]byte, v.aead.NonceSize())
 
 	// build the parts that don't change in the udpHeader
 	udpHeader[0] = 0x80
@@ -745,7 +841,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 	// start a send loop that loops until buf chan is closed
 	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
 	defer ticker.Stop()
-	for {
+	for i := uint32(0); ; i++ {
 
 		// Get data from chan.  If chan is closed, return.
 		select {
@@ -772,10 +868,25 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
+		// DAVE E2EE encryption (before transport encryption)
+		v.RLock()
+		daveActive := v.dave != nil && v.dave.IsActive()
+		v.RUnlock()
+		if daveActive {
+			encrypted, err := v.dave.EncryptFrame(recvbuf)
+			if err != nil {
+				v.log(LogError, "DAVE encrypt error: %s", err)
+			} else {
+				if i < 3 {
+					v.log(LogDebug, "opusSender[%d]: DAVE encrypted %d -> %d bytes", i, len(recvbuf), len(encrypted))
+				}
+				recvbuf = encrypted
+			}
+		}
+
 		// encrypt the opus data
 		// add incrementing nonce counter as per discord's requirements
-		binary.LittleEndian.PutUint32(nonce[:4], v.nonceCounter)
-		v.nonceCounter++
+		binary.LittleEndian.PutUint32(nonce[:4], i)
 
 		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
 		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
@@ -789,7 +900,11 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		case <-ticker.C:
 			// continue
 		}
-		_, err := udpConn.Write(sendbuf)
+		n, err := udpConn.Write(sendbuf)
+
+		if i < 3 {
+			v.log(LogDebug, "opusSender[%d]: wrote %d bytes, opus=%d, hdr=%x, err=%v", i, n, len(recvbuf), udpHeader, err)
+		}
 
 		if err != nil {
 			v.log(LogError, "udp write error, %s", err)
@@ -999,5 +1114,226 @@ func (v *VoiceConnection) reconnect() {
 			v.log(LogError, "error sending disconnect packet, %s", err)
 		}
 
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+// DAVE E2EE Protocol Handlers
+// ------------------------------------------------------------------------------------------------
+
+func (v *VoiceConnection) handleDAVEBinary(message []byte) {
+	if len(message) < 3 {
+		v.log(LogWarning, "DAVE binary message too short: %d bytes", len(message))
+		return
+	}
+
+	opcode := message[2]
+	payload := message[3:]
+	v.log(LogDebug, "DAVE binary opcode=%d len=%d", opcode, len(payload))
+
+	switch opcode {
+	case 25:
+		v.RLock()
+		dave := v.dave
+		v.RUnlock()
+		if dave != nil {
+			if err := dave.HandleExternalSenderPackage(payload); err != nil {
+				v.log(LogError, "DAVE external sender package failed: %s", err)
+			}
+		}
+
+	case 27:
+		v.log(LogDebug, "DAVE proposals (%d bytes), ignoring", len(payload))
+
+	case 29:
+		if len(payload) < 2 {
+			v.log(LogWarning, "DAVE commit payload too short")
+			return
+		}
+		transitionID := binary.BigEndian.Uint16(payload[0:2])
+		v.log(LogInformational, "DAVE commit transition_id=%d, requesting re-Welcome", transitionID)
+
+		v.RLock()
+		dave := v.dave
+		v.RUnlock()
+		if dave == nil {
+			return
+		}
+
+		dave.HandlePrepareTransition(transitionID, 1)
+		v.sendDAVEReadyForTransition(transitionID)
+
+		kpData, err := dave.GenerateKeyPackage()
+		if err != nil {
+			v.log(LogError, "DAVE key package generation for re-Welcome failed: %s", err)
+			return
+		}
+		v.sendDAVEKeyPackageBinary(kpData)
+		v.sendDAVEInvalidCommitWelcome(transitionID)
+
+	case 30:
+		if len(payload) < 2 {
+			v.log(LogWarning, "DAVE welcome payload too short")
+			return
+		}
+		transitionID := binary.BigEndian.Uint16(payload[0:2])
+		welcomeData := payload[2:]
+
+		v.log(LogInformational, "DAVE welcome (%d bytes) transition_id=%d", len(welcomeData), transitionID)
+		v.RLock()
+		dave := v.dave
+		v.RUnlock()
+		if dave == nil {
+			v.log(LogWarning, "DAVE welcome received but no session")
+			return
+		}
+
+		if err := dave.HandleWelcome(welcomeData); err != nil {
+			v.log(LogError, "DAVE welcome processing failed: %s", err)
+			return
+		}
+		v.log(LogInformational, "DAVE HandleWelcome OK")
+
+		if err := dave.DeriveSenderKey(); err != nil {
+			v.log(LogError, "DAVE sender key derivation failed: %s", err)
+			return
+		}
+		v.log(LogInformational, "DAVE DeriveSenderKey OK")
+
+		dave.HandlePrepareTransition(transitionID, 1)
+		if err := dave.HandleExecuteTransition(transitionID); err != nil {
+			v.log(LogError, "DAVE execute transition after welcome failed: %s", err)
+			return
+		}
+		v.log(LogInformational, "DAVE encryption activated, IsActive=%v", dave.IsActive())
+
+		v.sendDAVEReadyForTransition(transitionID)
+
+	default:
+		v.log(LogDebug, "DAVE unknown binary opcode %d (%d bytes)", opcode, len(payload))
+	}
+}
+
+func (v *VoiceConnection) handleDAVEPrepareTransition(data json.RawMessage) {
+	var msg struct {
+		TransitionID        uint16 `json:"transition_id"`
+		DAVEProtocolVersion int    `json:"protocol_version"`
+	}
+	if err := json.Unmarshal(data, &msg); err != nil {
+		v.log(LogError, "DAVE prepare_transition unmarshal error: %s", err)
+		return
+	}
+
+	v.log(LogInformational, "DAVE prepare_transition id=%d version=%d", msg.TransitionID, msg.DAVEProtocolVersion)
+
+	v.RLock()
+	dave := v.dave
+	v.RUnlock()
+	if dave != nil {
+		dave.HandlePrepareTransition(msg.TransitionID, msg.DAVEProtocolVersion)
+	}
+}
+
+func (v *VoiceConnection) handleDAVEExecuteTransition(data json.RawMessage) {
+	var msg struct {
+		TransitionID uint16 `json:"transition_id"`
+	}
+	if err := json.Unmarshal(data, &msg); err != nil {
+		v.log(LogError, "DAVE execute_transition unmarshal error: %s", err)
+		return
+	}
+
+	v.RLock()
+	dave := v.dave
+	v.RUnlock()
+	if dave != nil {
+		if err := dave.HandleExecuteTransition(msg.TransitionID); err != nil {
+			v.log(LogError, "DAVE execute_transition failed: %s", err)
+			return
+		}
+		v.log(LogInformational, "DAVE execute_transition id=%d active=%v", msg.TransitionID, dave.IsActive())
+	}
+}
+
+func (v *VoiceConnection) handleDAVEPrepareEpoch(data json.RawMessage) {
+	var msg struct {
+		Epoch               uint64 `json:"epoch"`
+		DAVEProtocolVersion int    `json:"protocol_version"`
+	}
+	if err := json.Unmarshal(data, &msg); err != nil {
+		v.log(LogError, "DAVE prepare_epoch unmarshal error: %s", err)
+		return
+	}
+
+	v.log(LogInformational, "DAVE prepare_epoch epoch=%d version=%d", msg.Epoch, msg.DAVEProtocolVersion)
+
+	v.RLock()
+	dave := v.dave
+	v.RUnlock()
+	if dave == nil {
+		return
+	}
+
+	kpData, err := dave.HandlePrepareEpoch(msg.Epoch, msg.DAVEProtocolVersion)
+	if err != nil {
+		v.log(LogError, "DAVE prepare_epoch failed: %s", err)
+		return
+	}
+
+	v.sendDAVEKeyPackageBinary(kpData)
+}
+
+func (v *VoiceConnection) sendDAVEKeyPackageBinary(kpData []byte) {
+	v.log(LogInformational, "DAVE sending key package (%d bytes)", len(kpData))
+	binMsg := make([]byte, 1+len(kpData))
+	binMsg[0] = 26
+	copy(binMsg[1:], kpData)
+
+	v.wsMutex.Lock()
+	defer v.wsMutex.Unlock()
+	if v.wsConn != nil {
+		if err := v.wsConn.WriteMessage(websocket.BinaryMessage, binMsg); err != nil {
+			v.log(LogError, "DAVE key package send failed: %s", err)
+		}
+	}
+}
+
+func (v *VoiceConnection) sendDAVEReadyForTransition(transitionID uint16) {
+	v.log(LogDebug, "DAVE sending ready_for_transition id=%d", transitionID)
+
+	type readyData struct {
+		TransitionID uint16 `json:"transition_id"`
+	}
+	type readyOp struct {
+		Op   int       `json:"op"`
+		Data readyData `json:"d"`
+	}
+
+	v.wsMutex.Lock()
+	defer v.wsMutex.Unlock()
+	if v.wsConn != nil {
+		if err := v.wsConn.WriteJSON(readyOp{23, readyData{transitionID}}); err != nil {
+			v.log(LogError, "DAVE ready_for_transition send failed: %s", err)
+		}
+	}
+}
+
+func (v *VoiceConnection) sendDAVEInvalidCommitWelcome(transitionID uint16) {
+	v.log(LogInformational, "DAVE sending invalid_commit_welcome id=%d", transitionID)
+
+	type invalidData struct {
+		TransitionID uint16 `json:"transition_id"`
+	}
+	type invalidOp struct {
+		Op   int         `json:"op"`
+		Data invalidData `json:"d"`
+	}
+
+	v.wsMutex.Lock()
+	defer v.wsMutex.Unlock()
+	if v.wsConn != nil {
+		if err := v.wsConn.WriteJSON(invalidOp{31, invalidData{transitionID}}); err != nil {
+			v.log(LogError, "DAVE invalid_commit_welcome send failed: %s", err)
+		}
 	}
 }
