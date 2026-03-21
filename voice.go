@@ -63,6 +63,10 @@ type VoiceConnection struct {
 
 	dave *DAVESession
 
+	ssrcToUserID map[uint32]string
+
+	pendingReWelcome bool
+
 	seqAck int
 
 	op4 voiceOP4
@@ -228,7 +232,7 @@ func (v *VoiceConnection) AddHandler(h VoiceSpeakingUpdateHandler) {
 type VoiceSpeakingUpdate struct {
 	UserID   string `json:"user_id"`
 	SSRC     int    `json:"ssrc"`
-	Speaking bool   `json:"speaking"`
+	Speaking int    `json:"speaking"`
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -535,6 +539,9 @@ func (v *VoiceConnection) onEvent(isBinary bool, message []byte) {
 		v.log(LogInformational, "DAVE protocol version %d", v.op4.DAVEProtocolVersion)
 		if v.op4.DAVEProtocolVersion > 0 {
 			v.dave = NewDAVESession(v.UserID)
+			for ssrc, userID := range v.ssrcToUserID {
+				v.dave.SetSSRC(ssrc, userID)
+			}
 
 			var err error
 			daveKPData, err = v.dave.GenerateKeyPackage()
@@ -565,19 +572,53 @@ func (v *VoiceConnection) onEvent(isBinary bool, message []byte) {
 		return
 
 	case 5:
-		if len(v.voiceSpeakingUpdateHandlers) == 0 {
-			return
-		}
-
 		voiceSpeakingUpdate := &VoiceSpeakingUpdate{}
 		if err := json.Unmarshal(e.RawData, voiceSpeakingUpdate); err != nil {
 			v.log(LogError, "OP5 unmarshall error, %s, %s", err, string(e.RawData))
 			return
 		}
 
+		v.Lock()
+		if v.ssrcToUserID == nil {
+			v.ssrcToUserID = make(map[uint32]string)
+		}
+		v.ssrcToUserID[uint32(voiceSpeakingUpdate.SSRC)] = voiceSpeakingUpdate.UserID
+		dave := v.dave
+		v.Unlock()
+		if dave != nil {
+			dave.SetSSRC(uint32(voiceSpeakingUpdate.SSRC), voiceSpeakingUpdate.UserID)
+		}
+
 		for _, h := range v.voiceSpeakingUpdateHandlers {
 			h(v, voiceSpeakingUpdate)
 		}
+
+	case 12: // CLIENT CONNECT
+		var op12 struct {
+			UserID    string `json:"user_id"`
+			AudioSSRC uint32 `json:"audio_ssrc"`
+		}
+		if err := json.Unmarshal(e.RawData, &op12); err != nil {
+			v.log(LogError, "OP12 unmarshal error, %s, %s", err, string(e.RawData))
+			return
+		}
+		if op12.AudioSSRC != 0 {
+			v.Lock()
+			if v.ssrcToUserID == nil {
+				v.ssrcToUserID = make(map[uint32]string)
+			}
+			v.ssrcToUserID[op12.AudioSSRC] = op12.UserID
+			dave := v.dave
+			v.Unlock()
+			if dave != nil {
+				dave.SetSSRC(op12.AudioSSRC, op12.UserID)
+			}
+		}
+		return
+
+	case 13: // Client Disconnect
+		v.log(LogDebug, "user disconnected: %s", string(e.RawData))
+		return
 
 	case 21: // DAVE prepare_transition
 		v.handleDAVEPrepareTransition(e.RawData)
@@ -855,8 +896,10 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		}
 
 		v.RLock()
+		daveActive := v.dave != nil && v.dave.CanEncrypt()
 		speaking := v.speaking
 		v.RUnlock()
+
 		if !speaking {
 			err := v.Speaking(true)
 			if err != nil {
@@ -868,29 +911,22 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		binary.BigEndian.PutUint16(udpHeader[2:], sequence)
 		binary.BigEndian.PutUint32(udpHeader[4:], timestamp)
 
-		// DAVE E2EE encryption (before transport encryption)
-		v.RLock()
-		daveActive := v.dave != nil && v.dave.IsActive()
-		v.RUnlock()
 		if daveActive {
 			encrypted, err := v.dave.EncryptFrame(recvbuf)
 			if err != nil {
 				v.log(LogError, "DAVE encrypt error: %s", err)
 			} else {
-				if i < 3 {
-					v.log(LogDebug, "opusSender[%d]: DAVE encrypted %d -> %d bytes", i, len(recvbuf), len(encrypted))
-				}
 				recvbuf = encrypted
 			}
 		}
 
-		// encrypt the opus data
-		// add incrementing nonce counter as per discord's requirements
-		binary.LittleEndian.PutUint32(nonce[:4], i)
-
-		sendbuf := v.aead.Seal(nil, nonce, recvbuf, udpHeader)
-		sendbuf = append(sendbuf, nonce[:4]...) // 4 byte nonce to ciphertext appended
-		sendbuf = append(udpHeader, sendbuf...) // final
+		binary.LittleEndian.PutUint32(nonce, i)
+		sendbuf := make([]byte, len(udpHeader), len(udpHeader)+len(nonce)+len(recvbuf)+v.aead.Overhead())
+		copy(sendbuf, udpHeader)
+		v.RLock()
+		sendbuf = v.aead.Seal(sendbuf, nonce, recvbuf, udpHeader)
+		v.RUnlock()
+		sendbuf = append(sendbuf, nonce[:4]...)
 
 		// block here until we're exactly at the right time :)
 		// Then send rtp audio packet to Discord over UDP
@@ -900,11 +936,7 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 		case <-ticker.C:
 			// continue
 		}
-		n, err := udpConn.Write(sendbuf)
-
-		if i < 3 {
-			v.log(LogDebug, "opusSender[%d]: wrote %d bytes, opus=%d, hdr=%x, err=%v", i, n, len(recvbuf), udpHeader, err)
-		}
+		_, err := udpConn.Write(sendbuf)
 
 		if err != nil {
 			v.log(LogError, "udp write error, %s", err)
@@ -912,28 +944,23 @@ func (v *VoiceConnection) opusSender(udpConn *net.UDPConn, close <-chan struct{}
 			return
 		}
 
-		if (sequence) == 0xFFFF {
-			sequence = 0
-		} else {
-			sequence++
-		}
-
-		if (timestamp + uint32(size)) >= 0xFFFFFFFF {
-			timestamp = 0
-		} else {
-			timestamp += uint32(size)
-		}
+		// don't care if it overflows because it is already defined in Go spec
+		// https://go.dev/ref/spec#Integer_overflow
+		sequence++
+		timestamp += uint32(size)
 	}
 }
 
 // A Packet contains the headers and content of a received voice packet.
 type Packet struct {
-	SSRC      uint32
-	Sequence  uint16
-	Timestamp uint32
-	Type      []byte
-	Opus      []byte
-	PCM       []int16
+	Flags       byte // first byte of RTP header
+	PayloadType byte // second byte of RTP header
+	Sequence    uint16
+	Timestamp   uint32
+	SSRC        uint32
+	CSRC        []uint32
+	Extension   []byte // RTP header extension with extension header, can be nil
+	Opus        []byte
 }
 
 // opusReceiver listens on the UDP socket for incoming packets
@@ -946,7 +973,7 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 	}
 
 	recvbuf := make([]byte, 2048)
-	var nonce [12]byte
+	var nonce = make([]byte, v.aead.NonceSize())
 
 	for {
 		rlen, err := udpConn.Read(recvbuf)
@@ -974,72 +1001,57 @@ func (v *VoiceConnection) opusReceiver(udpConn *net.UDPConn, close <-chan struct
 			// continue loop
 		}
 
-		// For now, skip anything except RTP v2 packets (audio).
-		// RTP v2 => top two bits are 10 (0x80).
-		if rlen < 12 || (recvbuf[0]&0xC0) != 0x80 {
+		// For now, skip anything except audio.
+		if rlen < 12 || (recvbuf[0] != 0x80 && recvbuf[0] != 0x90) {
 			continue
 		}
 
 		// build a audio packet struct
 		p := Packet{}
-		p.Type = recvbuf[0:2]
+		p.Flags = recvbuf[0]
+		p.PayloadType = recvbuf[1]
+		extentionExist := (p.Flags & 0x10) != 0 // RFC 3550 5.1
+		csrcCount := (p.Flags & 0x0f)           // RFC 3550 5.1
 		p.Sequence = binary.BigEndian.Uint16(recvbuf[2:4])
 		p.Timestamp = binary.BigEndian.Uint32(recvbuf[4:8])
 		p.SSRC = binary.BigEndian.Uint32(recvbuf[8:12])
-
-		// RTP header parsing for *_rtpsize AEAD modes:
-		// - base RTP header is 12 bytes + 4 bytes per CSRC (CC).
-		// - if extension bit (X) is set, ONLY the 4-byte extension preamble is unencrypted/AAD;
-		//   the extension payload is encrypted and must be stripped after decryption.
-		cc := int(recvbuf[0] & 0x0F)
-		hasExt := (recvbuf[0] & 0x10) != 0
-
-		baseHeaderLen := 12 + (4 * cc)
-		if rlen < baseHeaderLen {
-			continue
+		p.CSRC = make([]uint32, csrcCount)
+		for i := range p.CSRC {
+			p.CSRC[i] = binary.BigEndian.Uint32(recvbuf[12+4*i : 12+4*(i+1)])
 		}
-
-		aadLen := baseHeaderLen
-		extPayloadBytes := 0
-		if hasExt {
-			if rlen < baseHeaderLen+4 {
-				continue
-			}
-			// Extension length is in 32-bit words at the end of the extension preamble.
-			extLenWords := int(binary.BigEndian.Uint16(recvbuf[baseHeaderLen+2 : baseHeaderLen+4]))
-			extPayloadBytes = extLenWords * 4
-			aadLen = baseHeaderLen + 4
-		}
-
-		if rlen < aadLen+4 {
-			continue
+		plainLength := 12 + 4*int(csrcCount)
+		if extentionExist {
+			plainLength += 4
 		}
 
 		// decrypt opus data
-		payload := recvbuf[aadLen:rlen]
-		if len(payload) < 4 {
+		copy(nonce, recvbuf[rlen-4:rlen])
+
+		v.RLock()
+		p.Opus, err = v.aead.Open(recvbuf[plainLength:plainLength], nonce, recvbuf[plainLength:rlen-4], recvbuf[:plainLength])
+		v.RUnlock()
+		if err != nil {
+			v.log(LogInformational, "failed to open udp packet, %v", err)
 			continue
 		}
-		nonceCounter := payload[len(payload)-4:]
-		cipherTextPayload := payload[:len(payload)-4]
 
-		binary.LittleEndian.PutUint32(nonce[:4], binary.LittleEndian.Uint32(nonceCounter))
-
-		if v.aead == nil {
-			continue
+		if extentionExist {
+			extensionBegin := 12 + 4*int(csrcCount)
+			extensionLength := binary.BigEndian.Uint16(recvbuf[extensionBegin+2 : extensionBegin+4])
+			p.Extension = recvbuf[extensionBegin : extensionBegin+4+int(extensionLength)*4]
+			p.Opus = p.Opus[int(extensionLength)*4:]
 		}
-		// AAD must cover the unencrypted header portion.
-		if plain, err := v.aead.Open(nil, nonce[:], cipherTextPayload, recvbuf[:aadLen]); err == nil {
-			// If header extensions are present, strip decrypted extension payload to get to Opus.
-			if extPayloadBytes > 0 {
-				if len(plain) < extPayloadBytes {
-					continue
-				}
-				plain = plain[extPayloadBytes:]
+
+		v.RLock()
+		dave := v.dave
+		v.RUnlock()
+		if dave != nil {
+			decrypted, err := dave.DecryptFrame(p.SSRC, p.Opus)
+			if err != nil {
+				v.log(LogDebug, "DAVE decrypt error for SSRC %d: %s", p.SSRC, err)
+				continue
 			}
-			p.Opus = plain
-		} else {
-			continue
+			p.Opus = decrypted
 		}
 
 		if c != nil {
@@ -1160,16 +1172,18 @@ func (v *VoiceConnection) handleDAVEBinary(message []byte) {
 			return
 		}
 
-		dave.HandlePrepareTransition(transitionID, 1)
-		v.sendDAVEReadyForTransition(transitionID)
+		v.sendDAVEInvalidCommitWelcome(transitionID)
 
-		kpData, err := dave.GenerateKeyPackage()
+		kpData, err := dave.ResetForReWelcome()
 		if err != nil {
-			v.log(LogError, "DAVE key package generation for re-Welcome failed: %s", err)
+			v.log(LogError, "DAVE reset for re-Welcome failed: %s", err)
 			return
 		}
 		v.sendDAVEKeyPackageBinary(kpData)
-		v.sendDAVEInvalidCommitWelcome(transitionID)
+
+		v.Lock()
+		v.pendingReWelcome = true
+		v.Unlock()
 
 	case 30:
 		if len(payload) < 2 {
@@ -1192,20 +1206,14 @@ func (v *VoiceConnection) handleDAVEBinary(message []byte) {
 			v.log(LogError, "DAVE welcome processing failed: %s", err)
 			return
 		}
-		v.log(LogInformational, "DAVE HandleWelcome OK")
 
 		if err := dave.DeriveSenderKey(); err != nil {
 			v.log(LogError, "DAVE sender key derivation failed: %s", err)
 			return
 		}
-		v.log(LogInformational, "DAVE DeriveSenderKey OK")
 
 		dave.HandlePrepareTransition(transitionID, 1)
-		if err := dave.HandleExecuteTransition(transitionID); err != nil {
-			v.log(LogError, "DAVE execute transition after welcome failed: %s", err)
-			return
-		}
-		v.log(LogInformational, "DAVE encryption activated, IsActive=%v", dave.IsActive())
+		v.log(LogInformational, "DAVE encryption prepared after Welcome")
 
 		v.sendDAVEReadyForTransition(transitionID)
 
@@ -1251,7 +1259,16 @@ func (v *VoiceConnection) handleDAVEExecuteTransition(data json.RawMessage) {
 			v.log(LogError, "DAVE execute_transition failed: %s", err)
 			return
 		}
-		v.log(LogInformational, "DAVE execute_transition id=%d active=%v", msg.TransitionID, dave.IsActive())
+		v.log(LogInformational, "DAVE execute_transition id=%d canEncrypt=%v", msg.TransitionID, dave.CanEncrypt())
+
+		v.Lock()
+		pending := v.pendingReWelcome
+		v.pendingReWelcome = false
+		v.Unlock()
+
+		if !pending {
+			v.sendDAVEReadyForTransition(msg.TransitionID)
+		}
 	}
 }
 
@@ -1280,6 +1297,22 @@ func (v *VoiceConnection) handleDAVEPrepareEpoch(data json.RawMessage) {
 		return
 	}
 
+	v.sendDAVEKeyPackageBinary(kpData)
+}
+
+func (v *VoiceConnection) RekeyDAVE() {
+	v.RLock()
+	dave := v.dave
+	v.RUnlock()
+	if dave == nil {
+		return
+	}
+
+	kpData, err := dave.ResetForReWelcome()
+	if err != nil {
+		v.log(LogError, "DAVE rekey failed: %s", err)
+		return
+	}
 	v.sendDAVEKeyPackageBinary(kpData)
 }
 

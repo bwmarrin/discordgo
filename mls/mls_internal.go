@@ -1,28 +1,16 @@
-package discordgo
+package mls
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
-	"io"
 	"math/big"
-	"strconv"
 
 	"github.com/cloudflare/circl/hpke"
 	"golang.org/x/crypto/hkdf"
-)
-
-const (
-	mlsVersion10     uint16 = 1
-	mlsCipherSuiteID uint16 = 2
-
-	mlsLeafNodeSourceKeyPackage uint8 = 1
-	mlsCredentialTypeBasic      uint8 = 1
 )
 
 type tlsWriter struct {
@@ -156,10 +144,10 @@ func (r *tlsReader) readVarint() uint64 {
 	first := r.data[r.pos]
 	kind := first >> 6
 	switch kind {
-	case 0: // 1 byte
+	case 0:
 		r.pos++
 		return uint64(first & 0x3F)
-	case 1: // 2 bytes
+	case 1:
 		if r.pos+2 > len(r.data) {
 			r.err = fmt.Errorf("tlsReader: short read varint(2) at pos %d", r.pos)
 			return 0
@@ -167,7 +155,7 @@ func (r *tlsReader) readVarint() uint64 {
 		v := uint64(first&0x3F)<<8 | uint64(r.data[r.pos+1])
 		r.pos += 2
 		return v
-	case 2: // 4 bytes
+	case 2:
 		if r.pos+4 > len(r.data) {
 			r.err = fmt.Errorf("tlsReader: short read varint(4) at pos %d", r.pos)
 			return 0
@@ -175,7 +163,7 @@ func (r *tlsReader) readVarint() uint64 {
 		v := uint64(first&0x3F)<<24 | uint64(r.data[r.pos+1])<<16 | uint64(r.data[r.pos+2])<<8 | uint64(r.data[r.pos+3])
 		r.pos += 4
 		return v
-	default: // 8 bytes
+	default:
 		if r.pos+8 > len(r.data) {
 			r.err = fmt.Errorf("tlsReader: short read varint(8) at pos %d", r.pos)
 			return 0
@@ -216,39 +204,12 @@ func (r *tlsReader) skip(n int) {
 	r.pos += n
 }
 
-func mlsExpandWithLabel(secret []byte, label string, context []byte, length int) ([]byte, error) {
-	mlsLabel := []byte("MLS 1.0 " + label)
-
-	w := &tlsWriter{}
-	w.writeUint16(uint16(length))
-	w.writeVec(mlsLabel)
-	w.writeVec(context)
-
-	r := hkdf.Expand(sha256.New, secret, w.bytes())
-	out := make([]byte, length)
-	_, err := io.ReadFull(r, out)
-	return out, err
-}
-
-func mlsDeriveSecret(secret []byte, label string) ([]byte, error) {
-	return mlsExpandWithLabel(secret, label, []byte{}, 32)
-}
-
-func mlsExport(exporterSecret []byte, label string, context []byte, length int) ([]byte, error) {
-	derivedSecret, err := mlsDeriveSecret(exporterSecret, label)
-	if err != nil {
-		return nil, err
-	}
-	contextHash := sha256.Sum256(context)
-	return mlsExpandWithLabel(derivedSecret, "exported", contextHash[:], length)
-}
-
-type mlsHPKEKeyPair struct {
+type hpkeKeyPair struct {
 	pub  []byte
 	priv []byte
 }
 
-func mlsGenerateHPKEKeyPair() (*mlsHPKEKeyPair, error) {
+func generateHPKEKeyPair() (*hpkeKeyPair, error) {
 	kemID := hpke.KEM_P256_HKDF_SHA256
 	scheme := kemID.Scheme()
 	pub, priv, err := scheme.GenerateKeyPair()
@@ -263,10 +224,10 @@ func mlsGenerateHPKEKeyPair() (*mlsHPKEKeyPair, error) {
 	if err != nil {
 		return nil, fmt.Errorf("marshaling HPKE private key: %w", err)
 	}
-	return &mlsHPKEKeyPair{pub: pubBytes, priv: privBytes}, nil
+	return &hpkeKeyPair{pub: pubBytes, priv: privBytes}, nil
 }
 
-func mlsHPKEDecrypt(privKeyBytes, kemOutput, info, aad, ciphertext []byte) ([]byte, error) {
+func hpkeDecrypt(privKeyBytes, kemOutput, info, aad, ciphertext []byte) ([]byte, error) {
 	kemID := hpke.KEM_P256_HKDF_SHA256
 	scheme := kemID.Scheme()
 
@@ -291,21 +252,21 @@ func mlsHPKEDecrypt(privKeyBytes, kemOutput, info, aad, ciphertext []byte) ([]by
 	return plaintext, nil
 }
 
-type mlsSignatureKeyPair struct {
+type signatureKeyPair struct {
 	pub  []byte
 	priv *ecdsa.PrivateKey
 }
 
-func mlsGenerateSignatureKeyPair() (*mlsSignatureKeyPair, error) {
+func generateSignatureKeyPair() (*signatureKeyPair, error) {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return nil, fmt.Errorf("generating ECDSA key: %w", err)
 	}
 	pub := elliptic.Marshal(elliptic.P256(), priv.PublicKey.X, priv.PublicKey.Y)
-	return &mlsSignatureKeyPair{pub: pub, priv: priv}, nil
+	return &signatureKeyPair{pub: pub, priv: priv}, nil
 }
 
-func mlsSignWithLabel(key *mlsSignatureKeyPair, label string, content []byte) ([]byte, error) {
+func signWithLabel(key *signatureKeyPair, label string, content []byte) ([]byte, error) {
 	mlsLabel := []byte("MLS 1.0 " + label)
 
 	w := &tlsWriter{}
@@ -339,62 +300,8 @@ func marshalECDSASignature(r, s *big.Int) []byte {
 	return sig
 }
 
-type mlsKeyPackageBundle struct {
-	serialized     []byte
-	initPriv       []byte
-	sigKey         *mlsSignatureKeyPair
-	encryptionPriv []byte
-}
-
-func mlsGenerateKeyPackage(userID string) (*mlsKeyPackageBundle, error) {
-	initKP, err := mlsGenerateHPKEKeyPair()
-	if err != nil {
-		return nil, fmt.Errorf("generating init key: %w", err)
-	}
-	encKP, err := mlsGenerateHPKEKeyPair()
-	if err != nil {
-		return nil, fmt.Errorf("generating encryption key: %w", err)
-	}
-	sigKP, err := mlsGenerateSignatureKeyPair()
-	if err != nil {
-		return nil, fmt.Errorf("generating signature key: %w", err)
-	}
-
-	userIDNum, err := strconv.ParseUint(userID, 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("parsing user ID for credential: %w", err)
-	}
-	identity := make([]byte, 8)
-	binary.BigEndian.PutUint64(identity, userIDNum)
-
-	leafContent := buildLeafNodeContent(encKP.pub, sigKP.pub, identity)
-
-	leafSig, err := mlsSignWithLabel(sigKP, "LeafNodeTBS", leafContent)
-	if err != nil {
-		return nil, fmt.Errorf("signing leaf node: %w", err)
-	}
-
-	leafNode := &tlsWriter{}
-	leafNode.writeRaw(leafContent)
-	leafNode.writeVec(leafSig)
-
-	kpContent := buildKeyPackageContent(initKP.pub, leafNode.bytes())
-
-	kpSig, err := mlsSignWithLabel(sigKP, "KeyPackageTBS", kpContent)
-	if err != nil {
-		return nil, fmt.Errorf("signing key package: %w", err)
-	}
-
-	kpFull := &tlsWriter{}
-	kpFull.writeRaw(kpContent)
-	kpFull.writeVec(kpSig)
-
-	return &mlsKeyPackageBundle{
-		serialized:     kpFull.bytes(),
-		initPriv:       initKP.priv,
-		sigKey:         sigKP,
-		encryptionPriv: encKP.priv,
-	}, nil
+func deriveSecret(secret []byte, label string) ([]byte, error) {
+	return ExpandWithLabel(secret, label, []byte{}, 32)
 }
 
 func buildLeafNodeContent(encryptionKey, signatureKey, identity []byte) []byte {
@@ -403,25 +310,25 @@ func buildLeafNodeContent(encryptionKey, signatureKey, identity []byte) []byte {
 	w.writeVec(encryptionKey)
 	w.writeVec(signatureKey)
 
-	w.writeUint16(uint16(mlsCredentialTypeBasic))
+	w.writeUint16(uint16(credentialTypeBasic))
 	w.writeVec(identity)
 
 	versionsData := make([]byte, 2)
-	binary.BigEndian.PutUint16(versionsData, mlsVersion10)
+	binary.BigEndian.PutUint16(versionsData, version10)
 	w.writeVec(versionsData)
 
 	csData := make([]byte, 2)
-	binary.BigEndian.PutUint16(csData, mlsCipherSuiteID)
+	binary.BigEndian.PutUint16(csData, cipherSuiteID)
 	w.writeVec(csData)
 
 	w.writeVec(nil)
 	w.writeVec(nil)
 
 	credData := make([]byte, 2)
-	binary.BigEndian.PutUint16(credData, uint16(mlsCredentialTypeBasic))
+	binary.BigEndian.PutUint16(credData, uint16(credentialTypeBasic))
 	w.writeVec(credData)
 
-	w.writeUint8(mlsLeafNodeSourceKeyPackage)
+	w.writeUint8(leafNodeSourceKeyPackage)
 
 	w.writeUint64(0)
 	w.writeUint64(^uint64(0))
@@ -433,19 +340,19 @@ func buildLeafNodeContent(encryptionKey, signatureKey, identity []byte) []byte {
 
 func buildKeyPackageContent(initKey []byte, leafNode []byte) []byte {
 	w := &tlsWriter{}
-	w.writeUint16(mlsVersion10)
-	w.writeUint16(mlsCipherSuiteID)
+	w.writeUint16(version10)
+	w.writeUint16(cipherSuiteID)
 	w.writeVec(initKey)
 	w.writeRaw(leafNode)
 	w.writeVec(nil)
 	return w.bytes()
 }
 
-func mlsKeyPackageRef(serializedKeyPackage []byte) []byte {
-	return mlsRefHash("MLS 1.0 KeyPackage Reference", serializedKeyPackage)
+func keyPackageRef(serializedKeyPackage []byte) []byte {
+	return refHash("MLS 1.0 KeyPackage Reference", serializedKeyPackage)
 }
 
-func mlsRefHash(label string, value []byte) []byte {
+func refHash(label string, value []byte) []byte {
 	w := &tlsWriter{}
 	w.writeVec([]byte(label))
 	w.writeVec(value)
@@ -458,131 +365,6 @@ func hkdfExtract(salt, ikm []byte) []byte {
 		salt = make([]byte, 32)
 	}
 	return hkdf.Extract(sha256.New, ikm, salt)
-}
-
-type mlsWelcomeResult struct {
-	exporterSecret []byte
-	epoch          uint64
-	groupID        []byte
-}
-
-func mlsProcessWelcome(data []byte, kpBundle *mlsKeyPackageBundle) (*mlsWelcomeResult, error) {
-	r := &tlsReader{data: data}
-
-	cipherSuite := r.readUint16()
-	if r.err != nil {
-		return nil, fmt.Errorf("reading cipher suite: %w", r.err)
-	}
-	if cipherSuite != mlsCipherSuiteID {
-		return nil, fmt.Errorf("unexpected cipher suite: %d", cipherSuite)
-	}
-
-	secretsData := r.readVec()
-	if r.err != nil {
-		return nil, fmt.Errorf("reading secrets: %w", r.err)
-	}
-
-	encryptedGroupInfo := r.readVec()
-	if r.err != nil {
-		return nil, fmt.Errorf("reading encrypted group info: %w", r.err)
-	}
-
-	ourRef := mlsKeyPackageRef(kpBundle.serialized)
-
-	sr := &tlsReader{data: secretsData}
-	var kemOutput, encryptedSecrets []byte
-	found := false
-
-	for sr.remaining() > 0 && sr.err == nil {
-		newMember := sr.readVec()
-		kemOut := sr.readVec()
-		ct := sr.readVec()
-		if sr.err != nil {
-			break
-		}
-
-		if bytesEqual(newMember, ourRef) {
-			kemOutput = kemOut
-			encryptedSecrets = ct
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return nil, fmt.Errorf("no matching EncryptedGroupSecrets for our KeyPackageRef")
-	}
-
-	infoW := &tlsWriter{}
-	infoW.writeVec([]byte("MLS 1.0 Welcome"))
-	infoW.writeVec(encryptedGroupInfo)
-
-	groupSecretsPlain, err := mlsHPKEDecrypt(kpBundle.initPriv, kemOutput, infoW.bytes(), nil, encryptedSecrets)
-	if err != nil {
-		return nil, fmt.Errorf("HPKE decrypting group secrets: %w", err)
-	}
-
-	gsr := &tlsReader{data: groupSecretsPlain}
-	joinerSecret := gsr.readVec()
-	if gsr.err != nil {
-		return nil, fmt.Errorf("reading joiner secret: %w", gsr.err)
-	}
-	hasPathSecret := gsr.readUint8()
-	if hasPathSecret == 1 {
-		_ = gsr.readVec()
-	}
-
-	pskSecret := make([]byte, 32)
-	memberSecret := hkdfExtract(joinerSecret, pskSecret)
-
-	welcomeSecret, err := mlsExpandWithLabel(memberSecret, "welcome", nil, 32)
-	if err != nil {
-		return nil, fmt.Errorf("deriving welcome secret: %w", err)
-	}
-
-	welcomeKey, err := mlsExpandWithLabel(welcomeSecret, "key", nil, 16)
-	if err != nil {
-		return nil, fmt.Errorf("deriving welcome key: %w", err)
-	}
-
-	welcomeNonce, err := mlsExpandWithLabel(welcomeSecret, "nonce", nil, 12)
-	if err != nil {
-		return nil, fmt.Errorf("deriving welcome nonce: %w", err)
-	}
-
-	block, err := aes.NewCipher(welcomeKey)
-	if err != nil {
-		return nil, fmt.Errorf("creating AES cipher for GroupInfo: %w", err)
-	}
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, fmt.Errorf("creating GCM for GroupInfo: %w", err)
-	}
-	groupInfoPlain, err := gcm.Open(nil, welcomeNonce, encryptedGroupInfo, nil)
-	if err != nil {
-		return nil, fmt.Errorf("decrypting GroupInfo: %w", err)
-	}
-
-	groupContext, epoch, groupID, err := parseGroupInfoForContext(groupInfoPlain)
-	if err != nil {
-		return nil, fmt.Errorf("parsing GroupInfo: %w", err)
-	}
-
-	epochSecret, err := mlsExpandWithLabel(memberSecret, "epoch", groupContext, 32)
-	if err != nil {
-		return nil, fmt.Errorf("deriving epoch secret: %w", err)
-	}
-
-	exporterSecret, err := mlsDeriveSecret(epochSecret, "exporter")
-	if err != nil {
-		return nil, fmt.Errorf("deriving exporter secret: %w", err)
-	}
-
-	return &mlsWelcomeResult{
-		exporterSecret: exporterSecret,
-		epoch:          epoch,
-		groupID:        groupID,
-	}, nil
 }
 
 func parseGroupInfoForContext(data []byte) (groupContext []byte, epoch uint64, groupID []byte, err error) {
