@@ -1102,6 +1102,18 @@ func (s *Session) GuildInvites(guildID string, options ...RequestOption) (st []*
 	return
 }
 
+// GuildVanityURL returns an Invite structure with only the vanity URL code and the number of uses for the given guild set
+// guildID   : The ID of a Guild.
+func (s *Session) GuildVanityURL(guildID string, options ...RequestOption) (st *Invite, err error) {
+	body, err := s.RequestWithBucketID("GET", EndpointGuildVanityURL(guildID), nil, EndpointGuildVanityURL(guildID), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildRoles returns all roles for a given guild.
 // guildID   : The ID of a Guild.
 func (s *Session) GuildRoles(guildID string, options ...RequestOption) (st []*Role, err error) {
