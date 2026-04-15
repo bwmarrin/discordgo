@@ -38,16 +38,17 @@ type State struct {
 	Ready
 
 	// MaxMessageCount represents how many messages per channel the state will store.
-	MaxMessageCount    int
-	TrackChannels      bool
-	TrackThreads       bool
-	TrackEmojis        bool
-	TrackStickers      bool
-	TrackMembers       bool
-	TrackThreadMembers bool
-	TrackRoles         bool
-	TrackVoice         bool
-	TrackPresences     bool
+	MaxMessageCount       int
+	TrackChannels         bool
+	TrackThreads          bool
+	TrackEmojis           bool
+	TrackStickers         bool
+	TrackMembers          bool
+	TrackThreadMembers    bool
+	TrackRoles            bool
+	TrackVoice            bool
+	TrackPresences        bool
+	TrackMessageReactions bool
 
 	guildMap   map[string]*Guild
 	channelMap map[string]*Channel
@@ -61,18 +62,19 @@ func NewState() *State {
 			PrivateChannels: []*Channel{},
 			Guilds:          []*Guild{},
 		},
-		TrackChannels:      true,
-		TrackThreads:       true,
-		TrackEmojis:        true,
-		TrackStickers:      true,
-		TrackMembers:       true,
-		TrackThreadMembers: true,
-		TrackRoles:         true,
-		TrackVoice:         true,
-		TrackPresences:     true,
-		guildMap:           make(map[string]*Guild),
-		channelMap:         make(map[string]*Channel),
-		memberMap:          make(map[string]map[string]*Member),
+		TrackChannels:         true,
+		TrackThreads:          true,
+		TrackEmojis:           true,
+		TrackStickers:         true,
+		TrackMembers:          true,
+		TrackThreadMembers:    true,
+		TrackRoles:            true,
+		TrackVoice:            true,
+		TrackPresences:        true,
+		TrackMessageReactions: false,
+		guildMap:              make(map[string]*Guild),
+		channelMap:            make(map[string]*Channel),
+		memberMap:             make(map[string]map[string]*Member),
 	}
 }
 
@@ -177,8 +179,9 @@ func (s *State) GuildRemove(guild *Guild) error {
 
 // Guild gets a guild by ID.
 // Useful for querying if @me is in a guild:
-//    _, err := discordgo.Session.State.Guild(guildID)
-//	  isInGuild := err == nil
+//
+//	   _, err := discordgo.Session.State.Guild(guildID)
+//		  isInGuild := err == nil
 func (s *State) Guild(guildID string) (*Guild, error) {
 	if s == nil {
 		return nil, ErrNilState
@@ -1206,7 +1209,27 @@ func (s *State) OnInterface(se *Session, i interface{}) (err error) {
 
 			err = s.MemberAdd(m)
 		}
+	case *MessageReactionAdd:
+		if s.MaxMessageCount != 0 && s.TrackMessageReactions {
+			me := s.Ready.User != nil && t.UserID == s.Ready.User.ID
+			err = s.MessageReactionAdd(t.MessageReaction, me)
+		}
 
+	case *MessageReactionRemove:
+		if s.MaxMessageCount != 0 && s.TrackMessageReactions {
+			me := s.Ready.User != nil && t.UserID == s.Ready.User.ID
+			err = s.MessageReactionRemove(t.MessageReaction, me)
+		}
+
+	case *MessageReactionRemoveAll:
+		if s.MaxMessageCount != 0 && s.TrackMessageReactions {
+			err = s.MessageReactionRemoveAll(t.ChannelID, t.MessageID)
+		}
+
+	case *MessageReactionRemoveEmoji:
+		if s.MaxMessageCount != 0 && s.TrackMessageReactions {
+			err = s.MessageReactionRemoveEmoji(t.MessageReaction)
+		}
 	}
 
 	return
@@ -1335,4 +1358,136 @@ func firstRoleColorColor(guild *Guild, memberRoles []string) int {
 	}
 
 	return 0
+}
+
+// MessageReactionAdd adds a reaction to a message in the state, updating its count and state if the reaction is from the user.
+// Returns an error if the state is nil or the message is not found in the cache.
+// reaction : The reaction to add.
+// me       : Whether the user added the reaction.
+func (s *State) MessageReactionAdd(reaction *MessageReaction, me bool) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	msg, err := s.Message(reaction.ChannelID, reaction.MessageID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for _, r := range msg.Reactions {
+		if sameEmoji(r.Emoji, &reaction.Emoji) {
+			r.Count++
+			if me {
+				r.Me = true
+			}
+			return nil
+		}
+	}
+
+	emoji := reaction.Emoji
+	msg.Reactions = append(msg.Reactions, &MessageReactions{
+		Count: 1,
+		Me:    me,
+		Emoji: &emoji,
+	})
+
+	return nil
+}
+
+// MessageReactionRemove removes a reaction from a message in the state, updating its count and state if the reaction is from the user.
+// Returns an error if the state is nil or the message is not found in the cache.
+// reaction : The reaction to remove.
+// me       : Whether the user removed the reaction.
+func (s *State) MessageReactionRemove(reaction *MessageReaction, me bool) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	msg, err := s.Message(reaction.ChannelID, reaction.MessageID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, r := range msg.Reactions {
+		if sameEmoji(r.Emoji, &reaction.Emoji) {
+			if r.Count > 0 {
+				r.Count--
+			}
+			if me {
+				r.Me = false
+			}
+			if r.Count <= 0 {
+				msg.Reactions = append(msg.Reactions[:i], msg.Reactions[i+1:]...)
+			}
+			return nil
+		}
+	}
+
+	return ErrStateNotFound
+}
+
+// MessageReactionRemoveAll removes all reactions from a specific message in a channel within the state.
+// Returns an error if the state is nil or the message is not found in the cache.
+// channelID : The ID of the channel containing the message.
+// messageID : The ID of the message to remove reactions from.
+func (s *State) MessageReactionRemoveAll(channelID, messageID string) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	msg, err := s.Message(channelID, messageID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	msg.Reactions = nil
+	return nil
+}
+
+// MessageReactionRemoveEmoji removes a specific emoji's reactions from a message in the state cache.
+// Returns an error if the state is nil or the message is not found in the cache.
+func (s *State) MessageReactionRemoveEmoji(reaction *MessageReaction) error {
+	if s == nil {
+		return ErrNilState
+	}
+
+	msg, err := s.Message(reaction.ChannelID, reaction.MessageID)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, r := range msg.Reactions {
+		if sameEmoji(r.Emoji, &reaction.Emoji) {
+			msg.Reactions = append(msg.Reactions[:i], msg.Reactions[i+1:]...)
+			return nil
+		}
+	}
+
+	return ErrStateNotFound
+}
+
+func sameEmoji(a, b *Emoji) bool {
+	if a == nil || b == nil {
+		return false
+	}
+
+	// custom emoji
+	if a.ID != "" || b.ID != "" {
+		return a.ID == b.ID
+	}
+
+	// unicode emoji
+	return a.Name == b.Name
 }
