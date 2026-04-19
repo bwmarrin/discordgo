@@ -230,6 +230,8 @@ const (
 	MessageFlagsSuppressNotifications MessageFlags = 1 << 12
 	// MessageFlagsIsVoiceMessage this message is a voice message.
 	MessageFlagsIsVoiceMessage MessageFlags = 1 << 13
+	// MessageFlagsHasSnapshot this message has a snapshot (forwarded message).
+	MessageFlagsHasSnapshot MessageFlags = 1 << 14
 	// MessageFlagsIsComponentsV2 this message uses the new components system. Disables the ability of sending `content` & `embeds`
 	MessageFlagsIsComponentsV2 MessageFlags = 1 << 15
 )
