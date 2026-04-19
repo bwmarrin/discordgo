@@ -3776,3 +3776,128 @@ func (s *Session) UserVoiceState(guildID string, userID string, options ...Reque
 	err = unmarshal(body, &state)
 	return
 }
+
+// ------------------------------------------------------------------------------------------------
+// Functions specific to lobbies
+// https://discord.com/developers/docs/resources/lobby
+// ------------------------------------------------------------------------------------------------
+
+// LobbyCreate creates a new Lobby owned by the current application.
+// params : Optional initial metadata, members, and idle timeout.
+// Pass nil to create an empty lobby with defaults.
+func (s *Session) LobbyCreate(params *LobbyParams, options ...RequestOption) (lobby *Lobby, err error) {
+	body, err := s.RequestWithBucketID("POST", EndpointLobbies, params, EndpointLobbies, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &lobby)
+	return
+}
+
+// Lobby returns the Lobby for the given ID.
+// lobbyID : The ID of the lobby.
+func (s *Session) Lobby(lobbyID string, options ...RequestOption) (lobby *Lobby, err error) {
+	endpoint := EndpointLobby(lobbyID)
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &lobby)
+	return
+}
+
+// LobbyEdit modifies an existing Lobby.
+// lobbyID : The ID of the lobby.
+// params  : Fields to update. A non-nil Members slice replaces the full member
+// list; pass a nil Members slice to leave the existing members untouched.
+func (s *Session) LobbyEdit(lobbyID string, params *LobbyParams, options ...RequestOption) (lobby *Lobby, err error) {
+	endpoint := EndpointLobby(lobbyID)
+
+	body, err := s.RequestWithBucketID("PATCH", endpoint, params, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &lobby)
+	return
+}
+
+// LobbyDelete deletes a Lobby.
+// lobbyID : The ID of the lobby.
+func (s *Session) LobbyDelete(lobbyID string, options ...RequestOption) (err error) {
+	endpoint := EndpointLobby(lobbyID)
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint, options...)
+	return
+}
+
+// LobbyMemberAdd adds a member to, or updates an existing member of, a Lobby.
+// lobbyID : The ID of the lobby.
+// userID  : The ID of the user.
+// params  : Optional metadata and flags. The ID field is ignored (the URL
+// parameter takes precedence); pass nil to add the user with no metadata.
+func (s *Session) LobbyMemberAdd(lobbyID, userID string, params *LobbyMemberParams, options ...RequestOption) (member *LobbyMember, err error) {
+	endpoint := EndpointLobbyMember(lobbyID, userID)
+
+	body, err := s.RequestWithBucketID("PUT", endpoint, params, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &member)
+	return
+}
+
+// LobbyMemberRemove removes a member from a Lobby.
+// lobbyID : The ID of the lobby.
+// userID  : The ID of the user.
+func (s *Session) LobbyMemberRemove(lobbyID, userID string, options ...RequestOption) (err error) {
+	endpoint := EndpointLobbyMember(lobbyID, userID)
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint, options...)
+	return
+}
+
+// LobbyLeave removes the current user (the bot) from a Lobby.
+// This is the only lobby endpoint that accepts a user access token.
+// lobbyID : The ID of the lobby.
+func (s *Session) LobbyLeave(lobbyID string, options ...RequestOption) (err error) {
+	endpoint := EndpointLobbyMemberMe(lobbyID)
+	_, err = s.RequestWithBucketID("DELETE", endpoint, nil, endpoint, options...)
+	return
+}
+
+// LobbyChannelLink links a guild text channel to a Lobby, so that messages in
+// the lobby are mirrored into the channel and vice versa. The caller must be
+// a lobby member with the CanLinkLobby flag set.
+// lobbyID   : The ID of the lobby.
+// channelID : The ID of the channel to link.
+func (s *Session) LobbyChannelLink(lobbyID, channelID string, options ...RequestOption) (lobby *Lobby, err error) {
+	endpoint := EndpointLobbyChannelLinking(lobbyID)
+
+	body, err := s.RequestWithBucketID("PATCH", endpoint, struct {
+		ChannelID string `json:"channel_id"`
+	}{channelID}, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &lobby)
+	return
+}
+
+// LobbyChannelUnlink unlinks any guild text channel currently linked to a Lobby.
+// The caller must be a lobby member with the CanLinkLobby flag set.
+// lobbyID : The ID of the lobby.
+func (s *Session) LobbyChannelUnlink(lobbyID string, options ...RequestOption) (lobby *Lobby, err error) {
+	endpoint := EndpointLobbyChannelLinking(lobbyID)
+
+	body, err := s.RequestWithBucketID("PATCH", endpoint, struct{}{}, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &lobby)
+	return
+}
