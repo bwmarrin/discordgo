@@ -40,6 +40,27 @@ const (
 	UserPremiumTypeNitroBasic   UserPremiumType = 3
 )
 
+// UserNameplate represents a user's equipped nameplate collectible.
+type UserNameplate struct {
+	// SKUID is the snowflake of the nameplate SKU.
+	SKUID string `json:"sku_id"`
+
+	// Asset is the path to the nameplate asset on the CDN.
+	Asset string `json:"asset"`
+
+	// Label is the label shown alongside the nameplate, if any.
+	Label string `json:"label"`
+
+	// Palette is the background color palette of the nameplate (e.g. "cobalt", "crimson").
+	Palette string `json:"palette"`
+}
+
+// UserCollectibles represents the collectibles a user has equipped on their profile.
+type UserCollectibles struct {
+	// Nameplate is the user's equipped nameplate, if any.
+	Nameplate *UserNameplate `json:"nameplate,omitempty"`
+}
+
 // UserPrimaryGuild represents a user's primary guild information.
 type UserPrimaryGuild struct {
 	// The ID of the user's primary guild.
@@ -119,6 +140,9 @@ type User struct {
 
 	// The user's primary guild.
 	PrimaryGuild UserPrimaryGuild `json:"primary_guild"`
+
+	// The collectibles (e.g. nameplate) the user has equipped on their profile.
+	Collectibles *UserCollectibles `json:"collectibles,omitempty"`
 }
 
 // String returns a unique identifier of the form username#discriminator
