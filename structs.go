@@ -963,6 +963,19 @@ type GuildPreview struct {
 	Description string `json:"description"`
 }
 
+// GuildVanityURL is the partial invite object returned from the Get Guild
+// Vanity URL endpoint, containing the vanity code and its redemption count.
+// https://discord.com/developers/docs/resources/guild#get-guild-vanity-url
+type GuildVanityURL struct {
+	// Code is the vanity URL code, or an empty string if the guild does
+	// not have a vanity URL set.
+	Code string `json:"code"`
+
+	// Uses is the number of times the vanity URL has been used to join
+	// the guild.
+	Uses int `json:"uses"`
+}
+
 // IconURL returns a URL to the guild's icon.
 //
 //	size:    The size of the desired icon image as a power of two

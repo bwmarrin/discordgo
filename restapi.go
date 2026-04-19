@@ -1431,6 +1431,22 @@ func (s *Session) GuildAuditLog(guildID, userID, beforeID string, actionType, li
 	return
 }
 
+// GuildVanityURL returns the vanity URL partial invite for a Guild, including
+// the code and the number of times it has been used. Requires the
+// MANAGE_GUILD permission on the guild.
+// guildID : The ID of a Guild.
+func (s *Session) GuildVanityURL(guildID string, options ...RequestOption) (vanity *GuildVanityURL, err error) {
+	endpoint := EndpointGuildVanityURL(guildID)
+
+	body, err := s.RequestWithBucketID("GET", endpoint, nil, endpoint, options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &vanity)
+	return
+}
+
 // GuildEmojis returns all emoji
 // guildID : The ID of a Guild.
 func (s *Session) GuildEmojis(guildID string, options ...RequestOption) (emoji []*Emoji, err error) {
