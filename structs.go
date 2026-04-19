@@ -2697,6 +2697,12 @@ const (
 
 	// Allows user-installed apps to send public responses. When disabled, users will still be allowed to use their apps but the responses will be ephemeral. This only applies to apps not also installed to the server.
 	PermissionUseExternalApps = 1 << 50
+
+	// Allows pinning and unpinning messages.
+	PermissionPinMessages = 1 << 51
+
+	// Allows bypassing the channel slowmode setting.
+	PermissionBypassSlowmode = 1 << 52
 )
 
 // Constants for the different bit offsets of voice permissions
