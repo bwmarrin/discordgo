@@ -3094,3 +3094,74 @@ const (
 func MakeIntent(intents Intent) Intent {
 	return intents
 }
+
+// Lobby represents a transient grouping of users, owned by an application.
+// https://discord.com/developers/docs/resources/lobby#lobby-object
+type Lobby struct {
+	// The ID of this lobby.
+	ID string `json:"id"`
+
+	// The ID of the application that owns the lobby.
+	ApplicationID string `json:"application_id"`
+
+	// Dictionary of string key/value pairs. The max total length is 1000.
+	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// Members of the lobby.
+	Members []LobbyMember `json:"members"`
+
+	// The guild channel linked to the lobby, if one is linked.
+	LinkedChannel *Channel `json:"linked_channel,omitempty"`
+}
+
+// LobbyMember represents a member of a lobby.
+// https://discord.com/developers/docs/resources/lobby#lobby-member-object
+type LobbyMember struct {
+	// The ID of the user.
+	ID string `json:"id"`
+
+	// Dictionary of string key/value pairs. The max total length is 1000.
+	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// Flags combined as a bitfield.
+	Flags LobbyMemberFlag `json:"flags,omitempty"`
+}
+
+// LobbyMemberFlag is a bitfield of lobby member flags.
+// https://discord.com/developers/docs/resources/lobby#lobby-member-object-lobby-member-flags
+type LobbyMemberFlag int
+
+// Valid LobbyMemberFlag values.
+const (
+	// LobbyMemberFlagCanLinkLobby indicates the member is allowed to link a text channel to the lobby.
+	LobbyMemberFlagCanLinkLobby LobbyMemberFlag = 1 << 0
+)
+
+// LobbyParams are the parameters for creating or modifying a Lobby.
+// When passed to LobbyEdit, a non-nil Members slice replaces the full member list;
+// passing a nil Members slice leaves the existing members untouched.
+// https://discord.com/developers/docs/resources/lobby#create-lobby
+type LobbyParams struct {
+	// Dictionary of string key/value pairs attached to the lobby.
+	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// Members to initialise the lobby with, up to a maximum of 25.
+	Members []LobbyMemberParams `json:"members,omitempty"`
+
+	// Seconds a lobby stays idle before expiring (between 5 and 604800, default 300).
+	IdleTimeoutSeconds *int `json:"idle_timeout_seconds,omitempty"`
+}
+
+// LobbyMemberParams are the parameters for adding or modifying a lobby member.
+// https://discord.com/developers/docs/resources/lobby#add-a-member-to-a-lobby
+type LobbyMemberParams struct {
+	// The ID of the user. Required when supplied inside LobbyParams.Members;
+	// ignored when used as the body of LobbyMemberAdd (the URL carries the ID instead).
+	ID string `json:"id,omitempty"`
+
+	// Dictionary of string key/value pairs attached to the member.
+	Metadata map[string]string `json:"metadata,omitempty"`
+
+	// Flags combined as a bitfield.
+	Flags *LobbyMemberFlag `json:"flags,omitempty"`
+}

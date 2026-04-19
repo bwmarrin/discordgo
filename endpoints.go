@@ -253,6 +253,13 @@ var (
 	EndpointApplicationEmojis = func(aID string) string { return EndpointApplication(aID) + "/emojis" }
 	EndpointApplicationEmoji  = func(aID, eID string) string { return EndpointApplication(aID) + "/emojis/" + eID }
 
+	EndpointLobbies              = EndpointAPI + "lobbies"
+	EndpointLobby                = func(lID string) string { return EndpointLobbies + "/" + lID }
+	EndpointLobbyMembers         = func(lID string) string { return EndpointLobby(lID) + "/members" }
+	EndpointLobbyMember          = func(lID, uID string) string { return EndpointLobbyMembers(lID) + "/" + uID }
+	EndpointLobbyMemberMe        = func(lID string) string { return EndpointLobbyMembers(lID) + "/@me" }
+	EndpointLobbyChannelLinking  = func(lID string) string { return EndpointLobby(lID) + "/channel-linking" }
+
 	EndpointOAuth2                  = EndpointAPI + "oauth2/"
 	EndpointOAuth2Applications      = EndpointOAuth2 + "applications"
 	EndpointOAuth2Application       = func(aID string) string { return EndpointOAuth2Applications + "/" + aID }
