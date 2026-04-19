@@ -844,6 +844,111 @@ func (s *Session) GuildMembersSearch(guildID, query string, limit int, options .
 	return
 }
 
+// GuildMessagesSearchParams are the query parameters for GuildMessagesSearch.
+type GuildMessagesSearchParams struct {
+	// Content matched against the message content.
+	Content string
+	// Include NSFW channel matches when the request is made by a user account.
+	IncludeNSFW *bool
+	// Restrict to the given channel ids.
+	ChannelIDs []string
+	// Restrict to messages authored by any of the given user ids.
+	AuthorIDs []string
+	// Restrict to messages mentioning any of the given user ids.
+	MentionIDs []string
+	// Restrict to messages containing the given has-filters (e.g. "attachment", "sound", "poll").
+	Has []string
+	// Return messages whose id is greater than this snowflake.
+	MinID string
+	// Return messages whose id is lower than this snowflake.
+	MaxID string
+	// Restrict to messages that do (or do not) mention everyone.
+	MentionEveryone *bool
+	// Sort by field: "timestamp" or "relevance". Defaults to Discord's API default when empty.
+	SortBy string
+	// Sort order: "asc" or "desc". Defaults to Discord's API default when empty.
+	SortOrder string
+	// Pagination offset (0 to 5000).
+	Offset int
+	// Number of results to return (1 to 25).
+	Limit int
+}
+
+// GuildMessagesSearchResult contains the result of a GuildMessagesSearch call.
+type GuildMessagesSearchResult struct {
+	// Messages returned by the search. Each entry is a hit group: the matched
+	// message is the one whose Hit field is true, surrounded by context messages.
+	Messages [][]*Message `json:"messages"`
+	// TotalResults is the total number of messages matching the query.
+	TotalResults int `json:"total_results"`
+	// AnalyticsID is the opaque identifier Discord attaches to the search for analytics.
+	AnalyticsID string `json:"analytics_id,omitempty"`
+}
+
+// GuildMessagesSearch searches the messages of a guild.
+// Requires the "View Channel" permission on every channel included in the result.
+// See https://discord.com/developers/docs/resources/message#search-guild-messages
+// guildID : The ID of a Guild.
+// params  : Query parameters. May be nil.
+func (s *Session) GuildMessagesSearch(guildID string, params *GuildMessagesSearchParams, options ...RequestOption) (st *GuildMessagesSearchResult, err error) {
+
+	uri := EndpointGuildMessagesSearch(guildID)
+
+	if params != nil {
+		v := url.Values{}
+		if params.Content != "" {
+			v.Set("content", params.Content)
+		}
+		if params.IncludeNSFW != nil {
+			v.Set("include_nsfw", strconv.FormatBool(*params.IncludeNSFW))
+		}
+		for _, id := range params.ChannelIDs {
+			v.Add("channel_id", id)
+		}
+		for _, id := range params.AuthorIDs {
+			v.Add("author_id", id)
+		}
+		for _, id := range params.MentionIDs {
+			v.Add("mentions", id)
+		}
+		for _, h := range params.Has {
+			v.Add("has", h)
+		}
+		if params.MinID != "" {
+			v.Set("min_id", params.MinID)
+		}
+		if params.MaxID != "" {
+			v.Set("max_id", params.MaxID)
+		}
+		if params.MentionEveryone != nil {
+			v.Set("mention_everyone", strconv.FormatBool(*params.MentionEveryone))
+		}
+		if params.SortBy != "" {
+			v.Set("sort_by", params.SortBy)
+		}
+		if params.SortOrder != "" {
+			v.Set("sort_order", params.SortOrder)
+		}
+		if params.Offset > 0 {
+			v.Set("offset", strconv.Itoa(params.Offset))
+		}
+		if params.Limit > 0 {
+			v.Set("limit", strconv.Itoa(params.Limit))
+		}
+		if len(v) > 0 {
+			uri = fmt.Sprintf("%s?%s", uri, v.Encode())
+		}
+	}
+
+	body, err := s.RequestWithBucketID("GET", uri, nil, EndpointGuildMessagesSearch(guildID), options...)
+	if err != nil {
+		return
+	}
+
+	err = unmarshal(body, &st)
+	return
+}
+
 // GuildMember returns a member of a guild.
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
