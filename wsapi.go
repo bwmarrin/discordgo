@@ -603,6 +603,15 @@ func (s *Session) onEvent(messageType int, message []byte) (*Event, error) {
 	if e.Operation == 1 {
 		s.log(LogInformational, "sending heartbeat in response to Op1")
 		s.wsMutex.Lock()
+		// CloseWithCode can null out s.wsConn on a different goroutine
+		// during reconnection teardown. Hitting WriteJSON on the nil
+		// receiver panics inside gorilla/websocket and, because listen()
+		// has no recover, the entire host process dies (#1702).
+		if s.wsConn == nil {
+			s.wsMutex.Unlock()
+			s.log(LogInformational, "skipping Op1 heartbeat response: wsConn is nil (likely mid-reconnect)")
+			return e, ErrWSNotFound
+		}
 		err = s.wsConn.WriteJSON(heartbeatOp{1, atomic.LoadInt64(s.sequence)})
 		s.wsMutex.Unlock()
 		if err != nil {
@@ -714,10 +723,10 @@ type voiceChannelJoinOp struct {
 
 // ChannelVoiceJoin joins the session user to a voice channel.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *VoiceConnection, err error) {
 
 	s.log(LogInformational, "called")
@@ -761,10 +770,10 @@ func (s *Session) ChannelVoiceJoin(gID, cID string, mute, deaf bool) (voice *Voi
 //
 // This should only be used when the VoiceServerUpdate will be intercepted and used elsewhere.
 //
-//    gID     : Guild ID of the channel to join.
-//    cID     : Channel ID of the channel to join, leave empty to disconnect.
-//    mute    : If true, you will be set to muted upon joining.
-//    deaf    : If true, you will be set to deafened upon joining.
+//	gID     : Guild ID of the channel to join.
+//	cID     : Channel ID of the channel to join, leave empty to disconnect.
+//	mute    : If true, you will be set to muted upon joining.
+//	deaf    : If true, you will be set to deafened upon joining.
 func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err error) {
 
 	s.log(LogInformational, "called")
@@ -779,6 +788,14 @@ func (s *Session) ChannelVoiceJoinManual(gID, cID string, mute, deaf bool) (err 
 	// Send the request to Discord that we want to join the voice channel
 	data := voiceChannelJoinOp{4, voiceChannelJoinData{&gID, channelID, mute, deaf}}
 	s.wsMutex.Lock()
+	// Same race as onEvent's Op1 heartbeat path (#1702): a concurrent
+	// reconnect can clear s.wsConn while we hold only s.wsMutex, and
+	// a nil receiver into WriteJSON would panic in gorilla/websocket
+	// and crash the caller's process.
+	if s.wsConn == nil {
+		s.wsMutex.Unlock()
+		return ErrWSNotFound
+	}
 	err = s.wsConn.WriteJSON(data)
 	s.wsMutex.Unlock()
 	return
