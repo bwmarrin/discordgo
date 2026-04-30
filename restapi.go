@@ -2454,14 +2454,9 @@ func (s *Session) WebhookDelete(webhookID string, options ...RequestOption) (err
 // WebhookDeleteWithToken deletes a webhook for a given ID with an auth token.
 // webhookID: The ID of a webhook.
 // token    : The auth token for the webhook.
-func (s *Session) WebhookDeleteWithToken(webhookID, token string, options ...RequestOption) (st *Webhook, err error) {
+func (s *Session) WebhookDeleteWithToken(webhookID, token string, options ...RequestOption) (err error) {
 
-	body, err := s.RequestWithBucketID("DELETE", EndpointWebhookToken(webhookID, token), nil, EndpointWebhookToken("", ""), options...)
-	if err != nil {
-		return
-	}
-
-	err = unmarshal(body, &st)
+	_, err = s.RequestWithBucketID("DELETE", EndpointWebhookToken(webhookID, token), nil, EndpointWebhookToken("", ""), options...)
 
 	return
 }
