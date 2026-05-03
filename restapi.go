@@ -882,10 +882,10 @@ func (s *Session) GuildMemberDelete(guildID, userID string, options ...RequestOp
 	return s.GuildMemberDeleteWithReason(guildID, userID, "", options...)
 }
 
-// GuildMemberEditCurrent edits the current user in the context of the given guild.
+// GuildCurrentMemberEdit edits the current user in the context of the given guild.
 // guildID  : The ID of a Guild.
 // data     : Updated GuildCurrentMemberParams data.
-func (s *Session) GuildMemberEditCurrent(guildID string, data *GuildCurrentMemberParams, options ...RequestOption) (st *Member, err error) {
+func (s *Session) GuildCurrentMemberEdit(guildID string, data *GuildCurrentMemberParams, options ...RequestOption) (st *Member, err error) {
 	var body []byte
 	body, err = s.RequestWithBucketID("PATCH", EndpointGuildMember(guildID, "@me"), data, EndpointGuildMember(guildID, ""), options...)
 	if err != nil {

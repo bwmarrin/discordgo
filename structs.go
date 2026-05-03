@@ -2115,7 +2115,7 @@ const (
 // in the context of a specific guild (for server-level customization).
 // https://docs.discord.com/developers/resources/guild#modify-current-member
 type GuildCurrentMemberParams struct {
-	// Value to set user's nickname to.
+	// Value to set user's nickname.
 	Nick string `json:"nick,omitempty"`
 	// Data URI encoded banner image (e.g. "data:image/png;base64,<base64blob>")
 	Banner string `json:"banner,omitempty"`
