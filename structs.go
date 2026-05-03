@@ -2111,6 +2111,20 @@ const (
 	AuditLogActionHomeSettingsUpdate = 191
 )
 
+// CurrentGuildMemberParams stores data needed to update the current member
+// in the context of a specific guild (for server-level customization).
+// https://docs.discord.com/developers/resources/guild#modify-current-member
+type GuildCurrentMemberParams struct {
+	// Value to set user's nickname to.
+	Nick string `json:"nick,omitempty"`
+	// Data URI encoded banner image (e.g. "data:image/png;base64,<base64blob>")
+	Banner string `json:"banner,omitempty"`
+	// Data URI encoded avatar image (e.g. "data:image/png;base64,<base64blob>")
+	Avatar string `json:"avatar,omitempty"`
+	// Value to set user's bio.
+	Bio string `json:"bio,omitempty"`
+}
+
 // GuildMemberParams stores data needed to update a member
 // https://discord.com/developers/docs/resources/guild#modify-guild-member
 type GuildMemberParams struct {
