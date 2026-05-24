@@ -39,6 +39,33 @@ type unmarshalableMessageComponent struct {
 	MessageComponent
 }
 
+// unknownMessageComponent is a fallback for component types Discord ships
+// before the library has explicit support for them. It preserves the raw
+// JSON so callers can identify the type and re-marshal without data loss.
+type unknownMessageComponent struct {
+	ComponentType ComponentType
+	RawData       json.RawMessage
+}
+
+// Type is a method to get the type of a component.
+func (c unknownMessageComponent) Type() ComponentType {
+	return c.ComponentType
+}
+
+// MarshalJSON returns the original JSON bytes if available, otherwise a
+// minimal object containing only the component type.
+func (c unknownMessageComponent) MarshalJSON() ([]byte, error) {
+	if c.RawData != nil {
+		return c.RawData, nil
+	}
+
+	return json.Marshal(struct {
+		Type ComponentType `json:"type"`
+	}{
+		Type: c.Type(),
+	})
+}
+
 // UnmarshalJSON is a helper function to unmarshal MessageComponent object.
 func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	var v struct {
@@ -78,7 +105,11 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 	case FileUploadComponent:
 		umc.MessageComponent = &FileUpload{}
 	default:
-		return fmt.Errorf("unknown component type: %d", v.Type)
+		umc.MessageComponent = &unknownMessageComponent{
+			ComponentType: v.Type,
+			RawData:       append(json.RawMessage(nil), src...),
+		}
+		return nil
 	}
 	return json.Unmarshal(src, umc.MessageComponent)
 }
