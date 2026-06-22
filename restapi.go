@@ -777,6 +777,32 @@ func (s *Session) GuildBanCreateWithReason(guildID, userID, reason string, days 
 	return
 }
 
+
+// GuildBanCreateWithReasonDeleteDuration bans the given user from the given guild also providing a reason.
+// guildID   : The ID of a Guild.
+// userID    : The ID of a User
+// reason    : The reason for this ban
+// maxAge    : The max age in seconds of previous user messages to delete.
+func (s *Session) GuildBanCreateWithReasonDeleteDuration(guildID, userID, reason string, maxAge time.Duration, options ...RequestOption) (err error) {
+
+	uri := EndpointGuildBan(guildID, userID)
+
+	queryParams := url.Values{}
+	if maxAge > 0 {
+		queryParams.Set("delete_message_seconds", strconv.Itoa(int(maxAge.Seconds())))
+	}
+	if reason != "" {
+		queryParams.Set("reason", reason)
+	}
+
+	if len(queryParams) > 0 {
+		uri += "?" + queryParams.Encode()
+	}
+
+	_, err = s.RequestWithBucketID("PUT", uri, nil, EndpointGuildBan(guildID, ""), options...)
+	return
+}
+
 // GuildBanDelete removes the given user from the guild bans
 // guildID   : The ID of a Guild.
 // userID    : The ID of a User
