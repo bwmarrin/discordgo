@@ -294,6 +294,7 @@ type Invite struct {
 	TargetUser        *User            `json:"target_user"`
 	TargetType        InviteTargetType `json:"target_type"`
 	TargetApplication *Application     `json:"target_application"`
+	RoleIDs           []string         `json:"role_ids,omitempty"`
 
 	// will only be filled when using InviteWithCounts
 	ApproximatePresenceCount int `json:"approximate_presence_count"`
