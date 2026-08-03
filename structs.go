@@ -1010,7 +1010,86 @@ type GuildScheduledEvent struct {
 	// see https://discord.com/developers/docs/reference#image-formatting for more
 	// information about image formatting
 	Image string `json:"image"`
+	// The recurrence rule for a repeating scheduled event
+	RecurrenceRule *GuildScheduledEventRecurrenceRule `json:"recurrence_rule"`
 }
+
+// GuildScheduledEventRecurrenceRule defines how a scheduled event repeats.
+// https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-recurrence-rule-object
+type GuildScheduledEventRecurrenceRule struct {
+	// The starting time of the recurrence interval
+	Start time.Time `json:"start"`
+	// The ending time of the recurrence interval.
+	// Read-only: cannot be set when creating or updating an event.
+	End *time.Time `json:"end,omitempty"`
+	// How often the event occurs
+	Frequency GuildScheduledEventRecurrenceRuleFrequency `json:"frequency"`
+	// The spacing between events as defined by Frequency
+	Interval int `json:"interval"`
+	// Specific days of the week the event recurs on
+	ByWeekday []GuildScheduledEventRecurrenceRuleWeekday `json:"by_weekday,omitempty"`
+	// Specific days within a specific week (1-5) the event recurs on
+	ByNWeekday []GuildScheduledEventRecurrenceRuleNWeekday `json:"by_n_weekday,omitempty"`
+	// Specific months the event recurs on
+	ByMonth []GuildScheduledEventRecurrenceRuleMonth `json:"by_month,omitempty"`
+	// Specific dates within a month the event recurs on
+	ByMonthDay []int `json:"by_month_day,omitempty"`
+	// Specific days within a year the event recurs on (1-364).
+	// Read-only: cannot be set when creating or updating an event.
+	ByYearDay []int `json:"by_year_day,omitempty"`
+	// Total number of times the event may recur before stopping.
+	// Read-only: cannot be set when creating or updating an event.
+	Count *int `json:"count,omitempty"`
+}
+
+// GuildScheduledEventRecurrenceRuleFrequency is how often a scheduled event recurs.
+type GuildScheduledEventRecurrenceRuleFrequency int
+
+const (
+	GuildScheduledEventRecurrenceRuleFrequencyYearly  GuildScheduledEventRecurrenceRuleFrequency = 0
+	GuildScheduledEventRecurrenceRuleFrequencyMonthly GuildScheduledEventRecurrenceRuleFrequency = 1
+	GuildScheduledEventRecurrenceRuleFrequencyWeekly  GuildScheduledEventRecurrenceRuleFrequency = 2
+	GuildScheduledEventRecurrenceRuleFrequencyDaily   GuildScheduledEventRecurrenceRuleFrequency = 3
+)
+
+// GuildScheduledEventRecurrenceRuleWeekday is a day of the week for a recurrence rule.
+type GuildScheduledEventRecurrenceRuleWeekday int
+
+const (
+	GuildScheduledEventRecurrenceRuleWeekdayMonday    GuildScheduledEventRecurrenceRuleWeekday = 0
+	GuildScheduledEventRecurrenceRuleWeekdayTuesday   GuildScheduledEventRecurrenceRuleWeekday = 1
+	GuildScheduledEventRecurrenceRuleWeekdayWednesday GuildScheduledEventRecurrenceRuleWeekday = 2
+	GuildScheduledEventRecurrenceRuleWeekdayThursday  GuildScheduledEventRecurrenceRuleWeekday = 3
+	GuildScheduledEventRecurrenceRuleWeekdayFriday    GuildScheduledEventRecurrenceRuleWeekday = 4
+	GuildScheduledEventRecurrenceRuleWeekdaySaturday  GuildScheduledEventRecurrenceRuleWeekday = 5
+	GuildScheduledEventRecurrenceRuleWeekdaySunday    GuildScheduledEventRecurrenceRuleWeekday = 6
+)
+
+// GuildScheduledEventRecurrenceRuleNWeekday represents a specific weekday within a specific week of the month.
+type GuildScheduledEventRecurrenceRuleNWeekday struct {
+	// The week number within the month (1-5)
+	N int `json:"n"`
+	// The day of the week
+	Day GuildScheduledEventRecurrenceRuleWeekday `json:"day"`
+}
+
+// GuildScheduledEventRecurrenceRuleMonth is a month for a recurrence rule.
+type GuildScheduledEventRecurrenceRuleMonth int
+
+const (
+	GuildScheduledEventRecurrenceRuleMonthJanuary   GuildScheduledEventRecurrenceRuleMonth = 1
+	GuildScheduledEventRecurrenceRuleMonthFebruary  GuildScheduledEventRecurrenceRuleMonth = 2
+	GuildScheduledEventRecurrenceRuleMonthMarch     GuildScheduledEventRecurrenceRuleMonth = 3
+	GuildScheduledEventRecurrenceRuleMonthApril     GuildScheduledEventRecurrenceRuleMonth = 4
+	GuildScheduledEventRecurrenceRuleMonthMay       GuildScheduledEventRecurrenceRuleMonth = 5
+	GuildScheduledEventRecurrenceRuleMonthJune      GuildScheduledEventRecurrenceRuleMonth = 6
+	GuildScheduledEventRecurrenceRuleMonthJuly      GuildScheduledEventRecurrenceRuleMonth = 7
+	GuildScheduledEventRecurrenceRuleMonthAugust    GuildScheduledEventRecurrenceRuleMonth = 8
+	GuildScheduledEventRecurrenceRuleMonthSeptember GuildScheduledEventRecurrenceRuleMonth = 9
+	GuildScheduledEventRecurrenceRuleMonthOctober   GuildScheduledEventRecurrenceRuleMonth = 10
+	GuildScheduledEventRecurrenceRuleMonthNovember  GuildScheduledEventRecurrenceRuleMonth = 11
+	GuildScheduledEventRecurrenceRuleMonthDecember  GuildScheduledEventRecurrenceRuleMonth = 12
+)
 
 // GuildScheduledEventParams are the parameters allowed for creating or updating a scheduled event
 // https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event
@@ -1039,6 +1118,8 @@ type GuildScheduledEventParams struct {
 	// see https://discord.com/developers/docs/reference#image-formatting for more
 	// information about image formatting
 	Image string `json:"image,omitempty"`
+	// The recurrence rule for a repeating scheduled event
+	RecurrenceRule *GuildScheduledEventRecurrenceRule `json:"recurrence_rule,omitempty"`
 }
 
 // MarshalJSON is a helper function to marshal GuildScheduledEventParams
