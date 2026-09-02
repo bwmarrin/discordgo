@@ -164,24 +164,16 @@ func (b *Bucket) Release(headers http.Header) error {
 			b.reset = resetAt
 		}
 	} else if reset != "" {
-		// Calculate the reset time by using the date header returned from discord
-		discordTime, err := http.ParseTime(headers.Get("Date"))
-		if err != nil {
-			return err
-		}
-
+		// X-RateLimit-Reset is seconds since Unix epoch (UTC), including a
+		// fractional part. Use it as an absolute time rather than an offset
+		// from the Date header, which is easily skewed by clock differences.
 		unix, err := strconv.ParseFloat(reset, 64)
 		if err != nil {
 			return err
 		}
 
-		// Calculate the time until reset and add it to the current local time
-		// some extra time is added because without it i still encountered 429's.
-		// The added amount is the lowest amount that gave no 429's
-		// in 1k requests
 		whole, frac := math.Modf(unix)
-		delta := time.Unix(int64(whole), 0).Add(time.Duration(frac*1000)*time.Millisecond).Sub(discordTime) + time.Millisecond*250
-		b.reset = time.Now().Add(delta)
+		b.reset = time.Unix(int64(whole), int64(frac*1e9))
 	}
 
 	// Udpate remaining if header is present
