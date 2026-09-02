@@ -46,6 +46,27 @@ func TestRatelimitReset(t *testing.T) {
 	}
 }
 
+func TestRatelimitResetUsesUnixEpoch(t *testing.T) {
+	rl := NewRatelimiter()
+	bucket := rl.LockBucket("/guilds/99/channels")
+
+	resetAt := time.Now().Add(2 * time.Second)
+	headers := http.Header{}
+	headers.Set("X-RateLimit-Remaining", "10")
+	headers.Set("X-RateLimit-Reset", fmt.Sprint(float64(resetAt.UnixNano())/1e9))
+	// A Date header an hour in the past used to inflate the wait to ~1h.
+	headers.Set("Date", time.Now().Add(-time.Hour).Format(http.TimeFormat))
+
+	if err := bucket.Release(headers); err != nil {
+		t.Fatalf("Release returned error: %v", err)
+	}
+
+	delta := bucket.reset.Sub(resetAt)
+	if delta < -time.Second || delta > time.Second {
+		t.Fatalf("reset %v is %v from expected %v", bucket.reset, delta, resetAt)
+	}
+}
+
 // This test takes ~1 seconds to run
 func TestRatelimitGlobal(t *testing.T) {
 	rl := NewRatelimiter()
