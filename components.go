@@ -640,11 +640,12 @@ func (l Label) MarshalJSON() ([]byte, error) {
 // FileUploads are available on modals. They must be placed inside a Label.
 type FileUpload struct {
 	// Unique identifier for the component; auto populated through increment if not provided.
-	ID        int    `json:"id,omitempty"`
-	CustomID  string `json:"custom_id,omitempty"`
-	MinValues *int   `json:"min_values,omitempty"`
-	MaxValues int    `json:"max_values,omitempty"`
-	Required  *bool  `json:"required,omitempty"`
+	ID        int      `json:"id,omitempty"`
+	CustomID  string   `json:"custom_id,omitempty"`
+	MinValues *int     `json:"min_values,omitempty"`
+	MaxValues int      `json:"max_values,omitempty"`
+	Required  *bool    `json:"required,omitempty"`
+	FileTypes []string `json:"file_types,omitempty"`
 
 	// List of values that is only populated when receiving an interaction response; do not fill this manually.
 	Values []string `json:"values,omitempty"`
