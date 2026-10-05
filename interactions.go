@@ -385,7 +385,7 @@ type MessageComponentInteractionData struct {
 	ComponentType ComponentType                    `json:"component_type"`
 	Resolved      ComponentInteractionDataResolved `json:"resolved"`
 
-	// NOTE: Only filled when ComponentType is SelectMenuComponent (3). Otherwise is nil.
+	// NOTE: Only filled when ComponentType is a select menu (string, user, role, channel or mentionable select). Otherwise is nil.
 	Values []string `json:"values"`
 }
 
@@ -413,6 +413,74 @@ type ModalSubmitInteractionData struct {
 // Type returns the type of interaction data.
 func (ModalSubmitInteractionData) Type() InteractionType {
 	return InteractionModalSubmit
+}
+
+// GetSelectMenu finds and returns a SelectMenu component by its custom ID,
+// looking inside ActionsRow and Label wrappers.
+func (d ModalSubmitInteractionData) GetSelectMenu(customID string) (menu *SelectMenu) {
+	for _, comp := range d.Components {
+		switch c := comp.(type) {
+		case *ActionsRow:
+			for _, inner := range c.Components {
+				if sel, ok := inner.(*SelectMenu); ok && sel.CustomID == customID {
+					return sel
+				}
+			}
+		case ActionsRow:
+			for _, inner := range c.Components {
+				if sel, ok := inner.(*SelectMenu); ok && sel.CustomID == customID {
+					return sel
+				}
+			}
+		case *Label:
+			if sel, ok := c.Component.(*SelectMenu); ok && sel.CustomID == customID {
+				return sel
+			}
+		case Label:
+			if sel, ok := c.Component.(*SelectMenu); ok && sel.CustomID == customID {
+				return sel
+			}
+		case *SelectMenu:
+			if c.CustomID == customID {
+				return c
+			}
+		}
+	}
+	return
+}
+
+// GetTextInput finds and returns a TextInput component by its custom ID,
+// looking inside ActionsRow and Label wrappers.
+func (d ModalSubmitInteractionData) GetTextInput(customID string) (input *TextInput) {
+	for _, comp := range d.Components {
+		switch c := comp.(type) {
+		case *ActionsRow:
+			for _, inner := range c.Components {
+				if ti, ok := inner.(*TextInput); ok && ti.CustomID == customID {
+					return ti
+				}
+			}
+		case ActionsRow:
+			for _, inner := range c.Components {
+				if ti, ok := inner.(*TextInput); ok && ti.CustomID == customID {
+					return ti
+				}
+			}
+		case *Label:
+			if ti, ok := c.Component.(*TextInput); ok && ti.CustomID == customID {
+				return ti
+			}
+		case Label:
+			if ti, ok := c.Component.(*TextInput); ok && ti.CustomID == customID {
+				return ti
+			}
+		case *TextInput:
+			if c.CustomID == customID {
+				return c
+			}
+		}
+	}
+	return
 }
 
 // UnmarshalJSON is a helper function to correctly unmarshal Components.
