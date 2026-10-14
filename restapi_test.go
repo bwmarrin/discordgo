@@ -3,7 +3,9 @@ package discordgo
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -274,4 +276,41 @@ type roundTripperFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
+}
+
+func TestGuildMembers_GuildID(t *testing.T) {
+	session, err := New("")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testGuildID := "123456789012345678"
+	membersJSON := `[{"user": {"id": "111"}, "roles": []}, {"user": {"id": "222"}, "roles": []}]`
+
+	session.Client.Transport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		if r.URL.Path != EndpointGuildMembers(testGuildID) {
+			t.Errorf("unexpected request path: %q", r.URL.Path)
+		}
+		res := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(strings.NewReader(membersJSON)),
+			Header:     make(http.Header),
+		}
+		return res, nil
+	})
+
+	members, err := session.GuildMembers(testGuildID, "", 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(members) != 2 {
+		t.Fatalf("expected 2 members, got %d", len(members))
+	}
+
+	for _, m := range members {
+		if m.GuildID != testGuildID {
+			t.Errorf("expected member GuildID to be %q, got %q", testGuildID, m.GuildID)
+		}
+	}
 }
