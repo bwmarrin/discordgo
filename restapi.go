@@ -189,25 +189,30 @@ func (s *Session) RequestRaw(method, urlStr, contentType string, b []byte, bucke
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	bucket, err := s.Ratelimiter.LockBucketContext(s.requestContext(options), bucketID)
+	// The request is built first, so that the waits for the bucket stop when its context is done
+	cfg, err := s.newRequestConfigFor(method, urlStr, contentType, b, options)
 	if err != nil {
 		return
 	}
-	return s.RequestWithLockedBucket(method, urlStr, contentType, b, bucket, sequence, options...)
-}
-
-// requestContext returns the context the options give a request, so that the
-// waits for a rate limit before the request is made stop when it is done.
-func (s *Session) requestContext(options []RequestOption) context.Context {
-	cfg := newRequestConfig(s, (&http.Request{Header: http.Header{}}).WithContext(context.Background()))
-	for _, opt := range options {
-		opt(cfg)
+	bucket, err := s.Ratelimiter.LockBucketContext(cfg.Request.Context(), bucketID)
+	if err != nil {
+		return
 	}
-	return cfg.Request.Context()
+	return s.requestWithConfig(cfg, method, urlStr, contentType, b, bucket, sequence, options...)
 }
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked
 func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, options ...RequestOption) (response []byte, err error) {
+	cfg, err := s.newRequestConfigFor(method, urlStr, contentType, b, options)
+	if err != nil {
+		bucket.Release(nil)
+		return
+	}
+	return s.requestWithConfig(cfg, method, urlStr, contentType, b, bucket, sequence, options...)
+}
+
+// newRequestConfigFor builds the request and applies the options to it.
+func (s *Session) newRequestConfigFor(method, urlStr, contentType string, b []byte, options []RequestOption) (*RequestConfig, error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -215,8 +220,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
 	if err != nil {
-		bucket.Release(nil)
-		return
+		return nil, err
 	}
 
 	// Not used on initial login..
@@ -238,7 +242,13 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	for _, opt := range options {
 		opt(cfg)
 	}
-	req = cfg.Request
+	return cfg, nil
+}
+
+// requestWithConfig sends the request cfg holds, using a bucket that's already been locked. The options are
+// those cfg was built with, for a retry.
+func (s *Session) requestWithConfig(cfg *RequestConfig, method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, options ...RequestOption) (response []byte, err error) {
+	req := cfg.Request
 
 	if s.Debug {
 		for k, v := range req.Header {

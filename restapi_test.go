@@ -306,3 +306,33 @@ func TestRateLimitRetryStopsWithContext(t *testing.T) {
 		t.Errorf("waited %v for a context of 100ms", took)
 	}
 }
+
+// Request options run once per request, on the request that is sent.
+func TestRequestOptionsRunOnceOnTheRequest(t *testing.T) {
+	session, err := New("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	session.Client.Transport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     http.Header{"Content-Type": []string{"application/json"}},
+			Body:       ioutil.NopCloser(strings.NewReader(`{"id":"1"}`)),
+			Request:    r,
+		}, nil
+	})
+
+	runs := 0
+	option := func(cfg *RequestConfig) {
+		runs++
+		if cfg.Request.URL == nil || cfg.Request.URL.Path == "" {
+			t.Errorf("the option ran on a request without its URL: %v", cfg.Request.URL)
+		}
+	}
+	if _, err := session.User("1", option); err != nil {
+		t.Fatal(err)
+	}
+	if runs != 1 {
+		t.Errorf("the option ran %d times, want 1", runs)
+	}
+}

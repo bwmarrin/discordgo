@@ -103,10 +103,13 @@ func (r *RateLimiter) LockBucketContext(ctx context.Context, bucketID string) (*
 	return r.LockBucketObjectContext(ctx, r.GetBucket(bucketID))
 }
 
-// LockBucketObjectContext is LockBucketObject, but stops waiting for the rate limit when ctx is done.
-// It then returns ctx.Err() with the bucket unlocked and none of its remaining requests taken.
+// LockBucketObjectContext is LockBucketObject, but stops waiting when ctx is done: for the bucket while another
+// request holds it, and for the rate limit. It then returns ctx.Err() with the bucket unlocked and none of its
+// remaining requests taken.
 func (r *RateLimiter) LockBucketObjectContext(ctx context.Context, b *Bucket) (*Bucket, error) {
-	b.Lock()
+	if err := lockContext(ctx, b); err != nil {
+		return nil, err
+	}
 
 	if wait := r.GetWaitTime(b, 1); wait > 0 {
 		if err := sleepContext(ctx, wait); err != nil {
@@ -114,9 +117,40 @@ func (r *RateLimiter) LockBucketObjectContext(ctx context.Context, b *Bucket) (*
 			return nil, err
 		}
 	}
+	// A context that ended without a wait to notice it takes no request either
+	if err := ctx.Err(); err != nil {
+		b.Unlock()
+		return nil, err
+	}
 
 	b.Remaining--
 	return b, nil
+}
+
+// lockContext locks b, or returns ctx.Err() without it if ctx is done first. A context that can never be done
+// locks b directly; any other waits in a goroutine, which, if ctx gives up first, unlocks b as soon as it has it.
+func lockContext(ctx context.Context, b *Bucket) error {
+	if ctx.Done() == nil {
+		b.Lock()
+		return nil
+	}
+
+	locked := make(chan struct{})
+	go func() {
+		b.Lock()
+		close(locked)
+	}()
+
+	select {
+	case <-locked:
+		return nil
+	case <-ctx.Done():
+		go func() {
+			<-locked
+			b.Unlock()
+		}()
+		return ctx.Err()
+	}
 }
 
 // sleepContext waits for d, or until ctx is done, whichever comes first. It returns ctx.Err() if ctx ended the wait.
