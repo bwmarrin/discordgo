@@ -1,6 +1,8 @@
 package discordgo
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -110,4 +112,87 @@ func sendBenchReq(endpoint string, rl *RateLimiter) {
 	headers.Set("Date", time.Now().Format(time.RFC850))
 
 	bucket.Release(headers)
+}
+
+// A bucket wait stops when the context is done, and leaves the bucket unlocked and its requests untaken.
+func TestLockBucketContextStopsWaiting(t *testing.T) {
+	rl := NewRatelimiter()
+	b := rl.GetBucket("/guilds/99/members")
+	b.Remaining = 0
+	b.reset = time.Now().Add(time.Hour)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	if _, err := rl.LockBucketObjectContext(ctx, b); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("got error %v, want %v", err, context.DeadlineExceeded)
+	}
+	if took := time.Since(start); took > time.Second {
+		t.Errorf("waited %v for a context of 50ms", took)
+	}
+	if b.Remaining != 0 {
+		t.Errorf("a request was taken from the bucket: remaining %d", b.Remaining)
+	}
+
+	locked := make(chan struct{})
+	go func() {
+		b.Lock()
+		close(locked)
+		b.Unlock()
+	}()
+	select {
+	case <-locked:
+	case <-time.After(time.Second):
+		t.Fatal("the bucket was left locked")
+	}
+}
+
+// Waiting for a bucket another request holds stops when the context is done; the bucket is free again once
+// that request lets go, with none of its requests taken.
+func TestLockBucketContextStopsWaitingForTheLock(t *testing.T) {
+	rl := NewRatelimiter()
+	b := rl.GetBucket("/guilds/99/members")
+	b.Remaining = 5
+	b.Lock() // another request holds it
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	if _, err := rl.LockBucketObjectContext(ctx, b); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("got error %v, want %v", err, context.DeadlineExceeded)
+	}
+	if took := time.Since(start); took > time.Second {
+		t.Errorf("waited %v for a context of 50ms", took)
+	}
+
+	b.Unlock()
+	got, err := rl.LockBucketObjectContext(context.Background(), b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Remaining != 4 {
+		t.Errorf("remaining %d after one request, want 4", got.Remaining)
+	}
+	got.Unlock()
+}
+
+// A context already done takes no request from a bucket that has some left.
+func TestLockBucketContextDoneTakesNoRequest(t *testing.T) {
+	rl := NewRatelimiter()
+	b := rl.GetBucket("/guilds/99/members")
+	b.Remaining = 5
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	if _, err := rl.LockBucketObjectContext(ctx, b); !errors.Is(err, context.Canceled) {
+		t.Fatalf("got error %v, want %v", err, context.Canceled)
+	}
+	if b.Remaining != 5 {
+		t.Errorf("remaining %d, want 5", b.Remaining)
+	}
+	b.Lock() // not left locked
+	b.Unlock()
 }

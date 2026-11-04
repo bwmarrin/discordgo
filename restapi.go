@@ -189,11 +189,30 @@ func (s *Session) RequestRaw(method, urlStr, contentType string, b []byte, bucke
 	if bucketID == "" {
 		bucketID = strings.SplitN(urlStr, "?", 2)[0]
 	}
-	return s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucket(bucketID), sequence, options...)
+	// The request is built first, so that the waits for the bucket stop when its context is done
+	cfg, err := s.newRequestConfigFor(method, urlStr, contentType, b, options)
+	if err != nil {
+		return
+	}
+	bucket, err := s.Ratelimiter.LockBucketContext(cfg.Request.Context(), bucketID)
+	if err != nil {
+		return
+	}
+	return s.requestWithConfig(cfg, method, urlStr, contentType, b, bucket, sequence, options...)
 }
 
 // RequestWithLockedBucket makes a request using a bucket that's already been locked
 func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, options ...RequestOption) (response []byte, err error) {
+	cfg, err := s.newRequestConfigFor(method, urlStr, contentType, b, options)
+	if err != nil {
+		bucket.Release(nil)
+		return
+	}
+	return s.requestWithConfig(cfg, method, urlStr, contentType, b, bucket, sequence, options...)
+}
+
+// newRequestConfigFor builds the request and applies the options to it.
+func (s *Session) newRequestConfigFor(method, urlStr, contentType string, b []byte, options []RequestOption) (*RequestConfig, error) {
 	if s.Debug {
 		log.Printf("API REQUEST %8s :: %s\n", method, urlStr)
 		log.Printf("API REQUEST  PAYLOAD :: [%s]\n", string(b))
@@ -201,8 +220,7 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 
 	req, err := http.NewRequest(method, urlStr, bytes.NewBuffer(b))
 	if err != nil {
-		bucket.Release(nil)
-		return
+		return nil, err
 	}
 
 	// Not used on initial login..
@@ -224,7 +242,13 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 	for _, opt := range options {
 		opt(cfg)
 	}
-	req = cfg.Request
+	return cfg, nil
+}
+
+// requestWithConfig sends the request cfg holds, using a bucket that's already been locked. The options are
+// those cfg was built with, for a retry.
+func (s *Session) requestWithConfig(cfg *RequestConfig, method, urlStr, contentType string, b []byte, bucket *Bucket, sequence int, options ...RequestOption) (response []byte, err error) {
+	req := cfg.Request
 
 	if s.Debug {
 		for k, v := range req.Header {
@@ -278,7 +302,12 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 		if sequence < cfg.MaxRestRetries {
 
 			s.log(LogInformational, "%s Failed (%s), Retrying...", urlStr, resp.Status)
-			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence+1, options...)
+			var retryBucket *Bucket
+			retryBucket, err = s.Ratelimiter.LockBucketObjectContext(req.Context(), bucket)
+			if err != nil {
+				return
+			}
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, retryBucket, sequence+1, options...)
 		} else {
 			err = fmt.Errorf("Exceeded Max retries HTTP %s, %s", resp.Status, response)
 		}
@@ -294,11 +323,19 @@ func (s *Session) RequestWithLockedBucket(method, urlStr, contentType string, b 
 			s.log(LogInformational, "Rate Limiting %s, retry in %v", urlStr, rl.RetryAfter)
 			s.handleEvent(rateLimitEventType, &RateLimit{TooManyRequests: &rl, URL: urlStr})
 
-			time.Sleep(rl.RetryAfter)
+			err = sleepContext(req.Context(), rl.RetryAfter)
+			if err != nil {
+				return
+			}
 			// we can make the above smarter
 			// this method can cause longer delays than required
 
-			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, s.Ratelimiter.LockBucketObject(bucket), sequence, options...)
+			var retryBucket *Bucket
+			retryBucket, err = s.Ratelimiter.LockBucketObjectContext(req.Context(), bucket)
+			if err != nil {
+				return
+			}
+			response, err = s.RequestWithLockedBucket(method, urlStr, contentType, b, retryBucket, sequence, options...)
 		} else {
 			err = &RateLimitError{&RateLimit{TooManyRequests: &rl, URL: urlStr}}
 		}
