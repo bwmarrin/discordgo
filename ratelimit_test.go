@@ -1,6 +1,8 @@
 package discordgo
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -110,4 +112,38 @@ func sendBenchReq(endpoint string, rl *RateLimiter) {
 	headers.Set("Date", time.Now().Format(time.RFC850))
 
 	bucket.Release(headers)
+}
+
+// A bucket wait stops when the context is done, and leaves the bucket unlocked and its requests untaken.
+func TestLockBucketContextStopsWaiting(t *testing.T) {
+	rl := NewRatelimiter()
+	b := rl.GetBucket("/guilds/99/members")
+	b.Remaining = 0
+	b.reset = time.Now().Add(time.Hour)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	if _, err := rl.LockBucketObjectContext(ctx, b); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("got error %v, want %v", err, context.DeadlineExceeded)
+	}
+	if took := time.Since(start); took > time.Second {
+		t.Errorf("waited %v for a context of 50ms", took)
+	}
+	if b.Remaining != 0 {
+		t.Errorf("a request was taken from the bucket: remaining %d", b.Remaining)
+	}
+
+	locked := make(chan struct{})
+	go func() {
+		b.Lock()
+		close(locked)
+		b.Unlock()
+	}()
+	select {
+	case <-locked:
+	case <-time.After(time.Second):
+		t.Fatal("the bucket was left locked")
+	}
 }

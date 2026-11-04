@@ -3,8 +3,11 @@ package discordgo
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
+	"time"
 )
 
 //////////////////////////////////////////////////////////////////////////////
@@ -274,4 +277,32 @@ type roundTripperFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req)
+}
+
+// A 429 is not waited out past the request's context.
+func TestRateLimitRetryStopsWithContext(t *testing.T) {
+	session, err := New("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	session.Client.Transport = roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusTooManyRequests,
+			Header:     http.Header{"Content-Type": []string{"application/json"}},
+			Body:       ioutil.NopCloser(strings.NewReader(`{"message":"You are being rate limited.","retry_after":5,"global":false}`)),
+			Request:    r,
+		}, nil
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	start := time.Now()
+	_, err = session.User("1", WithContext(ctx))
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("got error %v, want %v", err, context.DeadlineExceeded)
+	}
+	if took := time.Since(start); took > time.Second {
+		t.Errorf("waited %v for a context of 100ms", took)
+	}
 }

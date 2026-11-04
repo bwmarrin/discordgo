@@ -1,6 +1,7 @@
 package discordgo
 
 import (
+	"context"
 	"math"
 	"net/http"
 	"strconv"
@@ -93,14 +94,42 @@ func (r *RateLimiter) LockBucket(bucketID string) *Bucket {
 
 // LockBucketObject Locks an already resolved bucket until a request can be made
 func (r *RateLimiter) LockBucketObject(b *Bucket) *Bucket {
+	b, _ = r.LockBucketObjectContext(context.Background(), b)
+	return b
+}
+
+// LockBucketContext is LockBucket, but stops waiting for the rate limit when ctx is done.
+func (r *RateLimiter) LockBucketContext(ctx context.Context, bucketID string) (*Bucket, error) {
+	return r.LockBucketObjectContext(ctx, r.GetBucket(bucketID))
+}
+
+// LockBucketObjectContext is LockBucketObject, but stops waiting for the rate limit when ctx is done.
+// It then returns ctx.Err() with the bucket unlocked and none of its remaining requests taken.
+func (r *RateLimiter) LockBucketObjectContext(ctx context.Context, b *Bucket) (*Bucket, error) {
 	b.Lock()
 
 	if wait := r.GetWaitTime(b, 1); wait > 0 {
-		time.Sleep(wait)
+		if err := sleepContext(ctx, wait); err != nil {
+			b.Unlock()
+			return nil, err
+		}
 	}
 
 	b.Remaining--
-	return b
+	return b, nil
+}
+
+// sleepContext waits for d, or until ctx is done, whichever comes first. It returns ctx.Err() if ctx ended the wait.
+func sleepContext(ctx context.Context, d time.Duration) error {
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 // Bucket represents a ratelimit bucket, each bucket gets ratelimited individually (-global ratelimits)
